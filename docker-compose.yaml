@@ -1,0 +1,21 @@
+# docker-compose.yml
+version: "2"
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongodb_depo
+    ports:
+        - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  app:
+    build: .
+    container_name: wsvc-depo-mongod
+    ports:
+      - "3000:3000"
+    command: npm start
+
