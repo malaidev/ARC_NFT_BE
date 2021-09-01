@@ -10,5 +10,5 @@ export const user = async (router: any, options: any) => {
   router.get('/:walletId', getOne);
   router.post('/auth', findOrCreateUser);
   router.post('/', create);
-  router.put('/', update);
+  router.put('/:walletId', update);
 }

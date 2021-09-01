@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { DepoAuthController } from "../../controller/DepoAuthController";
+import { DepoUserController } from "../../controller/DepoUserController";
 import { IUser } from "../../interfaces/IUser";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
@@ -10,7 +10,7 @@ import { respond } from "../../util/respond";
  */
 export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
-  const ctl = new DepoAuthController();
+  const ctl = new DepoUserController();
   const result = await ctl.findUser(walletId);
   if (result) {
     res.send(result);
@@ -39,7 +39,7 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
       },
       wallets: [{ address: walletId }]
     }
-    const ctl = new DepoAuthController(user)
+    const ctl = new DepoUserController(user)
     // Tries to find an user which has the given wallet
     const hasUser = await ctl.findUser(walletId);
     if (hasUser) {
@@ -66,10 +66,10 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
 export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const user: IUser = req.body;
   const { walletId } = req.params as any;
-  const ctl = new DepoAuthController(user);
+  const ctl = new DepoUserController(user);
   const result = await ctl.update(walletId);
   if (!result) {
-    res.send(204);
+    res.code(204).send();
   } else {
     res.code(result.code).send(result);
   }
@@ -84,7 +84,7 @@ export const getAll = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split('?')[1];
 
   const filters = parseQueryUrl(query);
-  const ctl = new DepoAuthController();
+  const ctl = new DepoUserController();
   const result = await ctl.findAllUsers(filters);
   res.send(result);
 }
@@ -96,7 +96,7 @@ export const getAll = async (req: FastifyRequest, res: FastifyReply) => {
  */
 export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const body = req.body as IUser;
-  const ctl = new DepoAuthController(body);
+  const ctl = new DepoUserController(body);
 
   const result = ctl.create();
   res.send(result);

@@ -23,7 +23,7 @@ import { IResponse } from "../interfaces/IResponse";
  * if(await uc.login().success) {...}
  * 
  */
-export class DepoAuthController {
+export class DepoUserController {
   private data: IUser;
   private table = "Users" as string;
   private mongodb = null as MongoDBService;
@@ -181,10 +181,10 @@ export class DepoAuthController {
       const dbm = await this.mongodb.connect();
       if (dbm) {
         const collection = dbm.collection(this.table);
-        const hasUser = this.findUser(walletId);
+        const hasUser = await this.findUser(walletId);
         if (hasUser) {
           const filter = this.findUserQuery(walletId);
-          const updateDoc = this.moundUpdateUserDocument();
+          const updateDoc = this.moundUpdateUserDocument(hasUser);
           await collection.updateOne(filter, updateDoc);
           return;
         } else {
@@ -266,11 +266,22 @@ export class DepoAuthController {
    * Mount a mongodb compatible update document
    * @returns 
    */
-  private moundUpdateUserDocument(): Object {
+  private moundUpdateUserDocument(user: IUser): Object {
     const updateDoc = { $set: {} };
+
+    if (this.data.wallets) {
+      this.data.wallets.forEach((wallet) => {
+        if (!user.wallets.find((item) => item.address === wallet.address)) {
+          user.wallets.push(wallet);
+        }
+      });
+      this.data.wallets = user.wallets;
+    }
+
     for (let item in this.data) {
       updateDoc.$set[item] = this.data[item];
     }
+
     return updateDoc;
   }
 
