@@ -4,8 +4,9 @@
 
 ## Starting
 
-1. `npm install`
-2. `npm start`
+1. `cp .env-example .env` and fill necessary params
+2. `npm install`
+3. `npm start`
 
 ## Development
 
@@ -24,3 +25,15 @@ a controller method.
 
 > Avoid using static methods and keep the single responsibility standard up to date.
 > Use interfaces to better organize entities and control the data flow.
+
+## Deploy
+
+Deploy this application using `docker-compose up -d`.
+This application uses a MongoDB container to support the platform.
+
+You can use docker's mongodb container name as `mongodb.host` in environment file.
+
+> Before deploying, change `docker-compose.yml` with a secure username and password to mongodb
+> and add it to the `.env` file.
+
+> Verify `docker-compose`'s ports to avoid conflicts.
