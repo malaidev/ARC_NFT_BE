@@ -1,9 +1,10 @@
 import { MongoDBService } from "../services/MongoDB";
-import { Collection, FindOneOptions } from "mongodb";
-import { IFiltering, IQueryFilters } from "../interfaces/Query";
+import { Collection } from "mongodb";
+import { IQueryFilters } from "../interfaces/Query";
 import { IUser } from "../interfaces/IUser";
 import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
+
 /**
  * This is the model controller class.
  * Do all the model's functions such as
@@ -35,6 +36,7 @@ export class DepoUserController {
 
   /**
    * Saves the item or array of items into de database
+   * using MongoDB drivers
    * @returns 
    */
   async create(): Promise<any | IResponse> {
@@ -67,9 +69,6 @@ export class DepoUserController {
         }
       } catch (error) {
         return respond(error.message, true, 500);
-      } finally {
-        // When done, colses database connection.
-        this.mongodb.disconnect();
       }
     } else {
       return respond("Can't create an instance of item without item data.", true, 400);
@@ -133,8 +132,6 @@ export class DepoUserController {
       }
     } catch (error) {
       return respond(error.message, true, 500);
-    } finally {
-      this.mongodb.disconnect();
     }
   }
 
@@ -156,7 +153,6 @@ export class DepoUserController {
         };
 
         const hasUser = await collection.findOne(query, options);
-        this.mongodb.disconnect();
         if (hasUser) {
           return hasUser as IUser;
         } else {
@@ -167,8 +163,6 @@ export class DepoUserController {
       }
     } catch (error) {
       return respond(error.message, true, 500);
-    } finally {
-      this.mongodb.disconnect();
     }
   }
 
@@ -195,8 +189,6 @@ export class DepoUserController {
       }
     } catch (error) {
       return respond(error.message, true, 500);
-    } finally {
-      this.mongodb.disconnect();
     }
   }
 
@@ -285,6 +277,10 @@ export class DepoUserController {
     return updateDoc;
   }
 
+  disconnect() {
+    this.mongodb.disconnect();
+  }
+
   /**
    * Returns the contents of `DepoAuthController::data`
    * @returns 
@@ -292,5 +288,4 @@ export class DepoUserController {
   getData(): Array<any> | any {
     return this.data;
   }
-
 }

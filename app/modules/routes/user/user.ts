@@ -12,6 +12,7 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
   const ctl = new DepoUserController();
   const result = await ctl.findUser(walletId);
+  ctl.disconnect();
   if (result) {
     res.send(result);
   } else {
@@ -42,11 +43,12 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
     const ctl = new DepoUserController(user)
     // Tries to find an user which has the given wallet
     const hasUser = await ctl.findUser(walletId);
-    if (hasUser) {
+    if (!hasUser.code) {
       res.send(hasUser);
     } else {
       // And if it didn't find, then create a new user
       const result = await ctl.create();
+      ctl.disconnect();
       if (!result.code) {
         res.send(user);
       } else {
@@ -68,6 +70,7 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
   const ctl = new DepoUserController(user);
   const result = await ctl.update(walletId);
+  ctl.disconnect();
   if (!result) {
     res.code(204).send();
   } else {
@@ -86,6 +89,7 @@ export const getAll = async (req: FastifyRequest, res: FastifyReply) => {
   const filters = parseQueryUrl(query);
   const ctl = new DepoUserController();
   const result = await ctl.findAllUsers(filters);
+  ctl.disconnect();
   res.send(result);
 }
 
@@ -98,6 +102,7 @@ export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const body = req.body as IUser;
   const ctl = new DepoUserController(body);
 
-  const result = ctl.create();
+  const result = await ctl.create();
+  ctl.disconnect();
   res.send(result);
 }
