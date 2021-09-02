@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DepoUserController } from "../../controller/DepoUserController";
+import { IAPIKey } from "../../interfaces/IAPIKey";
 import { IUser } from "../../interfaces/IUser";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
@@ -13,10 +14,10 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new DepoUserController();
   const result = await ctl.findUser(walletId);
   ctl.disconnect();
-  if (result) {
+  if (!result.code) {
     res.send(result);
   } else {
-    res.code(422).send(respond("User not found.", true, 422));
+    res.code(result.code).send(result);
   }
 }
 
@@ -105,4 +106,27 @@ export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.create();
   ctl.disconnect();
   res.send(result);
+}
+
+/**
+ * Removes an api key from the database
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const removeApiKey = async (req: FastifyRequest, res: FastifyReply) => {
+  const { walletId, exchangeId, apiKey } = req.params as any;
+
+  const exchange: IAPIKey = {
+    id: exchangeId,
+    apiKey,
+  };
+
+  const ctl = new DepoUserController();
+  const result = await ctl.removeExchange(walletId, exchange);
+
+  if (!result?.code) {
+    res.code(204).send();
+  } else {
+    res.code(result.code).send(result);
+  }
 }

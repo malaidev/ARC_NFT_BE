@@ -1,4 +1,3 @@
-import { MongoDBService } from "../services/MongoDB";
 import { IQueryFilters } from "../interfaces/Query";
 import { IUser } from "../interfaces/IUser";
 import { respond } from "../util/respond";
@@ -6,7 +5,6 @@ import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IAPIKey } from "../interfaces/IAPIKey";
 import { CryptoJsHandler } from "../util/crypto-js";
-import { IWallet } from "../interfaces/IWallet";
 
 /**
  * This is the model controller class.
@@ -84,6 +82,7 @@ export class DepoUserController extends AbstractEntity {
     return respond("User not found.", true, 422);
   }
 
+
   /**
    * Updates a user.
    * 
@@ -96,7 +95,8 @@ export class DepoUserController extends AbstractEntity {
       const dbm = await this.mongodb.connect();
       if (dbm) {
         const collection = dbm.collection(this.table);
-        const hasUser = await this.findUser(walletId);
+        const query = this.findUserQuery(walletId);
+        const hasUser = await this.findOne(query);
         // Verify if has any error while finding user
         if (!hasUser.code) {
           // if not mount the query to update an user
@@ -121,6 +121,73 @@ export class DepoUserController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
+  }
+
+  /**
+   * Get the api keys from a user.
+   * 
+   * _Note that this function will decrypt the api secrets and it should never be used 
+   * along the client side._
+   * 
+   * @param walletId user's wallet address
+   * @returns 
+   */
+  async getUserApiKeys(walletId: string): Promise<Array<IAPIKey>> {
+    const query = this.findUserQuery(walletId);
+    const result = await this.findOne(query, {
+      projection: { "exchanges": 1 }
+    }) as IUser;
+    if (result && result.exchanges) {
+      return this.decryptApiKey(result.exchanges) as Array<IAPIKey>;
+    }
+  }
+
+  /**
+   * Removes an API KEY from the database.
+   * @param walletId user's wallet address
+   * @param exchange exchangeID and apiKey
+   */
+  async removeExchange(walletId: string, exchange: IAPIKey) {
+    // Get the user
+    const hasUser = await this.findUser(walletId) as IUser;
+    // Checks if the user exists
+    if (!hasUser.code) {
+      // And if it does, check if the user has saved exchanges
+      if (hasUser.exchanges) {
+        // Copies the result instance
+        const user: IUser = hasUser;
+        // Checks if the desired api key exists 
+        const hasExchange = user.exchanges.findIndex((item) =>
+          exchange.id === item.id && exchange.apiKey === item.apiKey
+        );
+        if (hasExchange !== -1) {
+          // and if it does, deletes it from the array to perform an update
+          user.exchanges.splice(hasExchange, 1);
+          // then creates an update document
+          const updateDoc = {
+            $set: {
+              exchanges: user.exchanges
+            }
+          }
+          // Try to save
+          try {
+            const dbm = await this.mongodb.connect();
+            if (dbm) {
+              const collection = dbm.collection(this.table);
+              const filter = this.findUserQuery(walletId);
+              await collection.updateOne(filter, updateDoc);
+              return;
+            } else {
+              throw Error("Could not connect to the database.");
+            }
+          } catch (error) {
+            return respond(error.message, true, 500);
+          }
+        }
+      }
+      return respond("Api Key not found", true, 422);
+    }
+    return hasUser;
   }
 
   /**
@@ -189,6 +256,7 @@ export class DepoUserController extends AbstractEntity {
       this.data.wallets = user.wallets;
     }
   }
+
   /**
    * Compares the current instance of `user.exchanges` with the new one and
    * parses fields to be updates.
@@ -242,6 +310,27 @@ export class DepoUserController extends AbstractEntity {
       ...apiKey,
       apiSecret: handler.encrypt(apiKey.apiSecret)
     } as IAPIKey;
+  }
+
+  /**
+   * Decrypts an api key or an array of keys.
+   * 
+   * If `apiKey` is an array, it will result in an array and if not,
+   * it will result in a single object.
+   * 
+   * @param apiKey 
+   * @returns 
+   */
+  public decryptApiKey(apiKey: IAPIKey | Array<IAPIKey>): IAPIKey | Array<IAPIKey> {
+    const handler = new CryptoJsHandler();
+    if (Array.isArray(apiKey)) {
+      return apiKey.map((key: IAPIKey) => this.decryptApiKey(key)) as Array<IAPIKey>;
+    } else {
+      return {
+        ...apiKey,
+        apiSecret: handler.decrypt(apiKey.apiSecret)
+      } as IAPIKey;
+    }
   }
 
   /**

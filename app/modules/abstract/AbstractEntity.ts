@@ -102,7 +102,7 @@ export abstract class AbstractEntity {
      * @param query 
      * @returns 
      */
-    async findOne(query: FilterQuery<any>, opts: FindOneOptions<any>): Promise<any> {
+    async findOne(query: FilterQuery<any>, opts?: FindOneOptions<any>): Promise<any> {
         try {
             const dbm = await this.mongodb.connect();
             if (dbm) {
@@ -110,7 +110,7 @@ export abstract class AbstractEntity {
 
                 let projection = { _id: 0 };
 
-                if (opts.projection) {
+                if (opts?.projection) {
                     projection = {
                         ...projection,
                         ...opts.projection
@@ -262,5 +262,4 @@ export abstract class AbstractEntity {
     getData(): Array<any> | any {
         return this.data;
     }
-
 }

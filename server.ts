@@ -25,11 +25,6 @@ process.setMaxListeners(15);
  * @returns {FastifyInstance} app
  */
 async function mount() {
-  const handler = new CryptoJsHandler();
-  const e = handler.encrypt('MySensitiveData123');
-  console.log(e);
-  const d = handler.decrypt(e);
-  console.log(d);
   
   const app = fastify({
     logger: config.env === 'dev' && {
