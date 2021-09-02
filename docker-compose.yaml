@@ -16,6 +16,6 @@ services:
     build: .
     container_name: wsvc-depo-mongod
     ports:
-      - "3000:3000"
+      - "3666:3001"
     command: npm start
 
