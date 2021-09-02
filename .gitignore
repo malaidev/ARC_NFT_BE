@@ -5,3 +5,4 @@ package-lock.json
 *-local*
 **/logs/*.*
 dbaconfig.ts*
+**/.ssh/*

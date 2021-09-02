@@ -176,13 +176,13 @@ export class DepoUserController {
       if (dbm) {
         const collection = dbm.collection(this.table);
         const hasUser = await this.findUser(walletId);
-        if (hasUser) {
+        if (!hasUser.code) {
           const filter = this.findUserQuery(walletId);
           const updateDoc = this.moundUpdateUserDocument(hasUser);
           await collection.updateOne(filter, updateDoc);
           return;
         } else {
-          return respond("User not found", true, 422);
+          return hasUser as IResponse;
         }
       } else {
         throw Error("Could not connect to the database.");
@@ -263,7 +263,15 @@ export class DepoUserController {
 
     if (this.data.wallets) {
       this.data.wallets.forEach((wallet) => {
-        if (!user.wallets.find((item) => item.address === wallet.address)) {
+        if (user.wallets) {
+          const hasWallet = user.wallets.findIndex((item) => item.address === wallet.address)
+          if (hasWallet !== -1) {
+            user.wallets.push(wallet);
+          } else {
+            user.wallets[hasWallet] = wallet;
+          }
+        } else {
+          user.wallets = [];
           user.wallets.push(wallet);
         }
       });

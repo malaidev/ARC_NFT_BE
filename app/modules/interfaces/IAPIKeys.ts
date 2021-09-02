@@ -1,5 +1,5 @@
 export interface IAPIKeys {
-    name: string
+    id: string
     apiKey: string
     apiSecret: string
 }

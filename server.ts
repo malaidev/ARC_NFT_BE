@@ -14,6 +14,7 @@ import { ErrorLogger } from './app/modules/middleware/ErrorLogger';
 import { SessionChecker } from './app/modules/middleware/SessionChecker';
 import { config } from './app/config/config';
 import { router } from './app/modules/routes';
+import { CryptoJsHandler } from './app/modules/util/crypto-js';
 
 const logger = new Logger('error', '/');
 process.setMaxListeners(15);
@@ -24,7 +25,12 @@ process.setMaxListeners(15);
  * @returns {FastifyInstance} app
  */
 async function mount() {
-
+  const handler = new CryptoJsHandler();
+  const e = handler.encrypt('MySensitiveData123');
+  console.log(e);
+  const d = handler.decrypt(e);
+  console.log(d);
+  
   const app = fastify({
     logger: config.env === 'dev' && {
       prettyPrint: {
