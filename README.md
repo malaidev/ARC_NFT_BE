@@ -16,6 +16,66 @@ Set up routes at `app/modules/routes/routes.ts` importing the correct functions 
 You should use Controllers at `app/modules/controller` to create database communication methods, and
 set up viewers at `app/modules/routes/route-domain` to instantiate and call controller's methods.
 
+### AbstractEntity
+
+The `AbstractEntity::class` should be extended to every controller that will use database connection as it contains
+basic implementes methods that can be overridden.
+
+```ts
+import { AbstractEntity } from '@/abstract/AbstractEntity';
+import { MyDataModel } from '@/interfaces/MyDataModel';
+
+class MyController extends AbstractEntity {
+ protected table = "MyTable";
+ protected data: MyDataModel;
+ 
+ constructor(data?: MyDataModel) {
+     super();
+     this.data = data;
+ }
+
+ async getCertainDocument(){
+     const dbm = this.mongodb.connect();
+     const collection = dbm.collection(this.table);
+     const result = await collection.findAll();
+     this.disconnect();
+     return result;
+ }
+
+ async overrideFindOne(query: FilterQuery<any>, opts?: FindOneOptions<any>) {
+     return await this.findOne(query, opts);
+ }
+ // ... other methods
+}
+
+```
+
+### CryptoJsHandler
+
+`CryptoJsHandler::class` provides encryption and decryption methods. To start using, create a ssh key called `crypto-js` in `app/.shh`.
+
+```ts
+import { CryptoJsHandler } from '@/util/CryptoJSHandler';
+ 
+ // Instantiates the handler
+ const handler = new CryproJSHandler();
+ 
+ // Encrypt some string
+ const encrypted = handler.encrypt('MySensitiveData123');
+ // encrypted = "e69b2774de366007b336f5cb0ea8ecb4336cbd69a4a5e6d4c7068fd59866a384"
+
+ // Decript some string
+ const decrypted = handler.decrypt(encrypted);
+ // decrypted = "MySensitiveData123"
+ 
+```
+
+### Documentation
+
+Keep the documentation up to date before pushing up.
+
+
+
 ### Services
 
 Services are classes used to perform outside world communication such as any API, or external integration.
