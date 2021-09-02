@@ -33,7 +33,7 @@ import { IQueryFilters } from "../interfaces/Query";
  *      this.data = data;
  *  }
  * 
- *  function async getCertainDocument(){
+ *  async getCertainDocument(){
  *      const dbm = this.mongodb.connect();
  *      const collection = dbm.collection(this.table);
  *      const result = await collection.findAll();

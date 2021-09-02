@@ -4,7 +4,7 @@ import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IAPIKey } from "../interfaces/IAPIKey";
-import { CryptoJsHandler } from "../util/crypto-js";
+import { CryptoJsHandler } from "../util/CryptoJsHandler";
 
 /**
  * This is the model controller class.
