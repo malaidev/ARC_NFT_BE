@@ -75,7 +75,9 @@ export class DepoUserController extends AbstractEntity {
    */
   async findUser(walletId: string): Promise<IUser | IResponse> {
     const query = this.findUserQuery(walletId);
-    const result = await this.findOne(query);
+    const result = await this.findOne(query, {
+      projection: { "exchanges.apiSecret": 0 }
+    });
     if (result) {
       return result;
     }

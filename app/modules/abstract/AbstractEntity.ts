@@ -1,4 +1,4 @@
-import { Collection, FilterQuery } from "mongodb";
+import { AggregationCursor, Collection, CollectionAggregationOptions, FilterQuery, FindOneOptions, MongoCallback } from "mongodb";
 import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
 import { MongoDBService } from "../services/MongoDB";
@@ -102,14 +102,25 @@ export abstract class AbstractEntity {
      * @param query 
      * @returns 
      */
-    async findOne(query: FilterQuery<any>): Promise<any> {
+    async findOne(query: FilterQuery<any>, opts: FindOneOptions<any>): Promise<any> {
         try {
             const dbm = await this.mongodb.connect();
             if (dbm) {
                 const collection = dbm.collection(this.table);
 
+                let projection = { _id: 0 };
+
+                if (opts.projection) {
+                    projection = {
+                        ...projection,
+                        ...opts.projection
+                    }
+                    delete opts.projection;
+                }
+
                 const options = {
-                    projection: { _id: 0 }
+                    projection,
+                    ...opts
                 };
 
                 const hasUser = await collection.findOne(query, options);
@@ -129,9 +140,11 @@ export abstract class AbstractEntity {
     /**
      * Get all documents in the database
      * @param {IQueryFilters} filters query filters
+     * @param options
+     * @param callback
      * @return 
      */
-    async findAll(filters?: IQueryFilters) {
+    async findAll(filters?: IQueryFilters, options?: CollectionAggregationOptions, callback?: MongoCallback<AggregationCursor<any>>) {
         try {
             const dbm = await this.mongodb.connect();
             if (dbm) {
@@ -142,7 +155,7 @@ export abstract class AbstractEntity {
                     aggregation = this.parseFilters(filters);
                 }
 
-                const items = await collection.aggregate(aggregation).toArray();
+                const items = await collection.aggregate(aggregation, options, callback).toArray();
                 return items as Array<any>;
             } else {
                 throw new Error("Could not connect to the database.");
