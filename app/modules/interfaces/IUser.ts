@@ -1,4 +1,4 @@
-import { IAPIKeys } from "./IAPIKeys";
+import { IAPIKey } from "./IAPIKey";
 import { IPlatformSettings } from "./IPlatformSettings";
 import { IWallet } from "./IWallet";
 
@@ -9,6 +9,6 @@ export interface IUser {
     wallets?: Array<IWallet>
     settings?: IPlatformSettings
     lastLogin?: Date
-    exchanges?: Array<IAPIKeys>
+    exchanges?: Array<IAPIKey>
     [key: string]: any
 }

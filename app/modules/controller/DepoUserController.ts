@@ -1,9 +1,9 @@
 import { MongoDBService } from "../services/MongoDB";
-import { Collection } from "mongodb";
 import { IQueryFilters } from "../interfaces/Query";
 import { IUser } from "../interfaces/IUser";
 import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
+import { AbstractEntity } from "../abstract/AbstractEntity";
 
 /**
  * This is the model controller class.
@@ -11,9 +11,15 @@ import { IResponse } from "../interfaces/IResponse";
  * authenticate, logout, CRUD functions
  * or processing.
  * 
- * @param {any} data model data 
+ * @param {IUser} data model data 
  * 
- * @author Andre Mury
+ * @method create
+ * @method findAllUsers
+ * @method findUser
+ * @method update 
+ * @method create
+ * 
+ * @author Pollum <pollum.io>
  * @version 0.0.1
  * 
  * ----
@@ -24,90 +30,13 @@ import { IResponse } from "../interfaces/IResponse";
  * if(await uc.login().success) {...}
  * 
  */
-export class DepoUserController {
-  private data: IUser;
-  private table = "Users" as string;
-  private mongodb = null as MongoDBService;
+export class DepoUserController extends AbstractEntity {
+  protected data: IUser;
+  protected table = "Users" as string;
 
   constructor(user?: IUser) {
-    this.mongodb = new MongoDBService();
+    super();
     this.data = user;
-  }
-
-  /**
-   * Saves the item or array of items into de database
-   * using MongoDB drivers
-   * @returns 
-   */
-  async create(): Promise<any | IResponse> {
-    if (this.data) {
-      try {
-        /**
-         * @var dbm Mongo DB connection instance
-         */
-        const dbm = await this.mongodb.connect();
-        if (dbm) {
-          /**
-           * @var {Collection<any>} collection MongoDB collection instance
-           */
-          const collection = dbm.collection(this.table);
-
-          /**
-           * @var {any} result the MongoDB request results
-           */
-          let result = null;
-          // Checks if data attribute is an array
-          if (Array.isArray(this.data)) {
-            result = await this.createMany(collection, this.data);
-          } else {
-            // If it isn't, convert this.data to array
-            result = await this.createMany(collection, [this.data]);
-          }
-          return result;
-        } else {
-          throw new Error("Could not connect to the database.");
-        }
-      } catch (error) {
-        return respond(error.message, true, 500);
-      }
-    } else {
-      return respond("Can't create an instance of item without item data.", true, 400);
-    }
-  }
-
-  /**
-   * Inserts an array of items into the database
-   * @param collection MongoDB Collection instance
-   * @param data array of items
-   * @returns 
-   */
-  protected createMany(collection: Collection<any>, data: Array<any>): Promise<any> {
-    const items = this.convertDate(data);
-    return new Promise((resolve, reject) => {
-      try {
-        collection.insertMany(items, (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        })
-      } catch (error) {
-        reject(error);
-      }
-    })
-  }
-
-  /**
-   * Converts a date string to JavaScript Date Format.
-   * @param data array of items
-   * @returns 
-   */
-  protected convertDate(data: Array<any>): Array<any> {
-    data.forEach((item) => {
-      item.date = new Date(item.date);
-    });
-    return data;
   }
 
   /**
@@ -142,28 +71,12 @@ export class DepoUserController {
    * @returns `IUser` if found and `null` otherwise
    */
   async findUser(walletId: string): Promise<IUser | IResponse> {
-    try {
-      const dbm = await this.mongodb.connect();
-      if (dbm) {
-        const collection = dbm.collection(this.table);
-
-        const query = this.findUserQuery(walletId);
-        const options = {
-          projection: { _id: 0 }
-        };
-
-        const hasUser = await collection.findOne(query, options);
-        if (hasUser) {
-          return hasUser as IUser;
-        } else {
-          return respond("User not found.", true, 422);
-        }
-      } else {
-        throw Error("Could not connect to the database.");
-      }
-    } catch (error) {
-      return respond(error.message, true, 500);
+    const query = this.findUserQuery(walletId);
+    const result = await this.findOne(query);
+    if (result) {
+      return result;
     }
+    return respond("User not found.", true, 422);
   }
 
   /**
@@ -190,53 +103,6 @@ export class DepoUserController {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  }
-
-  /**
-   * Parses the filters attribute in order to obtain a valid MongoDB query object
-   * @param filters 
-   * @returns 
-   */
-  protected parseFilters(filters: IQueryFilters): Array<any> {
-    const aggregation = [] as any;
-
-    if (filters.orderBy.length)
-      aggregation.push({
-        '$sort': {
-          [filters.orderBy]: filters.direction === 'DESC' ? -1 : 1,
-        }
-      });
-
-    if (filters.filters.length) {
-      const matches = [];
-      filters.filters.forEach((item) => {
-        matches.push({
-          [item.fieldName]: new RegExp(item.query, 'igm')
-        })
-      });
-
-      aggregation.push({
-        '$match': {
-          '$or': matches
-        }
-      })
-    }
-
-    if (filters.startAt) {
-      aggregation.push({
-        '$match': {
-          date: {
-            '$gte': filters.startAt
-          }
-        }
-      })
-    }
-
-    aggregation.push({
-      '$limit': filters.amount || 20
-    })
-
-    return aggregation;
   }
 
   /**
@@ -283,17 +149,5 @@ export class DepoUserController {
     }
 
     return updateDoc;
-  }
-
-  disconnect() {
-    this.mongodb.disconnect();
-  }
-
-  /**
-   * Returns the contents of `DepoAuthController::data`
-   * @returns 
-   */
-  getData(): Array<any> | any {
-    return this.data;
   }
 }

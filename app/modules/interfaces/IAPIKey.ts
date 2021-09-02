@@ -1,4 +1,4 @@
-export interface IAPIKeys {
+export interface IAPIKey {
     id: string
     apiKey: string
     apiSecret: string
