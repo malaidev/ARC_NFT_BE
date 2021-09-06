@@ -5,6 +5,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IAPIKey } from "../interfaces/IAPIKey";
 import { CryptoJsHandler } from "../util/CryptoJsHandler";
+import { IAuthorizedBrowser } from "../interfaces/IAuthorizedBrowser";
 
 /**
  * This is the model controller class.
@@ -74,7 +75,7 @@ export class DepoUserController extends AbstractEntity {
   async findUser(walletId: string): Promise<IUser | IResponse> {
     const query = this.findUserQuery(walletId);
     const result = await this.findOne(query, {
-      projection: { "exchanges.apiSecret": 0 }
+      projection: { "exchanges.apiSecret": 0, }
     });
     if (result) {
       return result;
@@ -188,6 +189,35 @@ export class DepoUserController extends AbstractEntity {
       return respond("Api Key not found", true, 422);
     }
     return hasUser;
+  }
+
+  async addBrowserIdentifier(browser: IAuthorizedBrowser) {
+    try {
+      browser.authorized = false;
+      const query = this.findUserQuery(this.data.settings.defaultWallet);
+      const hasUser = await this.findOne(query) as IUser;
+      if (!hasUser.code) {
+        if (!hasUser.authorizedBrowsers.find((item) => item.id === browser.id)) {
+          const authorizedBrowsers = hasUser.authorizedBrowsers;
+          authorizedBrowsers.push(browser);
+
+          const updateDoc = {
+            $set: {
+              authorizedBrowsers,
+            }
+          }
+
+          const dbm = await this.mongodb.connect();
+          const collection = dbm.collection(this.table);
+          await collection.updateOne(query, updateDoc);
+          return;
+        }
+      } else {
+        return hasUser;
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
   }
 
   /**
@@ -340,5 +370,35 @@ export class DepoUserController extends AbstractEntity {
    */
   private verifyApiKey(apiKey: IAPIKey): boolean {
     return !!(apiKey.apiKey && apiKey.apiSecret && apiKey.id)
+  }
+
+
+  /**
+   * Compares the browser id hash with the saved authorized browsers 
+   * found in a user instance.
+   * 
+   * @param user an user instance
+   * @param browserId the browser id
+   * @returns if it is trustable or not
+   */
+  compareHash(user: IUser, browserId: string): IAuthorizedBrowser | false {
+    try {
+      if (user.authorizedBrowsers) {
+        const handle = new CryptoJsHandler();
+        const decryptedId = handle.decrypt(browserId);
+        if (decryptedId) {
+          const actualBrowserId = decryptedId.split(';')[1];
+          const hasBrowserId = user.authorizedBrowsers.find((item) => item.id === actualBrowserId);
+          if (hasBrowserId) {
+            delete hasBrowserId.strIdentifier;
+            delete hasBrowserId.id;
+            return hasBrowserId;
+          }
+        }
+      }
+    } catch (error) {
+      return false;
+    }
+    return false;
   }
 }

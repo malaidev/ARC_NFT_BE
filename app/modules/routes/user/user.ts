@@ -1,7 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { v4 } from "uuid";
 import { DepoUserController } from "../../controller/DepoUserController";
 import { IAPIKey } from "../../interfaces/IAPIKey";
+import { IAuthorizedBrowser } from "../../interfaces/IAuthorizedBrowser";
 import { IUser } from "../../interfaces/IUser";
+import { CryptoJsHandler } from "../../util/CryptoJsHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
 /**
@@ -30,8 +33,14 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
  * @param res 
  */
 export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) => {
-  const { walletId } = req.body as any;
+  const { walletId, browserId } = req.body as any;
   if (walletId) {
+    const browserIdentifier: IAuthorizedBrowser = {
+      id: v4(),
+      name: `App ID ${Math.ceil(Math.random() * 256)}`,
+      strIdentifier: JSON.stringify(req.headers),
+      authorized: true
+    }
     /**
      * @var user instance of IUser
      */
@@ -39,25 +48,56 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
       settings: {
         defaultWallet: walletId,
       },
-      wallets: [{ address: walletId }]
+      wallets: [{ address: walletId }],
+      authorizedBrowsers: [browserIdentifier]
+
     }
+    const handle = new CryptoJsHandler();
+    const encryptedId = handle.encrypt(`${walletId};${browserIdentifier.id}`);
     const ctl = new DepoUserController(user)
     // Tries to find an user which has the given wallet
     const hasUser = await ctl.findUser(walletId);
+
     if (!hasUser.code) {
-      res.send(hasUser);
+      const isAuthorizedBrowser = ctl.compareHash(hasUser, browserId);
+
+      if (isAuthorizedBrowser !== false) {
+        if (isAuthorizedBrowser.authorized) {
+          res.send(hasUser);
+        } else {
+          res.code(403).send(
+            respond({
+              message: `Browser identified but not yet authorized. Please use an already registered device to allow. Reference: ${isAuthorizedBrowser.name}`,
+            },
+              true, 403
+            )
+          )
+        }
+      } else {
+        await ctl.addBrowserIdentifier(browserIdentifier);
+        res.code(403).send(
+          respond({
+            message: `Browser not identified. Please, allow this browser using an already registered device. Reference: ${browserIdentifier.name}`,
+            browserId: encryptedId
+          },
+            true, 403
+          )
+        );
+      }
     } else {
       // And if it didn't find, then create a new user
       const result = await ctl.create();
-      ctl.disconnect();
       if (!result.code) {
-        res.send(user);
+        delete result.authorizedBrowsers;
+
+        res.send({ user, browserId: encryptedId });
       } else {
         res.code(result.code).send(result);
       }
     }
+    ctl.disconnect();
   } else {
-    res.code(400).send(respond("`Wallet address cannot be null.`", true, 400));
+    res.code(400).send(respond("Wallet address cannot be null.", true, 400));
   }
 }
 
