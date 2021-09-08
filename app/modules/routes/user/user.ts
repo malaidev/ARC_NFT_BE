@@ -1,12 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { v4 } from "uuid";
 import { DepoUserController } from "../../controller/DepoUserController";
 import { IAPIKey } from "../../interfaces/IAPIKey";
-import { IAuthorizedBrowser } from "../../interfaces/IAuthorizedBrowser";
-import { IResponse } from "../../interfaces/IResponse";
 import { IUser } from "../../interfaces/IUser";
 import { BrowserIdentityHandler } from "../../util/BrowserIdendityHandler";
-import { CryptoJsHandler } from "../../util/CryptoJsHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
 /**
