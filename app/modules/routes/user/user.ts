@@ -5,6 +5,7 @@ import { IAPIKey } from "../../interfaces/IAPIKey";
 import { IAuthorizedBrowser } from "../../interfaces/IAuthorizedBrowser";
 import { IResponse } from "../../interfaces/IResponse";
 import { IUser } from "../../interfaces/IUser";
+import { BrowserIdentityHandler } from "../../util/BrowserIdendityHandler";
 import { CryptoJsHandler } from "../../util/CryptoJsHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
@@ -38,38 +39,28 @@ export const findOrCreateUser = async (req: FastifyRequest | any, res: FastifyRe
   const _browserId = browserId ?? req.cookies.__depo_browserid;
   if (walletId) {
     // Pre-creates a browser identifier to set the controller
-    const browserIdentifier: IAuthorizedBrowser = {
-      id: v4(),
-      name: `App ID ${Math.ceil(Math.random() * 256)}`,
-      strIdentifier: JSON.stringify(req.headers),
-      authorized: true
-    }
-
-    /**
-     * @var user instance of IUser
-     */
+    const browser = new BrowserIdentityHandler(req.headers, walletId);
+    browser.createIdentifier();
+    const encryptedId = browser.getBrowserId();
     const user: IUser = {
       settings: {
         defaultWallet: walletId,
       },
       wallets: [{ address: walletId }],
-      authorizedBrowsers: [browserIdentifier]
+      authorizedBrowsers: [browser.getIdentifier()]
     }
 
-    const handle = new CryptoJsHandler();
-    // Encrypts ID before verification
-    const encryptedId = handle.encrypt(`${walletId};${browserIdentifier.id}`);
     const ctl = new DepoUserController(user);
     // Tries to find an user which has the given wallet
-    const hasUser = await ctl.findUser(walletId);
+    const hasUser = await ctl.findUser(walletId) as IUser;
     // Verify if has no "code" in hasUser, indicating an error
     if (!hasUser.code) {
       // If it doesn't it means that we're dealing with an existing user
       // So, we need to verify if his browser is allowed to access the account.
-      const verified = await ctl.isBrowserAllowed(hasUser, _browserId, browserIdentifier, encryptedId);
+      const verified = await ctl.isBrowserAllowed(hasUser, _browserId, browser);
       if (verified.success) {
         // And if it does, just sent back user's info
-        res.send(hasUser);
+        res.send(verified.data);
       } else {
         // If not, sent back a 403 with a warning message
         res.code(verified.code).send(verified);

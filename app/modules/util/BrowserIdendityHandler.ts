@@ -1,0 +1,111 @@
+import { v4 } from "uuid";
+import { IAuthorizedBrowser } from "../interfaces/IAuthorizedBrowser";
+import { CryptoJsHandler } from "./CryptoJsHandler";
+
+/**
+ * This class handles browser uniqueness attribution.
+ * 
+ * @method createIdentifier
+ * @method getBrowserId
+ * @method setIdentifier
+ * @method getIdentifier
+ * 
+ * @author [Pollum](pollum.io)
+ * @since v0.1.0
+ * 
+ * ---
+ * ## Usage
+ * ```ts
+ * import { BrowserIdentityHandler } from '@/util/BrowserIdentityHandler';
+ * 
+ * function get (req: FastifyRequest, res: FastifyReply) {
+ *      const { walletId } = req.body;
+ *      const browser = new BrowserIdentityHandler(req.headers, walletId);
+ *      browser.createIdentity();
+ *      const identifier = browser.getIdentifier() // IAuthorizedBrowser
+ *      res.send(identifier);
+ * }
+ * 
+ * ```
+ */
+export class BrowserIdentityHandler {
+    private headers: string;
+    private walletId: string;
+    private identifier: IAuthorizedBrowser;
+    private browserId: string;
+
+    constructor(headers?: any, walletId?: string) {
+        this.headers = JSON.stringify(headers);
+        this.walletId = walletId;
+    }
+
+    /**
+     * Creates a identifier to the browser
+     * @returns the identifier
+     */
+    createIdentifier(): IAuthorizedBrowser {
+        return this.wrap(() => {
+            this.identifier = {
+                id: v4(),
+                name: `App ID ${Math.ceil(Math.random() * 256)}`,
+                strIdentifier: Buffer.from(this.headers).toString('base64'),
+                authorized: true
+            };
+            this.createId();
+            return this.identifier;
+        });
+    }
+
+    /**
+     * Creates an encrypted id to the instance.
+     */
+    private createId(): void {
+        this.wrap(() => {
+            const handle = new CryptoJsHandler();
+            // Encrypts ID before verification
+            this.browserId = handle.encrypt(`${this.walletId};${this.identifier.id}`);
+        });
+    }
+
+    setBrowserId(id: string) {
+        this.identifier.id = id;
+        this.createId();
+    }
+
+    /**
+     * Returns the browser id
+     * @returns the generated browser id
+     */
+    getBrowserId(): string {
+        return this.browserId;
+    }
+
+    /**
+     * Sets the current identifier
+     * @param identifier 
+     */
+    setIdentifier(identifier: IAuthorizedBrowser): void {
+        this.identifier = identifier;
+    }
+
+    /**
+     * Returns the current browser identifier
+     * @returns the identifier
+     */
+    getIdentifier(): IAuthorizedBrowser {
+        return this.identifier;
+    }
+
+    /**
+     * Wraps a function to check for required parameters
+     * @param fn 
+     * @returns 
+     */
+    private wrap(fn: Function): any {
+        if (this.headers && this.walletId) {
+            return fn();
+        }
+        throw new Error("Can't create identifier without wallet id and request headers.");
+    }
+
+}

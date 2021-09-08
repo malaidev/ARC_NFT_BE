@@ -3,4 +3,5 @@ export interface IAuthorizedBrowser {
     id: string
     strIdentifier: string
     authorized: boolean
+    browserId?: string
 }

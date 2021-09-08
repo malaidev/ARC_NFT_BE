@@ -6,6 +6,7 @@ import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IAPIKey } from "../interfaces/IAPIKey";
 import { CryptoJsHandler } from "../util/CryptoJsHandler";
 import { IAuthorizedBrowser } from "../interfaces/IAuthorizedBrowser";
+import { BrowserIdentityHandler } from "../util/BrowserIdendityHandler";
 
 /**
  * This is the model controller class.
@@ -381,27 +382,39 @@ export class DepoUserController extends AbstractEntity {
    * @param browserId the browser id
    * @returns if it is trustable or not
    */
-  compareHash(user: IUser, browserId: string): IAuthorizedBrowser | false {
+  compareHash(user: IUser, browserId: string, browser: BrowserIdentityHandler): IAuthorizedBrowser | false {
+    let decryptedId = null;
+    let actualBrowserId = null;
     try {
-      if (user.authorizedBrowsers) {
-        const handle = new CryptoJsHandler();
-        const decryptedId = handle.decrypt(browserId);
-        if (decryptedId) {
-          const actualBrowserId = decryptedId.split(';')[1];
-          const hasBrowserId = user.authorizedBrowsers.find((item) => item.id === actualBrowserId);
-          if (hasBrowserId) {
-            delete hasBrowserId.strIdentifier;
-            delete hasBrowserId.id;
-            return hasBrowserId;
-          }
-        }
-      }
+      const handle = new CryptoJsHandler();
+      decryptedId = handle.decrypt(browserId);
+      actualBrowserId = decryptedId.split(';')[1];
     } catch (error) {
-      return false;
+      // We don't care, just keep decryptedId and actualBrowserId as null.
+    }
+
+    // Then search the authorized browser
+    if (user.authorizedBrowsers) {
+      const strIdentifier = browser.getIdentifier().strIdentifier;
+      // To get a browser, we check for both the given browser id and the strIdentifier
+      // The identifier is composed by the browser headers data. Usually it is different for each browser/PC/person
+      // So it is fair to combine with the wallet ID to create some uniqueness
+      const hasBrowserId = user.authorizedBrowsers.find((item) =>
+        item.id === actualBrowserId || item.strIdentifier === strIdentifier
+      );
+
+      // If the browser exists in a way or another, return the authorized browser data.
+      if (hasBrowserId) {
+        browser.setBrowserId(hasBrowserId.id);
+        delete hasBrowserId.strIdentifier;
+        delete hasBrowserId.id;
+        hasBrowserId.browserId = browser.getBrowserId();
+        return hasBrowserId;
+      }
     }
     return false;
   }
-  
+
   /**
    * Verifies if the current browser is allowed to access the current user's account
    * based on its browser id.
@@ -412,26 +425,28 @@ export class DepoUserController extends AbstractEntity {
    * @param encryptedId the encrypted browser id
    * @returns a standarized response allowed or not allowed
    */
-  async isBrowserAllowed(user: IUser, browserId: string, browserIdentifier: IAuthorizedBrowser, encryptedId: string): Promise<IResponse> {
+  async isBrowserAllowed(user: IUser, browserId: string, browser: BrowserIdentityHandler): Promise<IResponse> {
     // First, compares the user's authorized browser with the current browser id
-    const isAuthorizedBrowser = this.compareHash(user, browserId);
+    const isAuthorizedBrowser = this.compareHash(user, browserId, browser);
+    const identifier = browser.getIdentifier();
     // if the browser exist, check if it is authorized
     if (isAuthorizedBrowser !== false) {
       if (isAuthorizedBrowser.authorized) {
         // and if it is, just send back the user
-        return respond(user);
+        delete user.authorizedBrowsers;
+        return respond({ user, browserId: isAuthorizedBrowser.browserId });
       }
       // Else, send a warning about the fact that this is a new browser
       return respond({
-        message: `Browser identified but not yet authorized. Please use an already registered device to allow. Reference: ${isAuthorizedBrowser.name}`,
+        message: `Browser identified but not yet authorized. Please use an already registered device to allow. Browser reference: ${isAuthorizedBrowser.name}`,
       }, true, 403)
     }
     // If the browser doesn't exist, add to the list of authorization request and send back a message
     // about it.
-    await this.addBrowserIdentifier(browserIdentifier);
+    await this.addBrowserIdentifier(identifier);
     return respond({
-      message: `Browser not identified. Please, allow this browser using an already registered device. Reference: ${browserIdentifier.name}`,
-      browserId: encryptedId
+      message: `Browser not identified. Please, allow this browser using an already registered device. Browser reference: ${identifier.name}`,
+      browserId: browser.getBrowserId(),
     }, true, 403);
   }
 }
