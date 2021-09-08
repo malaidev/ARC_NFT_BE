@@ -43,7 +43,9 @@ async function mount() {
 
   await jwt(app);
 
-  await app.register(cookie);
+  await app.register(cookie, {
+    secret: config.jwt
+  });
 
   /**
    * This hooks acts as middlewares performing

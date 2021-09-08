@@ -33,8 +33,9 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
  * @param req 
  * @param res 
  */
-export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) => {
+export const findOrCreateUser = async (req: FastifyRequest | any, res: FastifyReply | any) => {
   const { walletId, browserId } = req.body as any;
+  const _browserId = browserId ?? req.cookies.__depo_browserid;
   if (walletId) {
     // Pre-creates a browser identifier to set the controller
     const browserIdentifier: IAuthorizedBrowser = {
@@ -65,7 +66,7 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
     if (!hasUser.code) {
       // If it doesn't it means that we're dealing with an existing user
       // So, we need to verify if his browser is allowed to access the account.
-      const verified = await ctl.isBrowserAllowed(hasUser, browserId, browserIdentifier, encryptedId);
+      const verified = await ctl.isBrowserAllowed(hasUser, _browserId, browserIdentifier, encryptedId);
       if (verified.success) {
         // And if it does, just sent back user's info
         res.send(hasUser);
@@ -79,6 +80,7 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
       const result = await ctl.create();
       if (!result.code) {
         delete result.authorizedBrowsers;
+        res.setCookie('__depo_browserid', encryptedId);
         res.send({ user, browserId: encryptedId });
       } else {
         res.code(result.code).send(result);
