@@ -401,4 +401,37 @@ export class DepoUserController extends AbstractEntity {
     }
     return false;
   }
+  
+  /**
+   * Verifies if the current browser is allowed to access the current user's account
+   * based on its browser id.
+   * 
+   * @param user an user
+   * @param browserId the current browser id
+   * @param browserIdentifier the pre-created browser identifier
+   * @param encryptedId the encrypted browser id
+   * @returns a standarized response allowed or not allowed
+   */
+  async isBrowserAllowed(user: IUser, browserId: string, browserIdentifier: IAuthorizedBrowser, encryptedId: string): Promise<IResponse> {
+    // First, compares the user's authorized browser with the current browser id
+    const isAuthorizedBrowser = this.compareHash(user, browserId);
+    // if the browser exist, check if it is authorized
+    if (isAuthorizedBrowser !== false) {
+      if (isAuthorizedBrowser.authorized) {
+        // and if it is, just send back the user
+        return respond(user);
+      }
+      // Else, send a warning about the fact that this is a new browser
+      return respond({
+        message: `Browser identified but not yet authorized. Please use an already registered device to allow. Reference: ${isAuthorizedBrowser.name}`,
+      }, true, 403)
+    }
+    // If the browser doesn't exist, add to the list of authorization request and send back a message
+    // about it.
+    await this.addBrowserIdentifier(browserIdentifier);
+    return respond({
+      message: `Browser not identified. Please, allow this browser using an already registered device. Reference: ${browserIdentifier.name}`,
+      browserId: encryptedId
+    }, true, 403);
+  }
 }

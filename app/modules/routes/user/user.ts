@@ -3,6 +3,7 @@ import { v4 } from "uuid";
 import { DepoUserController } from "../../controller/DepoUserController";
 import { IAPIKey } from "../../interfaces/IAPIKey";
 import { IAuthorizedBrowser } from "../../interfaces/IAuthorizedBrowser";
+import { IResponse } from "../../interfaces/IResponse";
 import { IUser } from "../../interfaces/IUser";
 import { CryptoJsHandler } from "../../util/CryptoJsHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
@@ -35,12 +36,14 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
 export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId, browserId } = req.body as any;
   if (walletId) {
+    // Pre-creates a browser identifier to set the controller
     const browserIdentifier: IAuthorizedBrowser = {
       id: v4(),
       name: `App ID ${Math.ceil(Math.random() * 256)}`,
       strIdentifier: JSON.stringify(req.headers),
       authorized: true
     }
+
     /**
      * @var user instance of IUser
      */
@@ -50,46 +53,32 @@ export const findOrCreateUser = async (req: FastifyRequest, res: FastifyReply) =
       },
       wallets: [{ address: walletId }],
       authorizedBrowsers: [browserIdentifier]
-
     }
+
     const handle = new CryptoJsHandler();
+    // Encrypts ID before verification
     const encryptedId = handle.encrypt(`${walletId};${browserIdentifier.id}`);
-    const ctl = new DepoUserController(user)
+    const ctl = new DepoUserController(user);
     // Tries to find an user which has the given wallet
     const hasUser = await ctl.findUser(walletId);
-
+    // Verify if has no "code" in hasUser, indicating an error
     if (!hasUser.code) {
-      const isAuthorizedBrowser = ctl.compareHash(hasUser, browserId);
-
-      if (isAuthorizedBrowser !== false) {
-        if (isAuthorizedBrowser.authorized) {
-          res.send(hasUser);
-        } else {
-          res.code(403).send(
-            respond({
-              message: `Browser identified but not yet authorized. Please use an already registered device to allow. Reference: ${isAuthorizedBrowser.name}`,
-            },
-              true, 403
-            )
-          )
-        }
+      // If it doesn't it means that we're dealing with an existing user
+      // So, we need to verify if his browser is allowed to access the account.
+      const verified = await ctl.isBrowserAllowed(hasUser, browserId, browserIdentifier, encryptedId);
+      if (verified.success) {
+        // And if it does, just sent back user's info
+        res.send(hasUser);
       } else {
-        await ctl.addBrowserIdentifier(browserIdentifier);
-        res.code(403).send(
-          respond({
-            message: `Browser not identified. Please, allow this browser using an already registered device. Reference: ${browserIdentifier.name}`,
-            browserId: encryptedId
-          },
-            true, 403
-          )
-        );
+        // If not, sent back a 403 with a warning message
+        res.code(verified.code).send(verified);
       }
     } else {
       // And if it didn't find, then create a new user
+      // and assign the first browser as authorized.
       const result = await ctl.create();
       if (!result.code) {
         delete result.authorizedBrowsers;
-
         res.send({ user, browserId: encryptedId });
       } else {
         res.code(result.code).send(result);
