@@ -48,12 +48,12 @@ export class BrowserIdentityHandler {
      * The identifier is created based on the UUID toke v4 and the browser ID is
      * the encrypted union of the browser ID and the wallet ID. 
      * 
-     * Based in [AmIUnique](amiunique.org), it is possible to use the browser headers to create some uniqueness to the
-     * current browser using its default configurations as `locale`, `language`, `OS`, `version` and etc, so trying to achieve this
-     * goal, the identifier uses a combination between `UUID`, `BrowserHeaders` and the user's `walletId` and a random
+     * According to [AmIUnique](amiunique.org), it's possible to use the browser headers to create some uniqueness to the
+     * current browser using its default configurations as `locale`, `language`, `OS`, `version`, etc, so trying to achieve this
+     * goal, the identifier uses a combination between `UUID`, `BrowserHeaders`, the user's `walletId`, and a random
      * alias (not unique) to identify the browser in user's account.
      * 
-     * _Note that this may create some issues when dealing with multiple wallets in the same browser._
+     * _Note that this MAY create some issues when dealing with multiple wallets in the same browser._
      * 
      * @returns the identifier
      */
@@ -81,6 +81,10 @@ export class BrowserIdentityHandler {
         });
     }
 
+    /**
+     * Update the browser id and browser identification hash
+     * @param id an ID. Usually a UUID v4() string
+     */
     setBrowserId(id: string) {
         this.identifier.id = id;
         this.createId();
