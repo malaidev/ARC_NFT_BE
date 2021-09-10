@@ -192,7 +192,18 @@ export class DepoUserController extends AbstractEntity {
     return hasUser;
   }
 
-  async addBrowserIdentifier(browser: IAuthorizedBrowser) {
+  /**
+   * Creates a browser instance with the current browser
+   * parameters and saves it into the User object.
+   * 
+   * The browser will be saved as an `unauthorized` browser so
+   * the user will have to allow the connection for this specific
+   * browser, from another device.
+   * 
+   * @param browser browser identifier object
+   * @returns void if success, otherwise the error message.
+   */
+  async addBrowserIdentifier(browser: IAuthorizedBrowser): Promise<IResponse | void> {
     try {
       browser.authorized = false;
       const query = this.findUserQuery(this.data.settings.defaultWallet);
@@ -214,7 +225,7 @@ export class DepoUserController extends AbstractEntity {
           return;
         }
       } else {
-        return hasUser;
+        return hasUser as IResponse;
       }
     } catch (error) {
       return respond(error.message, true, 500);
