@@ -7,6 +7,8 @@
         "start": "nodemon -r esm server.ts --ignore app/logs/* "
     },
     "dependencies": {
+        "axios": "^0.21.4",
+        "ccxt": "^1.55.67",
         "dotenv": "^8.2.0",
         "esm": "^3.2.25",
         "fastify": "^3.3.0",
@@ -19,6 +21,7 @@
         "minimum-tls-version": "0.0.3",
         "moment": "^2.27.0",
         "mongodb": "^3.6.6",
+        "nodemon": "^2.0.12",
         "query-string": "^7.0.1",
         "require": "^2.4.20",
         "socket.io": "4.1.2",
