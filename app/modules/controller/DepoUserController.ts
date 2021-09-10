@@ -149,7 +149,8 @@ export class DepoUserController extends AbstractEntity {
    */
   async removeExchange(walletId: string, exchange: IAPIKey) {
     // Get the user
-    const hasUser = await this.findUser(walletId) as IUser;
+    const query = this.findUserQuery(walletId);
+    const hasUser = await this.findOne(query) as IUser;
     // Checks if the user exists
     if (!hasUser.code) {
       // And if it does, check if the user has saved exchanges
