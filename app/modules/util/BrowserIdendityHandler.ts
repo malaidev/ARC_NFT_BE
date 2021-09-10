@@ -5,6 +5,9 @@ import { CryptoJsHandler } from "./CryptoJsHandler";
 /**
  * This class handles browser uniqueness attribution.
  * 
+ * @param {any} headers
+ * @param {string} walletId
+ * 
  * @method createIdentifier
  * @method getBrowserId
  * @method setIdentifier
@@ -40,7 +43,18 @@ export class BrowserIdentityHandler {
     }
 
     /**
-     * Creates a identifier to the browser
+     * Creates a identifier to the browser.
+     * 
+     * The identifier is created based on the UUID toke v4 and the browser ID is
+     * the encrypted union of the browser ID and the wallet ID. 
+     * 
+     * Based in [AmIUnique](amiunique.org), it is possible to use the browser headers to create some uniqueness to the
+     * current browser using its default configurations as `locale`, `language`, `OS`, `version` and etc, so trying to achieve this
+     * goal, the identifier uses a combination between `UUID`, `BrowserHeaders` and the user's `walletId` and a random
+     * alias (not unique) to identify the browser in user's account.
+     * 
+     * _Note that this may create some issues when dealing with multiple wallets in the same browser._
+     * 
      * @returns the identifier
      */
     createIdentifier(): IAuthorizedBrowser {
