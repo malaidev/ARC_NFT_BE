@@ -63,7 +63,7 @@ export class CryptoJsHandler {
      * @param fn `createCipheriv`, `createDecipheriv`
      * @returns the decrypted data
      */
-    private _(str: string, fn: Function): string {
+    private _(str: string, fn: Function, secret?: string): string {
         if (['createCipheriv', 'createDecipheriv'].includes(fn.name)) {
             // To encoding 
             const _a = fn.name === 'createCipheriv' ? 'hex' : 'binary';
@@ -71,7 +71,7 @@ export class CryptoJsHandler {
             const _c = _a === 'hex' ? 'binary' : 'hex'
 
             const _k = createHash('sha256')
-                .update(this.secret)
+                .update(secret ?? this.secret)
                 .digest();
 
             const _$e = fn('aes256', _k, this.resizedIV);
@@ -100,8 +100,8 @@ export class CryptoJsHandler {
      * @param str the raw data 
      * @returns the encrypted data
      */
-    encrypt(str: string) {
-        return this._(str, createCipheriv);
+    encrypt(str: string, secret?: string) {
+        return this._(str, createCipheriv, secret);
     }
 
     /**
@@ -109,7 +109,7 @@ export class CryptoJsHandler {
      * @param str the encrypted data 
      * @returns the decrypted data
      */
-    decrypt(str: string) {
-        return this._(str, createDecipheriv);
+    decrypt(str: string, secret?: string) {
+        return this._(str, createDecipheriv, secret);
     }
 }
