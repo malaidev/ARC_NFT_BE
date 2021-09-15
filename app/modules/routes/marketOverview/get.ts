@@ -4,11 +4,28 @@ import { formatPercentage } from '../../util/formatPercent';
 import { respond } from "../../util/respond";
 import axios from 'axios';
 
+const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
+  const exchange = new ccxt[exchangeName]();
+  const response = await exchange.fetchMarkets();
+  const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
+
+  const allTickers = await exchange.fetchTickers(formatedSymbols);
+
+  Object.keys(allTickers).forEach(base => {
+    const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
+    if(exists){
+      exists.volume_24h_usd = +exists.volume_24h * +allTickers[base].ask;
+      exists.price_usd = +exists.price * +allTickers[base].ask;
+    }
+  })
+  return formatedMarket;
+}
+
 const binanceMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.binance();
   const response = await exchange.fetchMarkets();
   const filterMarkets = [];
-
+  const baseArry = [];
   
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
@@ -23,7 +40,10 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
-    const aux_volume_24h_usd = auxQuote === 'USDT' ? +allTickers[item].info.volume : +allTickers[item].info.volume * +allTickers[item].info.lastPrice;
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
+
     return {
       symbol: allTickers[item].symbol,
       quote: auxQuote,
@@ -32,19 +52,23 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
       price: +allTickers[item].info.lastPrice,
       price_usd: 0,
       volume_24h: +allTickers[item].info.volume,
-      volume_24h_usd: aux_volume_24h_usd,
+      volume_24h_usd: 0,
       variationPrice: +allTickers[item].info.priceChange,
       change_24h: +allTickers[item].info.priceChangePercent
     }
   })
-  console.log(formatedMarket.find(item => item.symbol === 'ETH/BTC'));
-    return formatedMarket
+  
+  const responseFormated = await getPriceByUSDT('binance', baseArry, formatedMarket);
+  // console.log(responseFormated[0])
+  return responseFormated
+
 }
 
 const huobiMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.huobi();
   const response = await exchange.fetchMarkets();
   const filterMarkets = [];
+  const baseArry = [];
 
   
   listMarkets.map(item => {
@@ -62,9 +86,9 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
     const variationPrice = +allTickers[item].open - +allTickers[item].ask;
-    const aux_volume_24h_usd = auxQuote === 'USDT' 
-      ? +allTickers[item].info.vol 
-      : +allTickers[item].info.vol* +allTickers[item].ask;
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
     
     return {
       symbol: allTickers[item].symbol,
@@ -74,17 +98,22 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
       price: +allTickers[item].ask,
       price_usd: 0,
       volume_24h: +allTickers[item].info.vol,
-      volume_24h_usd: +aux_volume_24h_usd,
+      volume_24h_usd: 0,
       variationPrice,
       change_24h: +allTickers[item].percentage
     }
   })
-    return formatedMarket
+
+  const responseFormated = await getPriceByUSDT('huobi', baseArry, formatedMarket);
+  return responseFormated
+
 }
 
 const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.ftx();
   const response = await exchange.fetchMarkets();
+  const baseArry = [];
+
   const filterMarkets = [];
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
@@ -105,6 +134,9 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   }
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
     const variationPrice = +allTickers[item].ask - +allTickers[item].close;
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
 
     return {
       symbol: allTickers[item].symbol,
@@ -114,12 +146,15 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       price: +allTickers[item].ask,
       price_usd: 0,
       volume_24h: +allTickers[item].info.quoteVolume24h,
-      volume_24h_usd: +allTickers[item].info.volumeUsd24h,
+      volume_24h_usd: 0,
       variationPrice,
       change_24h: formatPercentage((+allTickers[item].percentage))
     }
   })
-    return formatedMarket
+    
+  const responseFormated = await getPriceByUSDT('ftx', baseArry, formatedMarket);
+  return responseFormated
+
 
 }
 
@@ -147,6 +182,8 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
       return allSingleQuotes.push(auxQuote);
     }
   })
+
+  console.log(ordenedMarkets[0])
 
     return res.send({
       allSingleQuotes,
