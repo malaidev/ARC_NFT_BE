@@ -5,11 +5,12 @@ import { respond } from "../../util/respond";
 export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, symbol } = req.params as any;
   const formattedExchangeName = exchangeName.toLowerCase();
+  const formattedSymbol = symbol.replace('-', '/');
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
       const exchange = new ccxt[formattedExchangeName]();
-      const response = await exchange.fetchOrderBook(symbol);
+      const response = await exchange.fetchOrderBook(formattedSymbol);
       if (!response) {
         res.code(204).send();
       } else {

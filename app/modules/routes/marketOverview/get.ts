@@ -33,7 +33,11 @@ const binanceMarketQuote = async (quote: string, listMarkets: any, dolar:any) =>
       volume_24h: +allTickers[item].info.volume,
       volume_24h_usd: +allTickers[item].info.volume * +dolar,
       variationPrice: +allTickers[item].info.priceChange,
-      change_24h: +allTickers[item].info.priceChangePercent
+      change_24h: +allTickers[item].info.priceChangePercent,
+      bid: +allTickers[item].bid,
+      ask: +allTickers[item].ask,
+      high: +allTickers[item].high,
+      low: +allTickers[item].low
     }
   })
     return formatedMarket
@@ -71,7 +75,11 @@ const huobiMarketQuote = async (quote: string, listMarkets: any, dolar:any) => {
       volume_24h: +allTickers[item].info.vol,
       volume_24h_usd: +allTickers[item].info.vol * +dolar,
       variationPrice,
-      change_24h: +allTickers[item].percentage
+      change_24h: +allTickers[item].percentage,
+      bid: +allTickers[item].info.bid,
+      ask: +allTickers[item].info.ask,
+      high: +allTickers[item].info.high,
+      low: +allTickers[item].info.low
     }
   })
     return formatedMarket
@@ -111,7 +119,11 @@ const ftxMarketQuote = async (quote: string, listMarkets: any, dolar:any) => {
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: +allTickers[item].info.volumeUsd24h,
       variationPrice,
-      change_24h: formatPercentage((+allTickers[item].percentage))
+      change_24h: formatPercentage((+allTickers[item].percentage)),
+      bid: +allTickers[item].info.bid,
+      ask: +allTickers[item].info.ask,
+      high: +allTickers[item].info.high,
+      low: +allTickers[item].info.low
     }
   })
     return formatedMarket
