@@ -56,7 +56,7 @@ export const findOrCreateUser = async (req: FastifyRequest | any, res: FastifyRe
       const verified = await ctl.isBrowserAllowed(hasUser, _browserId, browser);
       if (verified) {
         // And if it does, just sent back user's info
-        res.send(verified.data);
+        res.send({user: hasUser});
       } else {
         // If not, sent back a 403 with a warning message
         res.code(403).send('Forbidden');
