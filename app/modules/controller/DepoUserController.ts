@@ -349,10 +349,23 @@ export class DepoUserController extends AbstractEntity {
    */
   private encryptApiKey(apiKey: IAPIKey) {
     const handler = new CryptoJsHandler();
-    return {
+
+    const _apiKey: IAPIKey = {
       ...apiKey,
       apiSecret: handler.encrypt(apiKey.apiSecret)
-    } as IAPIKey;
+    };
+    // Also encrypts extrafields.password if exists.
+    if (apiKey.extraFields) {
+      _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
+        if (extraField.fieldName.match(/password/i)) {
+          return {
+            fieldName: extraField.fieldName,
+            value: handler.encrypt(extraField.value)
+          }
+        } else return extraField;
+      })
+    }
+    return _apiKey
   }
 
   /**
@@ -369,10 +382,23 @@ export class DepoUserController extends AbstractEntity {
     if (Array.isArray(apiKey)) {
       return apiKey.map((key: IAPIKey) => this.decryptApiKey(key)) as Array<IAPIKey>;
     } else {
-      return {
+      const _apiKey: IAPIKey = {
         ...apiKey,
         apiSecret: handler.decrypt(apiKey.apiSecret)
-      } as IAPIKey;
+      }
+      // Decrypts also extrafields.password if exists
+      if (apiKey.extraFields) {
+        _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
+          if (extraField.fieldName.match(/password/i)) {
+            return {
+              fieldName: extraField.fieldName,
+              value: handler.decrypt(extraField.value)
+            }
+          } else return extraField;
+        })
+      }
+
+      return _apiKey;
     }
   }
 
