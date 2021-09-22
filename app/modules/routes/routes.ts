@@ -2,6 +2,8 @@ import { user } from "./user";
 import { log } from "./logger";
 import { marketOverview } from './marketOverview';
 import { marketDetails } from './marketDetails';
+import { market } from './market';
+import { order } from './order';
 
 /**
  * Creates the array of routes to be set up.
@@ -16,5 +18,7 @@ export function routes(app: any): Array<Promise<any>> {
         app.register(user, { prefix: 'ws/v2/user' }),
         app.register(marketOverview, { prefix: 'ws/v2/mktOverview' }),
         app.register(marketDetails, { prefix: 'ws/v2/marketDetails' }),
+        app.register(market, { prefix: 'ws/v2/market' }),
+        app.register(order, { prefix: 'ws/v2/order' })
     ];
 }
