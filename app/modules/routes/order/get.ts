@@ -1,5 +1,7 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
+import { DepoUserController } from '../../controller/DepoUserController';
+import { IExtraApiKeyFields } from '../../interfaces/IAPIKey';
 import { IOrder } from '../../interfaces/IOrder';
 import { respond } from "../../util/respond";
 
@@ -7,17 +9,30 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const order: IOrder = req.body;
   const { exchangeName } = req.params as any;
   let createMarketBuyOrderRequiresPrice = true;
+  let userSubAccount: IExtraApiKeyFields = { 
+    fieldName: '', 
+    value: ''
+  }
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
   const formattedSide = order.offerType.toLowerCase();
-  const user = order.user.details.exchanges.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
+  const clt = new DepoUserController();
+  const userAPIKeys = await clt.getUserApiKeys(order.user.address);
+  const user = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
   if (formattedExchangeName === 'huobi' && formattedType === 'market') {
     createMarketBuyOrderRequiresPrice = false;
   } 
 
+  if (user.id.toLowerCase() === 'ftx' && user.extraFields.length > 0) {
+    userSubAccount = user.extraFields.find(field => field.fieldName === 'Subaccount');
+  }
+
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
       const exchange = new ccxt[formattedExchangeName]({
+        'headers': {
+          'FTX-SUBACCOUNT': userSubAccount.value,
+        },
         'apiKey': user.apiKey,
         'secret': user.apiSecret,
         'enableRateLimit': true,
