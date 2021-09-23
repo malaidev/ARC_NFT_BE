@@ -6,10 +6,14 @@ import { respond } from "../../util/respond";
 export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const order: IOrder = req.body;
   const { exchangeName } = req.params as any;
+  let createMarketBuyOrderRequiresPrice = true;
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
   const formattedSide = order.offerType.toLowerCase();
   const user = order.user.details.exchanges.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
+  if (formattedExchangeName === 'huobi' && formattedType === 'market') {
+    createMarketBuyOrderRequiresPrice = false;
+  } 
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
@@ -17,6 +21,9 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
         'apiKey': user.apiKey,
         'secret': user.apiSecret,
         'enableRateLimit': true,
+        'options': {
+          'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
+        }
       });
       const response = await exchange.createOrder(order.symbolPair, formattedType, formattedSide, order.amount, order.price);
       if (!response) {
