@@ -60,16 +60,16 @@ const loadFTXOrders = async (userData, symbol) => {
   exchange.secret = userData.apiSecret;
 
   // config for subaccounts 
-  exchange.headers = {
-    'FTX-SUBACCOUNT': 'depo_test',
-  }
-
-  // if(userData.extraFields.length > 0){
-  //   const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-  //   exchange.headers = {
-  //     'FTX-SUBACCOUNT': userSubAccount.value,
-  //   }
+  // exchange.headers = {
+  //   'FTX-SUBACCOUNT': 'depo_test',
   // }
+
+  if(userData.extraFields.length > 0){
+    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
+    exchange.headers = {
+      'FTX-SUBACCOUNT': userSubAccount.value,
+    }
+  }
 
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const orderList = await exchange.fetchOrders();
