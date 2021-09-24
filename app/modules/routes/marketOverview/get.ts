@@ -195,8 +195,6 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
     }
   })
 
-  console.log(ordenedMarkets[0])
-
     return res.send({
       allSingleQuotes,
       marketOfQuote: ordenedMarkets,
