@@ -18,13 +18,13 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const formattedSide = order.offerType.toLowerCase();
   const clt = new DepoUserController();
   const userAPIKeys = await clt.getUserApiKeys(order.user.address);
-  const user = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
+  const userSelectedExchange = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
   if (formattedExchangeName === 'huobi' && formattedType === 'market') {
     createMarketBuyOrderRequiresPrice = false;
   } 
 
-  if (user.id.toLowerCase() === 'ftx' && user.extraFields.length > 0) {
-    userSubAccount = user.extraFields.find(field => field.fieldName === 'Subaccount');
+  if (userSelectedExchange.id.toLowerCase() === 'ftx' && userSelectedExchange.extraFields.length > 0) {
+    userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
   }
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
@@ -33,8 +33,8 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
         'headers': {
           'FTX-SUBACCOUNT': userSubAccount.value,
         },
-        'apiKey': user.apiKey,
-        'secret': user.apiSecret,
+        'apiKey': userSelectedExchange.apiKey,
+        'secret': userSelectedExchange.apiSecret,
         'enableRateLimit': true,
         'options': {
           'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
