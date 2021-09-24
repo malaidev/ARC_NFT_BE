@@ -7,6 +7,7 @@ export interface IOrder {
   amount?: string;
   price?: number,
   user?: {
+    address: string;
     details: {
       exchanges: IAPIKey[];
     }
