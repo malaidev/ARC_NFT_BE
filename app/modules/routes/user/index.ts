@@ -1,5 +1,6 @@
 import { create, getAll, getOne, findOrCreateUser, update, removeApiKey } from './user'
-import { getUserCexBalance } from './getCEX';
+import { getUserCexBalance } from './getCEXBalance';
+import { getUserAllOpenOrders } from './getAllOpenOrders';
 
 /**
  * Exports the users actions routes.
@@ -17,4 +18,5 @@ export const user = async (router: any, options: any) => {
 
   // get cex user balance
   router.get('/cexBalance/:walletId', getUserCexBalance)
+  router.get('/cexOpenOrders/:walletId', getUserAllOpenOrders)
 }

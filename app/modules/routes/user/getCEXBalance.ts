@@ -64,16 +64,18 @@ const getFtxBalance = async ( userData ) => {
   exchange.secret = userData.apiSecret;
   
   // config for subaccounts 
-  exchange.headers = {
-    'FTX-SUBACCOUNT': 'depo_test',
-  }
-
-  // if(userData.extraFields.length > 0){
-  //   const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-  //   exchange.headers = {
-  //     'FTX-SUBACCOUNT': userSubAccount.value,
-  //   }
+  // exchange.headers = {
+    // 'FTX-SUBACCOUNT': 'depo_test',
   // }
+
+
+
+  if(userData.extraFields.length > 0){
+    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
+    exchange.headers = {
+      'FTX-SUBACCOUNT': userSubAccount.value,
+    }
+  }
  
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const responseBalance = await exchange.fetchBalance();
@@ -129,7 +131,6 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
     response.walletValue += +symbol.usdValue;
     const existIndx = response.uniqueSymbols.findIndex(item => item.symbol === symbol.symbol);
     if(existIndx === -1 ){
-      delete symbol.exchange
       return response.uniqueSymbols.push(symbol)
     } else  {
       response.uniqueSymbols[existIndx].amount += +symbol.amount
