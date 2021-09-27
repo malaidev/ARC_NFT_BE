@@ -54,27 +54,29 @@ export const getUserAllOpenOrders = async (req: FastifyRequest, res: FastifyRepl
 
   const response = []
 
-  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
-    const binanceResponse = await loadBinanceOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'))
+  if(userExchanges.length > 0) {
+    if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
+      const binanceResponse = await loadBinanceOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'))
 
-    if(response){
-      response.push(...binanceResponse);
+      if(response){
+        response.push(...binanceResponse);
+      }
     }
-  }
 
-  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi' )){
-    const responseHuobi = await loadHuobiOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi'))
+    if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi' )){
+      const responseHuobi = await loadHuobiOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi'))
 
-    // if(responseHuobi){
-    //   orders.push(...responseHuobi);
-    // }
-  }
+      // if(responseHuobi){
+      //   orders.push(...responseHuobi);
+      // }
+    }
 
-  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx' )){
-    const responseFTX = await loadFtxOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
+    if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx' )){
+      const responseFTX = await loadFtxOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
 
-    if(responseFTX){
-      response.push(...responseFTX);
+      if(responseFTX){
+        response.push(...responseFTX);
+      }
     }
   }
 
