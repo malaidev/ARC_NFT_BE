@@ -4,7 +4,7 @@
     "description": "WSRV01",
     "main": "./server.ts",
     "scripts": {
-        "start": "nodemon -r esm server.ts --ignore app/logs/* "
+        "start": "nodemon -r esm server.ts --ignore **/app/logs/* "
     },
     "dependencies": {
         "axios": "^0.21.4",
