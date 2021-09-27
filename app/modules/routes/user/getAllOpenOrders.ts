@@ -80,5 +80,7 @@ export const getUserAllOpenOrders = async (req: FastifyRequest, res: FastifyRepl
     }
   }
 
+  response.forEach(symbol => symbol.total_price = +symbol.price * +symbol.amount )
+
   return res.send({ response });
 }

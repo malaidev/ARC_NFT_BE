@@ -68,8 +68,6 @@ const getFtxBalance = async ( userData ) => {
     // 'FTX-SUBACCOUNT': 'depo_test',
   // }
 
-
-
   if(userData.extraFields.length > 0){
     const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
     exchange.headers = {
@@ -131,12 +129,15 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
     response.walletValue += +symbol.usdValue;
     const existIndx = response.uniqueSymbols.findIndex(item => item.symbol === symbol.symbol);
     if(existIndx === -1 ){
-      return response.uniqueSymbols.push(symbol)
+      return response.uniqueSymbols.push({...symbol, repeat: +(response.symbols.filter(item => item.symbol === symbol.symbol)).length })
     } else  {
       response.uniqueSymbols[existIndx].amount += +symbol.amount
-      response.uniqueSymbols[existIndx].usdValue = +(response.uniqueSymbols[existIndx].usdValue + symbol.usdValue) / 2;
+      response.uniqueSymbols[existIndx].usdValue += +symbol.usdValue
     }
   })
+
+  response.walletValue = +response.walletValue.toFixed(2);
+  response.uniqueSymbols.forEach(symbol => symbol.usdValue = symbol.usdValue / symbol.repeat )
 
   return res.send({ response });
 }
