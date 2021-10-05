@@ -23,3 +23,28 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
     res.code(400).send(respond("`Exchange name cannot be null.`", true, 400));
   }
 }
+
+export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
+  const allExchanges = ['binance', 'huobi', 'ftx'];
+  const { symbol } = req.params as any;
+  const formattedSymbol = symbol.replace('-', '/');
+  let allExchangesOrderBook = [];
+
+  if (symbol) {
+    try {
+      allExchanges.map(async exchangeName => {
+        const exchange = new ccxt[exchangeName]();
+        const response = await exchange.fetchOrderBook(formattedSymbol);
+        allExchangesOrderBook.push(response);
+      })
+    } catch (error) {
+      console.log(error);
+    }
+
+    return res.send({ 
+      allExchangesOrderBook
+    })
+  } else {
+    res.code(400).send(respond("Symbol cannot be null.", true, 400));
+  }
+}
