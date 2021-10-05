@@ -3,7 +3,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { respond } from "../../util/respond";
 
 export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) => {
+
   const { exchangeName, symbol } = req.params as any;
+
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedSymbol = symbol.replace('-', '/');
 
@@ -30,13 +32,15 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];
 
+
+
   if (symbol) {
     try {
-      allExchanges.map(async exchangeName => {
+      for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
         const response = await exchange.fetchOrderBook(formattedSymbol);
-        allExchangesOrderBook.push(response);
-      })
+        allExchangesOrderBook.push({exchangeName: exchange.name, response});
+      }
     } catch (error) {
       console.log(error);
     }
