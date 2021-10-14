@@ -5,7 +5,7 @@ import { marketDetails } from './marketDetails';
 import { userOrderBook } from './orderBook';
 import { market } from './market';
 import { order } from './order';
-
+import { emailContact } from './emailContact';
 
 /**
  * Creates the array of routes to be set up.
@@ -22,6 +22,7 @@ export function routes(app: any): Array<Promise<any>> {
         app.register(marketDetails, { prefix: 'ws/v2/marketDetails' }),
         app.register(userOrderBook, { prefix: 'ws/v2/ordersBook' }),
         app.register(market, { prefix: 'ws/v2/market' }),
-        app.register(order, { prefix: 'ws/v2/order' })
+        app.register(market, { prefix: 'ws/v2/market' }),
+        app.register(emailContact, { prefix: 'ws/v2/emailContact' })
     ];
 }

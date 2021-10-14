@@ -166,8 +166,6 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
     
   const responseFormated = await getPriceByUSDT('ftx', baseArry, formatedMarket);
   return responseFormated
-
-
 }
 
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
