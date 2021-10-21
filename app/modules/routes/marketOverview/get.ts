@@ -198,3 +198,36 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
       marketOfQuote: ordenedMarkets,
     })
 }
+
+export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
+  const { symbol } = req.params as any;
+  const formatedSymbol = symbol.replace('-', '/');
+  console.log('bateu na API', symbol)
+  const exchanges = ['binance' , 'huobi', 'ftx'];
+  const allValues = [];
+
+ 
+
+  await Promise.all(
+    exchanges.map(async (exchangeName) => {
+      try {
+      const binance = new ccxt.binance();
+      const markets = await binance.loadMarkets();
+      if(markets[formatedSymbol]){
+        const formatedSymbolMarket = await binance.fetchTicker(formatedSymbol);
+        allValues.push({
+          exchange: exchangeName,
+          price: formatedSymbolMarket.ask
+        })
+        
+        }  
+      }catch(err){
+        console.log(err)
+      }
+    })
+   
+  )
+     
+
+  return res.send(allValues)
+}
