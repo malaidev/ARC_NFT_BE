@@ -5,6 +5,7 @@ import { IUser } from "../../interfaces/IUser";
 import { BrowserIdentityHandler } from "../../util/BrowserIdendityHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
+import { isAPIKeyValid } from '../../util/ccxt-helper';
 /**
  * GET one row from DB
  * @param {*} req 
@@ -88,12 +89,17 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const user: IUser = req.body;
   const { walletId } = req.params as any;
   const ctl = new DepoUserController(user);
-  const result = await ctl.update(walletId);
-  ctl.disconnect();
-  if (!result) {
-    res.code(204).send();
-  } else {
-    res.code(result.code).send(result);
+  try {
+    const result = await ctl.update(walletId);
+    const resultUser = await ctl.findUser(walletId);
+    ctl.disconnect();
+    if (!result) {
+      res.send(resultUser);
+    } else {
+      res.code(result.code).send(result);
+    }
+  } catch (error) {
+    res.code(400).send(error);
   }
 }
 
@@ -141,9 +147,9 @@ export const removeApiKey = async (req: FastifyRequest, res: FastifyReply) => {
 
   const ctl = new DepoUserController();
   const result = await ctl.removeExchange(walletId, exchange);
-
-  if (!result?.code) {
-    res.code(204).send();
+  const resultUser = await ctl.findUser(walletId);
+  if (!result?.code && resultUser) {
+    res.send(resultUser);
   } else {
     res.code(result.code).send(result);
   }
