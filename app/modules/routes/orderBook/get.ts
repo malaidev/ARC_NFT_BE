@@ -95,6 +95,8 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
     closedOrders: []
   }
 
+  if(!userExchanges) return
+
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
     const binanceResponse = await loadBinanceOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'), formatedSymbol)
 
