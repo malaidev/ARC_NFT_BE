@@ -52,9 +52,10 @@ export const getUserAllOpenOrders = async (req: FastifyRequest, res: FastifyRepl
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
 
+  if(!userExchanges) return
+
   const response = []
 
-  if(userExchanges.length > 0) {
     if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
       const binanceResponse = await loadBinanceOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'))
 
@@ -78,7 +79,7 @@ export const getUserAllOpenOrders = async (req: FastifyRequest, res: FastifyRepl
         response.push(...responseFTX);
       }
     }
-  }
+
 
   response.forEach(symbol => symbol.total_price = +symbol.price * +symbol.amount )
 

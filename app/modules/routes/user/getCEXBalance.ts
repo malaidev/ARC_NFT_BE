@@ -95,6 +95,8 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
 
+  if(!userExchanges) return
+
   const response = {
     symbols: [],
     uniqueSymbols: [],
