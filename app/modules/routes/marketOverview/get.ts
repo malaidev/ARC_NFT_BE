@@ -181,7 +181,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
       : formatedExchangeName === 'huobi'
         ? await huobiMarketQuote(quote, response)
         : await ftxMarketQuote(quote, response); 
-  const ordenedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
+  const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
     if(!allSingleQuotes.find(subitem=> subitem === item.quote)){
@@ -195,6 +195,36 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 
     return res.send({
       allSingleQuotes,
-      marketOfQuote: ordenedMarkets,
+      marketOfQuote: orderedMarkets,
     })
+}
+
+export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
+  const { symbol } = req.params as any;
+  const formattedSymbol = symbol.replace('-', '/');
+  const exchanges = ['binance' , 'huobi', 'ftx'];
+  const allValues = [];
+
+  await Promise.all(
+    exchanges.map(async (exchangeName) => {
+      try {
+      const binance = new ccxt.binance();
+      const markets = await binance.loadMarkets();
+      if(markets[formattedSymbol]){
+        const formattedSymbolMarket = await binance.fetchTicker(formattedSymbol);
+        allValues.push({
+          exchange: exchangeName,
+          price: formattedSymbolMarket.ask
+        })
+        
+        }  
+      }catch(err){
+        console.log(err)
+      }
+    })
+   
+  )
+     
+
+  return res.send(allValues)
 }
