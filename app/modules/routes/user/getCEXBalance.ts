@@ -94,9 +94,11 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
 
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
+  console.log('caiu antes')
 
-  if(!userExchanges) return
+  if(!userExchanges) return res.send({});
 
+  console.log('passou')
   const response = {
     symbols: [],
     uniqueSymbols: [],

@@ -52,7 +52,7 @@ export const getUserAllOpenOrders = async (req: FastifyRequest, res: FastifyRepl
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
 
-  if(!userExchanges) return
+  if(!userExchanges) return res.send({}); 
 
   const response = []
 
