@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+*lock.json
+.env
+*-local*
+**/logs/*.*
+dbaconfig.ts*
+**/.ssh/*
+cdk.out
+venv
