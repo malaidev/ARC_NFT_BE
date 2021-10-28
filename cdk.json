@@ -1,0 +1,13 @@
+{
+	"app":"python3 ./infrastructure/app.py",
+	"context":{
+		"@aws-cdk/core:newStyleStackSynthesis":true,
+		"@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId":true,
+		"@aws-cdk/core:stackRelativeExports":"true",
+		"@aws-cdk/aws-ecr-assets:dockerIgnoreSupport":true,
+		"@aws-cdk/aws-kms:defaultKeyPolicies":true,
+		"@aws-cdk/aws-rds:lowercaseDbIdentifier":true,
+		"@aws-cdk/aws-efs:defaultEncryptionAtRest":true,
+		"@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021":true
+	}
+}

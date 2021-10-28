@@ -1,0 +1,2 @@
+aws-cdk.aws-eks==1.129.0
+aws-cdk.pipelines==1.129.0
