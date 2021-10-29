@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 export const config = {
   io: null,
   env: process.env.ENV || "development",
@@ -9,10 +12,14 @@ export const config = {
     password: process.env["MONGODB_PASSWORD"],
   },
   server: {
-    port: 3000,
+    port: 3001,
   },
   jwt: {
     secret: process.env["JWT_SECRET"],
+  },
+  mailer: {
+      apiKey: process.env["EMAIL_SERVICE_API_KEY"],
+      domain: process.env["EAMIL_SERVICE_DOMAIN"],
   },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
