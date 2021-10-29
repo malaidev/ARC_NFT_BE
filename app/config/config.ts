@@ -1,32 +1,38 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+if (process.env && !process.env.ENV?.match(/prod|stag/ig)) {
+  const dotenv = require("dotenv");
+  dotenv.config();
+}
 
 export const config = {
-    io: null,
-    env: process.env.env || 'development',
-    logging: true,
-    mongodb: {
-        host: process.env['mongodb.host'],
-        database: process.env['mongodb.dbname'],
-        username: process.env['mongodb.username'],
-        password: process.env['mongodb.password'],
-    },
-    server: {
-        port: process.env['server.port'],
-    },
-    jwt: {
-        secret: process.env['jwt.secret'],
-    },
-    route: (method: 'jwt' | 'token', permission?: string | number) => {
-        return {
-            schema: {
-                properties: {
-                    protected: {
-                        method,
-                        permission: permission || 1
-                    }
-                }
-            }
-        }
-    }
-}
+  io: null,
+  env: process.env.ENV || "development",
+  logging: true,
+  mongodb: {
+    host: process.env["MONGODB_HOST"],
+    database: "DepoMetamaskUsers",
+    username: process.env["MONGODB_USER"],
+    password: process.env["MONGODB_PASSWORD"],
+  },
+  server: {
+    port: 3001,
+  },
+  jwt: {
+    secret: process.env["JWT_SECRET"],
+  },
+  mailer: {
+    apiKey: process.env["EMAIL_SERVICE_API_KEY"],
+    domain: process.env["EAMIL_SERVICE_DOMAIN"],
+  },
+  route: (method: "jwt" | "token", permission?: string | number) => {
+    return {
+      schema: {
+        properties: {
+          protected: {
+            method,
+            permission: permission || 1,
+          },
+        },
+      },
+    };
+  },
+};

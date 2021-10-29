@@ -1,11 +1,10 @@
 import * as mailgun from "mailgun-js";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { config } from "../../config/config";
 
 export class EmailService {
   api = {
-    apiKey: process.env["email.service.api_key"],
-    domain: process.env["email.service.domain"],
+    apiKey: config.mailer.apiKey,
+    domain: config.mailer.domain,
   };
   config = {
     from: "",
