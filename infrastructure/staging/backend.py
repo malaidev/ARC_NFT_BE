@@ -30,7 +30,7 @@ class Stack(core.Stack):
             zone_name="api.depo.io",
         )
 
-        domain = "{aws_region}.api.depo.io".format(aws_region=self.region)
+        domain = "{aws_region}.staging.api.depo.io".format(aws_region=self.region)
 
         # ACM
         certificate = cm.Certificate(
