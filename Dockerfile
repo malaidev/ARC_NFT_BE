@@ -13,4 +13,4 @@ RUN cp -R node_modules prod_node_modules
 FROM base-image AS release
 COPY --from=base-dependencies /app/prod_node_modules ./node_modules
 COPY . .
-EXPOSE 3001
+EXPOSE 3000
