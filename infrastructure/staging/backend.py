@@ -77,7 +77,7 @@ class Stack(core.Stack):
                                 "imagePullPolicy": "Always",
                                 "name": props["namespace"],
                                 "ports": [{"containerPort": 3001}],
-                                "command": "npm start",
+                                "command": ["npm", "start"],
                                 "env": [
                                     {
                                         "name": "MONGODB_USER",
