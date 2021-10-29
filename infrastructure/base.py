@@ -58,7 +58,7 @@ class Base(core.Stack):
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
-                            "docker push -a",
+                            "docker push $ECR:$VERSION",
                         ]
                     },
                     "post_build": {
