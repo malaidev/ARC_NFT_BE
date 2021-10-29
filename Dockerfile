@@ -1,4 +1,7 @@
-FROM node:14.16.0 AS base-image
+ARG AWS_REGION
+ARG ACCOUNT_ID
+
+FROM ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/node:14.16.0 AS base-image
 WORKDIR /app
 COPY package.json .
 
