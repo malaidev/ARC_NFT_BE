@@ -56,7 +56,7 @@ class Base(core.Stack):
                     "build": {
                         "commands": [
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
-                            "docker build -t $TAG:$VERSION .",
+                            "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
                             "docker push $ECR:$VERSION",
                         ]
