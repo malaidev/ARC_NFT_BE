@@ -77,7 +77,8 @@ class Stack(core.Stack):
                                 "imagePullPolicy": "Always",
                                 "name": props["namespace"],
                                 "ports": [{"containerPort": 3001}],
-                                "command": ["npm", "start"],
+                                # "command": ["npm", "start"],
+                                "command": ["ts-node", "-r", "esm", "server.ts"],
                                 "env": [
                                     {
                                         "name": "MONGODB_USER",
@@ -157,6 +158,8 @@ class Stack(core.Stack):
                     "alb.ingress.kubernetes.io/scheme": "internet-facing",
                     "alb.ingress.kubernetes.io/target-type": "ip",
                     "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]',
+                    "alb.ingress.kubernetes.io/healthcheck-path": "/",
+                    "alb.ingress.kubernetes.io/success-codes": '204',
                     "alb.ingress.kubernetes.io/certificate-arn": certificate.certificate_arn,
                     "external-dns.alpha.kubernetes.io/hostname": domain,
                     "alb.ingress.kubernetes.io/actions.ssl-redirect": json.dumps(

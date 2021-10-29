@@ -13,4 +13,5 @@ RUN cp -R node_modules prod_node_modules
 FROM base-image AS release
 COPY --from=base-dependencies /app/prod_node_modules ./node_modules
 COPY . .
+RUN npm install -g ts-node
 EXPOSE 3001
