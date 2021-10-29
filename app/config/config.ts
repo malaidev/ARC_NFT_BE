@@ -1,5 +1,7 @@
-import * as dotenv from "dotenv";
-dotenv.config();
+if (process.env && !process.env.ENV?.match(/prod|stag/ig)) {
+  const dotenv = require("dotenv");
+  dotenv.config();
+}
 
 export const config = {
   io: null,
@@ -18,8 +20,8 @@ export const config = {
     secret: process.env["JWT_SECRET"],
   },
   mailer: {
-      apiKey: process.env["EMAIL_SERVICE_API_KEY"],
-      domain: process.env["EAMIL_SERVICE_DOMAIN"],
+    apiKey: process.env["EMAIL_SERVICE_API_KEY"],
+    domain: process.env["EAMIL_SERVICE_DOMAIN"],
   },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
