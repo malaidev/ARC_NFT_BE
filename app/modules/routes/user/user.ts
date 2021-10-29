@@ -90,6 +90,7 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
   const ctl = new DepoUserController(user);
   try {
+    await isAPIKeyValid(user.exchanges[0]);
     const result = await ctl.update(walletId);
     const resultUser = await ctl.findUser(walletId);
     ctl.disconnect();
