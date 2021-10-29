@@ -121,6 +121,12 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "email", "key": "service_domain"}
                                         },
                                     },
+                                    {
+                                        "name": "LOGGING",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "logging", "key": "logging"}
+                                        },
+                                    },
                                 ],
                             }
                         ]
