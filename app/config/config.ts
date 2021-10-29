@@ -1,4 +1,4 @@
-if (process.env && !process.env.ENV?.match(/prod|stag/ig)) {
+if (process.env && !process.env.ENV?.match(/prod|stag/gi)) {
   const dotenv = require("dotenv");
   dotenv.config();
 }
@@ -6,7 +6,7 @@ if (process.env && !process.env.ENV?.match(/prod|stag/ig)) {
 export const config = {
   io: null,
   env: process.env.ENV || "development",
-  logging: true,
+  logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
   mongodb: {
     host: process.env["MONGODB_HOST"],
     database: "DepoMetamaskUsers",
