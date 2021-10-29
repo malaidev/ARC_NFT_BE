@@ -134,7 +134,7 @@ class Stack(core.Stack):
             "kind": "Service",
             "metadata": {"name": f"{props['namespace']}-service"},
             "spec": {
-                "ports": [{"port": 80, "targetPort": 3000, "protocol": "TCP"}],
+                "ports": [{"port": 80, "targetPort": 3001, "protocol": "TCP"}],
                 "type": "NodePort",
                 "selector": {"app.kubernetes.io/name": f"{props['namespace']}-app"},
             },
