@@ -103,6 +103,24 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "mongo-creds", "key": "host"}
                                         },
                                     },
+                                    {
+                                        "name": "JWT_SECRET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "auth", "key": "jwt_secret"}
+                                        },
+                                    },
+                                    {
+                                        "name": "EMAIL_SERVICE_API_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "email", "key": "service_api_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "EMAIL_SERVICE_DOMAIN",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "email", "key": "service_domain"}
+                                        },
+                                    },
                                 ],
                             }
                         ]
