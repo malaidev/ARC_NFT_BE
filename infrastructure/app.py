@@ -36,7 +36,7 @@ base_stack_sydney = BaseStack(app, f"{namespace}-base-sydney", props=props, env=
 base_stack_ireland = BaseStack(app, f"{namespace}-base-ireland", props=props, env=ireland)
 
 # Staging
-pipeline = StagingPipeline(app, f"{props['namespace']}-pipeline-virginia-staging", base_stack_ireland.outputs, env=ireland, tags=common_tags)
+pipeline = StagingPipeline(app, f"{props['namespace']}-pipeline-ireland-staging", base_stack_ireland.outputs, env=ireland, tags=common_tags)
 pipeline.add_dependency(base_stack_ireland)
 
 app.synth()
