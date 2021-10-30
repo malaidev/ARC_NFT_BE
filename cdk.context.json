@@ -1,0 +1,71 @@
+{
+  "load-balancer:account=927228102540:loadBalancerTags.0.key=ingress.k8s.aws/stack:loadBalancerTags.0.value=default/depo-backend-ingress:loadBalancerTags.1.key=elbv2.k8s.aws/cluster:loadBalancerTags.1.value=depo-k8s-cluster-ireland-staging:loadBalancerType=application:region=eu-west-1": {
+    "loadBalancerArn": "arn:aws:elasticloadbalancing:eu-west-1:927228102540:loadbalancer/app/depo-backend-alb-staging/eb14011f153632c0",
+    "loadBalancerCanonicalHostedZoneId": "Z32O12XQLNTSW2",
+    "loadBalancerDnsName": "depo-backend-alb-staging-2104673784.eu-west-1.elb.amazonaws.com",
+    "vpcId": "vpc-02f9f523b87445b99",
+    "securityGroupIds": [
+      "sg-072c302ae0cee710d"
+    ],
+    "ipAddressType": "ipv4"
+  },
+  "vpc-provider:account=927228102540:filter.vpc-id=vpc-02f9f523b87445b99:region=eu-west-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-02f9f523b87445b99",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-01085211a380c6688",
+            "cidr": "10.0.96.0/19",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-004021fbccf33cf88"
+          },
+          {
+            "subnetId": "subnet-0b4b88da438ffc3f5",
+            "cidr": "10.0.128.0/19",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-04a3bf109b6721a8d"
+          },
+          {
+            "subnetId": "subnet-0decaa8fbb2508ba3",
+            "cidr": "10.0.160.0/19",
+            "availabilityZone": "eu-west-1c",
+            "routeTableId": "rtb-00b31128432513ec4"
+          }
+        ]
+      },
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0872444b03215cc9f",
+            "cidr": "10.0.0.0/19",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-0b52c242009096bcc"
+          },
+          {
+            "subnetId": "subnet-0631583195ba1ca31",
+            "cidr": "10.0.32.0/19",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-099d8c768f21997fe"
+          },
+          {
+            "subnetId": "subnet-03b2e47b6cfec890a",
+            "cidr": "10.0.64.0/19",
+            "availabilityZone": "eu-west-1c",
+            "routeTableId": "rtb-066a38bf08349f896"
+          }
+        ]
+      }
+    ]
+  },
+  "security-group:account=927228102540:region=eu-west-1:securityGroupId=sg-072c302ae0cee710d": {
+    "securityGroupId": "sg-072c302ae0cee710d",
+    "allowAllOutbound": false
+  }
+}
