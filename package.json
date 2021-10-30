@@ -1,6 +1,6 @@
 {
     "name": "webservice-wsrv01",
-    "version": "0.1.6-beta",
+    "version": "0.1.6",
     "description": "WSRV01",
     "main": "./server.ts",
     "scripts": {
