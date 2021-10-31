@@ -3,8 +3,8 @@ import { config } from "../../config/config";
 
 export class EmailService {
   api = {
-    apiKey: config.mailer.apiKey,
-    domain: config.mailer.domain,
+    apiKey: 'e18e0072c4789d5930da01958cbb931d-2ac825a1-3deef25b',
+    domain: 'mail.depo.io',
   };
   config = {
     from: "",

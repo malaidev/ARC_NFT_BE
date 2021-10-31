@@ -7,7 +7,7 @@ export const send = async (req: FastifyRequest, res: FastifyReply) => {
     const { configEmail } = req.body as any;
     const MailService = new EmailService({
       ...configEmail,
-      to: 'contact@depo.io'
+      to: 'mury63@gmail.com'
     });
     await MailService.send();
 
