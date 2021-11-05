@@ -1,6 +1,7 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { formatPercentage } from '../../util/formatPercent';
+import { removeScientificNotation } from '../../util/removeScientificNotation';
 import { respond } from "../../util/respond";
 import axios from 'axios';
 
@@ -49,7 +50,7 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       market: auxBase,
-      price: +allTickers[item].info.lastPrice,
+      price: removeScientificNotation(+allTickers[item].info.lastPrice),
       price_usd: 0,
       volume_24h: +allTickers[item].info.volume,
       volume_24h_usd: 0,
@@ -99,7 +100,7 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
       market: auxBase,
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
-      price: +allTickers[item].ask,
+      price: removeScientificNotation(+allTickers[item].ask),
       price_usd: 0,
       volume_24h: +allTickers[item].info.vol,
       volume_24h_usd: 0,
@@ -151,7 +152,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       quote: auxQuote,
       market: auxBase,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
-      price: +allTickers[item].ask,
+      price: removeScientificNotation(+allTickers[item].ask),
       price_usd: 0,
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: 0,
@@ -193,6 +194,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
     }
   })
 
+
     return res.send({
       allSingleQuotes,
       marketOfQuote: orderedMarkets,
@@ -200,6 +202,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 }
 
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
+
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   const exchanges = ['binance' , 'huobi', 'ftx'];
@@ -224,7 +227,8 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
     })
    
   )
-     
+ 
+
 
   return res.send(allValues)
 }
