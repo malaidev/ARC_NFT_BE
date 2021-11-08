@@ -71,7 +71,7 @@ class Stack(core.Stack):
                 "template": {
                     "metadata": {"labels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
                     "spec": {
-                        "nodeSelector": {"depo.io/nodegroup-role": "depo-backend"},
+                        "nodeSelector": {"depo.io/nodegroup-role": "backend"},
                         "containers": [
                             {
                                 "image": repository.repository_uri_for_tag(self.version),
