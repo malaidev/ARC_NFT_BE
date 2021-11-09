@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
-  const response = await exchange.fetchMarkets();
   const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
 
   const allTickers = await exchange.fetchTickers(formatedSymbols);
@@ -24,7 +23,6 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
 
 const binanceMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.binance();
-  const response = await exchange.fetchMarkets();
   const filterMarkets = [];
   const baseArry = [];
   
@@ -71,7 +69,6 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
 
 const huobiMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.huobi();
-  const response = await exchange.fetchMarkets();
   const filterMarkets = [];
   const baseArry = [];
 
@@ -120,7 +117,6 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
 
 const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.ftx();
-  const response = await exchange.fetchMarkets();
   const baseArry = [];
 
   const filterMarkets = [];
