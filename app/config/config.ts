@@ -21,7 +21,7 @@ export const config = {
   },
   mailer: {
     apiKey: process.env["EMAIL_SERVICE_API_KEY"],
-    domain: process.env["EAMIL_SERVICE_DOMAIN"],
+    domain: process.env["EMAIL_SERVICE_DOMAIN"],
   },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {

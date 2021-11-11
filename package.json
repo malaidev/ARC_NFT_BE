@@ -9,6 +9,7 @@
     "dependencies": {
         "aws-sdk": "^2.1016.0",
         "axios": "^0.21.4",
+        "bignumber.js": "^9.0.1",
         "ccxt": "^1.56.20",
         "dotenv": "^8.2.0",
         "esm": "^3.2.25",
