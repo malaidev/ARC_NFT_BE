@@ -22,8 +22,15 @@ export const SessionChecker = async (req, res, app) => {
       switch (_protected.method) {
         case "jwt":
           auth = await jwtVerify(req, authorization, app);
-          if (auth.success) req.session = auth.session;
-          else res.code(401).send(auth);
+          if (auth.success) {
+            req.session = auth.session;
+            if (
+              req.params.walletId &&
+              req.params.walletId !== auth.session.walletId
+            ) {
+              res.code(403).send("Forbidden");
+            }
+          } else res.code(401).send(auth);
           break;
         default:
           res.code(401).send(auth);
@@ -43,9 +50,7 @@ async function jwtVerify(req, authorization, app) {
     const result = {
       success: true,
       session: {
-        userId: token.uid,
-        email: token.uem,
-        username: token.unm,
+        walletId: token.uid,
       },
     };
     return result;
