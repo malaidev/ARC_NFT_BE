@@ -60,9 +60,11 @@ async function mount() {
   });
 
   if (config.logging) {
-    app.addHook("onRequest", ActionLogger);
-    app.addHook("onError", ErrorLogger);
-    
+    if (["any", "action-only"].includes(config.logLevel))
+      app.addHook("onRequest", ActionLogger);
+    if (["any", "error-only"].includes(config.logLevel))
+      app.addHook("onError", ErrorLogger);
+
     app.addHook("onResponse", async (req, res: FastifyReply) => {
       if (![200, 201, 204].includes(res.statusCode)) {
         config.__logPool.push({

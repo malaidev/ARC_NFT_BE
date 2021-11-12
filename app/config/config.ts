@@ -6,8 +6,12 @@ if (process.env && !process.env.ENV?.match(/prod|stag/gi)) {
 export const config = {
   io: null,
   __logPool: [],
+
   env: process.env.ENV || "development",
   logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
+  logLevel:
+    process.env.LOG_LEVEL ||
+    ("error-only" as "error-only" | "action-only" | "any"),
   mongodb: {
     host: process.env["MONGODB_HOST"],
     database: "DepoMetamaskUsers",
