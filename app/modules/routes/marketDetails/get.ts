@@ -36,9 +36,12 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
     try {
       for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
-        const response = await exchange.fetchOrderBook(formattedSymbol);
-        const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
-        allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response, precision});
+        const markets = await exchange.loadMarkets();
+        if (markets[formattedSymbol]) {
+          const response = await exchange.fetchOrderBook(formattedSymbol);
+          const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
+          allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response, precision});
+        }
       }
     } catch (error) {
       console.log(error);

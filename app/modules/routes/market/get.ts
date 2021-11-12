@@ -35,9 +35,11 @@ export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyRepl
     try {
       for (const exchangeName of allExchanges ) {
         const exchange = new ccxt[exchangeName]();
-        await exchange.loadMarkets();
-        const response = await exchange.market(formattedSymbol);
-        allExchangesMarkets.push({ exchange: exchangeName, market: response })
+        const markets = await exchange.loadMarkets();
+        if (markets[formattedSymbol]) {
+          const response = await exchange.market(formattedSymbol);
+          allExchangesMarkets.push({ exchange: exchangeName, market: response })
+        }
       }
     } catch (error) {
       console.log(error);
