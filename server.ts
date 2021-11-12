@@ -13,6 +13,8 @@ import { ErrorLogger } from "./app/modules/middleware/ErrorLogger";
 import { SessionChecker } from "./app/modules/middleware/SessionChecker";
 import { config } from "./app/config/config";
 import { router } from "./app/modules/routes";
+import { LogController } from "./app/modules/controller/LogController";
+import { FastifyReply } from "fastify";
 
 const logger = new Logger("error", "/");
 process.setMaxListeners(15);
@@ -51,15 +53,31 @@ async function mount() {
    * -----
    * Logs route actions
    */
-  if (config.logging) app.addHook("onRequest", ActionLogger);
 
   /** Checks if session is valid */
   app.addHook("onRequest", async (req, res) => {
     await SessionChecker(req, res, app);
   });
 
+  if (config.logging) {
+    app.addHook("onRequest", ActionLogger);
+    app.addHook("onError", ErrorLogger);
+    
+    app.addHook("onResponse", async (req, res: FastifyReply) => {
+      if (![200, 201, 204].includes(res.statusCode)) {
+        config.__logPool.push({
+          type: "GLOBAL_CATCHER",
+          request: {
+            body: req.body,
+            params: req.params,
+            context: req.context.config,
+          },
+        });
+      }
+      await LogController.dispatch();
+    });
+  }
   /** Log errors */
-  if (config.logging) app.addHook("onError", ErrorLogger);
 
   /** Register routes */
   await router(app);
