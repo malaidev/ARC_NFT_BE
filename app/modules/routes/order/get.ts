@@ -16,9 +16,11 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
   const formattedSide = order.offerType.toLowerCase();
+  const formattedSymbol = order.symbolPair.replace('-', '/');
   const clt = new DepoUserController();
-  const userAPIKeys = await clt.getUserApiKeys(order.user.address);
+  const userAPIKeys = await clt.getUserApiKeys(order.user.settings.defaultWallet);
   const userSelectedExchange = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
+
   if (formattedExchangeName === 'huobi' && formattedType === 'market') {
     createMarketBuyOrderRequiresPrice = false;
   } 
@@ -40,7 +42,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
           'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
         }
       });
-      const response = await exchange.createOrder(order.symbolPair, formattedType, formattedSide, order.amount, order.price);
+      const response = await exchange.createOrder(formattedSymbol, formattedType, formattedSide, order.amount, order.price);
       if (!response) {
         res.code(204).send();
       } else {
@@ -58,6 +60,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
 export const cancelOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, orderId } = req.params as any;
   const formattedExchangeName = exchangeName.toLowerCase();
+  console.log('veio');
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
