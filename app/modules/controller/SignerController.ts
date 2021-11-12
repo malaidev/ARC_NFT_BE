@@ -32,19 +32,34 @@ export class SignerController extends AbstractEntity {
     }
   }
 
-  async updateSignatureStatus(verified: boolean) {
+  async updateSignatureStatus(instance: IAuthSignerProps) {
     try {
-      const result = ';';
+      const updateDoc = {
+        $set: {
+          verified: true,
+        },
+      };
+
+      const dbm = await this.mongodb.connect();
+      const collection = dbm.collection(this.table);
+      await collection.updateOne(instance, updateDoc);
     } catch (error) {
       return null;
     }
   }
 
+  /**
+   * Verifies web3 signed message with the generated checksum
+   *
+   * @param signature
+   * @returns
+   */
   async verifySignature(signature: string) {
     try {
       const hasSignature = await this.findOne(
         {
           walletId: this.walletId,
+          verified: false,
         },
         {
           limit: 1,
@@ -63,7 +78,7 @@ export class SignerController extends AbstractEntity {
           Web3Utils.toChecksumAddress(recovered) ===
           Web3Utils.toChecksumAddress(this.walletId)
         ) {
-          await this.updateSignatureStatus(true);
+          await this.updateSignatureStatus(hasSignature);
           return true;
         }
       }
