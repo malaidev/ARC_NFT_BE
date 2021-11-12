@@ -34,7 +34,7 @@ export class SignerController extends AbstractEntity {
 
   async updateSignatureStatus(verified: boolean) {
     try {
-      const result = 
+      const result = ';';
     } catch (error) {
       return null;
     }
