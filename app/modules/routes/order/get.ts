@@ -60,7 +60,6 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
 export const cancelOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, orderId } = req.params as any;
   const formattedExchangeName = exchangeName.toLowerCase();
-  console.log('veio');
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
