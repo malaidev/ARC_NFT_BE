@@ -1,5 +1,4 @@
 import { config } from "../../config/config";
-import { LogController } from "../controller/LogController";
 
 /**
  * Logs errors thrown in a request

@@ -1,6 +1,4 @@
 import { config } from "../../config/config";
-import { LogController } from "../controller/LogController";
-import { Logger } from "../services/Logger";
 
 /**
  * Logs every action performed in a route.
