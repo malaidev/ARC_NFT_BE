@@ -14,7 +14,7 @@ export const config = {
     password: process.env["MONGODB_PASSWORD"],
   },
   server: {
-    port: 3001,
+    port: process.env["MONGODB_PORT"],
   },
   jwt: {
     secret: process.env["JWT_SECRET"],
