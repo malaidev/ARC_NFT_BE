@@ -2,8 +2,6 @@ import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { formatPercentage } from '../../util/formatPercent';
 import { removeScientificNotation } from '../../util/removeScientificNotation';
-import { respond } from "../../util/respond";
-import axios from 'axios';
 
 const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
