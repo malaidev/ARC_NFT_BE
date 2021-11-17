@@ -30,7 +30,7 @@ class Stack(core.Stack):
             zone_name="api.depo.io",
         )
 
-        domain = "{aws_region}.api.depo.io".format(aws_region=self.region)
+        domain = "api.depo.io"
 
         # ACM
         certificate = cm.Certificate(
@@ -71,6 +71,7 @@ class Stack(core.Stack):
                 "template": {
                     "metadata": {"labels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
                     "spec": {
+                        "nodeSelector": {"depo.io/nodegroup-role": "backend"},
                         "containers": [
                             {
                                 "image": repository.repository_uri_for_tag(self.version),
