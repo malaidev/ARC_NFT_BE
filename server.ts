@@ -4,9 +4,6 @@ const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
 
-// Services
-import { Logger } from "./app/modules/services/Logger";
-
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
 import { ErrorLogger } from "./app/modules/middleware/ErrorLogger";
@@ -16,7 +13,6 @@ import { router } from "./app/modules/routes";
 import { LogController } from "./app/modules/controller/LogController";
 import { FastifyReply } from "fastify";
 
-const logger = new Logger("error", "/");
 process.setMaxListeners(15);
 
 /**
@@ -95,8 +91,7 @@ mount().then((app) => {
   app.listen(config.server.port ?? 3001, "0.0.0.0", (error, addr) => {
     if (error) {
       if (config.logging) {
-        logger.setData(error.message);
-        logger.save();
+        console.error(error);
       }
       process.exit(1);
     }
