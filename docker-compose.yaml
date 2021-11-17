@@ -2,20 +2,21 @@
 version: "2"
 
 services:
-  mongo:
-    image: mongo
-    restart: always
-    container_name: mongodb_depo
-    ports:
-        - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   container_name: mongodb_depo
+  #   ports:
+  #       - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: root
 
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: wsvc-depo-mongod
     ports:
       - "3666:3001"
     command: npm start
-
