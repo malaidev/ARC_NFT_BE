@@ -17,9 +17,10 @@ export const config = {
     database: "DepoMetamaskUsers",
     username: process.env["MONGODB_USER"],
     password: process.env["MONGODB_PASSWORD"],
+    port: process.env["MONGODB_PORT"],
   },
   server: {
-    port: process.env["MONGODB_PORT"],
+    port: process.env["SERVER_PORT"],
   },
   jwt: {
     secret: process.env["JWT_SECRET"],
