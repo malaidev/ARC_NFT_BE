@@ -62,6 +62,7 @@ async function mount() {
   if (config.logging) {
     if (["any", "action-only"].includes(config.logLevel))
       app.addHook("onRequest", ActionLogger);
+
     if (["any", "error-only"].includes(config.logLevel))
       app.addHook("onError", ErrorLogger);
 
@@ -74,6 +75,8 @@ async function mount() {
             params: req.params,
             context: req.context.config,
           },
+          statusCode: res.statusCode,
+          headers: res.getHeaders(),
         });
       }
       await LogController.dispatch();
