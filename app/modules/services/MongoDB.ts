@@ -18,7 +18,8 @@ export class MongoDBService {
     this.host = config.mongodb.host;
     this.port = config.mongodb.port;
 
-    const connectionStr = `mongodb://${this.username}:${this.password}@${this.host}:${this.port}/?authMecanism=DEFAULT&replicaSet=rs&retryWrites=false`;
+    // const connectionStr = `mongodb://${this.username}:${this.password}@${this.host}:${this.port}/?authMecanism=DEFAULT&replicaSet=rs&retryWrites=false`;
+    const connectionStr = `mongodb://${this.username}:${this.password}@${this.host}:${this.port}/authMecanism=DEFAULT&replicaSet=rs&retryWrites=false&readPreference=secondaryPreferred`;
 
     this.client = new MongoClient(connectionStr, {
       useNewUrlParser: true,
