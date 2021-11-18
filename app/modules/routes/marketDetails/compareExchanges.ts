@@ -22,6 +22,14 @@ const getBinancePrice = async (symbol: string, type:string, userPriceUnit: strin
       volume
     }
   }
+  return {
+    exchange: 'Binance',
+    exchangePrice: 0,
+    feePercent: 0,
+    feeBase: 0,
+    totalPrice: 0,
+    volume: 0
+  }
 }
 
 const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
@@ -43,6 +51,14 @@ const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string,
       totalPrice: +userPriceUnit * +userSize,
       volume: vol
     }
+  }
+  return {
+    exchange: 'Huobi',
+    exchangePrice: 0,
+    feePercent: 0,
+    feeBase: 0,
+    totalPrice: 0,
+    volume: 0
   }
 }
 
@@ -66,6 +82,14 @@ const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, u
       totalPrice: +userPriceUnit * +userSize,
       volume: quoteVolume24h
     }
+  }
+  return {
+    exchange: 'FTX',
+    exchangePrice: 0,
+    feePercent: 0,
+    feeBase: 0,
+    totalPrice: 0,
+    volume: 0
   }
 }
 
