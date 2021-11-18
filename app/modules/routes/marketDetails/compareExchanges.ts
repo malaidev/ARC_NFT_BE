@@ -1,40 +1,83 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
-import { capitalize } from '../../util/FirstLetterCapital';
 
-const getExchangesPrice = async (exchangeName:string ,symbol: string, type:string, userPriceUnit: string, userSize: string) => {
-  const exchange = new ccxt[exchangeName]();
+const getBinancePrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.binance({
+    'options': {
+      'defaultType': 'spot',   
+    }});
+
+  const allMarkets = await exchange.loadMarkets();
+ 
+  if(allMarkets[symbol]){
+    const { ask: price, info:{ volume }} = await exchange.fetchTicker(symbol);
+    const { maker, taker } = allMarkets[symbol];
+    
+    return {
+      exchange: 'Binance',
+      exchangePrice: price,
+      feePercent: type === 'maker' ? maker : taker,
+      feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
+      totalPrice: +userPriceUnit * +userSize,
+      volume
+    }
+  }
+}
+
+const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.huobi({
+    'options': {
+      'defaultType': 'spot',   
+    }});
   const allMarkets = await exchange.loadMarkets();
 
-  // need get price? or will use the one sent from the front?
-  const { ask: price, info} = await exchange.fetchTicker(symbol);
-  const { maker, taker } = allMarkets[symbol];
+  if(allMarkets[symbol]){
+    const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
+    const { maker, taker } = allMarkets[symbol];
 
-
-  return {
-    exchange: capitalize(exchangeName),
-    exchangePrice: price,
-    feePercent: type === 'maker' ? maker : taker,
-    feeBase: (+userSize * (type === 'maker' ? maker : taker)),
-    totalPrice: +userPriceUnit * +userSize,
-    volume: 
-      exchangeName === 'binance' ? +info.volume 
-      : exchangeName === 'huobi' 
-        ? +info.vol 
-        : +info.quoteVolume24h
+    return {
+      exchange: 'Huobi',
+      exchangePrice: price,
+      feePercent: type === 'maker' ? maker : taker,
+      feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
+      totalPrice: +userPriceUnit * +userSize,
+      volume: vol
+    }
   }
-
 }
+
+
+const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.ftx({
+    'options': {
+      'defaultType': 'spot',   
+    }});
+  const allMarkets = await exchange.loadMarkets();
+
+  if(allMarkets[symbol]){
+    const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(symbol);
+    const { maker, taker } = allMarkets[symbol];
+
+    return {
+      exchange: 'FTX',
+      exchangePrice: price,
+      feePercent: type === 'maker' ? maker : taker,
+      feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
+      totalPrice: +userPriceUnit * +userSize,
+      volume: quoteVolume24h
+    }
+  }
+}
+
 
 
 export const compareExchangesOperation = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol, userPriceUnit, userSize, type } = req.body as any;
 
-  console.log('BTC/ETH')
+  const binanceResponse = await getBinancePrice(symbol, type, userPriceUnit, userSize);
+  const huobiResponse = await getHuobiPrice(symbol, type, userPriceUnit, userSize);
+  const ftxResponse = await getFTXPrice(symbol, type, userPriceUnit, userSize);
 
-  const binanceResponse = await getExchangesPrice('binance', symbol, type, userPriceUnit, userSize);
-  const huobiResponse = await getExchangesPrice('huobi', symbol, type, userPriceUnit, userSize);
-  const ftxResponse = await getExchangesPrice('ftx', symbol, type, userPriceUnit, userSize);
-
+  // return res.send(binanceResponse);
   return res.send([binanceResponse, huobiResponse, ftxResponse]);
 }
