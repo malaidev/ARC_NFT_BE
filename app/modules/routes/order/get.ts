@@ -48,9 +48,9 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
       } else {
         return res.send({ response });
       }
-    } catch(error) {
-      console.log(error);
-      return res.send({ error });
+    } catch(err) {
+      console.log(err);
+      res.send(err.message);
     }
   } else {
     res.code(400).send(respond("`Exchange name cannot be null.`", true, 400));
