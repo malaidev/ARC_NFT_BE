@@ -18,5 +18,5 @@ services:
       dockerfile: Dockerfile.dev
     container_name: wsvc-depo-mongod
     ports:
-      - "3666:3001"
+      - "3001:3001"
     command: npm start
