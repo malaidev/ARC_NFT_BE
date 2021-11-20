@@ -27,12 +27,8 @@ const loadBinanceOrders = async (userData, symbol) => {
 
 const loadHuobiOrders = async (userData, symbol) => {
   const exchange = new ccxt.huobi({
-    'fetchOpenOrdersMethod': 'fetch_open_orders_v2'
+    // 'fetchOpenOrdersMethod': 'fetch_open_orders_v2'
   });
-
-  const allMarkets = await exchange.fetchMarkets();
-  if(!allMarkets.find(market => market.id === symbol)) return
-
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
@@ -42,11 +38,20 @@ const loadHuobiOrders = async (userData, symbol) => {
     closedOrders: await exchange.fetchClosedOrders(symbol),
   }
 
-  responseHuobi.openOrders.forEach((order: any) => order.exchange = 'Huobi' );
-  responseHuobi.closedOrders.forEach((order: any) => order.exchange = 'Huobi' );
+  responseHuobi.openOrders.forEach((order: any) => {
+    order.exchange = 'Huobi';
+    order.info.status = order.status;
+  });
 
+
+
+  responseHuobi.closedOrders.forEach((order: any) =>{
+    order.exchange = 'Huobi';
+    order.info.status = order.status;
+  });
 
   return responseHuobi;
+
 };
 
 const loadFTXOrders = async (userData, symbol) => {
