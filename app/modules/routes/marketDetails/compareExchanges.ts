@@ -103,5 +103,5 @@ export const compareExchangesOperation = async (req: FastifyRequest, res: Fastif
   const ftxResponse = await getFTXPrice(symbol, type, userPriceUnit, userSize);
 
   // return res.send(binanceResponse);
-  return res.send([binanceResponse, huobiResponse, ftxResponse]);
+  return res.send({type: type, quote: symbol.split('/')[1], compare:  [binanceResponse, huobiResponse, ftxResponse]});
 }
