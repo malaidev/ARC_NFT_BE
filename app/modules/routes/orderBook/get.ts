@@ -4,34 +4,54 @@ import { DepoUserController } from "../../controller/DepoUserController";
 import { IAPIKey } from "../../interfaces/IAPIKey";
 
 const loadBinanceOrders = async (userData, symbol) => {
-  const exchange = new ccxt.binance();
-
-  const allMarkets = await exchange.fetchMarkets();
-
-  if(!allMarkets.find(market => market.id === symbol)) return
-
-  exchange.apiKey = userData.apiKey;
-  exchange.secret = userData.apiSecret;
-  await exchange.checkRequiredCredentials() // throw AuthenticationError
-
-  const responseBinance = {
-    openOrders: await exchange.fetchOpenOrders(symbol),
-    closedOrders: await exchange.fetchClosedOrders(symbol),
-  }
+  try{
+    const exchange = new ccxt.binance({
+      // 'fetchOpenOrdersMethod': 'fetch_open_orders_v2'
+    });
+    exchange.apiKey = userData.apiKey;
+    exchange.secret = userData.apiSecret;
+    await exchange.checkRequiredCredentials() // throw AuthenticationError
   
-  responseBinance.openOrders.forEach((order: any) => order.exchange = 'Binance' );
-  responseBinance.closedOrders.forEach((order: any) => order.exchange = 'Binance' );
+    // const allMarkets = await exchange.fetchMarkets();
+    // if(!allMarkets.find(market => market.symbol === symbol)) return
+  
+    const responseBinance = {
+      openOrders: await exchange.fetchOpenOrders(symbol),
+      closedOrders: await exchange.fetchClosedOrders(symbol),
+    }
+  
+    responseBinance.openOrders.forEach((order: any) => {
+      order.exchange = 'Binance';
+      order.info.status = order.status;
+    });
+  
+  
+  
+    responseBinance.closedOrders.forEach((order: any) =>{
+      order.exchange = 'Binance';
+      order.info.status = order.status;
+    
+    });
+  
+    console.log(responseBinance.openOrders)
 
-  return responseBinance;
+    return responseBinance;
+  }catch(err){
+    console.log(err)
+  }
 };
 
 const loadHuobiOrders = async (userData, symbol) => {
+  try{
   const exchange = new ccxt.huobi({
     // 'fetchOpenOrdersMethod': 'fetch_open_orders_v2'
   });
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
+
+  // const allMarkets = await exchange.fetchMarkets();
+  // if(!allMarkets.find(market => market.symbol === symbol)) return
 
   const responseHuobi = {
     openOrders: await exchange.fetchOpenOrders(symbol),
@@ -51,14 +71,18 @@ const loadHuobiOrders = async (userData, symbol) => {
   });
 
   return responseHuobi;
+}catch(err) {
+  console.log(err)
+}
 
 };
 
 const loadFTXOrders = async (userData, symbol) => {
+  try {
   const exchange = new ccxt.ftx();
 
-  const allMarkets = await exchange.fetchMarkets();
-  if(!allMarkets.find(market => market.id === symbol)) return
+  // const allMarkets = await exchange.fetchMarkets();
+  // if(!allMarkets.find(market => market.id === symbol)) return
 
 
   exchange.apiKey = userData.apiKey;
@@ -79,6 +103,7 @@ const loadFTXOrders = async (userData, symbol) => {
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const orderList = await exchange.fetchOrders();
 
+  
   const responseFTX = {
     openOrders: orderList.filter(order => order.status !== 'closed' && order.symbol === symbol),
     closedOrders: orderList.filter(order => order.status === 'closed' && order.symbol === symbol),
@@ -88,9 +113,13 @@ const loadFTXOrders = async (userData, symbol) => {
   responseFTX.closedOrders.forEach((order: any) => order.exchange = 'FTX' );
 
   return responseFTX;
+} catch(err){
+  console.log(err)
+}
 };
 
 export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => {
+  try{
   const { walletId, symbol } = req.params as any;
   const formatedSymbol = symbol.replace('-','/');
   const userController = new DepoUserController();
@@ -102,7 +131,9 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
 
   if(!userExchanges) return res.send({});
 
+
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
+
     const binanceResponse = await loadBinanceOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'), formatedSymbol)
 
     if(binanceResponse){
@@ -137,4 +168,7 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
   
 
   return res.send({ response });
+}catch(err){
+  console.log(err)
+}
 }
