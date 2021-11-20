@@ -16,9 +16,11 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
   const formattedSide = order.offerType.toLowerCase();
+  const formattedSymbol = order.symbolPair.replace('-', '/');
   const clt = new DepoUserController();
-  const userAPIKeys = await clt.getUserApiKeys(order.user.address);
+  const userAPIKeys = await clt.getUserApiKeys(order.user.settings.defaultWallet);
   const userSelectedExchange = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
+
   if (formattedExchangeName === 'huobi' && formattedType === 'market') {
     createMarketBuyOrderRequiresPrice = false;
   } 
@@ -40,15 +42,15 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
           'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
         }
       });
-      const response = await exchange.createOrder(order.symbolPair, formattedType, formattedSide, order.amount, order.price);
+      const response = await exchange.createOrder(formattedSymbol, formattedType, formattedSide, order.amount, order.price);
       if (!response) {
         res.code(204).send();
       } else {
         return res.send({ response });
       }
-    } catch(error) {
-      console.log(error);
-      return res.send({ error });
+    } catch(err) {
+      console.log(err);
+      res.send(err.message);
     }
   } else {
     res.code(400).send(respond("`Exchange name cannot be null.`", true, 400));
