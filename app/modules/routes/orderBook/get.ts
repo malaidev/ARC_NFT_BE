@@ -32,8 +32,6 @@ const loadBinanceOrders = async (userData, symbol) => {
       order.info.status = order.status;
     
     });
-  
-    console.log(responseBinance.openOrders)
 
     return responseBinance;
   }catch(err){
