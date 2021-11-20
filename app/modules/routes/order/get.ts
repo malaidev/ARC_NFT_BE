@@ -55,7 +55,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   }
 }
 
-export const cancelOrder = async (req: FastifyRequest, res: FastifyReply) => {
+export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) => {
   let createMarketBuyOrderRequiresPrice = true;
   let userSubAccount: IExtraApiKeyFields = { 
     fieldName: '', 
