@@ -5,11 +5,13 @@ import { IUser } from "../../interfaces/IUser";
 import { BrowserIdentityHandler } from "../../util/BrowserIdendityHandler";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
-import { isAPIKeyValid } from '../../util/ccxt-helper';
+import { isAPIKeyValid } from "../../util/ccxt-helper";
+import { SignerController } from "../../controller/SignerController";
+import moment = require("moment");
 /**
  * GET one row from DB
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
@@ -21,69 +23,71 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   } else {
     res.code(result.code).send(result);
   }
-}
+};
 
 /**
  * Find or create a user.
- * 
+ *
  * If the given wallet id does not exist, then creates a new user using the provided wallet id.
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-export const findOrCreateUser = async (req: FastifyRequest | any, res: FastifyReply | any) => {
-  const { walletId, browserId } = req.body as any;
-  const _browserId = browserId ?? req.cookies.__depo_browserid;
+export const findOrCreateUser = async (
+  req: FastifyRequest | any,
+  res: FastifyReply | any
+) => {
+  const { walletId, signature } = req.body as any;
   if (walletId) {
-    // Pre-creates a browser identifier to set the controller
-    const browser = new BrowserIdentityHandler(req.headers, walletId);
-    browser.createIdentifier();
-    const encryptedId = browser.getBrowserId();
-    const user: IUser = {
+    /**
+     * The signer controller. Controls web3 transaction signature
+     */
+    const signer = new SignerController(walletId);
+    let user: IUser = {
       settings: {
         defaultWallet: walletId,
       },
       wallets: [{ address: walletId }],
-      authorizedBrowsers: [browser.getIdentifier()]
-    }
+    };
 
     const ctl = new DepoUserController(user);
     // Tries to find an user which has the given wallet
-    const hasUser = await ctl.findUser(walletId) as IUser;
+    const hasUser = (await ctl.findUser(walletId)) as IUser;
     // Verify if has no "code" in hasUser, indicating an error
     if (!hasUser.code) {
+      user = hasUser;
       // If it doesn't it means that we're dealing with an existing user
-      // So, we need to verify if his browser is allowed to access the account.
-      const verified = await ctl.isBrowserAllowed(hasUser, _browserId, browser);
-      if (verified) {
-        // And if it does, just sent back user's info
-        res.send({user: hasUser});
-      } else {
-        // If not, sent back a 403 with a warning message
-        res.code(403).send('Forbidden');
-      }
     } else {
       // And if it didn't find, then create a new user
-      // and assign the first browser as authorized.
       const result = await ctl.create();
       if (!result.code) {
         delete result.authorizedBrowsers;
-        res.setCookie('__depo_browserid', encryptedId);
-        res.send({ user, browserId: encryptedId });
       } else {
         res.code(result.code).send(result);
+        return;
       }
+    }
+    const verified = await signer.verifySignature(signature);
+    if (verified) {
+      // If everything is ok, generate a JWT
+      const jwt = await res.jwtSign({
+        uid: walletId,
+        exp: moment.utc().add(1, "day").unix(),
+      });
+
+      // And if it does, just sent back user's info
+      res.send({ user, jwt });
     }
     ctl.disconnect();
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
   }
-}
+};
 
 /**
  * Updates an user
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const user: IUser = req.body;
@@ -102,27 +106,27 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
   } catch (error) {
     res.code(400).send(error);
   }
-}
+};
 
 /**
  * GET all rows from DB
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 export const getAll = async (req: FastifyRequest, res: FastifyReply) => {
-  const query = req.url.split('?')[1];
+  const query = req.url.split("?")[1];
 
   const filters = parseQueryUrl(query);
   const ctl = new DepoUserController();
   const result = await ctl.findAllUsers(filters);
   ctl.disconnect();
   res.send(result);
-}
+};
 
 /**
  * Inserts a new row into DB
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const body = req.body as IUser;
@@ -131,12 +135,12 @@ export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.create();
   ctl.disconnect();
   res.send(result);
-}
+};
 
 /**
  * Removes an api key from the database
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 export const removeApiKey = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId, exchangeId, apiKey } = req.params as any;
@@ -154,4 +158,23 @@ export const removeApiKey = async (req: FastifyRequest, res: FastifyReply) => {
   } else {
     res.code(result.code).send(result);
   }
-}
+};
+
+export const getSingingMessage = async (
+  req: FastifyRequest,
+  res: FastifyReply
+) => {
+  const { walletId } = req.params as any;
+  try {
+    const ctl = new SignerController(walletId);
+    const result = await ctl.createSingingHash();
+
+    if (!result?.code) {
+      res.send(result);
+    } else {
+      res.code(result.code).send(result);
+    }
+  } catch (error) {
+    res.code(400).send(respond(error.message, true, 400));
+  }
+};

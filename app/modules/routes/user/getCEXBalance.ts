@@ -31,10 +31,10 @@ const getBinanceBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('binance', responseSymbol)
-  // console.log(responseFormated)
   return responseFormated;
 }
 
@@ -51,10 +51,10 @@ const getHuobiBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('huobi', responseSymbol)
-  // console.log(responseFormated)
   return responseFormated;
 };
 
@@ -82,7 +82,8 @@ const getFtxBalance = async ( userData ) => {
     exchange: 'ftx',
     symbol: symbol.coin,
     amount: +symbol.total,
-    usdValue: +symbol.usdValue
+    usdValue: +symbol.usdValue,
+    availableValue: symbol.free
   }))
 
   // console.log(responseSymbol);
@@ -94,11 +95,9 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
 
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
-  console.log('caiu antes')
 
   if(!userExchanges) return res.send({});
 
-  console.log('passou')
   const response = {
     symbols: [],
     uniqueSymbols: [],
