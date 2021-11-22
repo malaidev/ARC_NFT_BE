@@ -22,7 +22,7 @@ process.setMaxListeners(15);
  */
 async function mount() {
   const app = fastify({
-    logger: config.env === "dev" && {
+    logger: config.env.match(/dev/gi) && {
       prettyPrint: {
         colorize: true,
       },

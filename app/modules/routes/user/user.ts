@@ -43,7 +43,7 @@ export const findOrCreateUser = async (
      * The signer controller. Controls web3 transaction signature
      */
     const signer = new SignerController(walletId);
-    const user: IUser = {
+    let user: IUser = {
       settings: {
         defaultWallet: walletId,
       },
@@ -55,27 +55,28 @@ export const findOrCreateUser = async (
     const hasUser = (await ctl.findUser(walletId)) as IUser;
     // Verify if has no "code" in hasUser, indicating an error
     if (!hasUser.code) {
+      user = hasUser;
       // If it doesn't it means that we're dealing with an existing user
-      const verified = await signer.verifySignature(signature);
-      if (verified) {
-        // If everything is ok, generate a JWT
-        const jwt = await res.jwtSign({
-          uid: walletId,
-          exp: moment.utc().add(1, "day").unix(),
-        });
-
-        // And if it does, just sent back user's info
-        res.send({ user: hasUser, jwt });
-      }
     } else {
       // And if it didn't find, then create a new user
       const result = await ctl.create();
       if (!result.code) {
         delete result.authorizedBrowsers;
-        res.send({ user });
       } else {
         res.code(result.code).send(result);
+        return;
       }
+    }
+    const verified = await signer.verifySignature(signature);
+    if (verified) {
+      // If everything is ok, generate a JWT
+      const jwt = await res.jwtSign({
+        uid: walletId,
+        exp: moment.utc().add(1, "day").unix(),
+      });
+
+      // And if it does, just sent back user's info
+      res.send({ user, jwt });
     }
     ctl.disconnect();
   } else {
