@@ -163,6 +163,8 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   return responseFormated
 }
 
+const kucoinMarketQuote = async (quote: string, listMarkets: any) => { }
+
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
   const formatedExchangeName = exchangeName.toLowerCase();
