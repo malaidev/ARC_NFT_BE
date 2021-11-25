@@ -38,7 +38,7 @@ class Pipeline(core.Stack):
                             output=source_output,
                             owner="DePo-io",
                             repo="elint-backend-mvp",
-                            branch="dev",
+                            branch="staging",
                             action_name="Source",
                         )
                     ],

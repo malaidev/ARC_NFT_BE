@@ -16,7 +16,7 @@ export class MongoDBService {
         this.username = encodeURIComponent(config.mongodb.username);
         this.host = config.mongodb.host;
 
-        const connectionStr = `mongodb://${this.username}:${this.password}@${this.host}?authMecanism=DEFAULT`;
+        let connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
 
         this.client = new MongoClient(connectionStr);
     }
