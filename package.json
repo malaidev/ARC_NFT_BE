@@ -1,6 +1,6 @@
 {
     "name": "webservice-wsrv01",
-    "version": "0.2.0",
+    "version": "0.5.0",
     "main": "./server.ts",
     "scripts": {
         "start": "nodemon -r esm server.ts --ignore **/app/logs/* "
