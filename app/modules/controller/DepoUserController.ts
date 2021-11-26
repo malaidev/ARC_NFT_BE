@@ -48,9 +48,8 @@ export class DepoUserController extends AbstractEntity {
    */
   async findAllUsers(filters?: IQueryFilters): Promise<Array<IUser> | IResponse> {
     try {
-      const dbm = await this.mongodb.connect();
-      if (dbm) {
-        const collection = dbm.collection(this.table);
+      if (this.mongodb) {
+        const collection = this.mongodb.collection(this.table);
         let aggregation = {} as any;
 
         if (filters) {
@@ -94,9 +93,8 @@ export class DepoUserController extends AbstractEntity {
    */
   async update(walletId: string): Promise<void | IResponse> {
     try {
-      const dbm = await this.mongodb.connect();
-      if (dbm) {
-        const collection = dbm.collection(this.table);
+      if (this.mongodb) {
+        const collection = this.mongodb.collection(this.table);
         const query = this.findUserQuery(walletId);
         const hasUser = await this.findOne(query);
         // Verify if has any error while finding user
@@ -174,9 +172,8 @@ export class DepoUserController extends AbstractEntity {
           }
           // Try to save
           try {
-            const dbm = await this.mongodb.connect();
-            if (dbm) {
-              const collection = dbm.collection(this.table);
+            if (this.mongodb) {
+              const collection = this.mongodb.collection(this.table);
               const filter = this.findUserQuery(walletId);
               await collection.updateOne(filter, updateDoc);
               return;
@@ -220,8 +217,7 @@ export class DepoUserController extends AbstractEntity {
             }
           }
 
-          const dbm = await this.mongodb.connect();
-          const collection = dbm.collection(this.table);
+          const collection = this.mongodb.collection(this.table);
           await collection.updateOne(query, updateDoc);
           return;
         }

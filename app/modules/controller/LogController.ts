@@ -31,7 +31,6 @@ export class LogController extends AbstractEntity {
       const ctl = new LogController(logPool);
       try {
         await ctl.create();
-        ctl.disconnect();
         config.__logPool.splice(0);
       } catch (error) {
         console.error(error);

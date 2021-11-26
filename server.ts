@@ -22,7 +22,7 @@ process.setMaxListeners(15);
  */
 async function mount() {
   const app = fastify({
-    logger: config.env === "dev" && {
+    logger: config.env.match(/dev/) && {
       prettyPrint: {
         colorize: true,
       },
@@ -78,7 +78,6 @@ async function mount() {
       await LogController.dispatch();
     });
   }
-  /** Log errors */
 
   /** Register routes */
   await router(app);
