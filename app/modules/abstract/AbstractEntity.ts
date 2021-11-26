@@ -62,6 +62,7 @@ export abstract class AbstractEntity {
      * @returns 
      */
     async create(): Promise<any | IResponse> {
+        console.log(`AbstractEntity::create::${this.table}::Trying to create an instance of ${this.table}`);
         if (this.data) {
             try {
                 /**
@@ -90,9 +91,11 @@ export abstract class AbstractEntity {
                     throw new Error("Could not connect to the database.");
                 }
             } catch (error) {
+                console.log(`Couldn't create instance of ${this.table}. Reason: `, error);
                 return respond(error.message, true, 500);
             }
         } else {
+            console.log("Can't create an instance of item without item data.");
             return respond("Can't create an instance of item without item data.", true, 400);
         }
     }
@@ -103,6 +106,7 @@ export abstract class AbstractEntity {
      * @returns 
      */
     async findOne(query: FilterQuery<any>, opts?: FindOneOptions<any>): Promise<any> {
+        console.log(`findOne::Trying to find an instance of ${this.table}`);
         try {
             const dbm = await this.mongodb.connect();
             if (dbm) {
@@ -133,6 +137,7 @@ export abstract class AbstractEntity {
                 throw Error("Could not connect to the database.");
             }
         } catch (error) {
+            console.log(`AbstractEntity::findOne::${this.table}`, error);
             return respond(error.message, true, 500);
         }
     }
@@ -145,6 +150,7 @@ export abstract class AbstractEntity {
      * @return 
      */
     async findAll(filters?: IQueryFilters, options?: CollectionAggregationOptions, callback?: MongoCallback<AggregationCursor<any>>) {
+        console.log(`findAll::Trying to find instances of ${this.table}`);
         try {
             const dbm = await this.mongodb.connect();
             if (dbm) {
@@ -161,6 +167,7 @@ export abstract class AbstractEntity {
                 throw new Error("Could not connect to the database.");
             }
         } catch (error) {
+            console.log(`AbstractEntity::findAll::${this.table}`, error);
             return respond(error.message, true, 500);
         }
     }
@@ -172,6 +179,8 @@ export abstract class AbstractEntity {
      * @returns 
      */
     protected createMany(collection: Collection<any>, data: Array<any>): Promise<any> {
+        console.log(`AbstractEntity::createMany::${this.table}::Trying to create instance of ${this.table}`);
+
         const items = this.convertDate(data);
         return new Promise((resolve, reject) => {
             try {
