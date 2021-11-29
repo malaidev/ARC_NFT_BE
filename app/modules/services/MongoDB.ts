@@ -11,7 +11,7 @@ export class MongoDBService {
   private port = "" as string;
 
   constructor(dbName?: string) {
-    console.log(config.mongodb);
+    console.log("Creating MongoDB Instance", config.mongodb);
     this.dbname = dbName ?? config.mongodb.database;
     this.password = encodeURIComponent(config.mongodb.password);
     this.username = encodeURIComponent(config.mongodb.username);
@@ -33,16 +33,22 @@ export class MongoDBService {
    * @returns {Promise<Db>} the mongodb connection
    */
   connect(): Promise<Db> {
+    console.log("Connection requested.");
     return new Promise((resolve, reject): Promise<Db> => {
       try {
         this.client.connect((err) => {
-          if (err) reject(err);
-          else {
+          console.log("Trying to connect to mongodb");
+          if (err) {
+            console.log(err);
+            reject(err);
+          } else {
+            console.log("Connection Succeed");
             this.db = this.client.db(this.dbname);
             resolve(this.db);
           }
         });
       } catch (error) {
+        console.log(error);
         reject(error);
         return;
       }
@@ -53,6 +59,7 @@ export class MongoDBService {
    * Closes the connection with the server
    */
   disconnect() {
+    console.log("Disconnecting from database..");
     this.client.close();
   }
 }
