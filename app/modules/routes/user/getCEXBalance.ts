@@ -31,6 +31,7 @@ const getBinanceBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('binance', responseSymbol)
@@ -50,6 +51,7 @@ const getHuobiBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('huobi', responseSymbol)
@@ -80,7 +82,8 @@ const getFtxBalance = async ( userData ) => {
     exchange: 'ftx',
     symbol: symbol.coin,
     amount: +symbol.total,
-    usdValue: +symbol.usdValue
+    usdValue: +symbol.usdValue,
+    availableValue: symbol.free
   }))
 
   return responseSymbol

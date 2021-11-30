@@ -1,12 +1,13 @@
 /**
  * Validates user session
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 export const SessionChecker = async (req, res, app) => {
-  if (req.raw.method === 'OPTIONS') return true;
+  if (req.raw.method === "OPTIONS") return true;
 
   const { authorization } = req.headers;
+  let auth = null;
 
   try {
     let _protected = null;
@@ -15,18 +16,48 @@ export const SessionChecker = async (req, res, app) => {
 
     if (_protected) {
       if (!authorization) {
-        res.code(401).send('Unauthorized');
+        res.code(401).send("Unauthorized");
         return;
       }
       switch (_protected.method) {
-        case 'jwt':
-          return true;
+        case "jwt":
+          auth = await jwtVerify(req, authorization, app);
+          if (auth.success) {
+            req.session = auth.session;
+            if (
+              req.params.walletId &&
+              req.params.walletId !== auth.session.walletId
+            ) {
+              res.code(403).send("Forbidden");
+            }
+          } else res.code(401).send(auth);
+          break;
         default:
+          res.code(401).send(auth);
           return false;
       }
     }
   } catch (err) {
     res.code(401).send(err);
     throw err;
+  }
+};
+
+async function jwtVerify(req, authorization, app) {
+  try {
+    await req.jwtVerify();
+    const token = app.jwt.decode(authorization.replace("Bearer ", ""));
+    const result = {
+      success: true,
+      session: {
+        walletId: token.uid,
+      },
+    };
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      status: error.message,
+    };
   }
 }
