@@ -9,6 +9,7 @@ import { config } from "../../config/config";
  * @param {*} done
  */
 export const ErrorLogger = (req, res, error, done) => {
+  console.log(error);
   if (config.logging) {
     config.__logPool.push({
       type: "GLOBAL_CATCHER",
