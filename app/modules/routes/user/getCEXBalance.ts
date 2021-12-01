@@ -94,6 +94,7 @@ const getKucoinBalance = async ( userData ) => {
   const exchange = new ccxt.kucoin();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
+  exchange.password = userData.passphrase;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const responseBalance = await exchange.fetchBalance();
   const userSymbols = (Object.keys(responseBalance['total']).filter(item => responseBalance['total'][item] !== 0));

@@ -30,7 +30,6 @@ const loadBinanceOrders = async (userData, symbol) => {
     responseBinance.closedOrders.forEach((order: any) =>{
       order.exchange = 'Binance';
       order.info.status = order.status;
-    
     });
 
     return responseBinance;
@@ -60,8 +59,6 @@ const loadHuobiOrders = async (userData, symbol) => {
     order.exchange = 'Huobi';
     order.info.status = order.status;
   });
-
-
 
   responseHuobi.closedOrders.forEach((order: any) =>{
     order.exchange = 'Huobi';
@@ -116,6 +113,33 @@ const loadFTXOrders = async (userData, symbol) => {
 }
 };
 
+const getKucoinOrders = async (userData, symbol) => {
+  const exchange = new ccxt.kucoin();
+  exchange.apiKey = userData.apiKey;
+  exchange.secret = userData.apiSecret;
+  exchange.password = userData.passphrase;
+ 
+  await exchange.checkRequiredCredentials() // throw AuthenticationError
+
+  const responseKucoin = {
+    openOrders: await exchange.fetchOpenOrders(symbol),
+    closedOrders: await exchange.fetchClosedOrders(symbol),
+  }
+
+  responseKucoin.openOrders.forEach((order: any) => {
+    order.exchange = 'Kucoin';
+    order.info.status = order.status;
+  });
+
+  responseKucoin.closedOrders.forEach((order: any) =>{
+    order.exchange = 'Kucoin';
+    order.info.status = order.status;
+  });
+
+  return responseKucoin;  
+}
+
+
 export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => {
   try{
   const { walletId, symbol } = req.params as any;
@@ -155,6 +179,15 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
     if(responseFTX){
       response.openOrders.push(...responseFTX.openOrders);
       response.closedOrders.push(...responseFTX.closedOrders);
+    }
+  }
+
+  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
+    const responseKucoin = await getKucoinOrders(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'), formatedSymbol)
+
+    if(responseKucoin){
+      response.openOrders.push(...responseKucoin.openOrders);
+      response.closedOrders.push(...responseKucoin.closedOrders);
     }
   }
 
