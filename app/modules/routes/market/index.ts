@@ -1,5 +1,6 @@
-import { getMarketBySymbol } from './get';
+import { getMarketBySymbol, getAllMarketsBySymbol  } from './get';
 
 export const market = async (router: any, options: any) => {
   router.get('/:exchangeName/:symbol', getMarketBySymbol);
+  router.get('/:symbol', getAllMarketsBySymbol);
 }
