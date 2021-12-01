@@ -40,8 +40,7 @@ export class SignerController extends AbstractEntity {
         },
       };
 
-      const dbm = await this.mongodb.connect();
-      const collection = dbm.collection(this.table);
+      const collection = this.mongodb.collection(this.table);
       await collection.updateOne(instance, updateDoc);
     } catch (error) {
       return null;

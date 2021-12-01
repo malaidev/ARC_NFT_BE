@@ -86,7 +86,6 @@ const getFtxBalance = async ( userData ) => {
     availableValue: symbol.free
   }))
 
-  // console.log(responseSymbol);
   return responseSymbol
 };
 

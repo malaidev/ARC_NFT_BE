@@ -17,7 +17,6 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
   const ctl = new DepoUserController();
   const result = await ctl.findUser(walletId);
-  ctl.disconnect();
   if (!result.code) {
     res.send(result);
   } else {
@@ -78,7 +77,6 @@ export const findOrCreateUser = async (
       // And if it does, just sent back user's info
       res.send({ user, jwt });
     }
-    ctl.disconnect();
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
   }
@@ -97,7 +95,6 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
     await isAPIKeyValid(user.exchanges[0]);
     const result = await ctl.update(walletId);
     const resultUser = await ctl.findUser(walletId);
-    ctl.disconnect();
     if (!result) {
       res.send(resultUser);
     } else {
@@ -119,7 +116,6 @@ export const getAll = async (req: FastifyRequest, res: FastifyReply) => {
   const filters = parseQueryUrl(query);
   const ctl = new DepoUserController();
   const result = await ctl.findAllUsers(filters);
-  ctl.disconnect();
   res.send(result);
 };
 
@@ -133,7 +129,6 @@ export const create = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new DepoUserController(body);
 
   const result = await ctl.create();
-  ctl.disconnect();
   res.send(result);
 };
 
