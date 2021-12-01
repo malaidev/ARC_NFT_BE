@@ -148,10 +148,10 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
-    const responseFTX = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
+    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
 
-    if(responseFTX){
-      response.symbols.push(...responseFTX);
+    if(responseKucoin){
+      response.symbols.push(...responseKucoin);
     }
   }
 
