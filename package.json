@@ -12,6 +12,7 @@
     "ccxt": "^1.56.20",
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
+    "eth-sig-util": "^3.0.1",
     "fastify": "^3.3.0",
     "fastify-blipp": "^3.0.0",
     "fastify-cookie": "^4.0.2",
