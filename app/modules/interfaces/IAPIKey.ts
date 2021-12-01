@@ -4,8 +4,10 @@ export interface IExtraApiKeyFields {
 }
 
 export interface IAPIKey {
-    id: string
-    apiKey: string
-    apiSecret?: string
+    id: string,
+    apiKey: string,
+    apiSecret?: string,
+    passphrase?: string,
     extraFields?: IExtraApiKeyFields[]
+
 }
