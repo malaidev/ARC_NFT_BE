@@ -259,7 +259,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
-  const exchanges = ['binance' , 'huobi', 'ftx'];
+  const exchanges = ['binance' , 'huobi', 'ftx', 'kucoin'];
   const allValues = [];
 
   await Promise.all(

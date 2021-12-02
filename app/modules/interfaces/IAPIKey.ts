@@ -9,5 +9,4 @@ export interface IAPIKey {
     apiSecret?: string,
     passphrase?: string,
     extraFields?: IExtraApiKeyFields[]
-
 }

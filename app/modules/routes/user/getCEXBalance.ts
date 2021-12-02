@@ -95,7 +95,9 @@ const getKucoinBalance = async ( userData ) => {
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
   exchange.password = userData.passphrase;
+  
   await exchange.checkRequiredCredentials() // throw AuthenticationError
+  
   const responseBalance = await exchange.fetchBalance();
   const userSymbols = (Object.keys(responseBalance['total']).filter(item => responseBalance['total'][item] !== 0));
   const responseSymbol = userSymbols.map(symbol => ({
@@ -149,7 +151,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
-    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
+    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'))
 
     if(responseKucoin){
       response.symbols.push(...responseKucoin);
