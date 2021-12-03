@@ -100,8 +100,8 @@ const loadFTXOrders = async (userData, symbol) => {
 
   
   const responseFTX = {
-    openOrders: orderList.filter(order => order.status !== 'closed' && order.symbol === symbol),
-    closedOrders: orderList.filter(order => order.status === 'closed' && order.symbol === symbol),
+    openOrders: orderList.filter(order => order.info.status !== 'closed' && order.symbol === symbol),
+    closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === symbol),
   }
 
   responseFTX.openOrders.forEach((order: any) => order.exchange = 'FTX' );

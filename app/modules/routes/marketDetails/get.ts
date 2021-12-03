@@ -28,16 +28,19 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
 }
 
 export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
-  const allExchanges = ['binance', 'huobi', 'ftx'];
-  const { symbol } = req.params as any;
-  let kucoinExchange;
+  
+  let allExchanges = ['binance', 'huobi', 'ftx'];
+  const { symbol, walletId } = req.params as any;
+  // let kucoinExchange;
 
   // if(walletId) {
   //   const userController = new DepoUserController();
-  //   const userExchanges :any = await userController.getUserApiKeys(walletId);
-  //   kucoinExchange = userExchanges.find(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' ))
+  //   const userExchanges :any = await userController.getUserApiKeys(walletId.toLowerCase());
+
+  //   kucoinExchange = userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin');
   //   allExchanges.push('kucoin')
   // }
+
 
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];

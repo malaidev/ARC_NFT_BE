@@ -105,6 +105,7 @@ const getKucoinBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('kucoin', responseSymbol)

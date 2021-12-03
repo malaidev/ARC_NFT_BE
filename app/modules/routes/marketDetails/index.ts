@@ -3,7 +3,7 @@ import { compareExchangesOperation } from './compareExchanges';
 
 export const marketDetails = async (router: any, options: any) => {
   router.get('/:exchangeName/:symbol', loadMarketDetails);
-  router.get('/:symbol', loadAllExchangesOrderBook);
+  router.get('/orderBook/:symbol/:walletId', loadAllExchangesOrderBook);
   
   router.post('/compare', compareExchangesOperation);
 }
