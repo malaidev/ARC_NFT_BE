@@ -1,5 +1,6 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
+import { DepoUserController } from '../../controller/DepoUserController';
 import { respond } from "../../util/respond";
 
 export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) => {
@@ -27,8 +28,20 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
 }
 
 export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
-  const allExchanges = ['binance', 'huobi', 'ftx'];
-  const { symbol } = req.params as any;
+  
+  let allExchanges = ['binance', 'huobi', 'ftx'];
+  const { symbol, walletId } = req.params as any;
+  // let kucoinExchange;
+
+  // if(walletId) {
+  //   const userController = new DepoUserController();
+  //   const userExchanges :any = await userController.getUserApiKeys(walletId.toLowerCase());
+
+  //   kucoinExchange = userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin');
+  //   allExchanges.push('kucoin')
+  // }
+
+
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];
   
@@ -36,6 +49,14 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
     try {
       for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
+
+        // if(exchangeName === 'kucoin'){
+        //   exchange.apiKey = kucoinExchange.apiKey;
+        //   exchange.secret = kucoinExchange.apiSecret;
+        //   exchange.password = kucoinExchange.passphrase;
+        //   await exchange.checkRequiredCredentials() // throw AuthenticationError
+        // }
+
         const markets = await exchange.loadMarkets();
         if (markets[formattedSymbol]) {
           const response = await exchange.fetchOrderBook(formattedSymbol);

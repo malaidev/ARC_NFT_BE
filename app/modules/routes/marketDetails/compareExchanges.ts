@@ -93,7 +93,36 @@ const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, u
   }
 }
 
+const getKucoinPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.kucoin({
+    'options': {
+      'defaultType': 'spot',   
+    }});
 
+  const allMarkets = await exchange.loadMarkets();
+ 
+  if(allMarkets[symbol]){
+    const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
+    const { maker, taker } = allMarkets[symbol];
+    
+    return {
+      exchange: 'Kucoin',
+      exchangePrice: price,
+      feePercent: type === 'maker' ? maker : taker,
+      feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
+      totalPrice: +userPriceUnit * +userSize,
+      volume: vol
+    }
+  }
+  return {
+    exchange: 'Kucoin',
+    exchangePrice: 0,
+    feePercent: 0,
+    feeBase: 0,
+    totalPrice: 0,
+    volume: 0
+  }
+}
 
 export const compareExchangesOperation = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol, userPriceUnit, userSize, type } = req.body as any;
@@ -101,7 +130,8 @@ export const compareExchangesOperation = async (req: FastifyRequest, res: Fastif
   const binanceResponse = await getBinancePrice(symbol, type, userPriceUnit, userSize);
   const huobiResponse = await getHuobiPrice(symbol, type, userPriceUnit, userSize);
   const ftxResponse = await getFTXPrice(symbol, type, userPriceUnit, userSize);
+  const kucoinResponse = await getKucoinPrice(symbol, type, userPriceUnit, userSize);
 
   // return res.send(binanceResponse);
-  return res.send({type: type, quote: symbol.split('/')[1], compare:  [binanceResponse, huobiResponse, ftxResponse]});
+  return res.send({type: type, quote: symbol.split('/')[1], compare:  [binanceResponse, huobiResponse, ftxResponse, kucoinResponse]});
 }
