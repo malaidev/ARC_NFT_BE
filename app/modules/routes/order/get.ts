@@ -75,6 +75,7 @@ export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) =>
 
   const { exchangeName, orderId, symbol,  walletId } = req.params as any;
   const formattedExchangeName = exchangeName.toLowerCase();
+  const formattedSymbol = symbol.replace('-', '/');
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
@@ -109,7 +110,7 @@ export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) =>
         exchange.password = userSelectedExchange.passphrase;
       }
 
-        const response = await exchange.cancelOrder(orderId, symbol);
+        const response = await exchange.cancelOrder(orderId, formattedSymbol);
         if (!response) {
           res.code(204).send();
         } else {
