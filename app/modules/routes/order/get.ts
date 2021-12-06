@@ -13,8 +13,6 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
     fieldName: '', 
     value: ''
   }
-
-
   
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
