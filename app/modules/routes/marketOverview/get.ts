@@ -13,7 +13,7 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
     const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
     if(exists){
       exists.volume_24h_usd = +exists.volume_24h * +allTickers[base].ask;
-      exists.price_usd = +exists.price * +allTickers[base].ask;
+      exists.price_usd =  +allTickers[base].ask;
     }
   })
   return formatedMarket;
