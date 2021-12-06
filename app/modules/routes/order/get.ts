@@ -30,8 +30,6 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
     userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
   }
 
- 
-
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
@@ -90,6 +88,8 @@ export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) =>
       if (userSelectedExchange.id.toLowerCase() === 'ftx' && userSelectedExchange.extraFields.length > 0) {
         userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
       }
+
+      
     
       if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
           const exchange = new ccxt[formattedExchangeName]({
@@ -103,6 +103,11 @@ export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) =>
               'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
             }
           });
+
+         
+      if (userSelectedExchange.id.toLowerCase() === 'kucoin') {
+        exchange.password = userSelectedExchange.passphrase;
+      }
 
         const response = await exchange.cancelOrder(orderId);
         if (!response) {
