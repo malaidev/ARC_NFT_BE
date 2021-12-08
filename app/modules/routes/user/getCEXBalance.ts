@@ -31,6 +31,7 @@ const getBinanceBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('binance', responseSymbol)
@@ -50,6 +51,7 @@ const getHuobiBalance = async ( userData ) => {
     symbol,
     amount: +responseBalance['total'][symbol],
     usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
   }))
 
   const responseFormated = await getUsdtValue('huobi', responseSymbol)
@@ -80,11 +82,35 @@ const getFtxBalance = async ( userData ) => {
     exchange: 'ftx',
     symbol: symbol.coin,
     amount: +symbol.total,
-    usdValue: +symbol.usdValue
+    usdValue: +symbol.usdValue,
+    availableValue: symbol.free
   }))
 
   return responseSymbol
 };
+
+const getKucoinBalance = async ( userData ) => {
+  const exchange = new ccxt.kucoin();
+  exchange.apiKey = userData.apiKey;
+  exchange.secret = userData.apiSecret;
+  exchange.password = userData.passphrase;
+  
+  await exchange.checkRequiredCredentials() // throw AuthenticationError
+  
+  const responseBalance = await exchange.fetchBalance();
+  const userSymbols = (Object.keys(responseBalance['total']).filter(item => responseBalance['total'][item] !== 0));
+  const responseSymbol = userSymbols.map(symbol => ({
+    exchange: 'kucoin',
+    symbol,
+    amount: +responseBalance['total'][symbol],
+    usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
+  }))
+
+  const responseFormated = await getUsdtValue('kucoin', responseSymbol)
+  // console.log(responseFormated)
+  return responseFormated;
+}
 
 export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
@@ -121,6 +147,14 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
 
     if(responseFTX){
       response.symbols.push(...responseFTX);
+    }
+  }
+
+  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
+    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'))
+
+    if(responseKucoin){
+      response.symbols.push(...responseKucoin);
     }
   }
 

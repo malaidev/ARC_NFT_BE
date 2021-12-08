@@ -24,3 +24,31 @@ export const getMarketBySymbol = async (req: FastifyRequest, res: FastifyReply) 
     res.code(400).send(respond("`Exchange name cannot be null.`", true, 400));
   }
 }
+
+export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyReply) => {
+  const allExchanges = ['binance', 'huobi', 'ftx'];
+  const { symbol } = req.params as any;
+  const formattedSymbol = symbol.replace('-', '/');
+  let allExchangesMarkets = [];
+
+  if (symbol) {
+    try {
+      for (const exchangeName of allExchanges ) {
+        const exchange = new ccxt[exchangeName]();
+        const markets = await exchange.loadMarkets();
+        if (markets[formattedSymbol]) {
+          const response = await exchange.market(formattedSymbol);
+          allExchangesMarkets.push({ exchange: exchangeName, market: response })
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    return res.send({ 
+      allExchangesMarkets
+    })
+  } else {
+    res.code(400).send(respond("Symbol cannot be null.", true, 400));
+  }
+}

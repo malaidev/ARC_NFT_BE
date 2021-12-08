@@ -10,7 +10,7 @@ const config = {
   io: null,
   __logPool: [],
 
-  env: process.env.ENV || "development",
+  env: process.env.ENV || "staging",
   logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
   logLevel:
     process.env.LOG_LEVEL ||
