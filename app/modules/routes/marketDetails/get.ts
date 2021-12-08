@@ -54,14 +54,16 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
         if (markets[formattedSymbol]) {
           const response = await exchange.fetchOrderBook(formattedSymbol);
           const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
-          allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response, precision});
+          allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response ? response : {}, precision});
         }
       }
     } catch (error) {
       console.log(error);
     }
 
-    allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks = (allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks).slice(0,10);
+    if(allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin')){
+      allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks = (allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks).slice(0,10);
+    }
     
     return res.send({ 
       allExchangesOrderBook
