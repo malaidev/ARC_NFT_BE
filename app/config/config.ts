@@ -22,9 +22,27 @@ const config = {
     password: process.env["MONGODB_PASSWORD"],
     port: process.env["MONGODB_PORT"],
     instance: null as Db,
-    createInstance: async () => {
-      const instance = new MongoDBService();
-      config.mongodb.instance = await instance.connect();
+    maxTries: 5,
+    createInstance: async (tryCount = 1) => {
+      console.log(
+        "Trying to connect to the database. Connection counter: ",
+        tryCount
+      );
+      try {
+        const instance = new MongoDBService();
+        config.mongodb.instance = await instance.connect();
+      } catch (error) {
+        if (tryCount < config.mongodb.maxTries) {
+          console.log("Couldn't connect to the datbase, retrying.");
+          await config.mongodb.createInstance(++tryCount);
+        } else {
+          console.log(error);
+          throw new Error(
+            `Couldn't connect to the database and gave up after ${config.mongodb.maxTries} tries.`
+          );
+        }
+        return;
+      }
     },
   },
   server: {
@@ -50,7 +68,5 @@ const config = {
     };
   },
 };
-
-config.mongodb.createInstance();
 
 export { config };
