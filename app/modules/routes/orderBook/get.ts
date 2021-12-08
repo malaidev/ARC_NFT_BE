@@ -1,7 +1,7 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DepoUserController } from "../../controller/DepoUserController";
-import { IAPIKey } from "../../interfaces/IAPIKey";
+
 
 const loadBinanceOrders = async (userData, symbol) => {
   try{
