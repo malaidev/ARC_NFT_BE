@@ -79,7 +79,12 @@ class Stack(core.Stack):
                                 "ports": [{"containerPort": 3001}],
                                 # "command": ["npm", "start"],
                                 "command": ["ts-node", "-r", "esm", "server.ts"],
+                                "envFrom": [{"secretRef": {"name": "kucoin-creds"}}],
                                 "env": [
+                                    {
+                                        "name": "ENV",
+                                        "value": "staging"
+                                    },
                                     {
                                         "name": "MONGODB_USER",
                                         "valueFrom": {
