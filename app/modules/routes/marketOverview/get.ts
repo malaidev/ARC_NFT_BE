@@ -272,7 +272,7 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
         const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
-          price: formattedSymbolMarket.ask
+          price: removeScientificNotation(+formattedSymbolMarket.ask)
         })
         
         }  
