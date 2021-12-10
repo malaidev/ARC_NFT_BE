@@ -5,7 +5,19 @@ import { removeScientificNotation } from '../../util/removeScientificNotation';
 
 const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
-  const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
+
+  const allMarkets = await exchange.loadMarkets();
+  const formatedSymbols = [];
+
+   quoteArray.forEach((quote) => {
+    const formattedWithUSDT =  `${quote}/USDT`
+    const formattedWithUSD =  `${quote}/USD`
+    
+    const realSymbol = allMarkets[formattedWithUSDT] ? formattedWithUSDT : allMarkets[formattedWithUSD] ? formattedWithUSD : undefined
+
+    if(realSymbol) 
+      return formatedSymbols.push(realSymbol)
+  });
 
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 

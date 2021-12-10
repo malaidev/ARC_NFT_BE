@@ -16,10 +16,10 @@ const loadBinanceOrders = async (marketType, userData, symbol) => {
       closedOrders: await exchange.fetchClosedOrders(symbol),
     }
   
-    if(marketType === 'future') {
-      responseBinance.openOrders = responseBinance.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-      responseBinance.closedOrders = responseBinance.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    }
+    // if(marketType === 'future') {
+    //   responseBinance.openOrders = responseBinance.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+    //   responseBinance.closedOrders = responseBinance.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+    // }
 
     responseBinance.openOrders.forEach((order: any) => {
       order.exchange = 'Binance';
@@ -50,10 +50,10 @@ const loadHuobiOrders = async (marketType, userData, symbol) => {
     closedOrders: await exchange.fetchClosedOrders(symbol),
   }
 
-  if(marketType === 'future') {
-    responseHuobi.openOrders = responseHuobi.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    responseHuobi.closedOrders = responseHuobi.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  }
+  // if(marketType === 'future') {
+  //   responseHuobi.openOrders = responseHuobi.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  //   responseHuobi.closedOrders = responseHuobi.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  // }
 
   responseHuobi.openOrders.forEach((order: any) => {
     order.exchange = 'Huobi';
@@ -94,10 +94,10 @@ const loadFTXOrders = async (marketType, userData, symbol) => {
     closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === symbol),
   }
 
-  if(marketType === 'future') {
-    responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  }
+  // if(marketType === 'future') {
+  //   responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  //   responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  // }
 
   responseFTX.openOrders.forEach((order: any) => order.exchange = 'FTX' );
   responseFTX.closedOrders.forEach((order: any) => order.exchange = 'FTX' );
@@ -122,10 +122,10 @@ const getKucoinOrders = async (marketType, userData, symbol) => {
     closedOrders: await exchange.fetchClosedOrders(symbol),
   }
 
-  if(marketType === 'future') {
-    responseKucoin.openOrders = responseKucoin.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    responseKucoin.closedOrders = responseKucoin.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  }
+  // if(marketType === 'future') {
+  //   responseKucoin.openOrders = responseKucoin.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  //   responseKucoin.closedOrders = responseKucoin.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+  // }
 
   responseKucoin.openOrders.forEach((order: any) => {
     order.exchange = 'Kucoin';
@@ -151,6 +151,13 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
     openOrders: [],
     closedOrders: []
   }
+
+  console.log('---------------------')
+  console.log('bateu na rota no back')
+  console.log(walletId)
+  console.log(marketType)
+  console.log(symbol)
+  console.log('---------------------')
 
   if(!userExchanges) return res.send({});
 
@@ -198,6 +205,7 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
   //   closedOrders: response.closedOrders.sort((a :any, b :any) =>  a.datetime - b.datetime)
   // }
   
+  console.log(response)
 
   return res.send({ response });
 }catch(err){
