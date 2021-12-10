@@ -210,34 +210,34 @@ const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
  }
 
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
-  const { exchangeName, quote } = req.params as any;
+  const { type, exchangeName, quote } = req.params as any;
   const formatedQuote = quote.toUpperCase();
   const formatedExchangeName = exchangeName.toLowerCase();
   const exchange = new ccxt[formatedExchangeName]();
   const response = await exchange.fetchMarkets();
   const allSingleQuotes = [];
   
-  var onlySpotMarkets = [];
+  var onlyMarkets = [];
 
   switch(formatedExchangeName) {
     case 'binance':
-      onlySpotMarkets = await binanceMarketQuote(formatedQuote, response);
+      onlyMarkets = await binanceMarketQuote(formatedQuote, response);
     break;
 
     case 'huobi':
-      onlySpotMarkets = await huobiMarketQuote(formatedQuote, response);
+      onlyMarkets = await huobiMarketQuote(formatedQuote, response);
     break;
 
     case 'ftx':
-      onlySpotMarkets = await ftxMarketQuote(formatedQuote, response);
+      onlyMarkets = await ftxMarketQuote(formatedQuote, response);
     break;
 
     case 'kucoin':
-      onlySpotMarkets = await kucoinMarketQuote(formatedQuote, response);
+      onlyMarkets = await kucoinMarketQuote(formatedQuote, response);
     break;
   }
 
-  const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
+  const orderedMarkets = onlyMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
     if(!allSingleQuotes.find(subitem=> subitem === item.quote)){
@@ -257,8 +257,9 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 }
 
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
-  const { symbol } = req.params as any;
+  const { type, symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
+  
   const exchanges = ['binance' , 'huobi', 'ftx', 'kucoin'];
   const allValues = [];
 
@@ -266,9 +267,11 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
     exchanges.map(async (exchangeName) => {
       try {
       const exchange = new ccxt[exchangeName]();
+      exchange.options.defaultType = type;
       const markets = await exchange.loadMarkets();
-      if(markets[formattedSymbol]){
-        const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
+      const realSymbol = markets[symbol] ? symbol : markets[formattedSymbol] ? formattedSymbol : undefined
+      if(realSymbol){
+        const formattedSymbolMarket = await exchange.fetchTicker(realSymbol);
         allValues.push({
           exchange: exchangeName,
           price: formattedSymbolMarket.ask
