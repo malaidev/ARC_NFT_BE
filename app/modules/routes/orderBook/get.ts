@@ -1,7 +1,7 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DepoUserController } from "../../controller/DepoUserController";
-import { IAPIKey } from "../../interfaces/IAPIKey";
+
 
 const loadBinanceOrders = async (userData, symbol) => {
   try{
@@ -12,27 +12,25 @@ const loadBinanceOrders = async (userData, symbol) => {
     exchange.secret = userData.apiSecret;
     await exchange.checkRequiredCredentials() // throw AuthenticationError
   
-    // const allMarkets = await exchange.fetchMarkets();
-    // if(!allMarkets.find(market => market.symbol === symbol)) return
-  
-    const responseBinance = {
-      openOrders: await exchange.fetchOpenOrders(symbol),
-      closedOrders: await exchange.fetchClosedOrders(symbol),
-    }
-  
-    responseBinance.openOrders.forEach((order: any) => {
-      order.exchange = 'Binance';
-      order.info.status = order.status;
-    });
-  
-  
-  
-    responseBinance.closedOrders.forEach((order: any) =>{
-      order.exchange = 'Binance';
-      order.info.status = order.status;
-    });
+    const allMarkets = await exchange.loadMarkets();
+    if(allMarkets[symbol]){
+      const responseBinance = {
+        openOrders: await exchange.fetchOpenOrders(symbol),
+        closedOrders: await exchange.fetchClosedOrders(symbol),
+      }
+    
+      responseBinance.openOrders.forEach((order: any) => {
+        order.exchange = 'Binance';
+        order.info.status = order.status;
+      });
+     
+      responseBinance.closedOrders.forEach((order: any) =>{
+        order.exchange = 'Binance';
+        order.info.status = order.status;
+      });
 
-    return responseBinance;
+      return responseBinance;
+    }
   }catch(err){
     console.log(err)
   }
@@ -47,25 +45,25 @@ const loadHuobiOrders = async (userData, symbol) => {
   exchange.secret = userData.apiSecret;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
 
-  // const allMarkets = await exchange.fetchMarkets();
-  // if(!allMarkets.find(market => market.symbol === symbol)) return
+  const allMarkets = await exchange.loadMarkets();
+  if(allMarkets[symbol]){
+    const responseHuobi = {
+      openOrders: await exchange.fetchOpenOrders(symbol),
+      closedOrders: await exchange.fetchClosedOrders(symbol),
+    }
 
-  const responseHuobi = {
-    openOrders: await exchange.fetchOpenOrders(symbol),
-    closedOrders: await exchange.fetchClosedOrders(symbol),
+    responseHuobi.openOrders.forEach((order: any) => {
+      order.exchange = 'Huobi';
+      order.info.status = order.status;
+    });
+
+    responseHuobi.closedOrders.forEach((order: any) =>{
+      order.exchange = 'Huobi';
+      order.info.status = order.status;
+    });
+
+    return responseHuobi;
   }
-
-  responseHuobi.openOrders.forEach((order: any) => {
-    order.exchange = 'Huobi';
-    order.info.status = order.status;
-  });
-
-  responseHuobi.closedOrders.forEach((order: any) =>{
-    order.exchange = 'Huobi';
-    order.info.status = order.status;
-  });
-
-  return responseHuobi;
 }catch(err) {
   console.log(err)
 }
@@ -75,18 +73,8 @@ const loadHuobiOrders = async (userData, symbol) => {
 const loadFTXOrders = async (userData, symbol) => {
   try {
   const exchange = new ccxt.ftx();
-
-  // const allMarkets = await exchange.fetchMarkets();
-  // if(!allMarkets.find(market => market.id === symbol)) return
-
-
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
-
-  // config for subaccounts 
-  // exchange.headers = {
-  //   'FTX-SUBACCOUNT': 'depo_test',
-  // }
 
   if(userData.extraFields.length > 0){
     const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
@@ -98,7 +86,6 @@ const loadFTXOrders = async (userData, symbol) => {
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const orderList = await exchange.fetchOrders();
 
-  
   const responseFTX = {
     openOrders: orderList.filter(order => order.info.status !== 'closed' && order.symbol === symbol),
     closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === symbol),
@@ -114,6 +101,7 @@ const loadFTXOrders = async (userData, symbol) => {
 };
 
 const getKucoinOrders = async (userData, symbol) => {
+  try{
   const exchange = new ccxt.kucoin();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
@@ -121,22 +109,28 @@ const getKucoinOrders = async (userData, symbol) => {
  
   await exchange.checkRequiredCredentials() // throw AuthenticationError
 
-  const responseKucoin = {
-    openOrders: await exchange.fetchOpenOrders(symbol),
-    closedOrders: await exchange.fetchClosedOrders(symbol),
+  const allMarkets = await exchange.loadMarkets();
+  if(allMarkets[symbol]){
+    const responseKucoin = {
+      openOrders: await exchange.fetchOpenOrders(symbol),
+      closedOrders: await exchange.fetchClosedOrders(symbol),
+    }
+
+    responseKucoin.openOrders.forEach((order: any) => {
+      order.exchange = 'Kucoin';
+      order.info.status = order.status;
+    });
+
+    responseKucoin.closedOrders.forEach((order: any) =>{
+      order.exchange = 'Kucoin';
+      order.info.status = order.status;
+    });
+
+    return responseKucoin;  
   }
-
-  responseKucoin.openOrders.forEach((order: any) => {
-    order.exchange = 'Kucoin';
-    order.info.status = order.status;
-  });
-
-  responseKucoin.closedOrders.forEach((order: any) =>{
-    order.exchange = 'Kucoin';
-    order.info.status = order.status;
-  });
-
-  return responseKucoin;  
+  } catch(err){
+    console.log(err)
+  }
 }
 
 
