@@ -1,44 +1,44 @@
 {
-  "name": "webservice-wsrv01",
-  "version": "0.5.5",
-  "main": "./server.ts",
-  "scripts": {
-    "start": "nodemon -r esm server.ts "
-  },
-  "dependencies": {
-    "aws-sdk": "^2.1016.0",
-    "axios": "^0.21.4",
-    "bignumber.js": "^9.0.1",
-    "ccxt": "^1.56.20",
-    "dotenv": "^8.2.0",
-    "esm": "^3.2.25",
-    "eth-sig-util": "^3.0.1",
-    "fastify": "^3.3.0",
-    "fastify-blipp": "^3.0.0",
-    "fastify-cookie": "^4.0.2",
-    "fastify-cors": "^4.1.0",
-    "fastify-jwt": "^2.1.3",
-    "fastify-plugin": "^2.3.3",
-    "http": "0.0.1-security",
-    "mailgun-js": "^0.22.0",
-    "minimum-tls-version": "0.0.3",
-    "moment": "^2.27.0",
-    "mongodb": "^3.6.6",
-    "nodemon": "^2.0.12",
-    "pino-pretty": "^4.7.1",
-    "query-string": "^7.0.1",
-    "require": "^2.4.20",
-    "socket.io": "4.1.2",
-    "tedious": "^11.0.7",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3",
-    "uuid": "^8.3.2",
-    "web3-utils": "^1.6.1"
-  },
-  "devDependencies": {
-    "@types/mailgun-js": "^0.22.12",
-    "@types/mongodb": "^3.6.12",
-    "@types/node": "^16.0.0",
-    "@types/uuid": "^8.3.1"
-  }
+    "name": "webservice-wsrv01",
+    "version": "0.6.2",
+    "main": "./server.ts",
+    "scripts": {
+        "start": "nodemon -r esm server.ts "
+    },
+    "dependencies": {
+        "aws-sdk": "^2.1016.0",
+        "axios": "^0.21.4",
+        "bignumber.js": "^9.0.1",
+        "ccxt": "^1.56.20",
+        "dotenv": "^8.2.0",
+        "esm": "^3.2.25",
+        "eth-sig-util": "^3.0.1",
+        "fastify": "^3.3.0",
+        "fastify-blipp": "^3.0.0",
+        "fastify-cookie": "^4.0.2",
+        "fastify-cors": "^4.1.0",
+        "fastify-jwt": "^2.1.3",
+        "fastify-plugin": "^2.3.3",
+        "http": "0.0.1-security",
+        "mailgun-js": "^0.22.0",
+        "minimum-tls-version": "0.0.3",
+        "moment": "^2.27.0",
+        "mongodb": "^3.6.6",
+        "nodemon": "^2.0.12",
+        "pino-pretty": "^4.7.1",
+        "query-string": "^7.0.1",
+        "require": "^2.4.20",
+        "socket.io": "4.1.2",
+        "tedious": "^11.0.7",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.2.3",
+        "uuid": "^8.3.2",
+        "web3-utils": "^1.6.1"
+    },
+    "devDependencies": {
+        "@types/mailgun-js": "^0.22.12",
+        "@types/mongodb": "^3.6.12",
+        "@types/node": "^16.0.0",
+        "@types/uuid": "^8.3.1"
+    }
 }

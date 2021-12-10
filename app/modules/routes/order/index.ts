@@ -7,5 +7,5 @@ import { sendOrder, sendCancelOrder } from './get';
  */
  export const order = async (router: any, options: any) => {
   router.post('/:exchangeName', sendOrder);
-  router.post('/cancel/:walletId/:exchangeName/:orderId', sendCancelOrder);
+  router.post('/cancel/:walletId/:exchangeName/:orderId/:symbol', sendCancelOrder);
 }

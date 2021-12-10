@@ -13,7 +13,7 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
     const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
     if(exists){
       exists.volume_24h_usd = +exists.volume_24h * +allTickers[base].ask;
-      exists.price_usd = +exists.price * +allTickers[base].ask;
+      exists.price_usd =  +allTickers[base].ask;
     }
   })
   return formatedMarket;
@@ -151,7 +151,8 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: 0,
       variationPrice,
-      change_24h: formatPercentage((+allTickers[item].percentage)),
+      change_24h: +allTickers[item].percentage,
+      // change_24h: formatPercentage((+allTickers[item].percentage)),
       bid: +allTickers[item].info.bid,
       ask: +allTickers[item].info.ask,
       high: +allTickers[item].info.high,
@@ -163,19 +164,80 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   return responseFormated
 }
 
+const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
+  const exchange = new ccxt.kucoin();
+  const filterMarkets = [];
+  const baseArry = [];
+  
+  listMarkets.map(item => {
+    if(!filterMarkets.find(subitem=> subitem === item.symbol) 
+    && item.type === 'spot'                                 
+    && item.quote === quote      
+    && item.active === true                           
+    && item.info.enableTrading === true){                     
+      return filterMarkets.push(item.symbol);
+    }
+  });
+  
+  const allTickers = await exchange.fetchTickers(filterMarkets)
+  const allSymbols = Object.keys(allTickers);
+  const formatedMarket = allSymbols.map(item => {
+    const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
+
+    return {
+      symbol: allTickers[item].symbol,
+      quote: auxQuote,
+      precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
+      market: auxBase,
+      price: removeScientificNotation(+allTickers[item].info.sell),
+      price_usd: 0,
+      volume_24h: +allTickers[item].info.vol,
+      volume_24h_usd: 0,
+      variationPrice: +allTickers[item].change,
+      change_24h: +allTickers[item].percentage,
+      bid: +allTickers[item].bid,
+      ask: +allTickers[item].ask,
+      high: +allTickers[item].high,
+      low: +allTickers[item].low
+    }
+  })
+  
+  const responseFormated = await getPriceByUSDT('kucoin', baseArry, formatedMarket);
+  return responseFormated
+
+ }
+
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
+  const formatedQuote = quote.toUpperCase();
   const formatedExchangeName = exchangeName.toLowerCase();
   const exchange = new ccxt[formatedExchangeName]();
   const response = await exchange.fetchMarkets();
   const allSingleQuotes = [];
   
-  const onlySpotMarkets =
-  formatedExchangeName === 'binance' 
-      ? await binanceMarketQuote(quote, response) 
-      : formatedExchangeName === 'huobi'
-        ? await huobiMarketQuote(quote, response)
-        : await ftxMarketQuote(quote, response); 
+  var onlySpotMarkets = [];
+
+  switch(formatedExchangeName) {
+    case 'binance':
+      onlySpotMarkets = await binanceMarketQuote(formatedQuote, response);
+    break;
+
+    case 'huobi':
+      onlySpotMarkets = await huobiMarketQuote(formatedQuote, response);
+    break;
+
+    case 'ftx':
+      onlySpotMarkets = await ftxMarketQuote(formatedQuote, response);
+    break;
+
+    case 'kucoin':
+      onlySpotMarkets = await kucoinMarketQuote(formatedQuote, response);
+    break;
+  }
+
   const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
@@ -198,7 +260,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
-  const exchanges = ['binance' , 'huobi', 'ftx'];
+  const exchanges = ['binance' , 'huobi', 'ftx', 'kucoin'];
   const allValues = [];
 
   await Promise.all(
@@ -210,7 +272,7 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
         const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
-          price: formattedSymbolMarket.ask
+          price: removeScientificNotation(+formattedSymbolMarket.ask)
         })
         
         }  
