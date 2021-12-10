@@ -2,10 +2,6 @@ import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { respond } from "../../util/respond";
 
-const dotenv = require("dotenv");
-dotenv.config();
-// process.env["MONGODB_USER"],
-
 export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) => {
 
   const { exchangeName, symbol } = req.params as any;
