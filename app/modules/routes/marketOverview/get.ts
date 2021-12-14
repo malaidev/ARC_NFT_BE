@@ -267,6 +267,14 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
     exchanges.map(async (exchangeName) => {
       try {
       const exchange = new ccxt[exchangeName]();
+
+      if(exchangeName === 'kucoin'){
+        exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
+        exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
+        exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
+        await exchange.checkRequiredCredentials() // throw AuthenticationError
+      }
+
       const markets = await exchange.loadMarkets();
       if(markets[formattedSymbol]){
         const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
