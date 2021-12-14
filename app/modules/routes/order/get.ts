@@ -27,7 +27,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   } 
 
   if (userSelectedExchange.id.toLowerCase() === 'ftx' && userSelectedExchange.extraFields.length > 0) {
-    userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
+    userSubAccount = userSelectedExchange.extraFields?.find(field => field.fieldName === 'Subaccount');
   }
 
 
