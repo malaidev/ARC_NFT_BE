@@ -26,7 +26,7 @@ export const getMarketBySymbol = async (req: FastifyRequest, res: FastifyReply) 
 }
 
 export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyReply) => {
-  const allExchanges = ['binance', 'huobi', 'ftx'];
+  const allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesMarkets = [];
@@ -35,6 +35,14 @@ export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyRepl
     try {
       for (const exchangeName of allExchanges ) {
         const exchange = new ccxt[exchangeName]();
+
+        if(exchangeName === 'kucoin'){
+          exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
+          exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
+          exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
+          await exchange.checkRequiredCredentials() // throw AuthenticationError
+        }
+
         const markets = await exchange.loadMarkets();
         if (markets[formattedSymbol]) {
           const response = await exchange.market(formattedSymbol);

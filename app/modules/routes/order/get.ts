@@ -27,16 +27,15 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   } 
 
   if (userSelectedExchange.id.toLowerCase() === 'ftx' && userSelectedExchange.extraFields.length > 0) {
-    userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
+    userSubAccount = userSelectedExchange.extraFields?.find(field => field.fieldName === 'Subaccount');
   }
-
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
       const exchange = new ccxt[formattedExchangeName]({
-        'headers': {
-          'FTX-SUBACCOUNT': userSubAccount.value,
-        },
+        // 'headers': {
+        //   'FTX-SUBACCOUNT': userSubAccount && userSubAccount.value,
+        // },
         'apiKey': userSelectedExchange.apiKey,
         'secret': userSelectedExchange.apiSecret,
         'enableRateLimit': true,
@@ -45,9 +44,15 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
         }
       });
 
+      if(userSelectedExchange.id.toLowerCase() === 'ftx' && userSubAccount ){
+        exchange.headers['FTX-SUBACCOUNT'] = userSubAccount.value
+      }
+
       if (userSelectedExchange.id.toLowerCase() === 'kucoin') {
         exchange.password = userSelectedExchange.passphrase;
       }
+
+     
 
       await exchange.checkRequiredCredentials() // throw AuthenticationError
 
