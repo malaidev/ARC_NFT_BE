@@ -77,10 +77,10 @@ const loadFTXOrders = async (userData, symbol) => {
   exchange.secret = userData.apiSecret;
 
   if(userData.extraFields.length > 0){
-    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-    exchange.headers = {
-      'FTX-SUBACCOUNT': userSubAccount.value,
-    }
+    const userSubAccount = userData.extraFields?.find(field => field.fieldName === 'Subaccount');
+      if(userSubAccount){
+        exchange.headers['FTX-SUBACCOUNT'] = userSubAccount.value
+      }
   }
 
   await exchange.checkRequiredCredentials() // throw AuthenticationError
@@ -190,7 +190,6 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
   //   openOrders: response.openOrders.sort((a :any, b :any) =>  a.datetime - b.datetime),
   //   closedOrders: response.closedOrders.sort((a :any, b :any) =>  a.datetime - b.datetime)
   // }
-  
 
   return res.send({ response });
 }catch(err){
