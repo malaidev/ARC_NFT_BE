@@ -1,6 +1,7 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DepoUserController } from "../../controller/DepoUserController";
+import { verifySymbolFormate } from '../../util/verifySymbolFormate';
 
 
 const loadBinanceOrders = async (marketType, userData, symbol) => {
@@ -11,27 +12,33 @@ const loadBinanceOrders = async (marketType, userData, symbol) => {
     exchange.secret = userData.apiSecret;
     await exchange.checkRequiredCredentials() // throw AuthenticationError
 
-    const responseBinance = {
-      openOrders: await exchange.fetchOpenOrders(symbol),
-      closedOrders: await exchange.fetchClosedOrders(symbol),
+    const realSymbol = await verifySymbolFormate('binance', marketType, symbol);
+
+    if(realSymbol){
+      const responseBinance = {
+        openOrders: await exchange.fetchOpenOrders(symbol),
+        closedOrders: await exchange.fetchClosedOrders(symbol),
+      }
+  
+      if(responseBinance.openOrders && responseBinance.closedOrders){
+        if(marketType === 'future') {
+          responseBinance.openOrders = responseBinance.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+          responseBinance.closedOrders = responseBinance.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+        }
+
+        responseBinance.openOrders.forEach((order: any) => {
+          order.exchange = 'Binance';
+          order.info.status = order.status;
+        });
+      
+        responseBinance.closedOrders.forEach((order: any) =>{
+          order.exchange = 'Binance';
+          order.info.status = order.status;
+        });
+
+        return responseBinance;
+      }
     }
-  
-    // if(marketType === 'future') {
-    //   responseBinance.openOrders = responseBinance.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    //   responseBinance.closedOrders = responseBinance.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-    // }
-
-    responseBinance.openOrders.forEach((order: any) => {
-      order.exchange = 'Binance';
-      order.info.status = order.status;
-    });
-  
-    responseBinance.closedOrders.forEach((order: any) =>{
-      order.exchange = 'Binance';
-      order.info.status = order.status;
-    });
-
-    return responseBinance;
   }catch(err){
     console.log(err)
   }
@@ -45,27 +52,33 @@ const loadHuobiOrders = async (marketType, userData, symbol) => {
   exchange.secret = userData.apiSecret;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
 
-  const responseHuobi = {
-    openOrders: await exchange.fetchOpenOrders(symbol),
-    closedOrders: await exchange.fetchClosedOrders(symbol),
+  const realSymbol = await verifySymbolFormate('huobi', marketType, symbol);
+
+  if(realSymbol){
+    const responseHuobi = {
+      openOrders: await exchange.fetchOpenOrders(symbol),
+      closedOrders: await exchange.fetchClosedOrders(symbol),
+    }
+
+    if(responseHuobi.openOrders && responseHuobi.closedOrders){
+      if(marketType === 'future') {
+        responseHuobi.openOrders = responseHuobi.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+        responseHuobi.closedOrders = responseHuobi.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+      }
+
+      responseHuobi.openOrders.forEach((order: any) => {
+        order.exchange = 'Huobi';
+        order.info.status = order.status;
+      });
+
+      responseHuobi.closedOrders.forEach((order: any) =>{
+        order.exchange = 'Huobi';
+        order.info.status = order.status;
+      });
+
+      return responseHuobi;
+    }
   }
-
-  // if(marketType === 'future') {
-  //   responseHuobi.openOrders = responseHuobi.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  //   responseHuobi.closedOrders = responseHuobi.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  // }
-
-  responseHuobi.openOrders.forEach((order: any) => {
-    order.exchange = 'Huobi';
-    order.info.status = order.status;
-  });
-
-  responseHuobi.closedOrders.forEach((order: any) =>{
-    order.exchange = 'Huobi';
-    order.info.status = order.status;
-  });
-
-  return responseHuobi;
 }catch(err) {
   console.log(err)
 }
@@ -89,55 +102,75 @@ const loadFTXOrders = async (marketType, userData, symbol) => {
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const orderList = await exchange.fetchOrders();
 
-  const responseFTX = {
-    openOrders: orderList.filter(order => order.info.status !== 'closed' && order.symbol === symbol),
-    closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === symbol),
+
+  const realSymbol = await verifySymbolFormate('ftx', marketType, symbol);
+  console.log('real symbol aqui ------: ', realSymbol);
+  if(realSymbol){
+    const responseFTX = {
+      openOrders: orderList.filter(order => order.info.status !== 'closed' && order.symbol === realSymbol),
+      closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === realSymbol),
+    }
+
+    console.log('------------------------------')
+    console.log('response aqui')
+    console.log(responseFTX)
+
+    if(responseFTX.openOrders && responseFTX.closedOrders){
+      // if(marketType === 'future') {
+      //   responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+      //   responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+      // }
+
+      responseFTX.openOrders.forEach((order: any) => order.exchange = 'FTX' );
+      responseFTX.closedOrders.forEach((order: any) => order.exchange = 'FTX' );
+
+      return responseFTX;
+    }
   }
-
-  // if(marketType === 'future') {
-  //   responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  //   responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  // }
-
-  responseFTX.openOrders.forEach((order: any) => order.exchange = 'FTX' );
-  responseFTX.closedOrders.forEach((order: any) => order.exchange = 'FTX' );
-
-  return responseFTX;
 } catch(err){
   console.log(err)
 }
 };
 
 const getKucoinOrders = async (marketType, userData, symbol) => {
+  try{
   const exchange = new ccxt.kucoin();
   exchange.options.defaultType = marketType;
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
   exchange.password = userData.passphrase;
  
-  await exchange.checkRequiredCredentials() // throw AuthenticationError
+  await exchange.checkRequiredCredentials(); // throw AuthenticationError
 
-  const responseKucoin = {
-    openOrders: await exchange.fetchOpenOrders(symbol),
-    closedOrders: await exchange.fetchClosedOrders(symbol),
+  const realSymbol = await verifySymbolFormate('kucoin', marketType, symbol);
+  if(realSymbol){
+    const responseKucoin = {
+      openOrders: await exchange.fetchOpenOrders(symbol),
+      closedOrders: await exchange.fetchClosedOrders(symbol),
+    }
+
+    if(responseKucoin.openOrders && responseKucoin.closedOrders){
+      if(marketType === 'future') {
+        responseKucoin.openOrders = responseKucoin.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+        responseKucoin.closedOrders = responseKucoin.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+      }
+
+      responseKucoin.openOrders.forEach((order: any) => {
+        order.exchange = 'Kucoin';
+        order.info.status = order.status;
+      });
+
+      responseKucoin.closedOrders.forEach((order: any) =>{
+        order.exchange = 'Kucoin';
+        order.info.status = order.status;
+      });
+
+      return responseKucoin;  
+    }
   }
-
-  // if(marketType === 'future') {
-  //   responseKucoin.openOrders = responseKucoin.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  //   responseKucoin.closedOrders = responseKucoin.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-  // }
-
-  responseKucoin.openOrders.forEach((order: any) => {
-    order.exchange = 'Kucoin';
-    order.info.status = order.status;
-  });
-
-  responseKucoin.closedOrders.forEach((order: any) =>{
-    order.exchange = 'Kucoin';
-    order.info.status = order.status;
-  });
-
-  return responseKucoin;  
+  }catch(err){
+    console.log(err)
+  }
 }
 
 
@@ -151,13 +184,6 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
     openOrders: [],
     closedOrders: []
   }
-
-  console.log('---------------------')
-  console.log('bateu na rota no back')
-  console.log(walletId)
-  console.log(marketType)
-  console.log(symbol)
-  console.log('---------------------')
 
   if(!userExchanges) return res.send({});
 
@@ -205,7 +231,9 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
   //   closedOrders: response.closedOrders.sort((a :any, b :any) =>  a.datetime - b.datetime)
   // }
   
-  console.log(response)
+  // console.log('------------------------------')
+  // console.log('response aqui')
+  // console.log(response)
 
   return res.send({ response });
 }catch(err){

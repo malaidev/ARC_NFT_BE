@@ -2,11 +2,11 @@ import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DepoUserController } from '../../controller/DepoUserController';
 import { IExtraApiKeyFields } from '../../interfaces/IAPIKey';
-import { IOrder } from '../../interfaces/IOrder';
+import { ISendOrder } from '../../interfaces/ISendOrder';
 import { respond } from "../../util/respond";
 
 export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
-  const order: IOrder = req.body;
+  const { order, marketType } = req.body as ISendOrder;
   const { exchangeName } = req.params as any;
   let createMarketBuyOrderRequiresPrice = true;
   let userSubAccount: IExtraApiKeyFields = { 
@@ -17,11 +17,10 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   const formattedExchangeName = exchangeName.toLowerCase();
   const formattedType = order.orderType.toLowerCase();
   const formattedSide = order.offerType.toLowerCase();
-  const formattedSymbol = order.symbolPair.replace('-', '/');
   const clt = new DepoUserController();
   const userAPIKeys = await clt.getUserApiKeys(order.user.settings.defaultWallet);
   const userSelectedExchange = userAPIKeys.find(exchange => exchange.id.toLowerCase() === formattedExchangeName);
-
+ 
   if (formattedExchangeName === 'huobi' && formattedType === 'market') {
     createMarketBuyOrderRequiresPrice = false;
   } 
@@ -29,7 +28,6 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
   if (userSelectedExchange.id.toLowerCase() === 'ftx' && userSelectedExchange.extraFields.length > 0) {
     userSubAccount = userSelectedExchange.extraFields.find(field => field.fieldName === 'Subaccount');
   }
-
 
   if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
     try {
@@ -42,6 +40,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
         'enableRateLimit': true,
         'options': {
           'createMarketBuyOrderRequiresPrice': createMarketBuyOrderRequiresPrice,
+          'defaultType': marketType
         }
       });
 
@@ -51,11 +50,18 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
 
       await exchange.checkRequiredCredentials() // throw AuthenticationError
 
-      const response = await exchange.createOrder(formattedSymbol, formattedType, formattedSide, order.amount, order.price);
-      if (!response) {
-        res.code(204).send();
-      } else {
-        return res.send({ response });
+      //checking correct symbol format
+      const allMarkets = await exchange.loadMarkets();
+      const formattedSymbol = order.symbolPair.replace('-', '/');
+      const realSymbol = allMarkets[order.symbolPair] ? order.symbolPair : allMarkets[formattedSymbol] ? formattedSymbol : undefined
+    
+      if(realSymbol){
+        const response = await exchange.createOrder(realSymbol, formattedType, formattedSide, order.amount, order.price);
+        if (!response) {
+          res.code(204).send();
+        } else {
+          return res.send({ response });
+        }
       }
     } catch(err) {
       console.log(err);
