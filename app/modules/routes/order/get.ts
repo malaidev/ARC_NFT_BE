@@ -35,7 +35,7 @@ export const sendOrder = async (req: FastifyRequest, res: FastifyReply) => {
     try {
       const exchange = new ccxt[formattedExchangeName]({
         'headers': {
-          'FTX-SUBACCOUNT': userSubAccount.value,
+          'FTX-SUBACCOUNT': userSubAccount && userSubAccount.value,
         },
         'apiKey': userSelectedExchange.apiKey,
         'secret': userSelectedExchange.apiSecret,
