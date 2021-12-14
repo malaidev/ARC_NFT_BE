@@ -69,9 +69,11 @@ const getFtxBalance = async ( userData ) => {
   // }
 
   if(userData.extraFields.length > 0){
-    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-    exchange.headers = {
-      'FTX-SUBACCOUNT': userSubAccount.value,
+    const userSubAccount = userData.extraFields?.find(field => field.fieldName === 'Subaccount');
+    if(userSubAccount){
+      exchange.headers = {
+        'FTX-SUBACCOUNT': userSubAccount.value,
+      }
     }
   }
  
