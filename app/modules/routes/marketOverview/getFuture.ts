@@ -42,8 +42,9 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
     }
   });
 
+  const verifyAuxQuote = quote === 'USDT' || quote === 'USD' || quote === 'BUSD';
+
   const allTickers = await exchange.fetchTickers(filterMarkets)
-  console.log(allTickers)
 
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
@@ -51,6 +52,7 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
     if(!baseArry.find(base => base === auxBase)){
       baseArry.push(auxBase);
     }
+    const verifyAuxQuote = auxQuote === 'USDT' || auxQuote === 'USD' || auxQuote === 'BUSD';
 
     return {
       symbol: allTickers[item].symbol,
@@ -58,9 +60,9 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       market: auxBase,
       price: removeScientificNotation(+allTickers[item].info.lastPrice),
-      price_usd: 0,
+      price_usd: verifyAuxQuote ? removeScientificNotation(+allTickers[item].info.lastPrice) : 0,
       volume_24h: +allTickers[item].info.volume,
-      volume_24h_usd: 0,
+      volume_24h_usd: verifyAuxQuote ? removeScientificNotation(+allTickers[item].info.volume * +allTickers[item].info.lastPrice) : 0,
       variationPrice: +allTickers[item].info.priceChange,
       change_24h: +allTickers[item].info.priceChangePercent,
       bid: +allTickers[item].bid,
@@ -70,9 +72,12 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
     }
   })
   
-  const responseFormated = await getPriceByUSDT('binance', baseArry, formatedMarket);
+  if(!verifyAuxQuote) {
+    const responseFormated = await getPriceByUSDT('binance', baseArry, formatedMarket);
+    return responseFormated
+  }
   // console.log(responseFormated[0])
-  return responseFormated
+  return formatedMarket
 
 }
 
@@ -111,9 +116,9 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       price: removeScientificNotation(+allTickers[item].ask),
-      price_usd: 0,
+      price_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.ask) : 0,
       volume_24h: +allTickers[item].info.vol,
-      volume_24h_usd: 0,
+      volume_24h_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.vol * +allTickers[item].info.ask) : 0,
       variationPrice,
       change_24h: +allTickers[item].percentage,
       bid: +allTickers[item].info.bid,
@@ -166,9 +171,9 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       market: auxBase,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       price: removeScientificNotation(+allTickers[item].ask),
-      price_usd: 0,
+      price_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.ask) : 0,
       volume_24h: +allTickers[item].info.quoteVolume24h,
-      volume_24h_usd: 0,
+      volume_24h_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.quoteVolume24h * +allTickers[item].info.ask) : 0,
       variationPrice,
       change_24h: formatPercentage((+allTickers[item].percentage)),
       bid: +allTickers[item].info.bid,
@@ -182,6 +187,53 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   return responseFormated
 }
 
+const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
+  const exchange = new ccxt.kucoin({
+    'options': {
+      'defaultType': 'future',   
+    }});
+  const filterMarkets = [];
+  const baseArry = [];
+  
+  listMarkets.map(item => {
+    if(!filterMarkets.find(subitem=> subitem === item.symbol)                                
+    && item.quote === quote      
+    && item.active === true                           
+    && item.info.enableTrading === true){                     
+      return filterMarkets.push(item.symbol);
+    }
+  });
+  
+  const allTickers = await exchange.fetchTickers(filterMarkets)
+  const allSymbols = Object.keys(allTickers);
+  const formatedMarket = allSymbols.map(item => {
+    const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
+
+    return {
+      symbol: allTickers[item].symbol,
+      quote: auxQuote,
+      precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
+      market: auxBase,
+      price: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.sell) : 0,
+      price_usd: 0,
+      volume_24h: +allTickers[item].info.vol,
+      volume_24h_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.vol * +allTickers[item].info.sell) : 0,
+      variationPrice: +allTickers[item].change,
+      change_24h: +allTickers[item].percentage,
+      bid: +allTickers[item].bid,
+      ask: +allTickers[item].ask,
+      high: +allTickers[item].high,
+      low: +allTickers[item].low
+    }
+  })
+  
+  const responseFormated = await getPriceByUSDT('kucoin', baseArry, formatedMarket);
+  return responseFormated
+ }
+
 export const loadMarketOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
   const formattedQuote = quote.toUpperCase();
@@ -193,13 +245,32 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
   const response = await exchange.fetchMarkets();
   const allSingleQuotes = [];
   
-  const onlySpotMarkets =
+  var onlyMarkets = []; 
+  switch(formatedExchangeName) {
+    case 'binance':
+      onlyMarkets = await binanceMarketQuote(formattedQuote, response);
+    break;
+
+    case 'huobi':
+      onlyMarkets = await huobiMarketQuote(formattedQuote, response);
+    break;
+
+    case 'ftx':
+      onlyMarkets = await ftxMarketQuote(formattedQuote, response);
+    break;
+
+    case 'kucoin':
+      onlyMarkets = await kucoinMarketQuote(formattedQuote, response);
+    break;
+  }
+
+
   formatedExchangeName === 'binance' 
       ? await binanceMarketQuote(formattedQuote, response) 
       : formatedExchangeName === 'huobi'
         ? await huobiMarketQuote(formattedQuote, response)
         : await ftxMarketQuote(formattedQuote, response); 
-  const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
+  const orderedMarkets = onlyMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
     if(!allSingleQuotes.find(subitem=> subitem === item.quote)){
@@ -211,12 +282,13 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
     }
   })
 
-
     return res.send({
       allSingleQuotes,
       marketOfQuote: orderedMarkets,
     })
 }
+
+
 
 export const loadSymbolOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol } = req.params as any;
