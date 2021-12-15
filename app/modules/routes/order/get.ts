@@ -94,9 +94,6 @@ export const sendCancelOrder = async (req: FastifyRequest, res: FastifyReply) =>
     
       if(ccxt[formattedExchangeName] && typeof ccxt[formattedExchangeName] === 'function' ){
         const exchange = new ccxt[formattedExchangeName]({
-          'headers': {
-            'FTX-SUBACCOUNT': userSubAccount.value,
-          },
           'apiKey': userSelectedExchange.apiKey,
           'secret': userSelectedExchange.apiSecret,
           'enableRateLimit': true,
