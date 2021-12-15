@@ -100,6 +100,7 @@ export class DepoUserController extends AbstractEntity {
         const query = this.findUserQuery(walletId);
         const hasUser = await this.findOne(query);
         // Verify if has any error while finding user
+         console.log('has user : ', hasUser)
         if (!hasUser.code) {
           // if not mount the query to update an user
           const filter = this.findUserQuery(walletId);
@@ -372,7 +373,7 @@ export class DepoUserController extends AbstractEntity {
     // Also encrypts extrafields.password if exists.
     if (apiKey.extraFields) {
       _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
-        if (extraField.fieldName.match(/password/i)) {
+        if (extraField.fieldName?.match(/password/i)) {
           return {
             fieldName: extraField.fieldName,
             value: handler.encrypt(extraField.value),

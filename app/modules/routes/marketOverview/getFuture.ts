@@ -34,15 +34,17 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
   
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-    && item.type === 'future'                                 
-    && item.quote === quote                                 
+    && item.future                                
+    && item.quote === quote                                
     // && item.info.status === 'TRADING'
     ){                     
       return filterMarkets.push(item.symbol);
     }
   });
-  
+
   const allTickers = await exchange.fetchTickers(filterMarkets)
+  console.log(allTickers)
+
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
@@ -182,6 +184,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
 
 export const loadMarketOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
+  const formattedQuote = quote.toUpperCase();
   const formatedExchangeName = exchangeName.toLowerCase();
   const exchange = new ccxt[formatedExchangeName]({
     'options': {
@@ -192,10 +195,10 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
   
   const onlySpotMarkets =
   formatedExchangeName === 'binance' 
-      ? await binanceMarketQuote(quote, response) 
+      ? await binanceMarketQuote(formattedQuote, response) 
       : formatedExchangeName === 'huobi'
-        ? await huobiMarketQuote(quote, response)
-        : await ftxMarketQuote(quote, response); 
+        ? await huobiMarketQuote(formattedQuote, response)
+        : await ftxMarketQuote(formattedQuote, response); 
   const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
