@@ -69,9 +69,11 @@ const getFtxBalance = async ( userData ) => {
   // }
 
   if(userData.extraFields.length > 0){
-    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-    exchange.headers = {
-      'FTX-SUBACCOUNT': userSubAccount.value,
+    const userSubAccount = userData.extraFields?.find(field => field.fieldName === 'Subaccount');
+    if(userSubAccount){
+      exchange.headers = {
+        'FTX-SUBACCOUNT': userSubAccount.value,
+      }
     }
   }
  
@@ -86,9 +88,31 @@ const getFtxBalance = async ( userData ) => {
     availableValue: symbol.free
   }))
 
-  // console.log(responseSymbol);
   return responseSymbol
 };
+
+const getKucoinBalance = async ( userData ) => {
+  const exchange = new ccxt.kucoin();
+  exchange.apiKey = userData.apiKey;
+  exchange.secret = userData.apiSecret;
+  exchange.password = userData.passphrase;
+  
+  await exchange.checkRequiredCredentials() // throw AuthenticationError
+  
+  const responseBalance = await exchange.fetchBalance();
+  const userSymbols = (Object.keys(responseBalance['total']).filter(item => responseBalance['total'][item] !== 0));
+  const responseSymbol = userSymbols.map(symbol => ({
+    exchange: 'kucoin',
+    symbol,
+    amount: +responseBalance['total'][symbol],
+    usdValue: symbol === 'USDT' ? +responseBalance['total'][symbol] : 0,
+    availableValue: +responseBalance['free'][symbol]
+  }))
+
+  const responseFormated = await getUsdtValue('kucoin', responseSymbol)
+  // console.log(responseFormated)
+  return responseFormated;
+}
 
 export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
@@ -125,6 +149,14 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
 
     if(responseFTX){
       response.symbols.push(...responseFTX);
+    }
+  }
+
+  if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
+    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'))
+
+    if(responseKucoin){
+      response.symbols.push(...responseKucoin);
     }
   }
 

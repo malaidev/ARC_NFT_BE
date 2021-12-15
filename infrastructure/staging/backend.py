@@ -30,7 +30,7 @@ class Stack(core.Stack):
             zone_name="api.depo.io",
         )
 
-        domain = "{aws_region}.staging.api.depo.io".format(aws_region=self.region)
+        domain = "staging.api.depo.io"
 
         # ACM
         certificate = cm.Certificate(
@@ -79,7 +79,12 @@ class Stack(core.Stack):
                                 "ports": [{"containerPort": 3001}],
                                 # "command": ["npm", "start"],
                                 "command": ["ts-node", "-r", "esm", "server.ts"],
+                                "envFrom": [{"secretRef": {"name": "kucoin-creds"}}],
                                 "env": [
+                                    {
+                                        "name": "ENV",
+                                        "value": "staging"
+                                    },
                                     {
                                         "name": "MONGODB_USER",
                                         "valueFrom": {
