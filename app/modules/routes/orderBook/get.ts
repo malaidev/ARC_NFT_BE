@@ -102,24 +102,19 @@ const loadFTXOrders = async (marketType, userData, symbol) => {
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const orderList = await exchange.fetchOrders();
 
-
   const realSymbol = await verifySymbolFormate('ftx', marketType, symbol);
-  console.log('real symbol aqui ------: ', realSymbol);
+
   if(realSymbol){
     const responseFTX = {
       openOrders: orderList.filter(order => order.info.status !== 'closed' && order.symbol === realSymbol),
       closedOrders: orderList.filter(order => order.info.status === 'closed' && order.symbol === realSymbol),
     }
 
-    console.log('------------------------------')
-    console.log('response aqui')
-    console.log(responseFTX)
-
     if(responseFTX.openOrders && responseFTX.closedOrders){
-      // if(marketType === 'future') {
-      //   responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-      //   responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
-      // }
+      if(marketType === 'future') {
+        responseFTX.openOrders = responseFTX.openOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+        responseFTX.closedOrders = responseFTX.closedOrders.filter((order: any) => order.info.future && order.info.future !== null ) 
+      }
 
       responseFTX.openOrders.forEach((order: any) => order.exchange = 'FTX' );
       responseFTX.closedOrders.forEach((order: any) => order.exchange = 'FTX' );
@@ -224,16 +219,6 @@ export const loadUserOrders = async (req: FastifyRequest, res: FastifyReply) => 
       response.closedOrders.push(...responseKucoin.closedOrders);
     }
   }
-
-
-  // const ordenedResponse = {
-  //   openOrders: response.openOrders.sort((a :any, b :any) =>  a.datetime - b.datetime),
-  //   closedOrders: response.closedOrders.sort((a :any, b :any) =>  a.datetime - b.datetime)
-  // }
-  
-  // console.log('------------------------------')
-  // console.log('response aqui')
-  // console.log(response)
 
   return res.send({ response });
 }catch(err){
