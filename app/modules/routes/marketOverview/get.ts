@@ -7,6 +7,9 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
   const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
 
+  if (exchangeName === 'huobi')
+    await exchange.fetchTicker('ETH/USDT');
+    
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
@@ -81,6 +84,7 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
     }
   });
 
+  await exchange.fetchTicker('ETH/USDT');
   const allTickers = await exchange.fetchTickers(filterMarkets)
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
