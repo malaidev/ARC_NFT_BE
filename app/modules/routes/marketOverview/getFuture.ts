@@ -107,17 +107,11 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
 
   await exchange.fetchTicker(listMarkets[0].symbol);
   
-  const allTickers = await exchange.fetchTickers([  "BTC/USD:BTC-211217",
-  "BTC/USD:BTC-211224",
-  "BTC/USD:BTC-211231",
-  "BTC/USD:BTC-220325",
-  "ETH/USD:ETH-211217",
-  "ETH/USD:ETH-211224",
-  "ETH/USD:ETH-211231",])
+  const allTickers = await exchange.fetchTickers()
   // const allTickers = await exchange.fetchTickers(filterMarkets)
   
-  console.log('allTickers')
-  console.log(allTickers)
+  // console.log('allTickers')
+  // console.log(allTickers)
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
