@@ -11,6 +11,10 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
     }});
   const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
 
+
+  // if (exchangeName === 'huobi')
+    // await exchange.fetchTicker('ETH/USDT');
+
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
@@ -101,15 +105,26 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
     }
   });
 
-  const allTickers = await exchange.fetchTickers(filterMarkets)
+  await exchange.fetchTicker(listMarkets[0].symbol);
+  
+  const allTickers = await exchange.fetchTickers([  "BTC/USD:BTC-211217",
+  "BTC/USD:BTC-211224",
+  "BTC/USD:BTC-211231",
+  "BTC/USD:BTC-220325",
+  "ETH/USD:ETH-211217",
+  "ETH/USD:ETH-211224",
+  "ETH/USD:ETH-211231",])
+  // const allTickers = await exchange.fetchTickers(filterMarkets)
+  
+  console.log('allTickers')
+  console.log(allTickers)
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
     const variationPrice = +allTickers[item].open - +allTickers[item].ask;
-    if(!baseArry.find(base => base === auxBase)){
-      baseArry.push(auxBase);
-    }
-    
+    // if(!baseArry.find(base => base === auxBase)){
+    //   baseArry.push(auxBase);
+    // 
     return {
       symbol: allTickers[item].symbol,
       market: auxBase,
@@ -128,8 +143,8 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
     }
   })
 
-  const responseFormated = await getPriceByUSDT('huobi', baseArry, formatedMarket);
-  return responseFormated
+  // const responseFormated = await getPriceByUSDT('huobi', baseArry, formatedMarket);
+  return formatedMarket
 
 }
 
@@ -175,7 +190,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.quoteVolume24h * +allTickers[item].info.ask) : 0,
       variationPrice,
-      change_24h: formatPercentage((+allTickers[item].percentage)),
+      change_24h: (+allTickers[item].percentage),
       bid: +allTickers[item].info.bid,
       ask: +allTickers[item].info.ask,
       high: +allTickers[item].info.high,
@@ -183,8 +198,8 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
     }
   })
     
-  const responseFormated = await getPriceByUSDT('ftx', baseArry, formatedMarket);
-  return responseFormated
+  // const responseFormated = await getPriceByUSDT('ftx', baseArry, formatedMarket);
+  return formatedMarket
 }
 
 const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
@@ -278,7 +293,7 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
         item.symbol.replace('-','/');
       }
       const [ _ , auxQuote] = item.symbol.split('/');
-      return allSingleQuotes.push(auxQuote);
+      return allSingleQuotes.push(item.symbol);
     }
   })
 

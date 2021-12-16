@@ -19,6 +19,10 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
       return formatedSymbols.push(realSymbol)
   });
 
+
+  if (exchangeName === 'huobi')
+    await exchange.fetchTicker('ETH/USDT');
+
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
@@ -92,6 +96,8 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
         return filterMarkets.push(item.symbol);
     }
   });
+
+  await exchange.fetchTicker('ETH/USDT');
 
   const allTickers = await exchange.fetchTickers(filterMarkets)
   const allSymbols = Object.keys(allTickers);

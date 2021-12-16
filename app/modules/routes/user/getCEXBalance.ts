@@ -7,6 +7,10 @@ const getUsdtValue = async  (exchangeName, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
   const response = await exchange.fetchMarkets();
   const formatedSymbols = formatedMarket.map(quote => `${quote.symbol}/USDT`);
+
+  if (exchangeName === 'huobi')
+    await exchange.fetchTicker('USDT/USDT');
+
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
