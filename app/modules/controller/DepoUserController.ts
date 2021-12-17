@@ -409,7 +409,7 @@ export class DepoUserController extends AbstractEntity {
       // Decrypts also extrafields.password if exists
       if (apiKey.extraFields) {
         _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
-          if (extraField.fieldName.match(/password/i)) {
+          if (extraField.fieldName?.match(/password/i)) {
             return {
               fieldName: extraField.fieldName,
               value: handler.decrypt(extraField.value),

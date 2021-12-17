@@ -7,6 +7,10 @@ const getUsdtValue = async  (exchangeName, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
   const response = await exchange.fetchMarkets();
   const formatedSymbols = formatedMarket.map(quote => `${quote.symbol}/USDT`);
+
+  if (exchangeName === 'huobi')
+    await exchange.fetchTicker("ETH/USDT")
+
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
@@ -64,16 +68,13 @@ const getFtxBalance = async ( userData, marketType ) => {
   const exchange = new ccxt.ftx();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
-  exchange.options.defaultType = marketType;
-  // config for subaccounts 
-  // exchange.headers = {
-    // 'FTX-SUBACCOUNT': 'depo_test',
-  // }
-
+  
   if(userData.extraFields.length > 0){
-    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
-    exchange.headers = {
-      'FTX-SUBACCOUNT': userSubAccount.value,
+    const userSubAccount = userData.extraFields?.find(field => field.fieldName === 'Subaccount');
+    if(userSubAccount){
+      exchange.headers = {
+        'FTX-SUBACCOUNT': userSubAccount.value,
+      }
     }
   }
  

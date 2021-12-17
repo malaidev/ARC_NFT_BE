@@ -19,6 +19,9 @@ const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
       return formatedSymbols.push(realSymbol)
   });
 
+  if (exchangeName === 'huobi')
+    await exchange.fetchTicker('ETH/USDT');
+    
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
@@ -93,6 +96,7 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
     }
   });
 
+  await exchange.fetchTicker('ETH/USDT');
   const allTickers = await exchange.fetchTickers(filterMarkets)
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
@@ -280,7 +284,14 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
     exchanges.map(async (exchangeName) => {
       try {
       const exchange = new ccxt[exchangeName]();
-      exchange.options.defaultType = type;
+
+      if(exchangeName === 'kucoin'){
+        exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
+        exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
+        exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
+        await exchange.checkRequiredCredentials() // throw AuthenticationError
+      }
+
       const markets = await exchange.loadMarkets();
       const realSymbol = markets[symbol] ? symbol : markets[formattedSymbol] ? formattedSymbol : undefined
       if(realSymbol){
