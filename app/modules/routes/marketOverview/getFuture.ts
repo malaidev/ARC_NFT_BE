@@ -287,7 +287,7 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
         item.symbol.replace('-','/');
       }
       const [ _ , auxQuote] = item.symbol.split('/');
-      return allSingleQuotes.push(item.symbol);
+      return allSingleQuotes.push(auxQuote);
     }
   })
 
