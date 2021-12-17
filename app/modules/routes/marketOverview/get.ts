@@ -214,7 +214,7 @@ const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       market: auxBase,
-      price: removeScientificNotation(+allTickers[item].ask),
+      price: removeScientificNotation(+allTickers[item].info.sell),
       price_usd: 0,
       volume_24h: +allTickers[item].info.vol,
       volume_24h_usd: 0,

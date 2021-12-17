@@ -226,7 +226,7 @@ const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       market: auxBase,
-      price: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].ask) : 0,
+      price: removeScientificNotation(+allTickers[item].info.sell),
       price_usd: 0,
       volume_24h: +allTickers[item].info.vol,
       volume_24h_usd: auxQuote=== 'USDT' ? removeScientificNotation(+allTickers[item].info.vol * +allTickers[item].info.sell) : 0,
