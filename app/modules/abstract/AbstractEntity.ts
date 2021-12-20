@@ -279,10 +279,10 @@ import {
     }
   
     /**
-     * Returns the contents of `DepoAuthController::data`
-     * @returns
+     * Returns the contents of `{CurrentController}::data`
+     * @returns 
      */
     getData(): Array<any> | any {
       return this.data;
     }
-  }
+}

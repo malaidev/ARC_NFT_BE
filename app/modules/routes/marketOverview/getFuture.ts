@@ -1,37 +1,43 @@
+
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { formatPercentage } from '../../util/formatPercent';
 import { removeScientificNotation } from '../../util/removeScientificNotation';
 
 const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
-  const exchange = new ccxt[exchangeName]();
+  const exchange = new ccxt[exchangeName]({
+    'options': {
+      'defaultType': 'future',   
+    }});
   const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
 
-  if (exchangeName === 'huobi')
-    await exchange.fetchTicker('ETH/USDT');
-    
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
     const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
     if(exists){
       exists.volume_24h_usd = +exists.volume_24h * +allTickers[base].ask;
-      exists.price_usd =  +allTickers[base].ask;
+      exists.price_usd = +exists.price * +allTickers[base].ask;
     }
   })
   return formatedMarket;
 }
 
 const binanceMarketQuote = async (quote: string, listMarkets: any) => {
-  const exchange = new ccxt.binance();
+  const exchange = new ccxt.binance({
+    'options': {
+      'defaultType': 'future',   
+    }}
+  );
   const filterMarkets = [];
   const baseArry = [];
   
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-    && item.type === 'spot'                                 
+    && item.type === 'future'                                 
     && item.quote === quote                                 
-    && item.info.status === 'TRADING'){                     
+    // && item.info.status === 'TRADING'
+    ){                     
       return filterMarkets.push(item.symbol);
     }
   });
@@ -69,22 +75,25 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
 }
 
 const huobiMarketQuote = async (quote: string, listMarkets: any) => {
-  const exchange = new ccxt.huobi();
+  const exchange = new ccxt.huobi({
+    'options': {
+      'defaultType': 'future',   
+    }});
   const filterMarkets = [];
   const baseArry = [];
 
   
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-      && item.active !== false  
-      && item.info.state !== 'offline'                               
-      && item.quote === quote                                 
-      && item.info['api-trading'] === 'enabled'){                     
+      // && item.active !== false  
+      // && item.info.state !== 'offline'                               
+      // && item.quote === quote                                 
+      // && item.info['api-trading'] === 'enabled'
+      ){                     
         return filterMarkets.push(item.symbol);
     }
   });
 
-  await exchange.fetchTicker('ETH/USDT');
   const allTickers = await exchange.fetchTickers(filterMarkets)
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
@@ -118,16 +127,20 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
 }
 
 const ftxMarketQuote = async (quote: string, listMarkets: any) => {
-  const exchange = new ccxt.ftx();
+  const exchange = new ccxt.ftx({
+    'options': {
+      'defaultType': 'future',   
+    }});
   const baseArry = [];
 
   const filterMarkets = [];
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-      && item.spot === true                               
-      && item.quote === quote                                 
-      && item.active === true                                 
-      && item.info.enabled === true ){   
+      // && item.spot === true                               
+      // && item.quote === quote                                 
+      // && item.active === true                                 
+      // && item.info.enabled === true 
+      ){   
         const variationPrice = +item.info.ask - +item.info.bid;
         return filterMarkets.push(item.symbol)
     }
@@ -155,8 +168,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: 0,
       variationPrice,
-      change_24h: +allTickers[item].percentage,
-      // change_24h: formatPercentage((+allTickers[item].percentage)),
+      change_24h: formatPercentage((+allTickers[item].percentage)),
       bid: +allTickers[item].info.bid,
       ask: +allTickers[item].info.ask,
       high: +allTickers[item].info.high,
@@ -168,80 +180,22 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   return responseFormated
 }
 
-const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
-  const exchange = new ccxt.kucoin();
-  const filterMarkets = [];
-  const baseArry = [];
-  
-  listMarkets.map(item => {
-    if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-    && item.type === 'spot'                                 
-    && item.quote === quote      
-    && item.active === true                           
-    && item.info.enableTrading === true){                     
-      return filterMarkets.push(item.symbol);
-    }
-  });
-  
-  const allTickers = await exchange.fetchTickers(filterMarkets)
-  const allSymbols = Object.keys(allTickers);
-  const formatedMarket = allSymbols.map(item => {
-    const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
-    if(!baseArry.find(base => base === auxBase)){
-      baseArry.push(auxBase);
-    }
-
-    return {
-      symbol: allTickers[item].symbol,
-      quote: auxQuote,
-      precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
-      market: auxBase,
-      price: removeScientificNotation(+allTickers[item].info.sell),
-      price_usd: 0,
-      volume_24h: +allTickers[item].info.vol,
-      volume_24h_usd: 0,
-      variationPrice: +allTickers[item].change,
-      change_24h: +allTickers[item].percentage,
-      bid: +allTickers[item].bid,
-      ask: +allTickers[item].ask,
-      high: +allTickers[item].high,
-      low: +allTickers[item].low
-    }
-  })
-  
-  const responseFormated = await getPriceByUSDT('kucoin', baseArry, formatedMarket);
-  return responseFormated
-
- }
-
-export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
+export const loadMarketOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
-  const formatedQuote = quote.toUpperCase();
   const formatedExchangeName = exchangeName.toLowerCase();
-  const exchange = new ccxt[formatedExchangeName]();
+  const exchange = new ccxt[formatedExchangeName]({
+    'options': {
+      'defaultType': 'future',   
+    }});
   const response = await exchange.fetchMarkets();
   const allSingleQuotes = [];
   
-  var onlySpotMarkets = [];
-
-  switch(formatedExchangeName) {
-    case 'binance':
-      onlySpotMarkets = await binanceMarketQuote(formatedQuote, response);
-    break;
-
-    case 'huobi':
-      onlySpotMarkets = await huobiMarketQuote(formatedQuote, response);
-    break;
-
-    case 'ftx':
-      onlySpotMarkets = await ftxMarketQuote(formatedQuote, response);
-    break;
-
-    case 'kucoin':
-      onlySpotMarkets = await kucoinMarketQuote(formatedQuote, response);
-    break;
-  }
-
+  const onlySpotMarkets =
+  formatedExchangeName === 'binance' 
+      ? await binanceMarketQuote(quote, response) 
+      : formatedExchangeName === 'huobi'
+        ? await huobiMarketQuote(quote, response)
+        : await ftxMarketQuote(quote, response); 
   const orderedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
@@ -261,30 +215,25 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
     })
 }
 
-export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
+export const loadSymbolOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
-  const exchanges = ['binance' , 'huobi', 'ftx', 'kucoin'];
+  const exchanges = ['binance' , 'huobi', 'ftx'];
   const allValues = [];
 
   await Promise.all(
     exchanges.map(async (exchangeName) => {
       try {
-      const exchange = new ccxt[exchangeName]();
-
-      if(exchangeName === 'kucoin'){
-        exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
-        exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
-        exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
-        await exchange.checkRequiredCredentials() // throw AuthenticationError
-      }
-
+      const exchange = new ccxt[exchangeName]({
+        'options': {
+          'defaultType': 'future',   
+        }});
       const markets = await exchange.loadMarkets();
       if(markets[formattedSymbol]){
         const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
-          price: removeScientificNotation(+formattedSymbolMarket.ask)
+          price: formattedSymbolMarket.ask
         })
         
         }  
@@ -292,7 +241,10 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
         console.log(err)
       }
     })
-  );
+   
+  )
  
+
+
   return res.send(allValues)
 }

@@ -27,8 +27,10 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
 }
 
 export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
-  const allExchanges = ['binance', 'huobi', 'ftx'];
+  
+  let allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
   const { symbol } = req.params as any;
+
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];
   
@@ -36,14 +38,29 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
     try {
       for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
-        const response = await exchange.fetchOrderBook(formattedSymbol);
-        const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
-        allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response, precision});
+
+        if(exchangeName === 'kucoin'){
+          exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
+          exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
+          exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
+          await exchange.checkRequiredCredentials() // throw AuthenticationError
+        }
+
+        const markets = await exchange.loadMarkets();
+        if (markets[formattedSymbol]) {
+          const response = await exchange.fetchOrderBook(formattedSymbol);
+          const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
+          allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response ? response : {}, precision});
+        }
       }
     } catch (error) {
       console.log(error);
     }
 
+    if(allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin')){
+      allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks = (allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks).slice(0,10);
+    }
+    
     return res.send({ 
       allExchangesOrderBook
     })

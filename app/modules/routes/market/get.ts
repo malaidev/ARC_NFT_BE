@@ -24,3 +24,39 @@ export const getMarketBySymbol = async (req: FastifyRequest, res: FastifyReply) 
     res.code(400).send(respond("`Exchange name cannot be null.`", true, 400));
   }
 }
+
+export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyReply) => {
+  const allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
+  const { symbol } = req.params as any;
+  const formattedSymbol = symbol.replace('-', '/');
+  let allExchangesMarkets = [];
+
+  if (symbol) {
+    try {
+      for (const exchangeName of allExchanges ) {
+        const exchange = new ccxt[exchangeName]();
+
+        if(exchangeName === 'kucoin'){
+          exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
+          exchange.secret = process.env["KUCOIN_SERVICE_SECRET"];
+          exchange.password = process.env["KUCOIN_SERVICE_PASSPHRASE"];
+          await exchange.checkRequiredCredentials() // throw AuthenticationError
+        }
+
+        const markets = await exchange.loadMarkets();
+        if (markets[formattedSymbol]) {
+          const response = await exchange.market(formattedSymbol);
+          allExchangesMarkets.push({ exchange: exchangeName, market: response })
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    return res.send({ 
+      allExchangesMarkets
+    })
+  } else {
+    res.code(400).send(respond("Symbol cannot be null.", true, 400));
+  }
+}
