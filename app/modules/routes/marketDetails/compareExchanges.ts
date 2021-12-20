@@ -1,17 +1,17 @@
 import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 
-const getBinancePrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
-  const exchange = new ccxt.binance({
-    'options': {
-      'defaultType': 'spot',   
-    }});
-
+const getBinancePrice = async (marketType: string, symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.binance();
+  exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
  
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  const formattedSymbol = symbol.replace('-', '/');
+  const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
+
+  if(realSymbol){
     const { ask: price, info:{ volume }} = await exchange.fetchTicker(symbol);
-    const { maker, taker } = allMarkets[symbol];
+    const { maker, taker } = allMarkets[realSymbol];
     
     return {
       exchange: 'Binance',
@@ -32,16 +32,18 @@ const getBinancePrice = async (symbol: string, type:string, userPriceUnit: strin
   }
 }
 
-const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
-  const exchange = new ccxt.huobi({
-    'options': {
-      'defaultType': 'spot',   
-    }});
+const getHuobiPrice = async (marketType: string, symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.huobi();
+  exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
 
-  if(allMarkets[symbol] && allMarkets[symbol].active){
+  const formattedSymbol = symbol.replace('-', '/');
+  const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
+
+
+  if(realSymbol){
     const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
-    const { maker, taker } = allMarkets[symbol];
+    const { maker, taker } = allMarkets[realSymbol];
 
     return {
       exchange: 'Huobi',
@@ -64,16 +66,22 @@ const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string,
 }
 
 
-const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
-  const exchange = new ccxt.ftx({
-    'options': {
-      'defaultType': 'spot',   
-    }});
+const getFTXPrice = async (marketType: string, symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.ftx();
+  exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
 
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  const formattedSymbol = symbol.replace('-', '/');
+  const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
+
+  console.log(symbol)
+  console.log(formattedSymbol)
+  console.log('REAL SYMBOL AT FTX: ', realSymbol)
+
+  if(realSymbol){
     const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(symbol);
-    const { maker, taker } = allMarkets[symbol];
+    const { maker, taker } = allMarkets[realSymbol];
+    console.log('maker and taker: ', maker, taker)
 
     return {
       exchange: 'FTX',
@@ -94,17 +102,17 @@ const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, u
   }
 }
 
-const getKucoinPrice = async (symbol: string, type:string, userPriceUnit: string, userSize: string) => {
-  const exchange = new ccxt.kucoin({
-    'options': {
-      'defaultType': 'spot',   
-    }});
-
+const getKucoinPrice = async (marketType: string, symbol: string, type:string, userPriceUnit: string, userSize: string) => {
+  const exchange = new ccxt.kucoin();
+  exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
  
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  const formattedSymbol = symbol.replace('-', '/');
+  const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
+
+  if(realSymbol){
     const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
-    const { maker, taker } = allMarkets[symbol];
+    const { maker, taker } = allMarkets[realSymbol];
     
     return {
       exchange: 'Kucoin',
@@ -126,12 +134,15 @@ const getKucoinPrice = async (symbol: string, type:string, userPriceUnit: string
 }
 
 export const compareExchangesOperation = async (req: FastifyRequest, res: FastifyReply) => {
-  const { symbol, userPriceUnit, userSize, type } = req.body as any;
+  const { marketType, symbol, userPriceUnit, userSize, type } = req.body as any;
 
-  const binanceResponse = await getBinancePrice(symbol, type, userPriceUnit, userSize);
-  const huobiResponse = await getHuobiPrice(symbol, type, userPriceUnit, userSize);
-  const ftxResponse = await getFTXPrice(symbol, type, userPriceUnit, userSize);
-  const kucoinResponse = await getKucoinPrice(symbol, type, userPriceUnit, userSize);
+console.log('chegou na req symbol: ', symbol)
+
+  const binanceResponse = await getBinancePrice(marketType, symbol, type, userPriceUnit, userSize);
+  const huobiResponse = await getHuobiPrice(marketType, symbol, type, userPriceUnit, userSize);
+  const ftxResponse = await getFTXPrice(marketType, symbol, type, userPriceUnit, userSize);
+  const kucoinResponse = await getKucoinPrice(marketType, symbol, type, userPriceUnit, userSize);
+
 
   // return res.send(binanceResponse);
   return res.send({type: type, quote: symbol.split('/')[1], compare:  [binanceResponse, huobiResponse, ftxResponse, kucoinResponse]});

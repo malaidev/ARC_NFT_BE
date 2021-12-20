@@ -29,15 +29,16 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
 export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
   
   let allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
-  const { symbol } = req.params as any;
+  const { marketType, symbol } = req.params as any;
 
-  const formattedSymbol = symbol.replace('-', '/');
+
   let allExchangesOrderBook = [];
   
   if (symbol) {
     try {
       for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
+        exchange.options.defaultType = marketType
 
         if(exchangeName === 'kucoin'){
           exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
@@ -47,8 +48,11 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
         }
 
         const markets = await exchange.loadMarkets();
-        if (markets[formattedSymbol]) {
-          const response = await exchange.fetchOrderBook(formattedSymbol);
+        const formattedSymbol = symbol.replace('-', '/');
+        const realSymbol = markets[symbol] ? symbol : markets[formattedSymbol] ? formattedSymbol : undefined
+
+        if (realSymbol) {
+          const response = await exchange.fetchOrderBook(realSymbol);
           const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
           allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response ? response : {}, precision});
         }
@@ -59,6 +63,7 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
 
     if(allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin')){
       allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks = (allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.asks).slice(0,10);
+      allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.bids = (allExchangesOrderBook.find(order => order.exchangeName === 'KuCoin').orderBook.bids).slice(0,10);
     }
     
     return res.send({ 
