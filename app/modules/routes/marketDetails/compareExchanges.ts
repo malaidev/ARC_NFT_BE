@@ -5,7 +5,7 @@ const getBinancePrice = async (marketType: string, symbol: string, type:string, 
   const exchange = new ccxt.binance();
   exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
- 
+
   const formattedSymbol = symbol.replace('-', '/');
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
