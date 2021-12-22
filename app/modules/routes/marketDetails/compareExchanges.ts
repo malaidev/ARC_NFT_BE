@@ -11,7 +11,7 @@ const getBinancePrice = async (marketType: string, symbol: string, type:string, 
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { info:{ lastPrice: price}, info:{ volume }} = await exchange.fetchTicker(realSymbol);
+    const { info:{ lastPrice: price}, quoteVolume } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
     
     return {
@@ -20,7 +20,7 @@ const getBinancePrice = async (marketType: string, symbol: string, type:string, 
       feePercent: type === 'maker' ? maker : taker,
       feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
       totalPrice: +userPriceUnit * +userSize,
-      volume
+      volume: quoteVolume
     }
   }
   return {
@@ -43,7 +43,7 @@ const getHuobiPrice = async (marketType: string, symbol: string, type:string, us
 
 
   if(realSymbol){
-    const { ask: price, info:{ vol }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, quoteVolume } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
 
     return {
@@ -52,7 +52,7 @@ const getHuobiPrice = async (marketType: string, symbol: string, type:string, us
       feePercent: type === 'maker' ? maker : taker,
       feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
       totalPrice: +userPriceUnit * +userSize,
-      volume: vol
+      volume: quoteVolume
     }
   }
 
@@ -76,7 +76,7 @@ const getFTXPrice = async (marketType: string, symbol: string, type:string, user
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, quoteVolume } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
 
     return {
@@ -85,7 +85,7 @@ const getFTXPrice = async (marketType: string, symbol: string, type:string, user
       feePercent: type === 'maker' ? maker : taker,
       feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
       totalPrice: +userPriceUnit * +userSize,
-      volume: quoteVolume24h
+      volume: quoteVolume
     }
   }
   return {
@@ -107,7 +107,7 @@ const getKucoinPrice = async (marketType: string, symbol: string, type:string, u
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { ask: price, info:{ vol }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, quoteVolume } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
     
     return {
@@ -116,7 +116,7 @@ const getKucoinPrice = async (marketType: string, symbol: string, type:string, u
       feePercent: type === 'maker' ? maker : taker,
       feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
       totalPrice: +userPriceUnit * +userSize,
-      volume: vol
+      volume: quoteVolume
     }
   }
   return {
