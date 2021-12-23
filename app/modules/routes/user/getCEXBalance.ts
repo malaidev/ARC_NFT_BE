@@ -203,7 +203,8 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
     } else  {
       response.uniqueSymbols[existIndx].amount += +symbol.amount
       response.uniqueSymbols[existIndx].usdValue += +symbol.usdValue
-      response.uniqueSymbols[existIndx].availableValue += +symbol.availableValue
+      response.uniqueSymbols[existIndx].availableValue = 
+        +response.uniqueSymbols[existIndx].availableValue + +symbol.availableValue;
     }
   })
 
