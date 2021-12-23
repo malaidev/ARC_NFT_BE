@@ -168,7 +168,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       price: removeScientificNotation(+allTickers[item].ask),
       price_usd: 0,
-      volume_24h: +allTickers[item].info.quoteVolume,
+      volume_24h: +allTickers[item].info.quoteVolume ? +allTickers[item].info.quoteVolume : +allTickers[item].info.vol,
       volume_24h_usd: 0,
       variationPrice,
       change_24h: +allTickers[item].percentage,
