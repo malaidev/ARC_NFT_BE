@@ -76,7 +76,7 @@ const getFTXPrice = async (marketType: string, symbol: string, type:string, user
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { ask: price, quoteVolume } = await exchange.fetchTicker(realSymbol);
+    const { ask: price, quoteVolume, info:{ vol }  } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
 
     return {
@@ -85,7 +85,7 @@ const getFTXPrice = async (marketType: string, symbol: string, type:string, user
       feePercent: type === 'maker' ? maker : taker,
       feeBase: (+userSize * (type === 'maker' ? +maker : +taker)),
       totalPrice: +userPriceUnit * +userSize,
-      volume: quoteVolume
+      volume: quoteVolume ? quoteVolume : vol
     }
   }
   return {
