@@ -78,7 +78,7 @@ export class DepoUserController extends AbstractEntity {
   async findUser(walletId: string): Promise<IUser | IResponse> {
     const query = this.findUserQuery(walletId);
     const result = await this.findOne(query, {
-      projection: { "exchanges.apiSecret": 0 },
+      projection: { "exchanges.apiSecret": 0, _id: 0 },
     });
     if (result) {
       return result;
@@ -100,6 +100,7 @@ export class DepoUserController extends AbstractEntity {
         const query = this.findUserQuery(walletId);
         const hasUser = await this.findOne(query);
         // Verify if has any error while finding user
+         console.log('has user : ', hasUser)
         if (!hasUser.code) {
           // if not mount the query to update an user
           const filter = this.findUserQuery(walletId);
@@ -265,7 +266,7 @@ export class DepoUserController extends AbstractEntity {
     errors: any[];
   } {
     const document = { $set: {} };
-
+    delete user._id;
     const errors = this.mountUpdateExchanges(user);
     this.mountUpdateWallets(user);
 
