@@ -10,18 +10,7 @@ export class SignerController extends AbstractEntity {
   protected table = "Authlog";
   protected data: IAuthSignerProps;
 
-  message = [
-    {
-      type: "string",
-      name: "Message",
-      value: "Please, sign this message to proceed.",
-    },
-    {
-      type: "string",
-      name: "One time nonce",
-      value: "",
-    },
-  ];
+  message = "Please, sign this message to proceed: ";
 
   constructor(walletId: string) {
     super();
@@ -68,8 +57,8 @@ export class SignerController extends AbstractEntity {
         }
       );
       if (!hasSignature.code) {
-        this.message[1].value = hasSignature.uuid;
-        const recovered = sigUtil.recoverTypedSignatureLegacy({
+        this.message.split(": ")[1] = hasSignature.uuid;
+        const recovered = sigUtil.recoverPersonalSignature({
           data: this.message,
           sig: signature,
         });
@@ -104,9 +93,9 @@ export class SignerController extends AbstractEntity {
       };
       const insert = await this.create();
       if (!insert.code) {
-        this.message[1].value = uuid;
+        this.message += uuid;
         return {
-          message: this.message,
+          message: Buffer.from(this.message).toString("hex"),
           timestamp: this.data.timestamp,
         };
       }

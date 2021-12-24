@@ -1,7 +1,7 @@
 **/node_modules
 **/dist
 *lock.json
-.env
+# .env
 *-local*
 **/logs/*.*
 dbaconfig.ts*

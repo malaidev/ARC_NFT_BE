@@ -26,7 +26,8 @@ export const SessionChecker = async (req, res, app) => {
             req.session = auth.session;
             if (
               req.params.walletId &&
-              req.params.walletId !== auth.session.walletId
+              req.params.walletId.toLowerCase() !==
+                auth.session.walletId.toLowerCase()
             ) {
               res.code(403).send("Forbidden");
             }
