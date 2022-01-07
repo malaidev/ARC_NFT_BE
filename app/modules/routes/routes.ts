@@ -3,6 +3,7 @@ import { log } from "./logger";
 import { marketOverview } from "./marketOverview";
 import { marketDetails } from "./marketDetails";
 import { symbolPrice } from "./symbolPrice";
+import { tokenPrice } from "./tokenPrice";
 import { userOrderBook } from "./orderBook";
 import { market } from "./market";
 import { order } from "./order";
@@ -26,6 +27,7 @@ export function routes(app: any): Array<Promise<any>> {
     app.register(order, { prefix: "ws/v2/order" }),
     app.register(market, { prefix: "ws/v2/market" }),
     app.register(symbolPrice, { prefix: "ws/v2/symbolPrice" }),
+    app.register(tokenPrice, { prefix: "ws/v2/tokenPrice" }),
     app.register(emailContact, { prefix: "ws/v2/emailContact" }),
     app.register(pool, { prefix: "ws/v2/pool" }),
   ];
