@@ -6,6 +6,13 @@ export const getSymbolUsdtPrice = async (
   res: FastifyReply
 ) => {
   const { symbol } = req.params as any;
+  if (symbol == "USDT") {
+    return res.send({
+      symbol: "USDT/USDT",
+      price: 1,
+    });
+  }
+
   const exchange = new ccxt.binance();
   await exchange.fetchMarkets();
   const formatedSymbol = `${symbol}/USDT`;

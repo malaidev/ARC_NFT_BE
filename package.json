@@ -1,11 +1,12 @@
 {
   "name": "webservice-wsrv01",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "main": "./server.ts",
   "scripts": {
     "start": "nodemon -r esm server.ts "
   },
   "dependencies": {
+    "@uniswap/sdk": "^3.0.3",
     "aws-sdk": "^2.1016.0",
     "axios": "^0.21.4",
     "bignumber.js": "^9.0.1",
