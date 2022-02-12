@@ -67,7 +67,7 @@ class Stack(core.Stack):
             "metadata": {"name": f"{props['namespace']}-deployment"},
             "spec": {
                 "selector": {"matchLabels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
-                "replicas": 5,
+                "replicas": 6,
                 "template": {
                     "metadata": {"labels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
                     "spec": {
