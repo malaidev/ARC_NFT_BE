@@ -33,7 +33,7 @@ class Pipeline(core.Stack):
                     actions=[
                         actions.GitHubSourceAction(
                             oauth_token=sm.Secret.from_secret_name_v2(
-                                self, "GithubSecret", secret_name="github-token"
+                                self, "GithubSecret", secret_name="github-oauth-token"
                             ).secret_value,
                             output=source_output,
                             owner="DePo-io",
