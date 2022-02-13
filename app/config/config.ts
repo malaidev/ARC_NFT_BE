@@ -56,10 +56,10 @@ const config = {
     domain: process.env['EMAIL_SERVICE_DOMAIN'],
   },
   contract: {
-    privateKey: process.env['PRIVATE_KEY'],
-    depoTokenAddress: process.env['DEPO_TOKEN_ADDRESS'],
-    paymentModuleAddress: process.env['PAYMENT_MODULE_ADDRESS'],
-    pkId: process.env['PK_ID'],
+    privateKey: process.env['CONTRACT_PRIVATE_KEY'],
+    depoTokenAddress: process.env['CONTRACT_DEPO_TOKEN_ADDRESS'],
+    paymentModuleAddress: process.env['CONTRACT_PAYMENT_MODULE_ADDRESS'],
+    pkId: process.env['PKCONTRACT_PK_ID_ID'],
   },
   route: (method: 'jwt' | 'token', permission?: string | number) => {
     return {
