@@ -134,6 +134,30 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "logging", "key": "logging"}
                                         },
                                     },
+                                    {
+                                        "name": "CONTRACT_PRIVATE_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "private_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_DEPO_TOKEN_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "depo_token_address"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_PAYMENT_MODULE_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "payment_module_address"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_PK_ID",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "pk_id"}
+                                        },
+                                    },
                                 ],
                             }
                         ]
