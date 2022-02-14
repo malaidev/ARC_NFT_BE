@@ -1,4 +1,4 @@
-import * as mailgun from "mailgun-js";
+import mailgun from "mailgun-js";
 import { config } from "../../config/config";
 
 export class EmailService {
