@@ -78,7 +78,7 @@ class Stack(core.Stack):
                                 "name": props["namespace"],
                                 "ports": [{"containerPort": 3001}],
                                 # "command": ["npm", "start"],
-                                "command": ["ts-node", "-r", "esm", "server.ts"],
+                                "command": ["nodemon", "-r", "esm", "server.ts"],
                                 "envFrom": [{"secretRef": {"name": "kucoin-creds"}}],
                                 "env": [
                                     {
