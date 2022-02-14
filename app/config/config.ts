@@ -59,7 +59,7 @@ const config = {
     privateKey: process.env['CONTRACT_PRIVATE_KEY'],
     depoTokenAddress: process.env['CONTRACT_DEPO_TOKEN_ADDRESS'],
     paymentModuleAddress: process.env['CONTRACT_PAYMENT_MODULE_ADDRESS'],
-    pkId: process.env['PKCONTRACT_PK_ID_ID'],
+    pkId: process.env['CONTRACT_PK_ID'],
   },
   route: (method: 'jwt' | 'token', permission?: string | number) => {
     return {
