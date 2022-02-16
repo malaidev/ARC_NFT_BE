@@ -67,7 +67,7 @@ class Stack(core.Stack):
             "metadata": {"name": f"{props['namespace']}-deployment"},
             "spec": {
                 "selector": {"matchLabels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
-                "replicas": 5,
+                "replicas": 6,
                 "template": {
                     "metadata": {"labels": {"app.kubernetes.io/name": f"{props['namespace']}-app"}},
                     "spec": {
@@ -132,6 +132,30 @@ class Stack(core.Stack):
                                         "name": "LOGGING",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "logging", "key": "logging"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_PRIVATE_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "private_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_DEPO_TOKEN_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "depo_token_address"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_PAYMENT_MODULE_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "payment_module_address"}
+                                        },
+                                    },
+                                    {
+                                        "name": "CONTRACT_PK_ID",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "pk_id"}
                                         },
                                     },
                                 ],

@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import * as moment from "moment";
+import moment from "moment";
 import { config } from "../../config/config";
 
 /**
