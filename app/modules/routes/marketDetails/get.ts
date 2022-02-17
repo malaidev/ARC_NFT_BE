@@ -28,7 +28,7 @@ export const loadMarketDetails = async (req: FastifyRequest, res: FastifyReply) 
 
 export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: FastifyReply) => {
   
-  let allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
+  let allExchanges = ['gateio', 'binance', 'huobi', 'ftx', 'kucoin'];
   const { marketType, symbol } = req.params as any;
 
 

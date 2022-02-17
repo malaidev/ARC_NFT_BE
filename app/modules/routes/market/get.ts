@@ -26,7 +26,7 @@ export const getMarketBySymbol = async (req: FastifyRequest, res: FastifyReply) 
 }
 
 export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyReply) => {
-  const allExchanges = ['binance', 'huobi', 'ftx', 'kucoin'];
+  const allExchanges = ['gateio', 'binance', 'huobi', 'ftx', 'kucoin'];
   const { symbol, marketType } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesMarkets = [];

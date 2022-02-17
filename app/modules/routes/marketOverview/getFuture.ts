@@ -241,7 +241,64 @@ const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
   
   const responseFormated = await getPriceByUSDT('kucoin', baseArry, formatedMarket);
   return responseFormated
- }
+}
+
+const gateioMarketQuote = async (quote: string, listMarkets: any) => {
+  const exchange = new ccxt.gateio({
+    'options': {
+      'defaultType': 'future',   
+    }}
+  );
+  const filterMarkets = [];
+  const baseArry = [];
+  
+  listMarkets.map(item => {
+    if(!filterMarkets.find(subitem=> subitem === item.symbol) 
+    && item.future                                
+    && item.quote === quote                                
+    // && item.info.status === 'TRADING'
+    ){                     
+      return filterMarkets.push(item.symbol);
+    }
+  });
+
+  const verifyAuxQuote = quote === 'USDT' || quote === 'USD' || quote === 'BUSD';
+
+  const allTickers = await exchange.fetchTickers(filterMarkets)
+
+  const allSymbols = Object.keys(allTickers);
+  const formatedMarket = allSymbols.map(item => {
+    const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
+    const verifyAuxQuote = auxQuote === 'USDT' || auxQuote === 'USD' || auxQuote === 'BUSD';
+
+    return {
+      symbol: allTickers[item].symbol,
+      quote: auxQuote,
+      precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
+      market: auxBase,
+      price: removeScientificNotation(+allTickers[item].info.lastPrice),
+      price_usd: verifyAuxQuote ? removeScientificNotation(+allTickers[item].info.lastPrice) : 0,
+      volume_24h: +allTickers[item].info.volume,
+      volume_24h_usd: verifyAuxQuote ? removeScientificNotation(+allTickers[item].info.volume * +allTickers[item].info.lastPrice) : 0,
+      variationPrice: +allTickers[item].info.priceChange,
+      change_24h: +allTickers[item].info.priceChangePercent,
+      bid: +allTickers[item].bid,
+      ask: +allTickers[item].ask,
+      high: +allTickers[item].high,
+      low: +allTickers[item].low
+    }
+  })
+  
+  if(!verifyAuxQuote) {
+    const responseFormated = await getPriceByUSDT('gateio', baseArry, formatedMarket);
+    return responseFormated
+  }
+  // console.log(responseFormated[0])
+  return formatedMarket
+}
 
 export const loadMarketOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
@@ -271,6 +328,10 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
     case 'kucoin':
       onlyMarkets = await kucoinMarketQuote(formattedQuote, response);
     break;
+
+    case 'gateio':
+      onlyMarkets = await gateioMarketQuote(formattedQuote, response);
+    break;
   }
 
 
@@ -296,8 +357,6 @@ export const loadMarketOverviewFuture = async (req: FastifyRequest, res: Fastify
       marketOfQuote: orderedMarkets,
     })
 }
-
-
 
 export const loadSymbolOverviewFuture = async (req: FastifyRequest, res: FastifyReply) => {
   const { symbol } = req.params as any;

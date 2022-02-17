@@ -230,7 +230,51 @@ const kucoinMarketQuote = async (quote: string, listMarkets: any) => {
   const responseFormated = await getPriceByUSDT('kucoin', baseArry, formatedMarket);
   return responseFormated
 
- }
+}
+
+const gateioMarketQuote = async (quote: string, listMarkets: any) => {
+  const exchange = new ccxt.gateio();
+  const filterMarkets = [];
+  const baseArry = [];
+  
+  listMarkets.map(item => {
+    if(!filterMarkets.find(subitem=> subitem === item.symbol) 
+    && item.type === 'spot'                                 
+    && item.quote === quote                                 
+    && item.info.status === 'TRADING'){                     
+      return filterMarkets.push(item.symbol);
+    }
+  });
+  
+  const allTickers = await exchange.fetchTickers(filterMarkets)
+  const allSymbols = Object.keys(allTickers);
+  const formatedMarket = allSymbols.map(item => {
+    const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
+    if(!baseArry.find(base => base === auxBase)){
+      baseArry.push(auxBase);
+    }
+
+    return {
+      symbol: allTickers[item].symbol,
+      quote: auxQuote,
+      precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
+      market: auxBase,
+      price: removeScientificNotation(+allTickers[item].info.lastPrice),
+      price_usd: 0,
+      volume_24h: +allTickers[item].quoteVolume,
+      volume_24h_usd: 0,
+      variationPrice: +allTickers[item].info.priceChange,
+      change_24h: +allTickers[item].info.priceChangePercent,
+      bid: +allTickers[item].bid,
+      ask: +allTickers[item].ask,
+      high: +allTickers[item].high,
+      low: +allTickers[item].low
+    }
+  })
+  
+  const responseFormated = await getPriceByUSDT('gateio', baseArry, formatedMarket);
+  return responseFormated
+}
 
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { type, exchangeName, quote } = req.params as any;
@@ -258,6 +302,10 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
     case 'kucoin':
       onlyMarkets = await kucoinMarketQuote(formatedQuote, response);
     break;
+
+    case 'gateio':
+      onlyMarkets = await gateioMarketQuote(formatedQuote, response);
+    break;
   }
 
   const orderedMarkets = onlyMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
@@ -273,17 +321,17 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
   })
 
 
-    return res.send({
-      allSingleQuotes,
-      marketOfQuote: orderedMarkets,
-    })
+  return res.send({
+    allSingleQuotes,
+    marketOfQuote: orderedMarkets,
+  })
 }
 
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { type, symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   
-  const exchanges = ['binance' , 'huobi', 'ftx', 'kucoin'];
+  const exchanges = ['gateio', 'binance' , 'huobi', 'ftx', 'kucoin'];
   const allValues = [];
 
   await Promise.all(

@@ -149,7 +149,7 @@ const loadFTXOrders = async (marketType, userData, symbol) => {
   }
 };
 
-const getKucoinOrders = async (marketType, userData, symbol) => {
+const loadKucoinOrders = async (marketType, userData, symbol) => {
   try {
     const exchange = new ccxt.kucoin();
     exchange.options.defaultType = marketType;
@@ -187,6 +187,50 @@ const getKucoinOrders = async (marketType, userData, symbol) => {
         });
 
         return responseKucoin;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const loadGateioOrders = async (marketType, userData, symbol) => {
+  try {
+    const exchange = new ccxt.gateio();
+    exchange.options.defaultType = marketType;
+    exchange.apiKey = userData.apiKey;
+    exchange.secret = userData.apiSecret;
+    await exchange.checkRequiredCredentials(); // throw AuthenticationError
+
+    const realSymbol = await verifySymbolFormate("gateio", marketType, symbol);
+
+    if (realSymbol) {
+      const responseGateio = {
+        openOrders: await exchange.fetchOpenOrders(symbol),
+        closedOrders: await exchange.fetchClosedOrders(symbol),
+      };
+
+      if (responseGateio.openOrders && responseGateio.closedOrders) {
+        if (marketType === "future") {
+          responseGateio.openOrders = responseGateio.openOrders.filter(
+            (order: any) => order.info.future && order.info.future !== null
+          );
+          responseGateio.closedOrders = responseGateio.closedOrders.filter(
+            (order: any) => order.info.future && order.info.future !== null
+          );
+        }
+
+        responseGateio.openOrders.forEach((order: any) => {
+          order.exchange = "Gate.io";
+          order.info.status = order.status;
+        });
+
+        responseGateio.closedOrders.forEach((order: any) => {
+          order.exchange = "Gate.io";
+          order.info.status = order.status;
+        });
+
+        return responseGateio;
       }
     }
   } catch (err) {
@@ -258,7 +302,7 @@ export const loadUserOrders = async (
     if (
       userExchanges.find((exchange) => exchange.id.toLowerCase() === "kucoin")
     ) {
-      const responseKucoin = await getKucoinOrders(
+      const responseKucoin = await loadKucoinOrders(
         marketType,
         userExchanges.find(
           (exchange) => exchange.id.toLowerCase() === "kucoin"
@@ -269,6 +313,23 @@ export const loadUserOrders = async (
       if (responseKucoin) {
         response.openOrders.push(...responseKucoin.openOrders);
         response.closedOrders.push(...responseKucoin.closedOrders);
+      }
+    }
+
+    if (
+      userExchanges.find((exchange) => exchange.id.toLowerCase() === "gateio")
+    ) {
+      const responseGateio = await loadGateioOrders(
+        marketType,
+        userExchanges.find(
+          (exchange) => exchange.id.toLowerCase() === "gateio"
+        ),
+        formatedSymbol
+      );
+
+      if (responseGateio) {
+        response.openOrders.push(...responseGateio.openOrders);
+        response.closedOrders.push(...responseGateio.closedOrders);
       }
     }
 
