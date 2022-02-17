@@ -236,12 +236,14 @@ const gateioMarketQuote = async (quote: string, listMarkets: any) => {
   const exchange = new ccxt.gateio();
   const filterMarkets = [];
   const baseArry = [];
-  
+
   listMarkets.map(item => {
-    if(!filterMarkets.find(subitem=> subitem === item.symbol) 
-    && item.type === 'spot'                                 
-    && item.quote === quote                                 
-    && item.info.status === 'TRADING'){                     
+    if (
+      !filterMarkets.find(subitem=> subitem === item.symbol) &&
+      item.type === 'spot' &&
+      item.info.quote === quote &&
+      item.info.trade_status === 'tradable'
+    ) {                     
       return filterMarkets.push(item.symbol);
     }
   });

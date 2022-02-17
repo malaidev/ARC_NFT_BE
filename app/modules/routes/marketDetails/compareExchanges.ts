@@ -130,13 +130,16 @@ const getKucoinPrice = async (marketType: string, symbol: string, type:string, u
 
 const getGateioPrice = async (marketType: string, symbol: string, type:string, userPriceUnit: string, userSize: string) => {
   const exchange = new ccxt.gateio();
-  exchange.options.defaultType = marketType;
+  exchange.options.defaultType = marketType === 'future' ? 'swapp' : marketType;
   const allMarkets = await exchange.loadMarkets();
  
-  const formattedSymbol = symbol.replace('-', '/');
+  let formattedSymbol = symbol.replace('-', '/');
+  if (marketType === 'future') {
+    formattedSymbol = `${formattedSymbol}:${formattedSymbol.split('/')[1]}`;
+  }
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
-  if(realSymbol){
+  if (realSymbol){
     const { ask: price, quoteVolume } = await exchange.fetchTicker(realSymbol);
     const { maker, taker } = allMarkets[realSymbol];
     

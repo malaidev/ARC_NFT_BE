@@ -28,14 +28,13 @@ export const getMarketBySymbol = async (req: FastifyRequest, res: FastifyReply) 
 export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyReply) => {
   const allExchanges = ['gateio', 'binance', 'huobi', 'ftx', 'kucoin'];
   const { symbol, marketType } = req.params as any;
-  const formattedSymbol = symbol.replace('-', '/');
   let allExchangesMarkets = [];
 
   if (symbol) {
     try {
       for (const exchangeName of allExchanges ) {
         const exchange = new ccxt[exchangeName]();
-        exchange.options.defaultType = marketType;
+        exchange.options.defaultType = exchangeName === 'gateio' && marketType === 'future' ? 'swap' : marketType;
 
         if(exchangeName === 'kucoin'){
           exchange.apiKey = process.env["KUCOIN_SERVICE_API_KEY"];
@@ -45,6 +44,10 @@ export const getAllMarketsBySymbol = async(req: FastifyRequest, res: FastifyRepl
         }
 
         const markets = await exchange.loadMarkets();
+        let formattedSymbol = symbol.replace('-', '/');
+        if (exchangeName === 'gateio' && marketType === 'future') {
+          formattedSymbol = `${formattedSymbol}:${formattedSymbol.split('/')[1]}`;
+        }
         if (markets[formattedSymbol]) {
           const response = await exchange.market(formattedSymbol);
           allExchangesMarkets.push({ exchange: exchangeName, market: response })
