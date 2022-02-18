@@ -197,7 +197,8 @@ const loadKucoinOrders = async (marketType, userData, symbol) => {
 const loadGateioOrders = async (marketType, userData, symbol) => {
   try {
     const exchange = new ccxt.gateio();
-    exchange.options.defaultType = marketType;
+    exchange.options.defaultType =
+      marketType === "future" ? "swap" : marketType;
     exchange.apiKey = userData.apiKey;
     exchange.secret = userData.apiSecret;
     await exchange.checkRequiredCredentials(); // throw AuthenticationError
@@ -213,10 +214,10 @@ const loadGateioOrders = async (marketType, userData, symbol) => {
       if (responseGateio.openOrders && responseGateio.closedOrders) {
         if (marketType === "future") {
           responseGateio.openOrders = responseGateio.openOrders.filter(
-            (order: any) => order.info.future && order.info.future !== null
+            (order: any) => order.info.swap && order.info.swap !== null
           );
           responseGateio.closedOrders = responseGateio.closedOrders.filter(
-            (order: any) => order.info.future && order.info.future !== null
+            (order: any) => order.info.swap && order.info.swap !== null
           );
         }
 

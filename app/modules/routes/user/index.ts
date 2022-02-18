@@ -33,7 +33,11 @@ export const user = async (router: any, options: any) => {
   );
 
   // get cex user balance
-  router.get("/cexBalance/:walletId/:marketType", config.route("jwt"), getUserCexBalance);
+  router.get(
+    "/cexBalance/:walletId/:marketType",
+    config.route("jwt"),
+    getUserCexBalance
+  );
   router.get(
     "/cexOpenOrders/:walletId",
     config.route("jwt"),
