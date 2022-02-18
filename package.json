@@ -1,6 +1,6 @@
 {
   "name": "webservice-wsrv01",
-  "version": "0.7.8",
+  "version": "0.7.8.1",
   "main": "./server.ts",
   "scripts": {
     "start": "nodemon -r esm server.ts "
