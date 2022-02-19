@@ -174,7 +174,7 @@ const getGateioBalance = async (userData, marketType) => {
     (item) => responseBalance["total"][item] !== 0
   );
   const responseSymbol = userSymbols.map((symbol) => ({
-    exchange: "gateio",
+    exchange: "gate.io",
     symbol,
     amount: +responseBalance["total"][symbol],
     usdValue: symbol === "USDT" ? +responseBalance["total"][symbol] : 0,
