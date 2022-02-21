@@ -18,8 +18,7 @@ export class MongoDBService {
     this.host = config.mongodb.host;
     this.port = config.mongodb.port;
 
-    // let connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
-    let connectionStr = `mongodb://localhost`;
+    let connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
     if (config.env === "development") {
       connectionStr = `mongodb://${this.username}:${this.password}@${this.host}?authMecanism=DEFAULT`;
     }
