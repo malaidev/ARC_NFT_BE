@@ -3,7 +3,8 @@
   "version": "0.7.9",
   "main": "./server.ts",
   "scripts": {
-    "start": "nodemon -r esm server.ts "
+    "start": "nodemon -r esm server.ts ",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@uniswap/sdk": "^3.0.3",
