@@ -47,7 +47,7 @@ class Base(core.Stack):
                     },
                     "pre_build": {
                         "commands": [
-                            "echo '--------PREBUILD PHASE--------'",
+                            "echo '- PREBUILD PHASE-'",
                             "npm i -g aws-cdk",
                             "pip3 install -U pip",
                             "pip3 install -r infrastructure/requirements.txt",
@@ -56,7 +56,7 @@ class Base(core.Stack):
                     },
                     "build": {
                         "commands": [
-                            "echo '--------POST-BUILD PHASE--------'",
+                            "echo '-- -POST-BUILD PHASE--------'",
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
