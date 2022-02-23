@@ -49,6 +49,7 @@ class Base(core.Stack):
                         "commands": [
                             "echo '--------PREBUILD PHASE--------'",
                             "npm i -g aws-cdk",
+                            "npm install",
                             "npm test",
                             "pip3 install -U pip",
                             "pip3 install -r infrastructure/requirements.txt",
