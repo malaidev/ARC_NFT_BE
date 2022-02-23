@@ -15,6 +15,11 @@ import moment = require("moment");
  */
 export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
+  const user = req['session'] as any;
+  if (walletId.toLowerCase() !== user?.walletId.toLowerCase()) {
+    res.code(403)
+    .send('Forbidden');
+  }
   const ctl = new DepoUserController();
   const result = await ctl.findUser(walletId);
   if (!result.code) {
