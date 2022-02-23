@@ -17,7 +17,7 @@ import { config } from "../../../config/config";
  * @param {*} options
  */
 export const user = async (router: any, options: any) => {
-  // router.get("/", config.route("jwt"), getAll);
+  router.get("/", config.route("jwt"), getAll);
   router.get("/:walletId", config.route("jwt"), getOne);
   router.get("/:walletId/auth-message", getSingingMessage);
   router.post("/auth", findOrCreateUser);
