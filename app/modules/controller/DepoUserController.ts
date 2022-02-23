@@ -100,7 +100,7 @@ export class DepoUserController extends AbstractEntity {
         const query = this.findUserQuery(walletId);
         const hasUser = await this.findOne(query);
         // Verify if has any error while finding user
-         console.log('has user : ', hasUser)
+        console.log("has user : ", hasUser);
         if (!hasUser.code) {
           // if not mount the query to update an user
           const filter = this.findUserQuery(walletId);
@@ -137,7 +137,7 @@ export class DepoUserController extends AbstractEntity {
    * @returns
    */
   async getUserApiKeys(walletId: string): Promise<Array<IAPIKey>> {
-    const query = this.findUserQuery(walletId);
+    const query = this.findUserQuery(walletId.toLowerCase());
     const result = (await this.findOne(query, {
       projection: { exchanges: 1 },
     })) as IUser;
