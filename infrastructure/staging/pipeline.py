@@ -40,7 +40,7 @@ class Pipeline(core.Stack):
                             repo="elint-backend-mvp",
                             branch="staging",
                             action_name="Source",
-                            variables_namespace="SourceVariables"
+                            variables_namespace="GitSourceVariables"
                         )
                     ],
                 ),
@@ -48,7 +48,7 @@ class Pipeline(core.Stack):
                     stage_name="Manual Approve",
                     actions=[
                         actions.ManualApprovalAction(
-                            externalEntityLink=#{SourceVariables.ImageURI}
+                            externalEntityLink="#{GitSourceVariables.ImageURI}",
                             additional_information="Need your approval to deploy!",
                             notify_emails=["mujoko@depo.io","henry@depo.io"],
                             action_name=self.give_name("approve"),   
