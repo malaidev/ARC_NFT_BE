@@ -44,13 +44,24 @@ class Pipeline(core.Stack):
                     ],
                 ),
                 codepipeline.StageProps(
+                    stage_name="Approve",
+                    actions=[
+                        actions.ManualApprovalAction(
+                            additional_information="Need your approval to deploy!",
+                            notify_emails="mujoko@depo.io",
+                            action_name=self.give_name("approve"),   
+                            run_order=1
+                        ),
+                    ],
+                ),                
+                codepipeline.StageProps(
                     stage_name="Build",
                     actions=[
                         actions.CodeBuildAction(
                             action_name=self.give_name("build"),
                             input=source_output,
                             project=props["build"],
-                            run_order=1,
+                            run_order=2,
                             outputs=[build_output],
                         ),
                     ],
