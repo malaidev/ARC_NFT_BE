@@ -45,7 +45,7 @@ class Pipeline(core.Stack):
                     ],
                 ),
                 codepipeline.StageProps(
-                    stage_name="Manual Approval",
+                    stage_name="Approval",
                     actions=[
                         actions.ManualApprovalAction(                            
                             additional_information="Need your approval to deploy!",
