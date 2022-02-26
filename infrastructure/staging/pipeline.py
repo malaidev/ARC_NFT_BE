@@ -45,11 +45,11 @@ class Pipeline(core.Stack):
                     ],
                 ),
                 codepipeline.StageProps(
-                    stage_name="Manual Approve",
+                    stage_name="Manual Approval",
                     actions=[
-                        actions.ManualApprovalAction(
-                            externalEntityLink="#{GitSourceVariables.ImageURI}",
+                        actions.ManualApprovalAction(                            
                             additional_information="Need your approval to deploy!",
+                            external_entity_link="#{GitSourceVariables.ImageURI}",
                             notify_emails=["mujoko@depo.io","henry@depo.io"],
                             action_name=self.give_name("approve"),   
                             run_order=1,
