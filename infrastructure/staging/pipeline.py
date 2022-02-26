@@ -47,7 +47,7 @@ class Pipeline(core.Stack):
                     stage_name="Approve",
                     actions=[
                         actions.ManualApprovalAction(
-                            externalEntityLink=
+                            # externalEntityLink=
                             additional_information="Need your approval to deploy!",
                             notify_emails=["mujoko@depo.io","henry@depo.io"],
                             action_name=self.give_name("approve"),   
