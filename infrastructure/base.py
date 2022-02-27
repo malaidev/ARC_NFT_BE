@@ -59,6 +59,7 @@ class Base(core.Stack):
                         "commands": [
                             "echo 'POST-BUILD PHASE'",
                             "npm test",
+                            "npm prune --production",
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
