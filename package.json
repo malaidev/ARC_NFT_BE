@@ -41,8 +41,7 @@
     "uuid": "^8.3.2",
     "web3-utils": "^1.6.1",
     "@ethersproject/abi": "^5.5.0",
-    "@wert-io/widget-sc-signer": "^0.0.2",
-    "jest": "^27.5.1"
+    "@wert-io/widget-sc-signer": "^0.0.2"
   },
   "devDependencies": { 
     "@ethersproject/abi": "^5.5.0",
@@ -52,6 +51,8 @@
     "@types/node": "^16.0.0",
     "@types/uuid": "^8.3.1",
     "@wert-io/widget-sc-signer": "^0.0.2",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "jest-junit": "^13.0.0"
+
   }
 }

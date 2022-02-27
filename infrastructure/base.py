@@ -49,6 +49,7 @@ class Base(core.Stack):
                         "commands": [
                             "echo '- PREBUILD PHASE-'",
                             "npm i -g aws-cdk",
+                            "npm install",
                             "pip3 install -U pip",
                             "pip3 install -r infrastructure/requirements.txt",
                             "aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com", # noqa
@@ -56,7 +57,8 @@ class Base(core.Stack):
                     },
                     "build": {
                         "commands": [
-                            "echo '-- -POST-BUILD PHASE--------'",
+                            "echo 'POST-BUILD PHASE'",
+                            "npm test",
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
