@@ -98,13 +98,14 @@ class Base(core.Stack):
                 "MONGODB_PASSWORD": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
                     self,"MongoDBPassword",string_parameter_name="/depo/test/secret/mongo/password",).string_value),
                 "MONGODB_PORT": codebuild.BuildEnvironmentVariable(value="27017"),
-                "JWT_SECRET": codebuild.BuildEnvironmentVariable(value="I7zWsuJ2HLJxbEga0kIBsXPlryMwuLpIvPeigjRNdbFLTLKX54CgaCzpzR8SU//+B+hGxw5HzGUJsCmL9RVg5HoMb4qj4EsdlVETJdODks"),
+                "JWT_SECRET": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"JwtSecret",string_parameter_name="/depo/test/secret/jwtsecret",).string_value),
                 "EMAIL_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="e18e0072c4789d5930da01958cbb931d-2ac825a1-3deef25b"),
                 "EMAIL_SERVICE_DOMAIN": codebuild.BuildEnvironmentVariable(value="mg.depo.io"),
                 "KUCOIN_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="61b0685b254fe40001b45c80"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="6d3473d8-9040-4348-9f45-6c8f8fc99b06"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="Deposupport21!"),
-                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING_TEST_3"),                
+                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING_TEST_4"),                
             },
             description="Pipeline for CodeBuild",
             timeout=core.Duration.minutes(60),
