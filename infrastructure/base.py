@@ -91,8 +91,10 @@ class Base(core.Stack):
                 "ECR": codebuild.BuildEnvironmentVariable(value=repository.repository_uri),
                 "REGION": codebuild.BuildEnvironmentVariable(value=self.region),
                 "ACCOUNT_ID": codebuild.BuildEnvironmentVariable(value=core.Aws.ACCOUNT_ID),
-                "MONGODB_HOST": codebuild.BuildEnvironmentVariable(value="cluster0.p0nis.mongodb.net"),
-                "MONGODB_USER":codebuild.BuildEnvironmentVariable(value="bryan"),                
+                "MONGODB_HOST": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"MongoDBHost",string_parameter_name="/depo/test/secret/mongo/host",).string_value),    
+                "MONGODB_USER":codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"MongoDBUser",string_parameter_name="/depo/test/secret/mongo/user",).string_value),              
                 "MONGODB_PASSWORD": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
                     self,"MongoDBPassword",string_parameter_name="/depo/test/secret/mongo/password",).string_value),
                 "MONGODB_PORT": codebuild.BuildEnvironmentVariable(value="27017"),
