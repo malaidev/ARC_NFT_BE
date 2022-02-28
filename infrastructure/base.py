@@ -104,7 +104,7 @@ class Base(core.Stack):
                 "KUCOIN_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="61b0685b254fe40001b45c80"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="6d3473d8-9040-4348-9f45-6c8f8fc99b06"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="Deposupport21!"),
-                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING_TEST"),                
+                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING_TEST_3"),                
             },
             description="Pipeline for CodeBuild",
             timeout=core.Duration.minutes(60),
