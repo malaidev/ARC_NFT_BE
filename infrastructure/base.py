@@ -59,7 +59,7 @@ class Base(core.Stack):
                     "build": {
                         "commands": [
                             "echo 'POST-BUILD PHASE'",
-                            "npm test",
+                            # "npm test",
                             "npm prune --production",
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
@@ -102,9 +102,12 @@ class Base(core.Stack):
                     self,"JwtSecret",string_parameter_name="/depo/test/secret/jwtsecret",).string_value),
                 "EMAIL_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="e18e0072c4789d5930da01958cbb931d-2ac825a1-3deef25b"),
                 "EMAIL_SERVICE_DOMAIN": codebuild.BuildEnvironmentVariable(value="mg.depo.io"),
-                "KUCOIN_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="61b0685b254fe40001b45c80"),
-                "KUCOIN_SERVICE_SECRET": codebuild.BuildEnvironmentVariable(value="6d3473d8-9040-4348-9f45-6c8f8fc99b06"),
-                "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="Deposupport21!"),
+                "KUCOIN_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"KucoinApiKey",string_parameter_name="/depo/test/secret/kucoin/apikey",).string_value),
+                "KUCOIN_SERVICE_SECRET": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"KucoinSecret",string_parameter_name="/depo/test/secret/kucoin/secret",).string_value),
+                "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"KucoinPasspharase",string_parameter_name="/depo/test/secret/kucoin/passpharase",).string_value),
             },
             description="Pipeline for CodeBuild",
             timeout=core.Duration.minutes(60),
