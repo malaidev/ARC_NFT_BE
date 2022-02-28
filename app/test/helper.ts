@@ -1,29 +1,31 @@
 import Fastify from 'fastify'
-import fp from 'fastify-plugin'
-import {router} from '../../app/modules/routes'
+import { router } from "../modules/routes";
+import { config } from '../config/config';
+import { MongoDBService } from '../modules/services/MongoDB';
 
-
-// Fill in this config with all the configurations
-// needed for testing the application
-async function config () {
-  return {}
-}
-    
-// Automatically build and tear down our instance
-function build () {
+function build() {
+  let mongoInstance = new MongoDBService();
   const app = Fastify();
 
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  
-
   beforeAll(async () => {
-    void app.register(fp(router), await config());
-    await app.ready();
+    try {
+      const instance = new MongoDBService();
+      mongoInstance = instance;
+      config.mongodb.instance = await instance.connect();
+    } catch (error) {
+      console.log(error);
+      throw new Error(
+        `Couldn't connect to the database and gave up after ${config.mongodb.maxTries} tries.`
+      );
+    }
+
+    await router(app);
   });
 
-  afterAll(() => app.close())
+  afterAll(() => {
+    mongoInstance.disconnect();
+    app.close();
+  })
 
   return app
 }
