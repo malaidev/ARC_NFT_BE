@@ -50,7 +50,7 @@ class Pipeline(core.Stack):
                         actions.ManualApprovalAction(                            
                             additional_information="Need your approval to deploy...!",
                             # external_entity_link="#{GitSourceVariables.ImageURI}",
-                            notify_emails=["mujoko@depo.io","henry@depo.io","bryan@depo.io"],
+                            notify_emails=["henry@depo.io","mujoko@depo.io"],
                             action_name=self.give_name("approve"),   
                             run_order=1,
                             variables_namespace="ApprovalVariables"

@@ -4,6 +4,7 @@ from aws_cdk import core
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
+import aws_cdk.aws_ssm as ssm
 from aws_cdk import aws_codebuild as codebuild
 
 
@@ -49,7 +50,7 @@ class Base(core.Stack):
                         "commands": [
                             "echo '- PREBUILD PHASE-'",
                             "npm i -g aws-cdk",
-                            "npm install",
+                            # "npm install",
                             "pip3 install -U pip",
                             "pip3 install -r infrastructure/requirements.txt",
                             "aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com", # noqa
@@ -58,8 +59,8 @@ class Base(core.Stack):
                     "build": {
                         "commands": [
                             "echo 'POST-BUILD PHASE'",
-                            "npm test",
-                            "npm prune --production",
+                            # "npm test",
+                            # "npm prune --production",
                             "VERSION=`node -e \"console.log(require('./package.json').version);\"`",
                             "docker build --build-arg AWS_REGION=$REGION --build-arg ACCOUNT_ID=$ACCOUNT_ID -t $TAG:$VERSION .",
                             "docker tag $TAG:$VERSION $ECR:$VERSION",
@@ -91,8 +92,9 @@ class Base(core.Stack):
                 "REGION": codebuild.BuildEnvironmentVariable(value=self.region),
                 "ACCOUNT_ID": codebuild.BuildEnvironmentVariable(value=core.Aws.ACCOUNT_ID),
                 "MONGODB_HOST": codebuild.BuildEnvironmentVariable(value="cluster0.p0nis.mongodb.net"),
-                "MONGODB_USER":codebuild.BuildEnvironmentVariable(value="bryan"),
-                "MONGODB_PASSWORD": codebuild.BuildEnvironmentVariable(value="Y6s8oMFKeuuIHhrC"),
+                "MONGODB_USER":codebuild.BuildEnvironmentVariable(value="bryan"),                
+                "MONGODB_PASSWORD": codebuild.BuildEnvironmentVariable(value=ssm.StringParameter.from_string_parameter_name(
+                    self,"MongoDBPassword",string_parameter_name="/depo/test/secret/mongo/password",).string_value),
                 "MONGODB_PORT": codebuild.BuildEnvironmentVariable(value="27017"),
                 "JWT_SECRET": codebuild.BuildEnvironmentVariable(value="I7zWsuJ2HLJxbEga0kIBsXPlryMwuLpIvPeigjRNdbFLTLKX54CgaCzpzR8SU//+B+hGxw5HzGUJsCmL9RVg5HoMb4qj4EsdlVETJdODks"),
                 "EMAIL_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="e18e0072c4789d5930da01958cbb931d-2ac825a1-3deef25b"),
@@ -100,7 +102,7 @@ class Base(core.Stack):
                 "KUCOIN_SERVICE_API_KEY": codebuild.BuildEnvironmentVariable(value="61b0685b254fe40001b45c80"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="6d3473d8-9040-4348-9f45-6c8f8fc99b06"),
                 "KUCOIN_SERVICE_PASSPHRASE": codebuild.BuildEnvironmentVariable(value="Deposupport21!"),
-                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING"),                
+                "ENV_DEV": codebuild.BuildEnvironmentVariable(value="STAGING_TEST"),                
             },
             description="Pipeline for CodeBuild",
             timeout=core.Duration.minutes(60),
