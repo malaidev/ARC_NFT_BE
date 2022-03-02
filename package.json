@@ -1,16 +1,14 @@
 {
   "name": "webservice-wsrv01",
-  "version": "0.7.9",
+  "version": "0.7.11",
   "main": "./server.ts",
   "scripts": {
     "start": "nodemon -r esm server.ts ",
     "test": "jest"
   },
-  "dependencies": {
-    "@ethersproject/abi": "^5.5.0",
+  "dependencies": {    
     "@uniswap/sdk": "^3.0.3",
-    "@walletconnect/web3-provider": "^1.7.1",
-    "@wert-io/widget-sc-signer": "^0.0.2",
+    "@walletconnect/web3-provider": "^1.7.1",    
     "aws-sdk": "^2.1016.0",
     "axios": "^0.21.4",
     "bignumber.js": "^9.0.1",
@@ -46,6 +44,9 @@
     "uuid": "^8.3.2",
     "web3-utils": "^1.6.1",
     "jest": "^27.5.1"
+    "@ethersproject/abi": "^5.5.0",
+    "@wert-io/widget-sc-signer": "^0.0.2",
+    "ws": "^8.5.0"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.5.0",
@@ -55,6 +56,8 @@
     "@types/node": "^16.0.0",
     "@types/uuid": "^8.3.1",
     "@wert-io/widget-sc-signer": "^0.0.2",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "jest-junit": "^13.0.0"
+
   }
 }

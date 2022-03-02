@@ -44,6 +44,19 @@ class Pipeline(core.Stack):
                     ],
                 ),
                 codepipeline.StageProps(
+                    stage_name="Approval",
+                    actions=[
+                        actions.ManualApprovalAction(                            
+                            additional_information="Need your approval to deploy...!",
+                            # external_entity_link="#{GitSourceVariables.ImageURI}",
+                            notify_emails=["henry@depo.io","mujoko@depo.io"],
+                            action_name=self.give_name("approve"),   
+                            run_order=1,
+                            variables_namespace="ApprovalVariables"
+                        ),
+                    ],
+                ),                  
+                codepipeline.StageProps(
                     stage_name="Build",
                     actions=[
                         actions.CodeBuildAction(
