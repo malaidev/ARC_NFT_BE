@@ -40,9 +40,22 @@ class Pipeline(core.Stack):
                             repo="elint-backend-mvp",
                             branch="staging",
                             action_name="Source",
+                            variables_namespace="GitSourceVariables"
                         )
                     ],
                 ),
+                codepipeline.StageProps(
+                    stage_name="Approval",
+                    actions=[
+                        actions.ManualApprovalAction(                            
+                            additional_information="Need your approval to build...!",
+                            # external_entity_link="#{GitSourceVariables.ImageURI}",
+                            notify_emails=["henry@depo.io" ],
+                            action_name=self.give_name("approvebuild"),   
+                            run_order=1 
+                        ),
+                    ],
+                ),                
                 codepipeline.StageProps(
                     stage_name="Build",
                     actions=[
@@ -50,11 +63,24 @@ class Pipeline(core.Stack):
                             action_name=self.give_name("build"),
                             input=source_output,
                             project=props["build"],
-                            run_order=1,
+                            run_order=2,
                             outputs=[build_output],
                         ),
                     ],
                 ),
+                codepipeline.StageProps(
+                    stage_name="ApprovalDeploy",
+                    actions=[
+                        actions.ManualApprovalAction(                            
+                            additional_information="Need your approval to DEPLOY...!",
+                            # external_entity_link="#{GitSourceVariables.ImageURI}",
+                            notify_emails=["henry@depo.io" ],
+                            action_name=self.give_name("approvedeploy"),   
+                            run_order=3,
+                            variables_namespace="ApprovalVariables"
+                        ),
+                    ],
+                ),   
             ],
         )
 
