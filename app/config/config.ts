@@ -11,6 +11,7 @@ const config = {
   __logPool: [],
 
   env: process.env.ENV || 'staging',
+  env_db: process.env.ENV_DB || 'localdb',
   logging: process.env.LOGGING && process.env.LOGGING === 'true' ? true : false,
   logLevel:
     process.env.LOG_LEVEL ||
