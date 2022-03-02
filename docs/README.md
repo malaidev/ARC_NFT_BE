@@ -107,14 +107,117 @@ The following tables list the API for BE
 ```      
 * Response : 200 
 ### CancelOrder API
-* url:  https://host:port/ws/v2/order/cancel/:walletId/:exchangeName/:orderId/:symbol"
+* url:  https://host:port/ws/v2/order/cancel/:walletId/:exchangeName/:orderId/:symbol
 * method: POST
 * Sample payload
 ```     //data
 ```      
 * Response : 200 
 
+## Order Book
+### loadUserOrders API
+* url:  https://host:port/ws/v2/ordersBook/0x4a5142af545693dc7ab66bcdc07c8e02cd58841f/future/FIL_CW-undefined
+* method: GET
+* Response : 200 
 
+## Pool
+* url:  https://host:port/ws/v2/pool/1/uniswap-v2
+* method: GET 
+* Response : 200 
 
+## SymbolPrice
+### getSymbolUsdtPrice
+* url:  https://host:port/ws/v2/pool/1/uniswap-v2
+* method: GET 
+* Response : 200 
+### getSymbolUsdtPrice
+* url:  https://host:port/ws/v2/symbolPrice/
+* method: POST
+* Sample payload
+```    {
+        quotes: ["FTX","Binance"],
+    }
+```   
+* Response : 200
 
+## TokenPrice
+### getTokenUsdtPrice API  [GET]
+* url:  https://host:port/ws/v2/tokenPrice/USDT/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F
+* method: GET 
+* Response : 200 
+### getTokenUsdtPrice API  [GET]
+* url:  https://host:port/ws/v2/tokenPrice/ETH
+* method: GET 
+* Response : 200 
+### getTokenUsdtPrice API test [POST]
+* url:  https://host:port/ws/v2/tokenPrice/
+* method: POST
+* Sample payload
+```     {
+            quotes: ["USDT"],
+            addresses: ["0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F"],
+        }
+```   
+* Response : 200
 
+## User
+### getUserCexBalance API
+* url:  https://host:port/ws/v2/user/cexBalance/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F/binance
+* method: GET 
+* Response : 200 
+### getUserCexBalance API
+* url:  https://host:port/ws/v2/user/cexOpenOrders/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F
+* method: GET 
+* Response : 200 
+### getSigning API
+* url:  https://host:port/ws/v2/user/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F/auth-message
+* method: GET 
+* Response : 200 
+### findOrCreateUser API
+* url:  https://host:port/ws/v2/user/auth
+* method: POST
+* Sample payload
+```  {
+      walletId: testConfig.walletIdTest,
+      signature : testConfig.signatureTest ,
+    }
+```    
+* Response : 200 
+ 
+### getAll API
+* url:  https://host:port/ws/v2/user/
+* method: GET 
+* Response : 200 
+### getOne API
+* url:  https://host:port/ws/v2/user/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F
+* method: GET 
+* Response : 200 
+ ### auth API
+* url:  https://host:port/ws/v2/user/auth
+* method: GET 
+* Response : 204
+### create API 
+* url:  https://host:port/ws/v2/user/
+* method: POST 
+* Response : 200
+### update API 
+* url:  https://host:port/ws/v2/user/
+* method: PUT 
+* Sample payload
+``` {
+      _id: testConfig.idTest,
+      name: testConfig.nameTest,
+      createdAt: testConfig.createAtTest,
+      wallets: testConfig.walletIdTest,
+      settings: testConfig.settingTest,
+      lastLogin: testConfig.lastloginTest,
+      exchanges: testConfig.exchangesTest,
+      authorizedBrowsers: testConfig.authorizedBrowsersTest,
+      liquidityProvisions: testConfig.liquidityProvisionsTest,
+    }
+```
+* Response : 200
+### Delete API 
+* url:  https://host:port/ws/v2/user/0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F/????/????
+* method: DELETE 
+* Response : 200
