@@ -2,7 +2,7 @@
 The following tables list the API for BE
 
 ## Contract API
-* Url http://localhost:3001/ws/v2/sign/
+* Url https://host:port/ws/v2/sign/
 * Method : POST
 * Sample payload
 ```
@@ -14,7 +14,7 @@ The following tables list the API for BE
 * Response : 200 
 
 ## Email Contact API
-* Url http://localhost:3001/ws/v2/emailContact/
+* Url https://host:port/ws/v2/emailContact/
 * Method POST
 * Sample payload
 ```
@@ -24,38 +24,38 @@ The following tables list the API for BE
 ```
 * Response : 200 
 ## Log API
-* Url http://localhost:3001/ws/v2/log
+* Url https://host:port/ws/v2/log
 * Method GET
 * Response : 200
 
-* URL http://localhost:3001/ws/v2/log/
+* URL https://host:port/ws/v2/log/
 * Method DELETE
 * Response 204
 
 ## Market API
 ### GetMarketBySymbol API
-* Url http://localhost:3001/ws/v2/market/Huobi/FIL_CW-undefined
+* Url https://host:port/ws/v2/market/Huobi/FIL_CW-undefined
 * Method GET 
 * Response : 200 
 
 ### getAllMarketsBySymbol API
-* Url http://localhost:3001/ws/v2/market/allmarkets/FIL_CW-undefined/future
+* Url https://host:port/ws/v2/market/allmarkets/FIL_CW-undefined/future
 * Method GET 
 * Response : 200 
 
 ## Market Details
 ### CompareExchangesOperation API
-* http://localhost:3001/ws/v2/marketDetails/Huobi/FIL_CW-undefined
+* https://host:port/ws/v2/marketDetails/Huobi/FIL_CW-undefined
 * Method GET
 * Response : 200 
 
 ### LoadAllExchangesOrderBook API
-* Url:  http://localhost:3001/ws/v2/marketDetails/orderBook/future/FIL_CW-undefined
+* Url:  https://host:port/ws/v2/marketDetails/orderBook/future/FIL_CW-undefined
 * method: GET
 * Response : 200 
 
 ### LoadMarketDetails API
-* url:  http://localhost:3001/ws/v2/marketDetails/compare
+* url:  https://host:port/ws/v2/marketDetails/compare
 * method: POST
 * Sample payload
 ```     {
@@ -70,25 +70,25 @@ The following tables list the API for BE
 
 ## Market Overview
 ### LoadMarketOverview API
-* url:  http://localhost:3001/ws/v2/mktOverview/spot/Huobi/BTC
+* url:  https://host:port/ws/v2/mktOverview/spot/Huobi/BTC
 * method: GET
 * Response : 200  
 ### loadMarketOverviewFuture API
-* url:  http://localhost:3001/ws/v2/mktOverview/future/Huobi/USDT
+* url:  https://host:port/ws/v2/mktOverview/future/Huobi/USDT
 * method: GET
 * Response : 200 
 ### loadSymbolOverview API
-* url:  http://localhost:3001/ws/v2/mktOverview/overview/future/FIL_CW-undefined
+* url:  https://host:port/ws/v2/mktOverview/overview/future/FIL_CW-undefined
 * method: GET
 * Response : 200 
 ### fetchGateioMarketCandlesticks API
-* url:  http://localhost:3001/ws/v2/mktOverview/candlesticks/gateio/FNT_STAKE
+* url:  https://host:port/ws/v2/mktOverview/candlesticks/gateio/FNT_STAKE
 * method: GET
 * Response : 200 
 
 ## Order
 ## SendOrder API 
-* url:  http://localhost:3001/ws/v2/order/gateio
+* url:  https://host:port/ws/v2/order/gateio
 * method: POST
 * Sample payload
 ```     {
@@ -107,7 +107,7 @@ The following tables list the API for BE
 ```      
 * Response : 200 
 ### CancelOrder API
-* url:  http://localhost:3001/ws/v2/order/cancel/:walletId/:exchangeName/:orderId/:symbol"
+* url:  https://host:port/ws/v2/order/cancel/:walletId/:exchangeName/:orderId/:symbol"
 * method: POST
 * Sample payload
 ```     //data
