@@ -5,7 +5,7 @@ jest.setTimeout(100000)
 test("getMarketBySymbol API test [GET] [/:exchangeName/:symbol]", async () => {
   const res = await app.inject({
     method: 'GET',
-    url: "http://localhost:3001/ws/v2/market/Huobi/FIL_CW-undefined",
+    url: "http://localhost:3001/ws/v2/market/Huobi/XRP-HT",
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -16,7 +16,7 @@ test("getMarketBySymbol API test [GET] [/:exchangeName/:symbol]", async () => {
 test("getAllMarketsBySymbol API test [GET] [/allmarkets/:symbol/:marketType]", async () => {
   const res = await app.inject({
     method: 'GET',
-    url: "http://localhost:3001/ws/v2/market/allmarkets/FIL_CW-undefined/future",
+    url: "http://localhost:3001/ws/v2/market/allmarkets/XRP-HT/spot",
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
