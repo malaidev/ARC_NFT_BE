@@ -4,12 +4,16 @@ export interface INFTCollection {
   id: string;                   // id of nft collection
   name: string;                 // name of nft collection
   nfts: Array<INFT>;
+  owners: Array<string>;
+  activities: Array<IActivity>;
 }
 
 export interface INFT {
   id: string;                   // id of nft
   owner: string;                // user id of owner
+  ownerDetail?: IPerson;
   creator: string;              // user id of creator
+  creatorDetail?: IPerson;
   artURI: string;               // URI of art image
   price: number;                // Current price of nft
   like: number;                 // likes count of nft

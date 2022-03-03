@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { NFTController } from "../../controller/NFTCollectionController";
+import { NFTCollectionController } from "../../controller/NFTCollectionController";
 
 /**
  * 
@@ -7,8 +7,9 @@ import { NFTController } from "../../controller/NFTCollectionController";
  * @param {*} res
  */
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
-  const ctl = new NFTController();
-  const result = await ctl.getItems();
+  const collectionId = req['collectionId'] as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getItems(collectionId);
   res.send(result);
 };
 
@@ -18,8 +19,9 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
-  const ctl = new NFTController();
-  const result = await ctl.getOwners();
+  const collectionId = req['collectionId'] as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getOwners(collectionId);
   res.send(result);
 };
 
@@ -29,9 +31,9 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const item = req['item'] as any;
-  const ctl = new NFTController();
-  const result = await ctl.getHistory(item?.id);
+  const collectionId = req['collectionId'] as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getHistory(collectionId);
   res.send(result);
 };
 
@@ -41,9 +43,9 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
-  const item = req['item'] as any;
-  const ctl = new NFTController();
-  const result = await ctl.getActivity(item?.id);
+  const collectionId = req['collectionId'] as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getActivity(collectionId);
   res.send(result);
 };
 

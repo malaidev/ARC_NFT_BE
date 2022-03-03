@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
 import { getItemDetail, getItemHistory } from "./item";
 import { getProfile, getUserCollections, getUserHistory, getUserLists, updateProfile } from "./user";
-import { getActivities, getHistory, getItems, getOwners, createItem } from "./wallet";
+import { getActivities, getHistory, getItems, getOwners, createItem } from "./collection";
 
 /**
  * Exports the nft collection actions routes.

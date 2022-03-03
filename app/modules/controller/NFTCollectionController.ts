@@ -1,10 +1,11 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IActivity, INFT, IPrice, IPerson } from "../interfaces/INFT";
+import { IActivity, INFT, IPrice, IPerson, INFTCollection } from "../interfaces/INFT";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
+import { NFTOwnerController } from "./NFTOwnerController";
 
-export class NFTController extends AbstractEntity {
+export class NFTCollectionController extends AbstractEntity {
   protected data: INFT;
   protected table = "NFTCollection" as string;
   protected nftTable = "NFTCollection" as string;
@@ -15,18 +16,15 @@ export class NFTController extends AbstractEntity {
     this.data = nft;
   }
 
-  async getOwners(filters?: IQueryFilters): Promise<Array<IPerson> | IResponse> {
+  async getOwners(collectionId: string, filters?: IQueryFilters): Promise<Array<IPerson> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.ownerTable);
-        let aggregation = {} as any;
-
-        if (filters) {
-          aggregation = this.parseFilters(filters);
+        const query = this.findCollectionItem(collectionId);
+        const result = await this.findOne(query);
+        if (result) {
+          return result.owners;
         }
-
-        const items = await collection.aggregate(aggregation).toArray();
-        return items as Array<IPerson>;
+        return respond("collection not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -36,18 +34,15 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-  async getItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  async getItems(collectionId: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.nftTable);
-        let aggregation = {} as any;
-
-        if (filters) {
-          aggregation = this.parseFilters(filters);
+        const query = this.findCollectionItem(collectionId);
+        const result = await this.findOne(query);
+        if (result) {
+          return result.nfts;
         }
-
-        const items = await collection.aggregate(aggregation).toArray();
-        return items as Array<INFT>;
+        return respond("collection not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -57,15 +52,15 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-  async getActivity(nftId: string): Promise<Array<IActivity> | IResponse> {
+  async getActivity(collectionId: string): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findNFTItem(nftId);
+        const query = this.findCollectionItem(collectionId);
         const result = await this.findOne(query);
         if (result) {
-          return result.activites;
+          return result.nfts;
         }
-        return respond("NFT not found.", true, 422);
+        return respond("collection not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -75,15 +70,41 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-  async getHistory(nftId: string): Promise<Array<IPrice> | IResponse> {
+  async getHistory(collectionId: string): Promise<Array<IPrice> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findNFTItem(nftId);
+        const query = this.findCollectionItem(collectionId);
         const result = await this.findOne(query);
         if (result) {
           return result.history;
         }
-        return respond("NFT not found.", true, 422);
+        return respond("collection not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getHistory::${this.nftTable}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+  
+  async getItemDetail(collectionId: string, nftId: string): Promise<INFT | IResponse> {
+    try {
+      if (this.mongodb) {
+        const query = this.findCollectionItem(collectionId);
+        const result = await this.findOne(query);
+
+        if (result) {
+          const nft = result.nfts.find(nft => nft.id === nftId);
+          if (nft) {
+            const nftOwner: NFTOwnerController = new NFTOwnerController();
+            nft.ownerDetail = await nftOwner.findPerson(nft.owner);
+            nft.creatorDetail = await nftOwner.findPerson(nft.creator);
+            return nft;
+          }
+          return respond("nft not found.", true, 422);
+        }
+        return respond("collection not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -93,18 +114,61 @@ export class NFTController extends AbstractEntity {
     }
   }
 
+  async getItemHistory(collectionId: string, nftId: string): Promise<Array<IPrice> | IResponse> {
+    try {
+      if (this.mongodb) {
+        const query = this.findCollectionItem(collectionId);
+        const result = await this.findOne(query) as INFTCollection;
+
+        if (result) {
+          const nft = result.nfts.find(nft => nft.id === nftId);
+          if (nft)
+            return nft.priceHistory;
+          return respond("nft not found.", true, 422);
+        }
+        return respond("collection not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getHistory::${this.nftTable}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
+  async getItemActivity(collectionId: string, nftId: string): Promise<Array<IActivity> | IResponse> {
+    try {
+      if (this.mongodb) {
+        const query = this.findCollectionItem(collectionId);
+        const result = await this.findOne(query) as INFTCollection;
+
+        if (result) {
+          const nft = result.nfts.find(nft => nft.id === nftId);
+          if (nft)
+            return nft.activites;
+          return respond("nft not found.", true, 422);
+        }
+        return respond("collection not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getHistory::${this.nftTable}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
   
 
 
   /**
    * Mounts a generic query to find an item by its id.
-   * @param nftId
+   * @param collectionId
    * @returns
    */
-   private findNFTItem(nftId: string): Object {
+   private findCollectionItem(collectionId: string): Object {
     return {
       $elemMatch: {
-        id: nftId,
+        id: collectionId,
       },
     };
   }
