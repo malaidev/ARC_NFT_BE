@@ -41,6 +41,8 @@ export class NFTOwnerController extends AbstractEntity {
     }
   }
 
+
+  // async updateOwner
   /**
    * Finds the user which has the given wallet id.
    *
@@ -56,18 +58,34 @@ export class NFTOwnerController extends AbstractEntity {
     return respond("Person not found.", true, 422);
   }
 
+
+  async updateNft(personId:string): Promise<void | IResponse>{
+
+      try{
+
+        if (this.mongodb){
+          const collection=this.mongodb.collection(this.table);
+
+        }
+
+      }
+      catch (error) {
+        console.log(`NFTOwnerController::updateNft::${this.table}`, error);
+        return respond(error.message, true, 500);
+  }
+}
   /**
    * Mounts a generic query to find an user by its ownerId.
    * @param ownerId
-   * @returns
+   * @returns 
    */
   private findUserQuery(ownerId: string): Object {
     return {
-      wallets: {
-        $elemMatch: {
+      // wallets: {
+        // $elemMatch: {
           id: ownerId,
-        },
-      },
+        // },
+      // },
     };
   }
 
