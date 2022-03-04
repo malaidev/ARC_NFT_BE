@@ -54,7 +54,12 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} req
  * @param {*} res
  */
- export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-   
+export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
+
 };
 
+export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
+  const { collectionId, name } = req.body as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.createCollection(collectionId, name);
+}

@@ -1,7 +1,7 @@
 import { IWallet } from "./IWallet";
 
 export interface INFTCollection {
-  id: string;                   // id of nft collection
+  id: string;                   // id of nft collection - contract address
   name: string;                 // name of nft collection
   nfts: Array<INFT>;
   owners: Array<string>;

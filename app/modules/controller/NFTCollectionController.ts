@@ -157,9 +157,16 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+  async createCollection(collectionId: string, name: string): Promise<IResponse> {
+    const collection = this.mongodb.collection(this.table);
+    const nftCollection : INFTCollection = {
+      id: collectionId, name: name, nfts: [], owners: [], activities: []
+    }
+    await collection.insertOne(nftCollection);
+    return respond('collection cannot create', true, 500);
+  }
   
-
-
   /**
    * Mounts a generic query to find an item by its id.
    * @param collectionId
@@ -167,9 +174,7 @@ export class NFTCollectionController extends AbstractEntity {
    */
    private findCollectionItem(collectionId: string): Object {
     return {
-      $elemMatch: {
-        id: collectionId,
-      },
+      id: collectionId,
     };
   }
 }
