@@ -1,5 +1,8 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IActivity, INFT, IPrice, IPerson, INFTCollection } from "../interfaces/INFT";
+import { IActivity } from "../interfaces/IActivity";
+import { INFT, IPrice } from "../interfaces/INFT";
+import { INFTCollection } from "../interfaces/INFTCollection";
+import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
@@ -121,7 +124,7 @@ export class NFTCollectionController extends AbstractEntity {
         const result = await this.findOne(query) as INFTCollection;
 
         if (result) {
-          const nft = result.nfts.find(nft => nft.id === nftId);
+          const nft = result.nfts.find(nft => nft._id === nftId);
           if (nft)
             return nft.priceHistory;
           return respond("nft not found.", true, 422);
@@ -143,9 +146,9 @@ export class NFTCollectionController extends AbstractEntity {
         const result = await this.findOne(query) as INFTCollection;
 
         if (result) {
-          const nft = result.nfts.find(nft => nft.id === nftId);
+          const nft = result.nfts.find(nft => nft._id === nftId);
           if (nft)
-            return nft.activites;
+            return nft.activities;
           return respond("nft not found.", true, 422);
         }
         return respond("collection not found.", true, 422);
@@ -158,10 +161,10 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async createCollection(collectionId: string, name: string): Promise<IResponse> {
+  async createCollection(contract: string, name: string): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const nftCollection : INFTCollection = {
-      id: collectionId, name: name, nfts: [], owners: [], activities: []
+      name: name, contract: contract, nfts: [], owners: [], activities: []
     }
     await collection.insertOne(nftCollection);
     return respond('collection cannot create', true, 500);

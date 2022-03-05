@@ -16,11 +16,11 @@ const IActivitySchema = new mongoose.Schema<IActivity>( {
   type: String,
   price: Number,
   from: {
-    ref: 'Owner',
+    ref: 'Person',
     type: ObjectId
   },
   to: {
-    ref: 'Owner',
+    ref: 'Person',
     type: ObjectId
   },
   date: Date

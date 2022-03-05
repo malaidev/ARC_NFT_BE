@@ -12,7 +12,7 @@ export interface IBid {
 }
 
 const IBidSchema = new mongoose.Schema<IBid>( {
-  bidder: {ref: 'Owner', type: ObjectId},               // bidder user id
+  bidder: {ref: 'Person', type: ObjectId},               // bidder user id
   bidPrice: String,             // bid price
   status: String,               // current status of bid
   bidOn: {ref: 'NFT', type: ObjectId},                // NFT id

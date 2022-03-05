@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 import { IActivity } from "./IActivity";
-import { IWallet } from "./IWallet";
+import { IBid } from "./IBid";
 
 export interface IPerson {
   _id?: string;                   // user id
@@ -17,8 +17,6 @@ export interface IPerson {
   activity: Array<IActivity>;        // activities of current user
   offers: Array<IBid>;               // offers of current user
 }
-
-
 
 const IPersonSchema = new mongoose.Schema<IPerson>( {
   backgroundUrl: String,
@@ -48,4 +46,4 @@ const IPersonSchema = new mongoose.Schema<IPerson>( {
   }]
 });
 
-export const PersonModel = mongoose.model<IPerson>('NFTCollection', IPersonSchema);
+export const PersonModel = mongoose.model<IPerson>('Person', IPersonSchema);

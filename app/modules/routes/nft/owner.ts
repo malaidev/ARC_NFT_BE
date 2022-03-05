@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 import { NFTOwnerController } from "../../controller/NFTOwnerController";
-import { IPerson } from "../../interfaces/INFT";
+import { IPerson } from "../../interfaces/IPerson";
 import { IUser } from "../../interfaces/IUser";
 import { IWallet } from "../../interfaces/IWallet";
 /**
@@ -16,9 +16,8 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const ctl = new NFTOwnerController(owner);
     const user = req['session'] as any;
     try {
-        let wallet: IWallet = {address: user.walletId}
-        owner.wallet = { ...wallet };
-        owner.id=user.walletId;
+        owner.wallet = user.walletId;
+        // owner.id=user.walletId;
         const hasOwner = (await ctl.findPerson(user.walletId) as IUser);
         if (hasOwner.success===false) {
             const result = await ctl.create();

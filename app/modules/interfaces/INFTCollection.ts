@@ -21,7 +21,7 @@ const INFTCollectionSchema = new mongoose.Schema<INFTCollection>( {
     type: mongoose.Schema.Types.ObjectId
   }],
   owners: [{
-    ref: 'Owner',
+    ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
   }],
   activities: [{

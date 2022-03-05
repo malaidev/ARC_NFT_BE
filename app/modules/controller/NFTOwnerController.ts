@@ -3,7 +3,7 @@ import { IUser } from "../interfaces/IUser";
 import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IPerson } from "../interfaces/INFT";
+import { IPerson } from "../interfaces/IPerson";
 
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;

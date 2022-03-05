@@ -25,11 +25,11 @@ export interface IPrice {
 
 const INFTSchema = new mongoose.Schema<INFT>( {
   owner: {
-    ref: 'Owner',
+    ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
   },
   creator: {
-    ref: 'Owner',
+    ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
   },
   artURI: String,               // URI of art image
