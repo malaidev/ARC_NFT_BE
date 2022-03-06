@@ -17,3 +17,13 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
 // res.send(result);
 };
+
+
+/**
+ * 
+ * @param {*} req
+ * @param {*} res
+ */
+ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
+
+};

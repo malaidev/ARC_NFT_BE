@@ -52,4 +52,4 @@ const INFTSchema = new mongoose.Schema<INFT>( {
   }]
 })
 
-export const NFTModel = mongoose.model<INFT>('NFTCollection', INFTSchema);
+export const NFTModel = mongoose.model<INFT>('NFT', INFTSchema);

@@ -7,9 +7,10 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
  * @param {*} res
  */
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req['collectionId'] as any;
+  const contract = req.params['contract'] as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getItems(collectionId);
+  const result = await ctl.getItems(contract);
+  console.log(result);
   res.send(result);
 };
 
@@ -19,9 +20,9 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req['collectionId'] as any;
+  const contract = req.params['contract'] as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getOwners(collectionId);
+  const result = await ctl.getOwners(contract);
   res.send(result);
 };
 
@@ -31,9 +32,9 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req['collectionId'] as any;
+  const contract = req.params['contract'] as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getHistory(collectionId);
+  const result = await ctl.getHistory(contract);
   res.send(result);
 };
 
@@ -43,23 +44,16 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req['collectionId'] as any;
+  const contract = req.params['contract'] as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getActivity(collectionId);
+  const result = await ctl.getActivity(contract);
   res.send(result);
 };
 
-/**
- * 
- * @param {*} req
- * @param {*} res
- */
-export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-
-};
 
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { collectionId, name } = req.body as any;
+  const { contract, name } = req.body as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(collectionId, name);
+  const result = await ctl.createCollection(contract, name);
+  res.send(result);
 }

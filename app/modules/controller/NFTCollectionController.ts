@@ -19,10 +19,10 @@ export class NFTCollectionController extends AbstractEntity {
     this.data = nft;
   }
 
-  async getOwners(collectionId: string, filters?: IQueryFilters): Promise<Array<IPerson> | IResponse> {
+  async getOwners(contract: string, filters?: IQueryFilters): Promise<Array<IPerson> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findCollectionItem(collectionId);
+        const query = this.findCollectionItem(contract);
         const result = await this.findOne(query);
         if (result) {
           return result.owners;
@@ -37,10 +37,10 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async getItems(collectionId: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  async getItems(contract: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findCollectionItem(collectionId);
+        const query = this.findCollectionItem(contract);
         const result = await this.findOne(query);
         if (result) {
           return result.nfts;
@@ -166,18 +166,30 @@ export class NFTCollectionController extends AbstractEntity {
     const nftCollection : INFTCollection = {
       name: name, contract: contract, nfts: [], owners: [], activities: []
     }
-    await collection.insertOne(nftCollection);
-    return respond('collection cannot create', true, 500);
+
+    const query = this.findCollectionItem(contract);
+    const findResult = await collection.findOne(query) as INFTCollection;
+    console.log(findResult);
+    if (findResult && findResult._id) {
+      return respond("Current collection has been created already", true, 501);
+    }
+
+    const result = await collection.insertOne(nftCollection);
+    console.log(result);
+    return (result
+            ? respond('Successfully created a new collection with id ${result.insertedId}', true, 201)
+            : respond("Failed to create a new collection.", true, 500));
+    
   }
   
   /**
    * Mounts a generic query to find an item by its id.
-   * @param collectionId
+   * @param contract
    * @returns
    */
-   private findCollectionItem(collectionId: string): Object {
+   private findCollectionItem(contract: string): Object {
     return {
-      id: collectionId,
+      contract: contract,
     };
   }
 }

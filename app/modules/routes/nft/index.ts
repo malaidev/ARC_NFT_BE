@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
-import { getItemDetail, getItemHistory } from "./item";
+import { createItem, getItemDetail, getItemHistory } from "./item";
 import { getProfile, getUserCollections, getUserHistory, getUserLists, updateProfile } from "./user";
-import { getActivities, getHistory, getItems, getOwners, createItem } from "./collection";
+import { getActivities, getHistory, getItems, getOwners, createCollection } from "./collection";
 import { createOwner,getAllOwners, updateOwner } from "./owner";
 
 /**
@@ -10,12 +10,13 @@ import { createOwner,getAllOwners, updateOwner } from "./owner";
  * @param {*} options
  */
 export const nft = async (router: any, options: any) => {
-  router.get("/collection/:collectionId/items", config.route("jwt"), getItems);
-  router.get("/collection/:collectionId/owners", config.route("jwt"), getOwners);
-  router.get("/collection/:collectionId/history", config.route("jwt"), getHistory);
-  router.get("/collection/:collectionId/activity", config.route("jwt"), getActivities);
+  router.get("/collection/:contract/items", config.route("jwt"), getItems);
+  router.get("/collection/:contract/owners", config.route("jwt"), getOwners);
+  router.get("/collection/:contract/history", config.route("jwt"), getHistory);
+  router.get("/collection/:contract/activity", config.route("jwt"), getActivities);
 
   router.post("/collection/create", config.route("jwt"), createCollection);
+
   router.get("/items", config.route("jwt"), getItems);
   router.get("/owners", config.route("jwt"), getAllOwners);  
   router.post("/owners", config.route("jwt"), createOwner);
@@ -34,7 +35,3 @@ export const nft = async (router: any, options: any) => {
   router.get("/user/:userId/history", config.route("jwt"), getUserHistory);
   router.get("/user/:userId/collection", config.route("jwt"), getUserCollections);
 };
-function createCollection(arg0: string, arg1: { schema: { properties: { protected: { method: "jwt" | "token"; permission: string | number; }; }; }; }, createCollection: any) {
-  throw new Error("Function not implemented.");
-}
-

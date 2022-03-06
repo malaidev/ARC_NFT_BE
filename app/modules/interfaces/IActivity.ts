@@ -26,4 +26,4 @@ const IActivitySchema = new mongoose.Schema<IActivity>( {
   date: Date
 });
 
-export const ActivityModel = mongoose.model<IActivity>('NFTCollection', IActivitySchema);
+export const ActivityModel = mongoose.model<IActivity>('Activity', IActivitySchema);
