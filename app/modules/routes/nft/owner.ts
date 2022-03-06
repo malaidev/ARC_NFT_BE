@@ -17,7 +17,6 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const user = req['session'] as any;
     try {
         owner.wallet = user.walletId;
-        // owner.id=user.walletId;
         const hasOwner = (await ctl.findPerson(user.walletId) as IUser);
         if (hasOwner.success===false) {
             const result = await ctl.create();
@@ -32,13 +31,24 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     }
 };
 
-export const updateNftOwner = async (req: FastifyRequest, res: FastifyReply) => {
-    const nft=req.body as any;
+export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
+    const Owner=req.body as any;
     const ctl = new NFTOwnerController();
     // const {walletId} = req.params as any;
     const user = req['session'].walletId as any;
     try {
         const hasOwner = (await ctl.findPerson(user) as IUser);
+        console.log(hasOwner)
+        if (hasOwner.success===false) {
+            res.code(400).send(hasOwner);
+        }else{
+            console.log(hasOwner)
+            const result = await ctl.updateOwner(user,{...Owner});
+            res.send(result);
+
+        }
+        
+
         
 
     } catch (error) {
