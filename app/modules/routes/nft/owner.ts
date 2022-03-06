@@ -4,6 +4,7 @@ import { NFTOwnerController } from "../../controller/NFTOwnerController";
 import { IPerson } from "../../interfaces/IPerson";
 import { IUser } from "../../interfaces/IUser";
 import { IWallet } from "../../interfaces/IWallet";
+import { parseQueryUrl } from "../../util/parse-query-url";
 /**
  * 
  * @param {*} req
@@ -63,10 +64,20 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  */
  export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
-    const collectionId = req['collectionId'] as any;
+    const query = req.url.split("?")[1];
+    const filters = parseQueryUrl(query);
     const ctl = new NFTOwnerController();
-    const result = await ctl.findAllOwners();
+    const result = await ctl.findAllOwners(filters);
     res.send(result);
   };
 
-  
+  /**
+   * @param {*} req
+   * @param {*} res
+   */
+  export const getOwner= async (req: FastifyRequest, res: FastifyReply) => {
+    const walletId = req.params['walletId'] as string;
+    const ctl= new NFTOwnerController();
+    const result = await ctl.findOwner(walletId)
+    res.send(result);
+  }

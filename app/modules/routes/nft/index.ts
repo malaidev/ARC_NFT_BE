@@ -2,7 +2,7 @@ import { config } from "../../../config/config";
 import { getItemDetail, getItemHistory } from "./item";
 import { getProfile, getUserCollections, getUserHistory, getUserLists, updateProfile } from "./user";
 import { getActivities, getHistory, getItems, getOwners, createItem } from "./collection";
-import { createOwner,getAllOwners, updateOwner } from "./owner";
+import { createOwner,getAllOwners, getOwner, updateOwner } from "./owner";
 
 /**
  * Exports the nft collection actions routes.
@@ -18,6 +18,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/collection/create", config.route("jwt"), createCollection);
   router.get("/items", config.route("jwt"), getItems);
   router.get("/owners", config.route("jwt"), getAllOwners);  
+  router.get("/owners/:walletId", config.route("jwt"), getOwner);  
   router.post("/owners", config.route("jwt"), createOwner);
   router.put("/owners", config.route("jwt"), updateOwner);
 

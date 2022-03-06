@@ -35,7 +35,6 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  
   /**
    * Finds the user which has the given wallet id.
    *
@@ -51,7 +50,6 @@ export class NFTOwnerController extends AbstractEntity {
     return respond("Person not found.", true, 422);
   }
   // async updateOwner
-
   /**
    * 
    * @param personId @param 
@@ -66,6 +64,25 @@ export class NFTOwnerController extends AbstractEntity {
       }
       catch (error) {
         console.log(`NFTOwnerController::updateOwner::${this.table}`, error);
+        return respond(error.message, true, 500);
+  }
+}
+/**
+ * 
+ * @param ownerId 
+ * @returns 
+ */
+async findOwner(ownerId:string) : Promise<IPerson|IResponse>{
+  try{  
+    if (this.mongodb){
+      const query = this.findPerson(ownerId);
+      const result = await this.findOne(query) as IPerson
+      if (result){
+        return respond(result)
+      }
+    }
+  }catch(error){
+    console.log(`NFTOwnerController::findOwner::${this.table}`, error);
         return respond(error.message, true, 500);
   }
 }
