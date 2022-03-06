@@ -3,17 +3,14 @@ import { IUser } from "../interfaces/IUser";
 import { respond } from "../util/respond";
 import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IPerson } from "../interfaces/INFT";
-
+import { IPerson } from "../interfaces/IPerson";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
   protected table = "Owners" as string;
-
   constructor(user?: IPerson) {
     super();
     this.data = user;
   }
-
   /**
    * Gets a set of rows from the database
    * @param {IQueryFilters} filters
@@ -25,11 +22,9 @@ export class NFTOwnerController extends AbstractEntity {
       if (this.mongodb) {
         const collection = this.mongodb.collection(this.table);
         let aggregation = {} as any;
-
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-
         const items = await collection.aggregate(aggregation).toArray();
         return items as Array<IPerson>;
       } else {
@@ -40,7 +35,7 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
+  
   /**
    * Finds the user which has the given wallet id.
    *
@@ -55,20 +50,37 @@ export class NFTOwnerController extends AbstractEntity {
     }
     return respond("Person not found.", true, 422);
   }
+  // async updateOwner
 
+  /**
+   * 
+   * @param personId @param 
+   * @param bodyData 
+   * @returns 
+   */
+  async updateOwner(wallet:string,bodyData:any): Promise<IPerson | IResponse>{
+      try{
+          const collection=this.mongodb.collection(this.table);
+          const result =  await collection.updateOne({wallet},{$set:{...bodyData}})
+          return respond(result)
+      }
+      catch (error) {
+        console.log(`NFTOwnerController::updateOwner::${this.table}`, error);
+        return respond(error.message, true, 500);
+  }
+}
   /**
    * Mounts a generic query to find an user by its ownerId.
    * @param ownerId
-   * @returns
+   * @returns 
    */
   private findUserQuery(ownerId: string): Object {
     return {
-      wallets: {
-        $elemMatch: {
-          id: ownerId,
-        },
-      },
+      // wallets: {
+        // $elemMatch: {
+          wallet: ownerId,
+        // },
+      // },
     };
   }
-
 }

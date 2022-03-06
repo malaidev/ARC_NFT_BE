@@ -6,9 +6,9 @@
     "start": "nodemon -r esm server.ts ",
     "test": "jest"
   },
-  "dependencies": {    
+  "dependencies": {
     "@uniswap/sdk": "^3.0.3",
-    "@walletconnect/web3-provider": "^1.7.1",    
+    "@walletconnect/web3-provider": "^1.7.1",
     "aws-sdk": "^2.1016.0",
     "axios": "^0.21.4",
     "bignumber.js": "^9.0.1",
@@ -29,6 +29,7 @@
     "minimum-tls-version": "0.0.3",
     "moment": "^2.27.0",
     "mongodb": "^3.6.6",
+    "mongoose": "^6.2.4",
     "nodemon": "^2.0.12",
     "pino-pretty": "^4.7.1",
     "query-string": "^7.0.1",
