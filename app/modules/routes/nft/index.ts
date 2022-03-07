@@ -2,14 +2,14 @@ import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, transferItem } from "./item";
 import { getProfile, getUserCollections, getUserHistory, getUserLists, updateProfile } from "./user";
 import { getActivities, getHistory, getItems, getOwners, createCollection, placeBid } from "./collection";
-import { createOwner,getAllOwners, updateOwner } from "./owner";
+import { createOwner,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
 
 /**
  * Exports the nft collection actions routes.
  * @param {*} router
  * @param {*} options
  */
-export const nft = async (router: any, options: any) => {
+export const  nft = async (router: any, options: any) => {
   router.get("/collection/:contract/items", config.route("jwt"), getItems);
   router.get("/collection/:contract/owners", config.route("jwt"), getOwners);
   router.get("/collection/:contract/history", config.route("jwt"), getHistory);
@@ -26,4 +26,8 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners", config.route("jwt"), getAllOwners);  
   router.post("/owners", config.route("jwt"), createOwner);
   router.put("/owners", config.route("jwt"), updateOwner);
+  router.get("/owners/:ownerId", config.route("jwt"), getOwner);  
+  router.get("/owners/:ownerId/nfts",config.route("jwt"), getOwnerNtfs)
+  router.get("/owners/:ownerId/history",config.route("jwt"),getOwnerHistory)
+  router.get("/owners/:ownerId/collection",config.route("jwt"),getOwnerCollection)
 };
