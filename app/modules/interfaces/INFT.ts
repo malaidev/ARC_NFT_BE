@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import { IActivity } from "./IActivity";
+import { IHistory } from "./IHistory";
 import { IBid } from "./IBid";
 import { IPerson } from "./IPerson";
 
 export interface INFT {
   _id: string;                   // id of nft
+  collection: string;
+  index: string;
   owner: IPerson;                // user id of owner
   creator: IPerson;              // user id of creator
   artURI: string;               // URI of art image
@@ -13,8 +15,7 @@ export interface INFT {
   auctionEnd?: Date;            // auction end time
   protocol?: string;            // protocol
   priceHistory: Array<IPrice>;       // price history list of nft
-  activities: Array<IActivity>;       // activity list
-  bids: Array<IBid>;                 // bids of current nft
+  history: Array<IHistory>;       // history list
   status: string;
 }
 
@@ -24,6 +25,8 @@ export interface IPrice {
 }
 
 const INFTSchema = new mongoose.Schema<INFT>( {
+  contract: String,
+  index: String,
   owner: {
     ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
@@ -42,12 +45,8 @@ const INFTSchema = new mongoose.Schema<INFT>( {
     timestamp: Date
   }],       // price history list of nft
   status: String,
-  bids: [{
-    ref: 'Bid',
-    type: mongoose.Schema.Types.ObjectId
-  }],
-  activities: [{
-    ref: 'Activity',
+  history: [{
+    ref: 'History',
     type: mongoose.Schema.Types.ObjectId
   }]
 })

@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 import { IPerson } from "./IPerson";
 
-export interface IActivity {
+export interface IHistory {
   _id?: string                    // id of activity
   type: string;                 // type of activity (ex; list, offer, etc)
   price: number;                // price of activity
@@ -12,7 +12,7 @@ export interface IActivity {
 }
 
 
-const IActivitySchema = new mongoose.Schema<IActivity>( {
+const IHistorySchema = new mongoose.Schema<IHistory>( {
   type: String,
   price: Number,
   from: {
@@ -26,4 +26,4 @@ const IActivitySchema = new mongoose.Schema<IActivity>( {
   date: Date
 });
 
-export const ActivityModel = mongoose.model<IActivity>('Activity', IActivitySchema);
+export const HistoryModel = mongoose.model<IHistory>('History', IHistorySchema);

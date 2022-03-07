@@ -1,8 +1,9 @@
 import { IWallet } from "./IWallet";
 import * as mongoose from 'mongoose';
 import { INFT } from "./INFT";
-import { IActivity } from "./IActivity";
+import { IHistory } from "./IHistory";
 import { IPerson } from "./IPerson";
+import { IBid } from "./IBid";
 
 export interface INFTCollection {
   _id?: string;                  // id of nft collection - contract address
@@ -10,7 +11,8 @@ export interface INFTCollection {
   contract: string;
   nfts: Array<INFT>;
   owners: Array<IPerson>;
-  activities: Array<IActivity>;
+  history: Array<IHistory>;
+  activity: Array<IBid>;
 }
 
 const INFTCollectionSchema = new mongoose.Schema<INFTCollection>( {
@@ -24,8 +26,12 @@ const INFTCollectionSchema = new mongoose.Schema<INFTCollection>( {
     ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
   }],
-  activities: [{
-    ref: 'Activity',
+  history: [{
+    ref: 'History',
+    type: mongoose.Schema.Types.ObjectId
+  }],
+  activity: [{
+    ref: 'Bid',
     type: mongoose.Schema.Types.ObjectId
   }]
 })

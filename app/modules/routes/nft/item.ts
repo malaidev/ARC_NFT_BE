@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { NFTController } from "../../controller/NFTController";
 
 /**
  * 
@@ -6,7 +7,10 @@ import { FastifyReply, FastifyRequest } from "fastify";
  * @param {*} res
  */
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
-// res.send(result);
+  const {contract, nftId} = req.params as any;
+  const ctl = new NFTController();
+  const result = await ctl.getItemDetail(contract, nftId);
+  res.send(result);
 };
 
 /**
@@ -14,10 +18,22 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} req
  * @param {*} res
  */
-export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
-// res.send(result);
+ export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId} = req.params as any;
+  const ctl = new NFTController();
+  const result = await ctl.getItemHistory(contract, nftId);
+  res.send(result);
 };
 
+/**
+ * 
+ * @param {*} req
+ * @param {*} res
+ */
+ export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
+  // res.send(result);
+  };
+  
 
 /**
  * 

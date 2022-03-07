@@ -10,7 +10,6 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const contract = req.params['contract'] as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getItems(contract);
-  console.log(result);
   res.send(result);
 };
 
