@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
-import { IActivity } from "./IActivity";
-import { IBid } from "./IBid";
+import { IHistory } from "./IHistory";
+import { INFT } from "./INFT";
 
 export interface IPerson {
   _id?: string;                   // user id
@@ -11,11 +11,10 @@ export interface IPerson {
   joinedDate: Date;             // joined date
   name: string;                 // display name
 
-  nfts: Array<string>;               // ids of owned nfts
-  created: Array<string>;            // ids of created nfts
-  favourites: Array<string>;         // ids of favourite nfts
-  activity: Array<IActivity>;        // activities of current user
-  offers: Array<IBid>;               // offers of current user
+  nfts: Array<INFT>;               // ids of owned nfts
+  created: Array<INFT>;            // ids of created nfts
+  favourites: Array<INFT>;         // ids of favourite nfts
+  history: Array<IHistory>;        // activities of current user
 }
 
 const IPersonSchema = new mongoose.Schema<IPerson>( {
@@ -36,14 +35,10 @@ const IPersonSchema = new mongoose.Schema<IPerson>( {
     ref: 'NFT',
     type: ObjectId
   }],
-  activity: [{
-    ref: 'Activity',
+  history: [{
+    ref: 'History',
     type: ObjectId
   }],
-  offers: [{
-    ref: 'Bid',
-    type: ObjectId
-  }]
 });
 
 export const PersonModel = mongoose.model<IPerson>('Person', IPersonSchema);

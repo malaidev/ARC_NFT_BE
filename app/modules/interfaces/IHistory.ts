@@ -2,8 +2,10 @@ import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 import { IPerson } from "./IPerson";
 
-export interface IActivity {
-  _id?: string                    // id of activity
+export interface IHistory {
+  _id?: string;                   // id of activity
+  collection: string;
+  nftId: string;
   type: string;                 // type of activity (ex; list, offer, etc)
   price: number;                // price of activity
   from: IPerson;                 // id of from user
@@ -12,7 +14,9 @@ export interface IActivity {
 }
 
 
-const IActivitySchema = new mongoose.Schema<IActivity>( {
+const IHistorySchema = new mongoose.Schema<IHistory>( {
+  collection: String,
+  nftId: String,
   type: String,
   price: Number,
   from: {
@@ -26,4 +30,4 @@ const IActivitySchema = new mongoose.Schema<IActivity>( {
   date: Date
 });
 
-export const ActivityModel = mongoose.model<IActivity>('NFTCollection', IActivitySchema);
+export const HistoryModel = mongoose.model<IHistory>('History', IHistorySchema);
