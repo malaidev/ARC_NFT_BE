@@ -11,8 +11,8 @@ import { respond } from "../util/respond";
 export class NFTCollectionController extends AbstractEntity {
   protected data: INFTCollection;
   protected table = "NFTCollection" as string;
-  protected nftTable = "NFTCollection" as string;
-  protected ownerTable = "Owners" as string;
+  protected nftTable = "NFT" as string;
+  protected ownerTable = "Person" as string;
 
   constructor(nft?: INFTCollection) {
     super();
@@ -129,7 +129,39 @@ export class NFTCollectionController extends AbstractEntity {
     return (result
             ? respond('Successfully created a new collection with id ${result.insertedId}', true, 201)
             : respond("Failed to create a new collection.", true, 501));
-    
+  }
+
+  async placeBid(contract: string, nftId: string, fromUser: string, price: number, type: string, status: string) {
+    const collectionTable = this.mongodb.collection(this.table);
+    const ownerTable = this.mongodb.collection(this.ownerTable);
+    const nftTable = this.mongodb.collection(this.nftTable);
+
+    const collection = await collectionTable.findOne(this.findCollectionItem(contract)) as INFTCollection;
+    if (collection && collection._id) {
+      return respond("Current collection has been created already", true, 501);
+    }
+
+    const owner = await ownerTable.findOne(this.findPerson(fromUser)) as IPerson;
+    if (owner && owner._id) {
+      return respond("Current owner has been created already", true, 501);
+    }
+
+    const nft = await nftTable.findOne(this.findOne(this.findNFTItem(contract, nftId))) as INFT;
+    if (nft && nft._id) {
+      return respond("Current nft has been created already", true, 501);
+    }
+
+    const bid : IBid = {
+      collection: contract,
+      bidder: owner,
+      bidPrice: price,
+      status: status,
+      bidOn: nft,
+      type: type
+    };
+
+    collection.activity.push(bid);
+    collectionTable.updateOne({_id:collection._id}, collection);
   }
   
   /**
@@ -140,6 +172,19 @@ export class NFTCollectionController extends AbstractEntity {
    private findCollectionItem(contract: string): Object {
     return {
       contract: contract,
+    };
+  }
+
+  private findPerson(address: string): Object {
+    return {
+      wallet: address,
+    };
+  }
+
+  private findNFTItem(contract: string, nftId: string): Object {
+    return {
+      collection: contract,
+      index: nftId
     };
   }
 }

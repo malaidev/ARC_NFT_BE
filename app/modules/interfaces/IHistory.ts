@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import { IPerson } from "./IPerson";
 
 export interface IHistory {
-  _id?: string                    // id of activity
+  _id?: string;                   // id of activity
+  collection: string;
+  nftId: string;
   type: string;                 // type of activity (ex; list, offer, etc)
   price: number;                // price of activity
   from: IPerson;                 // id of from user
@@ -13,6 +15,8 @@ export interface IHistory {
 
 
 const IHistorySchema = new mongoose.Schema<IHistory>( {
+  collection: String,
+  nftId: String,
   type: String,
   price: Number,
   from: {

@@ -4,7 +4,7 @@ import { IBid } from "./IBid";
 import { IPerson } from "./IPerson";
 
 export interface INFT {
-  _id: string;                   // id of nft
+  _id?: string;                   // id of nft
   collection: string;
   index: string;
   owner: IPerson;                // user id of owner

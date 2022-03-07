@@ -56,3 +56,15 @@ export const createCollection = async (req: FastifyRequest, res: FastifyReply) =
   const result = await ctl.createCollection(contract, name);
   res.send(result);
 }
+
+/**
+ * 
+ * @param {*} req
+ * @param {*} res
+ */
+ export const placeBid = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, from, price, type, status} = req.params as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.placeBid(contract, nftId, from, price, type, status);
+  res.send(result);
+};
