@@ -5,25 +5,25 @@
       "version": "1.0.0",
       "title": "swagger specification",
       "contact": {
-        "email": "mujoko@depo.io"
+        "email": "henry@depo.io"
       }
     },
     "servers": [
       {
-        "url": "http://localhost:3000/",
-        "description": "API NFT"
+        "url": "http://localhost:3000/ws/v2/",
+        "description": "Backend API"
       }
     ],
     "paths": {
       "/log": {
         "get": {
-          "description": "Status route, so we can check if server is alive",
+          "description": "Log route, so we can check if server is alive",
           "tags": [
-            "Status"
+            "Log"
           ],
           "responses": {
             "200": {
-              "description": "Server is alive",
+              "description": "Log is alive",
               "content": {
                 "application/json": {
                   "schema": {
@@ -47,15 +47,25 @@
           }
         }
       },
-      "/nft": {
+      "/nft/items/:contract": {
         "get": {
-          "description": "NFT route, so we can check if server is alive",
+          "description": "get Item base on contract",
           "tags": [
             "NFT"
           ],
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "the user identifier, as contract"
+              }
+            },
+            "required": ["contract"]
+          },
           "responses": {
             "200": {
-              "description": "Server is alive",
+              "description": "Items with contract",
               "content": {
                 "application/json": {
                   "schema": {
