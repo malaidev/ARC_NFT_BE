@@ -1,0 +1,85 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "description": "DEPO swagger specification",
+      "version": "1.0.0",
+      "title": "swagger specification",
+      "contact": {
+        "email": "mujoko@depo.io"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/",
+        "description": "API NFT"
+      }
+    ],
+    "paths": {
+      "/log": {
+        "get": {
+          "description": "Status route, so we can check if server is alive",
+          "tags": [
+            "Status"
+          ],
+          "responses": {
+            "200": {
+              "description": "Server is alive",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "health": {
+                        "type": "boolean"
+                      },
+                      "date": {
+                        "type": "string"
+                      }
+                    },
+                    "example": {
+                      "health": true,
+                      "date": "2018-02-19T15:36:46.758Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/nft": {
+        "get": {
+          "description": "NFT route, so we can check if server is alive",
+          "tags": [
+            "NFT"
+          ],
+          "responses": {
+            "200": {
+              "description": "Server is alive",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "health": {
+                        "type": "boolean"
+                      },
+                      "date": {
+                        "type": "string"
+                      }
+                    },
+                    "example": {
+                      "health": true,
+                      "date": "2018-02-19T15:36:46.758Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+    }
+  }

@@ -48,6 +48,11 @@ async function mount() {
   app.register( SwaggerPlugin, {
     routePrefix: '/doc',
     exposeRoute: true,
+    mode: 'static',
+
+    specification: {
+      path: './app/spec/be-spesification.json'
+    },
     swagger: {
     info: {
     title: 'DEPO API',
