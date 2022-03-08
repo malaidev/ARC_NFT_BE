@@ -47,6 +47,7 @@ async function mount() {
  
   app.register( SwaggerPlugin, {
     routePrefix: '/doc',
+    mode: 'static',
     exposeRoute: true,
     specification: {
       path: './app/spec/be-spesification.json'
