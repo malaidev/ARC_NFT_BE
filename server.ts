@@ -58,7 +58,7 @@ async function mount() {
     url: 'https://swagger.io',
     description: 'Find more info here'
     },
-    host: 'localhost:3001',
+    host: 'staging.api.depo.io:443',
     schemes: [
       'http',      
       'https'
