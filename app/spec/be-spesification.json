@@ -14,58 +14,79 @@
         "description": "Backend API"
       }
     ],
-    "paths": {
-      "/log": {
+    "paths": {      
+      "/nft/collection/{contract}/items": {
         "get": {
-          "description": "Log route, so we can check if server is alive",
-          "tags": [
-            "Log"
-          ],
-          "responses": {
-            "200": {
-              "description": "Log is alive",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "health": {
-                        "type": "boolean"
-                      },
-                      "date": {
-                        "type": "string"
-                      }
-                    },
-                    "example": {
-                      "health": true,
-                      "date": "2018-02-19T15:36:46.758Z"
-                    }
-                  }
-                }
-              }
-            }
+          "description":"get Item base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
           }
-        }
       },
+      "/nft/collection/{contract}/owners": {
+        "get": {
+          "description":"getOwners base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/collection/{contract}/history": {
+        "get": {
+          "description":"getHistory base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
+          }
+      },
+
+      "/nft/collection/{contract}/activity": {
+        "get": {
+          "description":"getActivities base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/collection/create": {
+        "post": {
+          "description":"createCollection base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/collection/placeBid": {
+        "post": {
+          "description":"placeBid base on contract",
+          "tags": [           "Collection"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/items/create": {
+        "post": {
+          "description":"create Item ",
+          "tags": [           "Items"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/items/{contract}/{nftId}/history": {
+        "get": {
+          "description":"getItemHistory base on contract",
+          "tags": [           "Items"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/items/{contract}/{nftId}/detail": {
+        "get": {
+          "description":"getItemDetail base on contract",
+          "tags": [           "Items"          ],   
+          "responses":          "200"
+          }
+      },
+
       "/nft/items/{contract}": {
         "get": {
           "description": "get Item base on contract",
-          "tags": [
-            "NFT"
-          ],
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "description": "the user identifier, as contract"
-              }
-            },
-            "required": ["contract"]
-          },
+          "tags": [           "Items"          ],   
           "responses": {
             "200": {
-              "description": "Items with contract",
+              "description": "Find Items with contract",
               "content": {
                 "application/json": {
                   "schema": {
@@ -83,8 +104,54 @@
               }
             }
           }
-        }
+        }       
+      },
+      "/nft/owners/transfer": {
+        "get": {
+          "description":"getAllOwners ",
+          "tags": [           "Owner"          ],   
+          "responses":          "200"
+          },
+          "post": {
+            "description":"createOwner ",
+            "tags": [           "Owner"          ],   
+            "responses":          "200"
+          },
+          "put": {
+            "description":"updateOwner ",
+            "tags": [           "Owner"          ],   
+             "responses":          "200"
+          }
+      },
+      "/nft/owners/{ownerId}": {
+        "post": {
+          "description":"getOwner ",
+          "tags": [           "Owner"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/owners/{ownerId}/nfts": {
+        "get": {
+          "description":"getOwnerNtfs ",
+          "tags": [           "Owner"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/owners/{ownerId}/history": {
+        "get": {
+          "description":"getOwnerHistory ",
+          "tags": [           "Owner"          ],   
+          "responses":          "200"
+          }
+      },
+      "/nft/owners/{ownerId}/getOwnerCollection": {
+        "get": {
+          "description":"getOwnerCollection ",
+          "tags": [           "Owner"          ],   
+          "responses":          "200"
+          }
       }
+
 
 
     }
