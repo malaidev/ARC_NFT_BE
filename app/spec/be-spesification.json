@@ -47,7 +47,7 @@
           }
         }
       },
-      "/nft/items/:contract": {
+      "/nft/items/{contract}": {
         "get": {
           "description": "get Item base on contract",
           "tags": [
@@ -71,16 +71,12 @@
                   "schema": {
                     "type": "object",
                     "properties": {
-                      "health": {
-                        "type": "boolean"
-                      },
-                      "date": {
-                        "type": "string"
-                      }
+                      "itemId": {
+                        "type": "String"
+                      } 
                     },
                     "example": {
-                      "health": true,
-                      "date": "2018-02-19T15:36:46.758Z"
+                      "itemId": "ABCDEFG"
                     }
                   }
                 }
