@@ -8,7 +8,7 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
  * @param {*} req
  *    contract: Collection Contract Address
  * @param {*} res
- *    [INFT]
+ *    Array<INFT>
       interface INFT {
         _id?: string;                   // id of nft
         collection: string;             // collection contract address
@@ -39,7 +39,7 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} req
  *    contract: Collection Contract Address
  * @param {*} res
- *    [IPerson]
+ *    Array<IPerson>
       interface IPerson {
         _id?: string;                   // user id
         backgroundUrl: string;          // background image url
@@ -68,7 +68,7 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} req
  *    contract: Collection Contract Address
  * @param {*} res
- *    [IHistory]
+ *    Array<IHistory>
       interface IHistory {
         _id?: string;                   // id of activity
         collection: string;             // collection contract address
@@ -94,7 +94,7 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} req
  *     contract: Collection Contract Address
  * @param {*} res
- *      [IBid]
+ *      Array<IBid>
         interface IBid {
           _id?: string                    // id of activity
           collection: string;             // collection contract address

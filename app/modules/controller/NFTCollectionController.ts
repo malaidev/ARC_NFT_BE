@@ -1,24 +1,70 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IBid } from "../interfaces/IBid";
 import { IHistory } from "../interfaces/IHistory";
-import { INFT, IPrice } from "../interfaces/INFT";
+import { INFT } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 
+/**
+ * This is the NFTCollection controller class.
+ * Do all the NFTCollection's functions such as
+ * get owners, items, activities, histories,
+ * and create, placeBid.
+ *
+ * @param {INFTCollection} data NFTCollection data
+ *
+ * @property {data}
+ * @property {table}
+ * @property {nftTable}
+ * @property {ownerTable}
+ * 
+ * @method getOwners
+ * @method getItems
+ * @method getActivity
+ * @method getHistory
+ * @method createCollection
+ * @method placeBid
+ * @method findCollectionItem
+ * @method findPerson
+ * @method findNFTItem
+ * 
+ *
+ * @author Tadashi <tadashi@depo.io>
+ * @version 0.0.1
+ *
+ * ----
+ * Example Usage
+ *
+ * const ctl = new NFTCollectionController();
+ *
+ * await ctl.getOwners('0xbb6a549b1cf4b2d033df831f72df8d7af4412a82')
+ *
+ */
 export class NFTCollectionController extends AbstractEntity {
   protected data: INFTCollection;
-  protected table = "NFTCollection" as string;
-  protected nftTable = "NFT" as string;
-  protected ownerTable = "Person" as string;
+  protected table: string = "NFTCollection";
+  protected nftTable: string = "NFT";
+  protected ownerTable: string = "Person";
 
+  /**
+   * Constructor of class
+   * @param nft NFTCollection data
+   */
   constructor(nft?: INFTCollection) {
     super();
     this.data = nft;
   }
 
+  /**
+   * Get owner list in collection
+   * 
+   * @param contract Collection Contract Address
+   * @param filters filter
+   * @returns {Array<IPerson>} owner list
+   */
   async getOwners(contract: string, filters?: IQueryFilters): Promise<Array<IPerson> | IResponse> {
     try {
       if (this.mongodb) {
@@ -37,7 +83,14 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async getItems(contract: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  /**
+   * Get item list in collection
+   * 
+   * @param contract Collection Contract Address
+   * @param filters filter
+   * @returns {Array<INFT>} item list
+   */
+   async getItems(contract: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findCollectionItem(contract);
@@ -55,10 +108,17 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async getActivity(collectionId: string): Promise<Array<IBid> | IResponse> {
+  /**
+   * Get all activities (bids and transfer) of NFT items in collection
+   * 
+   * @param contract Collection Contract Address
+   * @param filters filter
+   * @returns {Array<IBid>} activity list
+   */
+   async getActivity(contract: string): Promise<Array<IBid> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findCollectionItem(collectionId);
+        const query = this.findCollectionItem(contract);
         const result = await this.findOne(query) as INFTCollection;
         if (result) {
           return result.activity;
@@ -73,10 +133,17 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async getHistory(collectionId: string): Promise<Array<IPrice> | IResponse> {
+  /**
+   * Get transfer history of NFT items in collection
+   * 
+   * @param contract Collection Contract Address
+   * @param filters filter
+   * @returns {Array<IHistory>} history list
+   */
+   async getHistory(contract: string): Promise<Array<IHistory> | IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findCollectionItem(collectionId) as INFTCollection;
+        const query = this.findCollectionItem(contract) as INFTCollection;
         const result = await this.findOne(query);
         if (result) {
           return result.history;
@@ -91,6 +158,17 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
   
+  /**
+   * Create new collection - save to MongoDB 
+   * It check collection is in database, then fail
+   * Otherwise add new collection
+   * 
+   * @param contract Collection Contract Address
+   * @param name Collection Name
+   * @returns result of creation
+   *      success:  201
+   *      fail:     501
+   */
   async createCollection(contract: string, name: string): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const nftCollection : INFTCollection = {
@@ -109,6 +187,20 @@ export class NFTCollectionController extends AbstractEntity {
             : respond("Failed to create a new collection.", true, 501));
   }
 
+  /**
+   * Owner place a bid to the NFT item in collection
+   * It gets collection, owner, nft from db collections
+   * Create new bid and add it to collection activity list and update collection
+   * 
+   * @param contract Collection Contract Address
+   * @param nftId Index of NFT item in collection
+   * @param fromUser Bidder wallet address
+   * @param price Bid price
+   * @param type Bid type
+   * @returns result of creation
+   *      success:  201
+   *      fail:     501
+   */
   async placeBid(contract: string, nftId: string, fromUser: string, price: number, type: string) {
     const collectionTable = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -145,7 +237,7 @@ export class NFTCollectionController extends AbstractEntity {
   }
   
   /**
-   * Mounts a generic query to find an item by its id.
+   * Mounts a generic query to find a collection by contract address.
    * @param contract
    * @returns
    */
@@ -155,13 +247,23 @@ export class NFTCollectionController extends AbstractEntity {
     };
   }
 
-  private findPerson(address: string): Object {
+  /**
+   * Mounts a generic query to find a person by wallet address.
+   * @param contract
+   * @returns
+   */
+   private findPerson(address: string): Object {
     return {
       wallet: address,
     };
   }
 
-  private findNFTItem(contract: string, nftId: string): Object {
+  /**
+   * Mounts a generic query to find a NFT item by contract address and index.
+   * @param contract
+   * @returns
+   */
+   private findNFTItem(contract: string, nftId: string): Object {
     return {
       collection: contract,
       index: nftId
