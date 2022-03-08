@@ -48,23 +48,34 @@ async function mount() {
   app.register( SwaggerPlugin, {
     routePrefix: '/doc',
     exposeRoute: true,
+    specification: {
+      path: './app/spec/be-spesification.json'
+    },
     swagger: {
-    info: {
-    title: 'DEPO API',
-    description: 'REST API with Node.js, MongoDB, Fastify and Swagger',
-    version: '1.0.0'
-    },
-    externalDocs: {
-    url: 'https://swagger.io',
-    description: 'Find more info here'
-    },
-    host: 'localhost:3001',
-    schemes: [
-      'http',      
-      'https'
-    ],
-    consumes: ['application/json'],
-    produces: ['application/json']      
+      info: {
+        title: 'DEPO API',
+        description: 'REST API DEPO documentation',
+        version: '1.0.0'
+      },
+      externalDocs: {
+        url: 'https://swagger.io',
+        description: 'Find more info here'
+      },
+      host: 'staging.api.depo.io:443',
+      schemes: [
+        'http',      
+        'https'
+      ],
+      consumes: ['application/json'],
+      produces: ['application/json'] ,
+      securityDefinitions: {
+        ApiToken: {
+          description: 'Authorization header token, sample: "Bearer #TOKEN#"',
+          type: 'apiKey',
+          name: 'Authorization',
+          in: 'header'
+        } 
+      }
     }
     });
     
