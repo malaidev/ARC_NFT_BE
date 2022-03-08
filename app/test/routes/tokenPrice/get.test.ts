@@ -31,7 +31,7 @@ test("getTokenUsdtPrice API test [POST] [/]", async () => {
         headers: {
             'Access-Control-Allow-Origin': '*',
         },
-        payload:{
+        payload: {
             quotes: ["USDT"],
             addresses: ["0x4A5142af545693dc7ab66bcdC07c8E02Cd58841F"],
         }
