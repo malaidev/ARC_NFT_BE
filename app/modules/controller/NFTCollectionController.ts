@@ -91,28 +91,6 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
   
-  async getItemHistory(collectionId: string, nftId: string): Promise<Array<IPrice> | IResponse> {
-    try {
-      if (this.mongodb) {
-        const query = this.findCollectionItem(collectionId);
-        const result = await this.findOne(query) as INFTCollection;
-
-        if (result) {
-          const nft = result.nfts.find(nft => nft._id === nftId);
-          if (nft)
-            return nft.priceHistory;
-          return respond("nft not found.", true, 422);
-        }
-        return respond("collection not found.", true, 422);
-      } else {
-        throw new Error("Could not connect to the database.");
-      }
-    } catch (error) {
-      console.log(`NFTController::getHistory::${this.nftTable}`, error);
-      return respond(error.message, true, 500);
-    }
-  }
-
   async createCollection(contract: string, name: string): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const nftCollection : INFTCollection = {
@@ -131,7 +109,7 @@ export class NFTCollectionController extends AbstractEntity {
             : respond("Failed to create a new collection.", true, 501));
   }
 
-  async placeBid(contract: string, nftId: string, fromUser: string, price: number, type: string, status: string) {
+  async placeBid(contract: string, nftId: string, fromUser: string, price: number, type: string) {
     const collectionTable = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     const nftTable = this.mongodb.collection(this.nftTable);
@@ -155,13 +133,15 @@ export class NFTCollectionController extends AbstractEntity {
       collection: contract,
       bidder: owner,
       bidPrice: price,
-      status: status,
-      bidOn: nft,
+      status: "Bid",
+      bidOn: nft.index,
       type: type
     };
 
     collection.activity.push(bid);
     collectionTable.updateOne({_id:collection._id}, collection);
+
+    return respond("Bid Success", true, 201);
   }
   
   /**

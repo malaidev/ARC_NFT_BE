@@ -1,22 +1,21 @@
 import mongoose from "mongoose";
 import { IHistory } from "./IHistory";
-import { IBid } from "./IBid";
 import { IPerson } from "./IPerson";
 
 export interface INFT {
   _id?: string;                   // id of nft
-  collection: string;
-  index: string;
-  owner: IPerson;                // user id of owner
-  creator: IPerson;              // user id of creator
-  artURI: string;               // URI of art image
-  price: number;                // Current price of nft
-  like: number;                 // likes count of nft
-  auctionEnd?: Date;            // auction end time
-  protocol?: string;            // protocol
-  priceHistory: Array<IPrice>;       // price history list of nft
+  collection: string;             // collection contract address
+  index: string;                  // index of nft in collection
+  owner: IPerson;                 // owner
+  creator: IPerson;               // creator
+  artURI: string;                 // URI of art image
+  price: number;                  // Current price of nft
+  like: number;                   // likes count of nft
+  auctionEnd?: Date;              // auction end time
+  protocol?: string;              // protocol
+  priceHistory: Array<IPrice>;    // price history list of nft
   history: Array<IHistory>;       // history list
-  status: string;
+  status: string;                 // status of current nft
 }
 
 export interface IPrice {
@@ -35,15 +34,15 @@ const INFTSchema = new mongoose.Schema<INFT>( {
     ref: 'Person',
     type: mongoose.Schema.Types.ObjectId
   },
-  artURI: String,               // URI of art image
-  price: Number,                // Current price of nft
-  like: Number,                 // likes count of nft
-  auctionEnd: Date,            // auction end time
-  protocol: String,            // protocol
+  artURI: String,
+  price: Number,
+  like: Number,
+  auctionEnd: Date,
+  protocol: String,
   priceHistory: [{
     price: Number,
     timestamp: Date
-  }],       // price history list of nft
+  }],
   status: String,
   history: [{
     ref: 'History',

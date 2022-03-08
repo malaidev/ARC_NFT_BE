@@ -1,24 +1,24 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
-import { INFT } from "./INFT";
 import { IPerson } from "./IPerson";
 
 export interface IBid {
   _id?: string                    // id of activity
-  collection: string;
-  bidder: IPerson;               // bidder user id
-  bidPrice: number;             // bid price
-  status: string;               // current status of bid
-  bidOn: INFT;                // NFT id
-  type: string;
+  collection: string;             // collection contract address
+  bidder: IPerson;                // bidder user
+  bidPrice: number;               // bid price
+  status: string;                 // current status of bid
+  bidOn: string;                  // id of NFT item
+  type: string;                   // type of bid
 }
 
 const IBidSchema = new mongoose.Schema<IBid>( {
   collection: String,
-  bidder: {ref: 'Person', type: ObjectId},               // bidder user id
-  bidPrice: String,             // bid price
-  status: String,               // current status of bid
-  bidOn: {ref: 'NFT', type: ObjectId},                // NFT id
+  bidder: {ref: 'Person', type: ObjectId},
+  bidPrice: String,
+  status: String,
+  bidOn: String,
+  type: String,
 });
 
 export const BidModel = mongoose.model<IBid>('Bid', IBidSchema);
