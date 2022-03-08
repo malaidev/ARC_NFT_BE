@@ -49,14 +49,13 @@ async function mount() {
     routePrefix: '/doc',
     exposeRoute: true,
     mode: 'static',
-
     specification: {
       path: './app/spec/be-spesification.json'
     },
     swagger: {
     info: {
     title: 'DEPO API',
-    description: 'REST API with Node.js, MongoDB, Fastify and Swagger',
+    description: 'REST API DEPO documentation',
     version: '1.0.0'
     },
     externalDocs: {
