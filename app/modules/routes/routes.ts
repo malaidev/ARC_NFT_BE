@@ -11,6 +11,8 @@ import { emailContact } from './emailContact';
 import { pool } from './pool';
 import { contract } from './contract';
 import { test } from './test/index';
+import { nft } from './nft/index';
+
 /**
  * Creates the array of routes to be set up.
  *
@@ -32,6 +34,7 @@ export function routes(app: any): Array<Promise<any>> {
     app.register(emailContact, { prefix: 'ws/v2/emailContact' }),
     app.register(pool, { prefix: 'ws/v2/pool' }),
     app.register(contract, { prefix: 'ws/v2/sign' }),
-    app.register(test, { prefix: 'ws/v2/test'})
+    app.register(test, { prefix: 'ws/v2/test'}),
+    app.register(nft, { prefix: 'ws/v2/nft'})
   ];
 }

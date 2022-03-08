@@ -18,12 +18,12 @@ export class MongoDBService {
     this.host = config.mongodb.host;
     this.port = config.mongodb.port;
 
-    // let connectionStr = ``;
-    
-    
-    let connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
-    if (config.env === "development") {
-      connectionStr = `mongodb://${this.username}:${this.password}@${this.host}?authMecanism=DEFAULT`;
+    let connectionStr = ``;
+   
+    if (config.env === "dev" && config.env_db === "localdb") {
+      connectionStr = `mongodb://${this.host}?authMecanism=DEFAULT`;
+    } else {
+      connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
     }
     
     
