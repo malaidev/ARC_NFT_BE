@@ -19,12 +19,13 @@ export class MongoDBService {
     this.port = config.mongodb.port;
 
     let connectionStr = ``;
-    
+   
     if (config.env === "dev" && config.env_db === "localdb") {
       connectionStr = `mongodb://${this.host}?authMecanism=DEFAULT`;
     } else {
       connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
     }
+    
     
     this.client = new MongoClient(connectionStr, {
       useNewUrlParser: true,

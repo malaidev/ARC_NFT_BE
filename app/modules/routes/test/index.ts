@@ -11,10 +11,10 @@ import {
    * Exports the users actions routes.
    * @param {*} router
    * @param {*} options
-   */
-
+   */ 
    const opts = {
     schema: {
+      tags: ['Test'],
       response: {
         200: {
           type: 'object',
