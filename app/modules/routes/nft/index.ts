@@ -1,6 +1,5 @@
 import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, transferItem } from "./item";
-import { getProfile, getUserCollections, getUserHistory, getUserLists, updateProfile } from "./user";
 import { getActivities, getHistory, getItems, getOwners, createCollection, placeBid } from "./collection";
 import { createOwner,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
 

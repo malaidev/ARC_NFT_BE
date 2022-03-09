@@ -5,16 +5,16 @@ import { INFT } from "./INFT";
 
 export interface IPerson {
   _id?: string;                   // user id
-  backgroundUrl: string;        // background image url
-  photoUrl: string;             // photo image url
-  wallet: string;              // wallet information
-  joinedDate: Date;             // joined date
-  name: string;                 // display name
+  backgroundUrl: string;          // background image url
+  photoUrl: string;               // photo image url
+  wallet: string;                 // wallet address
+  joinedDate: Date;               // joined date
+  name: string;                   // display name
 
-  nfts: Array<INFT>;               // ids of owned nfts
-  created: Array<INFT>;            // ids of created nfts
-  favourites: Array<INFT>;         // ids of favourite nfts
-  history: Array<IHistory>;        // activities of current user
+  nfts: Array<INFT>;              // owned nfts
+  created: Array<INFT>;           // created nfts
+  favourites: Array<INFT>;        // favourite nfts
+  history: Array<IHistory>;       // activities of current user
 }
 
 const IPersonSchema = new mongoose.Schema<IPerson>( {
