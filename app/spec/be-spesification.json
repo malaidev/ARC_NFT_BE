@@ -919,9 +919,9 @@
            }
         }
      },
-     "/nft/owners/{ownerId}/getOwnerCollection":{
+     "/nft/owners/{ownerId}/collection":{
         "get":{
-           "description":"getOwnerCollection ",
+           "description":"Get collection ",
            "tags":[ "Owner"  ],            
            "parameters":[
               {
@@ -936,7 +936,7 @@
            ],
            "responses":{
               "200":{
-                 "description":"getOwnerCollection",
+                 "description":" Return INFTCollection",
                  "content":{
                     "application/json":{
                        "schema":{
