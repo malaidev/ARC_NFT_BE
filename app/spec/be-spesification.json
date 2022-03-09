@@ -8,22 +8,23 @@
       "email": "mujoko@depo.io"
     }
   },
-   
-  "securityDefinitions": {
-      "ApiToken": {
-        "description": "Authorization header token, sample: \"Bearer #TOKEN#\"",
-        "type": "apiKey",
-        "name": "Authorization",
-        "in": "header"
-      }
-   },
   
-  "servers": [
-    {
-      "url": "http://localhost:3000/ws/v2/",
-      "description": "Backend API"
+  "schemes": [
+      "http",
+      "https"
+  ],   
+  "components": {        
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     }
-  ],
+  },
+   
+ 
+   
   "definitions": {
     "IPerson": {
       "type": "object",
@@ -236,7 +237,18 @@
         "tags": [
           "Collection"
         ],        
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }], 
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          }
+        ],       
         "responses": {
           "200": {
             "description": "get Item  contract",
@@ -259,7 +271,18 @@
         "tags": [
           "Collection"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],    
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          }
+        ],       
         "responses": {
           "200": {
             "description": "Find collection with contract",
@@ -283,7 +306,18 @@
           "Collection"
         ],
          
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],  
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          }
+        ],         
         "responses": {
           "200": {
             "description": "Find Items with contract",
@@ -307,7 +341,18 @@
           "Collection"
         ],
 
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],       
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          }
+        ],    
         "responses": {
           "200": {
             "description": "Find Items with contract",
@@ -331,7 +376,7 @@
         "tags": [
           "Collection"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -363,7 +408,7 @@
         "tags": [
           "Collection"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -396,7 +441,7 @@
         "tags": [
           "Items"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -433,7 +478,27 @@
           "Items"
         ],
 
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],  
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          },
+          {
+            "in": "path",
+            "name": "nftId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "nftId Id"
+          }
+        ],         
         "responses": {
           "200": {
             "description": "getItemHistory  NFT",
@@ -457,7 +522,27 @@
         "tags": [
           "Items"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],   
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          },
+          {
+            "in": "path",
+            "name": "nftId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "nftId Id"
+          }
+        ],     
         "responses": {
           "200": {
             "description": "getItemHistory  NFT",
@@ -472,7 +557,6 @@
           }
         } 
 
-
       }
     },
     "/nft/items/{contract}": {
@@ -481,7 +565,18 @@
         "tags": [
           "Items"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],  
+        "parameters": [
+          {
+            "in": "path",
+            "name": "contract",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Contract Id"
+          } 
+        ],          
         "responses": {
           "200": {
             "description": "getItemHistory  NFT",
@@ -504,7 +599,7 @@
         "tags": [
           "Items"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -539,7 +634,7 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "responses": {
           "200": {
             "description": "getAllOwners",
@@ -559,7 +654,7 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -589,7 +684,7 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -621,7 +716,18 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],  
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ownerId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ownerId Id"
+          } 
+        ],          
         "responses": {
           "200": {
             "description": "getOwnerHistory",
@@ -643,7 +749,18 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],    
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ownerId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ownerId Id"
+          } 
+        ],      
         "responses": {
           "200": {
             "description": "getOwnerNtfs",
@@ -665,7 +782,18 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],   
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ownerId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ownerId Id"
+          } 
+        ],      
         "responses": {
           "200": {
             "description": "getOwnerHistory",
@@ -687,7 +815,18 @@
         "tags": [
           "Owner"
         ],
-        "security": [{ "ApiToken": [] }],        
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ownerId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ownerId Id"
+          } 
+        ],         
         "responses": {
           "200": {
             "description": "getOwnerCollection",
