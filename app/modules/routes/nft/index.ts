@@ -20,19 +20,19 @@ export const  nft = async (router: any, options: any) => {
    router.get("/collection/:contract/owners",  getOwners);
    router.get("/collection/:contract/history", getHistory);
    router.get("/collection/:contract/activity",getActivities);
-   router.post("/collection/create",  createCollection);
-   router.post("/collection/placeBid", placeBid);
+   router.post("/collection/create", config.route("jwt"), createCollection);
+   router.post("/collection/placeBid", config.route("jwt"), placeBid);
  
-   router.post("/items/create",  createItem);
+   router.post("/items/create", config.route("jwt"), createItem);
    router.get("/items/:contract", getAllItems);
    router.get("/items/:contract/:nftId/history", getItemHistory);
    router.get("/items/:contract/:nftId/detail", getItemDetail);
-   router.post("/items/transfer",  transferItem);
+   router.post("/items/transfer", config.route("jwt"), transferItem);
  
    router.get("/owners", getAllOwners);  
    
-   router.post("/owners/:ownerId", createOwner);
-   router.put("/owners/:ownerId",  updateOwner);
+   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
+   router.put("/owners/:ownerId", config.route("jwt"),  updateOwner);
 
    router.get("/owners/:ownerId",  getOwner);  
    router.get("/owners/:ownerId/nfts", getOwnerNtfs)
