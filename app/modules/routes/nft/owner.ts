@@ -28,7 +28,11 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     // }
 
     const {backgroundUrl,photoUrl,joinedDate,name} = req.body as any;
-    const user = req['session'] as any;
+    /** remove the auth */
+    // const user = req['session'] as any;
+    
+    const {ownerId} = req.params as any;
+    const user={walletId:ownerId};
     const ctl = new NFTOwnerController();
     const result= await ctl.craeteOwner(backgroundUrl,photoUrl,user.walletId,joinedDate,name);
     res.send(result);
@@ -40,7 +44,11 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
 export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const Owner=req.body as IPerson;
     const ctl = new NFTOwnerController();
-    const user = req['session'].walletId as any;
+    /**remove Auth */
+
+    // const user = req['session'].walletId as any;
+    const {ownerId} = req.params as any;
+    const user=ownerId;
     try {
         const hasOwner = (await ctl.findPerson(user) as IUser);
         if (hasOwner.success===false) {
