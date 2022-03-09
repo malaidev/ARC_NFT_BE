@@ -9,6 +9,12 @@
     }
   },
   
+  "servers": [
+    {
+      "url": "https://staging.api.depo.io/ws/v2/",
+      "description": "Backend API"
+    }
+  ],
   "schemes": [
       "http",
       "https"
