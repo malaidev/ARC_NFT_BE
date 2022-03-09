@@ -65,14 +65,12 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
  * Method: GET
  * 
  * @param {*} req
- *    contract: Collection Contract Address
  * @param {*} res
  *    Array<INFT>
  */
  export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract} = req.params as any;
   const ctl = new NFTController();
-  const result = await ctl.getItems(contract);
+  const result = await ctl.getItems();
   res.send(result);
 };
 
@@ -93,7 +91,7 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
  *              422 (cannot find owner and creator)
  */
 export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, artURI, price, ownerAddr, creatorAddr} = req.params as any;
+  const {contract, nftId, artURI, price, ownerAddr, creatorAddr} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(contract, nftId, artURI, price, ownerAddr, creatorAddr);
   res.send(result);
@@ -116,7 +114,7 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
  *              422 (cannot find owner)
  */
 export const transferItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, from, to, transactionDate, price} = req.params as any;
+  const {contract, nftId, from, to, transactionDate, price} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.transferNFT(contract, nftId, from, to, transactionDate, price);
   res.send(result);
