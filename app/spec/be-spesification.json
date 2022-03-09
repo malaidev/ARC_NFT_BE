@@ -86,8 +86,7 @@
         "created",
         "favourites",
         "history"
-      ],
-      "additionalProperties": false
+      ]
     },
     "INFT": {
       "type": "object",
@@ -150,8 +149,7 @@
         "priceHistory",
         "history",
         "status"
-      ],
-      "additionalProperties": false
+      ]
     },
     "IPrice": {
       "type": "object",
@@ -167,8 +165,7 @@
       "required": [
         "price",
         "timestamp"
-      ],
-      "additionalProperties": false
+      ]
     },
     "IHistory": {
       "type": "object",
@@ -207,8 +204,7 @@
         "from",
         "to",
         "date"
-      ],
-      "additionalProperties": false
+      ]
     },
     "Item": {
       "type": "object",
