@@ -24,11 +24,44 @@
         "bearerFormat": "JWT"
       }
     }
-  },
+  }, 
    
- 
-   
-  "definitions": {
+  "definitions": {  
+	"IBid": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "collection": {
+                    "type": "string"
+                },
+                "bidder": {
+                    "$ref": "#/definitions/IPerson"
+                },
+                "bidPrice": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "bidOn": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "collection",
+                "bidder",
+                "bidPrice",
+                "status",
+                "bidOn",
+                "type"
+            ]
+            
+     },
     "IPerson": {
       "type": "object",
       "properties": {
@@ -232,7 +265,7 @@
   "paths": {
     "/nft/collection/{contract}/items": {      
       "get": {
-        "description": "get Item base on contract",
+        "description": "get NFT Item base on contract from Collection",
         "tags": [
           "Collection"
         ],        
@@ -254,8 +287,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "$ref": "#/definitions/INFT"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/INFT"
+                  }
                 }
               }
             }
@@ -266,7 +301,7 @@
     },
     "/nft/collection/{contract}/owners": {
       "get": {
-        "description": "collection base on contract",
+        "description": "get NFT Item base on contract from Collection",
         "tags": [
           "Collection"
         ],
@@ -284,12 +319,14 @@
         ],       
         "responses": {
           "200": {
-            "description": "Find collection with contract",
+            "description": "get NFT Item base on contract from Collection",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "$ref": "#/definitions/INFT"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/IPerson"
+                  }
                 }
               }
             }
@@ -300,7 +337,7 @@
     },
     "/nft/collection/{contract}/history": {
       "get": {
-        "description": "collection base on contract",
+        "description": "get history base on contract from Collection",
         "tags": [
           "Collection"
         ],
@@ -323,8 +360,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "$ref": "#/definitions/INFT"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/IHistory"
+                  }
                 }
               }
             }
@@ -358,14 +397,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "$ref": "#/definitions/INFT"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/IBid"
+                  }
                 }
               }
             }
           }
         }
-
 
       }
     },
@@ -452,22 +492,10 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "created  NFT",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "$ref": "#/definitions/INFT"
-                }
-              }
-            }
+          "201": {
+            "description": "Success created  NFT"            
           }
-        }
-
-        
-
-
+        }   
       }
     },
     "/nft/items/{contract}/{nftId}/history": {
