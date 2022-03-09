@@ -8,6 +8,16 @@
       "email": "mujoko@depo.io"
     }
   },
+   
+  "securityDefinitions": {
+      "ApiToken": {
+        "description": "Authorization header token, sample: \"Bearer #TOKEN#\"",
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+   },
+  
   "servers": [
     {
       "url": "http://localhost:3000/ws/v2/",
@@ -218,13 +228,15 @@
       }
     }
   },
+  
   "paths": {
-    "/nft/collection/{contract}/items": {
+    "/nft/collection/{contract}/items": {      
       "get": {
         "description": "get Item base on contract",
         "tags": [
           "Collection"
-        ],
+        ],        
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "get Item  contract",
@@ -232,15 +244,13 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
       }
     },
     "/nft/collection/{contract}/owners": {
@@ -249,6 +259,7 @@
         "tags": [
           "Collection"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "Find collection with contract",
@@ -256,15 +267,13 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
       }
     },
     "/nft/collection/{contract}/history": {
@@ -273,6 +282,8 @@
         "tags": [
           "Collection"
         ],
+         
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "Find Items with contract",
@@ -280,15 +291,13 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
       }
     },
     "/nft/collection/{contract}/activity": {
@@ -297,6 +306,8 @@
         "tags": [
           "Collection"
         ],
+
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "Find Items with contract",
@@ -304,15 +315,14 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
+
       }
     },
     "/nft/collection/create": {
@@ -321,6 +331,17 @@
         "tags": [
           "Collection"
         ],
+        "security": [{ "ApiToken": [] }],        
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/definitions/INFT"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Find Items with contract",
@@ -328,10 +349,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
@@ -345,7 +363,31 @@
         "tags": [
           "Collection"
         ],
-        "responses": "200"
+        "security": [{ "ApiToken": [] }],        
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/definitions/INFT"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Find Items with contract",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/definitions/INFT"
+                }
+              }
+            }
+          }
+        }
+
       }
     },
     "/nft/items/create": {
@@ -354,6 +396,7 @@
         "tags": [
           "Items"
         ],
+        "security": [{ "ApiToken": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -366,20 +409,21 @@
         },
         "responses": {
           "200": {
-            "description": "Find Items with contract",
+            "description": "created  NFT",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
+        
+
+
       }
     },
     "/nft/items/{contract}/{nftId}/history": {
@@ -388,22 +432,23 @@
         "tags": [
           "Items"
         ],
+
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
-            "description": "Find Items with contract",
+            "description": "getItemHistory  NFT",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+
+
       }
     },
     "/nft/items/{contract}/{nftId}/detail": {
@@ -412,22 +457,22 @@
         "tags": [
           "Items"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
-            "description": "Find Items with contract",
+            "description": "getItemHistory  NFT",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
-        }
+        } 
+
+
       }
     },
     "/nft/items/{contract}": {
@@ -436,30 +481,30 @@
         "tags": [
           "Items"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
-            "description": "Find Items with contract",
+            "description": "getItemHistory  NFT",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+        
       }
     },
     "/nft/items/transfer": {
       "post": {
-        "description": "get Item base on contract",
+        "description": "transfer Item base on contract",
         "tags": [
           "Items"
         ],
+        "security": [{ "ApiToken": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -472,20 +517,20 @@
         },
         "responses": {
           "200": {
-            "description": "Find Items with contract",
+            "description": "transfer Items with contract",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "schema": {
-                    "type": "object",
-                    "$ref": "#/definitions/INFT"
-                  }
+                  "$ref": "#/definitions/INFT"
                 }
               }
             }
           }
         }
+         
+
+
       }
     },
     "/nft/owners": {
@@ -494,6 +539,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "getAllOwners",
@@ -513,6 +559,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -542,6 +589,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "requestBody": {
           "content": {
             "application/json": {
@@ -573,6 +621,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "getOwnerHistory",
@@ -594,6 +643,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "getOwnerNtfs",
@@ -615,6 +665,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "getOwnerHistory",
@@ -636,6 +687,7 @@
         "tags": [
           "Owner"
         ],
+        "security": [{ "ApiToken": [] }],        
         "responses": {
           "200": {
             "description": "getOwnerCollection",

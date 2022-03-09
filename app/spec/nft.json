@@ -1,0 +1,187 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/IPerson",
+    "definitions": {
+        "IPerson": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "backgroundUrl": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "wallet": {
+                    "type": "string"
+                },
+                "joinedDate": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nfts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/INFT"
+                    }
+                },
+                "created": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/INFT"
+                    }
+                },
+                "favourites": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/INFT"
+                    }
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/IHistory"
+                    }
+                }
+            },
+            "required": [
+                "backgroundUrl",
+                "photoUrl",
+                "wallet",
+                "joinedDate",
+                "name",
+                "nfts",
+                "created",
+                "favourites",
+                "history"
+            ],
+            "additionalProperties": false
+        },
+        "INFT": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "collection": {
+                    "type": "string"
+                },
+                "index": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/IPerson"
+                },
+                "creator": {
+                    "$ref": "#/definitions/IPerson"
+                },
+                "artURI": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "like": {
+                    "type": "number"
+                },
+                "auctionEnd": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "priceHistory": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/IPrice"
+                    }
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/IHistory"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "collection",
+                "index",
+                "owner",
+                "creator",
+                "artURI",
+                "price",
+                "like",
+                "priceHistory",
+                "history",
+                "status"
+            ],
+            "additionalProperties": false
+        },
+        "IPrice": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "price",
+                "timestamp"
+            ],
+            "additionalProperties": false
+        },
+        "IHistory": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "collection": {
+                    "type": "string"
+                },
+                "nftId": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "from": {
+                    "$ref": "#/definitions/IPerson"
+                },
+                "to": {
+                    "$ref": "#/definitions/IPerson"
+                },
+                "date": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "collection",
+                "nftId",
+                "type",
+                "price",
+                "from",
+                "to",
+                "date"
+            ],
+            "additionalProperties": false
+        }
+    }
+}
