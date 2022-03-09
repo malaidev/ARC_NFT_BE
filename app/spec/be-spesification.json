@@ -15,10 +15,7 @@
       "description": "Backend API"
     }
   ],
-  "schemes": [
-      "http",
-      "https"
-  ],   
+     
   "components": {        
     "securitySchemes": {
       "bearerAuth": {
