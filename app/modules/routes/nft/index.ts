@@ -2,57 +2,44 @@ import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, transferItem } from "./item";
 import { getActivities, getHistory, getItems, getOwners, createCollection, placeBid } from "./collection";
 import { createOwner,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
-
 /**
  * Exports the nft collection actions routes.
  * @param {*} router
  * @param {*} options
  */
 export const  nft = async (router: any, options: any) => {
-
-
-
   /**
    * remove auth
    */
-
    router.get("/collection/:contract/items", getItems);
    router.get("/collection/:contract/owners",  getOwners);
    router.get("/collection/:contract/history", getHistory);
    router.get("/collection/:contract/activity",getActivities);
    router.post("/collection/create",  createCollection);
    router.post("/collection/placeBid", placeBid);
- 
    router.post("/items/create",  createItem);
    router.get("/items/:contract", getAllItems);
    router.get("/items/:contract/:nftId/history", getItemHistory);
    router.get("/items/:contract/:nftId/detail", getItemDetail);
    router.post("/items/transfer",  transferItem);
- 
    router.get("/owners", getAllOwners);  
-   
    router.post("/owners/:ownerId", createOwner);
    router.put("/owners/:ownerId",  updateOwner);
-
    router.get("/owners/:ownerId",  getOwner);  
    router.get("/owners/:ownerId/nfts", getOwnerNtfs)
    router.get("/owners/:ownerId/history",getOwnerHistory)
    router.get("/owners/:ownerId/collection",getOwnerCollection)
-
-  
   // router.get("/collection/:contract/items", config.route("jwt"), getItems);
   // router.get("/collection/:contract/owners", config.route("jwt"), getOwners);
   // router.get("/collection/:contract/history", config.route("jwt"), getHistory);
   // router.get("/collection/:contract/activity", config.route("jwt"), getActivities);
   // router.post("/collection/create", config.route("jwt"), createCollection);
   // router.post("/collection/placeBid", config.route("jwt"), placeBid);
-
   // router.post("/items/create", config.route("jwt"), createItem);
   // router.get("/items/:contract", config.route("jwt"), getAllItems);
   // router.get("/items/:contract/:nftId/history", config.route("jwt"), getItemHistory);
   // router.get("/items/:contract/:nftId/detail", config.route("jwt"), getItemDetail);
   // router.post("/items/transfer", config.route("jwt"), transferItem);
-
   // router.get("/owners", config.route("jwt"), getAllOwners);  
   // router.post("/owners", config.route("jwt"), createOwner);
   // router.put("/owners", config.route("jwt"), updateOwner);

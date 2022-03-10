@@ -50,7 +50,7 @@ export class NFTOwnerController extends AbstractEntity {
     const query = this.findUserQuery(personId);
     const result = await this.findOne(query);
     if (result) {
-      return result;
+      return respond(result, false, 200);
     }
     return respond("Person not found.", true, 422);
   }
@@ -63,7 +63,7 @@ export class NFTOwnerController extends AbstractEntity {
    * @param name 
    * @returns new owner created
    */
-  async craeteOwner(backgroundUrl:string, photoUrl:string, wallet:string, joinedDate:Date,name:string): Promise<IPerson|IResponse>{
+  async createOwner(backgroundUrl:string, photoUrl:string, wallet:string, joinedDate:Date,name:string): Promise<IPerson|IResponse>{
     const collection = this.mongodb.collection(this.table);
     const findOwner = await collection.findOne(this.findUserQuery(wallet)) as IPerson
     if (findOwner && findOwner._id){
@@ -114,13 +114,16 @@ export class NFTOwnerController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const collection = this.mongodb.collection(this.nftTable);
-        const query = this.findPerson(ownerId);
-        const result = await this.findOne(query) as IPerson  
-        const ntfsResult = await collection.find(this.findOwnerNtfs(ownerId)).toArray();  
-        result.nfts=ntfsResult;
-        if (result) {
-          return respond(result)
+        const result = await this.findPerson(ownerId);
+        if (result && result['code']==200){
+           const ntfsResult = await collection.find(this.findOwnerNtfs(ownerId)).toArray();  
+           result['data']['nfts']=ntfsResult;
         }
+        return result;
+        
+      
+        
+        
       }
     } catch (error) {
       return respond(error.message, true, 500);
