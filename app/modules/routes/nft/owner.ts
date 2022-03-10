@@ -240,9 +240,24 @@ export const favourite=async(req: FastifyRequest, res: FastifyReply) => {
   const ctl = new NFTOwnerController();
   const result = await ctl.insertFavourite(ownerId,contract,nftId)
   res.send(result);
+}
 
 
 
+/**
+ * @param(*) res 
+ *  ownerId,
+ *  contract
+ *  nftId
+ * @returns favourites removed
+ *  
+ * 
+ */
 
-
+export const removeFavourite=async(req: FastifyRequest, res: FastifyReply) => {
+  
+  const {ownerId,contract,nftId} = req.params as any;
+  const ctl = new NFTOwnerController();
+  const result = await ctl.removeFavourite(ownerId,contract,nftId)
+  res.send(result);
 }
