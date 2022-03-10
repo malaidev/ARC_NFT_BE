@@ -58,6 +58,25 @@ export class NFTCollectionController extends AbstractEntity {
     this.data = nft;
   }
 
+  async getCollection(): Promise<Array<INFTCollection> | IResponse> {
+    try {
+      if (this.mongodb) {
+        const collcetionTable = this.mongodb.collection(this.table);
+
+        const result = await collcetionTable.find().toArray();
+        if (result) {
+          return result;
+        }
+        return respond("collection not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getCollection::${this.ownerTable}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
   /**
    * Get owner list in collection
    * 
