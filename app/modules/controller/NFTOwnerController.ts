@@ -251,16 +251,8 @@ export class NFTOwnerController extends AbstractEntity {
       owner.favourites.splice(index,1);
     }
     owner.favourites.push(nftResult);
-    ownerTable.updateOne({_id:owner._id},nftResult);
-    return respond("Favourite nft updated");
-
-
-
-
-    
-
-
-
+    ownerTable.replaceOne({owner:owner.wallet},owner);
+    return respond("Favourite updated");
   }
 
   /**
