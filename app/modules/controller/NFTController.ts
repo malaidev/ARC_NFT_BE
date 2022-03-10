@@ -160,7 +160,7 @@ export class NFTController extends AbstractEntity {
     }
     
     query = this.findCollection(contract);
-    const collection = await collectionTable.findOne(query);
+    const collection = await collectionTable.findOne(query) as INFTCollection;
     if (!collection) {
       return respond("collection not found.", true, 422);
     }
@@ -189,7 +189,8 @@ export class NFTController extends AbstractEntity {
     }
 
     collection.nfts.push(nft);
-    collection.owners.push(owner);
+    if (!collection.owners.find(item => item.wallet === owner.wallet))
+      collection.owners.push(owner);
     collectionTable.replaceOne({contract: collection.contract}, collection);
 
     if (owner.wallet === creator.wallet) {
@@ -275,7 +276,8 @@ export class NFTController extends AbstractEntity {
     nftTable.replaceOne({collection: contract, index: nftId}, nft);
 
     collection.history.push(history);
-    collection.owners.push(toOwner);
+    if (!collection.owners.find(item => item.wallet === toOwner.wallet))
+      collection.owners.push(toOwner);
     collectionTable.replaceOne({contract:collection.contract}, collection);
 
     const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
