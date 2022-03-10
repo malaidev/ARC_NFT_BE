@@ -54,7 +54,7 @@ async function mount() {
       postProcessor: function(swaggerObject) {
         return swaggerObject
       } , 
-      baseDir: '/app/spec/',
+      baseDir: '/app/spec',
     },
     swagger: {
       info: {
