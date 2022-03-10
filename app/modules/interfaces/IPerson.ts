@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 import { IHistory } from "./IHistory";
-import { INFT } from "./INFT";
+import { INFT, INFTSimple } from "./INFT";
 
 export interface IPerson {
   _id?: string;                   // user id
@@ -11,9 +11,9 @@ export interface IPerson {
   joinedDate: Date;               // joined date
   name: string;                   // display name
 
-  nfts: Array<INFT>;              // owned nfts
-  created: Array<INFT>;           // created nfts
-  favourites: Array<INFT>;        // favourite nfts
+  nfts: Array<INFTSimple>;              // owned nfts
+  created: Array<INFTSimple>;           // created nfts
+  favourites: Array<INFTSimple>;        // favourite nfts
   history: Array<IHistory>;       // activities of current user
 }
 
