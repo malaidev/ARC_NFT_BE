@@ -423,6 +423,30 @@
      } 
   },
   "paths":{
+   "/nft/collection":{
+      "get":{
+         "description":"Get All Collections",
+         "tags":[
+            "Collection"
+         ],           
+         "responses":{
+            "200":{
+               "description":"All Collections",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"array",
+                        "items":{
+                           "$ref":"#/definitions/INFT"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+
      "/nft/collection/{contract}/items":{
         "get":{
            "description":"Get NFT Items in collection",
