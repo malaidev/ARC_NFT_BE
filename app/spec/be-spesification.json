@@ -1049,6 +1049,35 @@
                "bearerAuth":[                  
                ]
             }
+         ],
+         "parameters":[
+            {
+               "in":"path",
+               "name":"ownerId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"owner Address"
+            },
+            {
+               "in":"path",
+               "name":"contract",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Contract Address"
+            },
+            {
+               "in":"path",
+               "name":"nftId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"NFT item index in collection"
+            }
          ],          
          "responses":{
             "200":{
