@@ -6,8 +6,8 @@ export interface INFT {
   _id?: string;                   // id of nft
   collection: string;             // collection contract address
   index: string;                  // index of nft in collection
-  owner: IPerson;                 // owner
-  creator: IPerson;               // creator
+  owner: string;                 // owner
+  creator: string;               // creator
   artURI: string;                 // URI of art image
   price: number;                  // Current price of nft
   like: number;                   // likes count of nft
