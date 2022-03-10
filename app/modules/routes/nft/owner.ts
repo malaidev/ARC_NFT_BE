@@ -227,8 +227,9 @@ export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply)
 /**
  * @param(*) res 
  *  ownerId,
- *  collection 
+ *  contract
  *  nftId
+ * @returns favourites updated
  *  
  * 
  */
