@@ -1,6 +1,7 @@
 import { build } from "../../helper";
 let app = build();
 const walletId = '0xdf3238e8ca04c0c5dc9520ccadd69993802161c7';
+jest.setTimeout(100000)
 test("get owners id API test [GET] [/nft/:ownerId]", async () => {
     const res = await app.inject({
       method: 'GET',

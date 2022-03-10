@@ -1,14 +1,8 @@
 import { build } from "../../helper";
-
 let app = build();
-const walletId = '0xdf3238e8ca04c0c5dc9520ccadd699902161c7';
-
- 
-
-
+jest.setTimeout(100000)
+const walletId = '0xdf3238e8ca04c0c5dc9520cca9993802161c7';
 //update onwer 
-
-
 test("Update  API test [PUT] [/nft/owners/:ownerId]", async () => {
     const res = await app.inject({
       method: 'PUT',
@@ -23,16 +17,11 @@ test("Update  API test [PUT] [/nft/owners/:ownerId]", async () => {
          "name":"Test Name"
       }
     });
-
-    console.log(res)
     const resBody = JSON.parse(res.body);
-    console.log('---->>>>>>>>>>>>',resBody);
     if (resBody.success){
-        
         expect(resBody.code).toEqual(200);
     }
     if (!resBody.success){
-        
         expect(resBody.code).toEqual(422);
     }
     // if (resBody.success){
@@ -42,11 +31,6 @@ test("Update  API test [PUT] [/nft/owners/:ownerId]", async () => {
     //     expect(resBody).toEqual(501);
     // }
   });
-
- 
-
-
-
 test("Update  failed API test [PUT] [/nft/owners/:ownerId]", async () => {
     const res = await app.inject({
       method: 'PUT',
@@ -61,13 +45,10 @@ test("Update  failed API test [PUT] [/nft/owners/:ownerId]", async () => {
          "name":"Test Name"
       }
     });
-
     console.log(res)
     const resBody = JSON.parse(res.body);
     console.log('---->>>>>>>>>>>>',resBody);
- 
     if (!resBody.success){
-        
         expect(resBody.code).toEqual(422);
     }
     // if (resBody.success){
@@ -77,6 +58,3 @@ test("Update  failed API test [PUT] [/nft/owners/:ownerId]", async () => {
     //     expect(resBody).toEqual(501);
     // }
   });
-
- 
-

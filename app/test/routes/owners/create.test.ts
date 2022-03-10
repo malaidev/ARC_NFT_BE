@@ -41,3 +41,35 @@ test("Create API test [POST] [/nft/owners/:ownerId]", async () => {
  
 
  
+
+
+//update favourite
+
+/**
+ * Test 
+ *  if user exists will return 501 and message "current user has been created"
+ * 
+ */
+ test("Create API test [POST] [/nft/favourite/:ownerId/:contract/:nftid]", async () => {
+  const res = await app.inject({
+    method: 'POST',
+    url: `http://localhost:3001/ws/v2/nft/favourite/${walletId}/1234/12344`,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    
+  });
+
+  
+  let resBody = JSON.parse(res.body);
+  if (!resBody.success){
+    expect(resBody.code).toEqual(501);
+  };
+  if (resBody.success){
+    expect(resBody.code).toEqual(200);
+  }
+  
+});
+ 
+
+ 
