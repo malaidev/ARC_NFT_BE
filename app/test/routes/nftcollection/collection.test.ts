@@ -5,6 +5,19 @@ let app = build();
 const contract = '0xbb6a549b1cf4b2d033df831f72df8d7af4412a82';
 const owner = '0x9451B75Ad222D6D808c925598Cb9deCEE4F26224';
 
+//get collection
+test("getCollection API test [GET] [/collection]", async () => {
+  const res = await app.inject({
+    method: 'GET',
+    url: "http://localhost:3001/ws/v2/nft/collection",
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    }
+  });
+  console.log(res.body);
+  expect(res.statusCode).toEqual(200);
+});
+
 //get items - no collection
 test("getItems API test [GET] [/collection/:contract/items]", async () => {
   const res = await app.inject({
