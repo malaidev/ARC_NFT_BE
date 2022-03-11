@@ -75,7 +75,11 @@
          },
          "name":{
           "type":"string"
-       }
+         },"logoUrl":{
+            "type":"string"
+         },"creator ":{
+            "type":"string"
+         }
       }
    },
 
@@ -155,12 +159,12 @@
           "photoUrl":{
             "type":"string"
           },
-          "artURI":{
+          "displayName":{
             "type":"string"
           },
-          "name":{
-            "type":"number"
-          }       
+          "username":{
+            "type":"string"
+          }
         }
     },
  
