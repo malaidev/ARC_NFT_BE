@@ -164,6 +164,21 @@
         }
     },
  
+    "UpdateFavoriteParam":{
+      "type":"object",
+      "properties":{ 
+          "ownerId":{
+            "type":"string"
+           },
+          "contract":{
+            "type":"string"
+          },
+          "nftId":{
+            "type":"string"
+          }      
+        }
+    },
+ 
 
      "IBid":{
         "type":"object",
@@ -1062,50 +1077,58 @@
      },
 
  
-     "/nft/favourite/{ownerId}/{contract}/{nftId}":{
+     "/nft/favourite":{
       "post":{
-         "description":"favourites",
+         "description":"favourites updated",
          "tags":[
             "Owner"
          ],
-         "security":[
-            {
-               "bearerAuth":[                  
-               ]
+        
+         "requestBody":{
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "type":"object",
+                     "$ref":"#/definitions/UpdateFavoriteParam"
+                  }
+               }
             }
-         ],
-         "parameters":[
-            {
-               "in":"path",
-               "name":"ownerId",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"owner Address"
-            },
-            {
-               "in":"path",
-               "name":"contract",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"Contract Address"
-            },
-            {
-               "in":"path",
-               "name":"nftId",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"NFT item index in collection"
-            }
-         ],          
+         },
+                  
          "responses":{
             "200":{
-               "description":"favourites updated"          
+               "description":"Success"          
+            },
+            "201":{
+               "description":"Success"          
+            }
+         }
+      }
+   },
+   "/nft/favourite/dislike":{
+      "post":{
+         "description":"favourites removed",
+         "tags":[
+            "Owner"
+         ],
+        
+         "requestBody":{
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "type":"object",
+                     "$ref":"#/definitions/UpdateFavoriteParam"
+                  }
+               }
+            }
+         },
+                  
+         "responses":{
+            "200":{
+               "description":"Success"          
+            },
+            "201":{
+               "description":"Success"          
             }
          }
       }
