@@ -2,6 +2,29 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
 
 /**
+ * Get All Collections
+ * Method: GET
+ * 
+ * @param {*} req
+ * @param {*} res
+ *    Array<INFTCollection>
+      interface INFTCollection {
+        _id?: string;                  
+        name: string;                 // name of nft collection
+        contract: string;             // collection contract address
+        nfts: Array<INFT>;            // nft list
+        owners: Array<IPerson>;       // owner list
+        history: Array<IHistory>;     // history of collection
+        activity: Array<IBid>;        // activity of collection
+      }
+ */
+export const getCollections = async (req: FastifyRequest, res: FastifyReply) => {
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getCollection();
+  res.send(result);
+};
+
+/**
  * Get NFT Items in collection
  * Method: GET
  * 
