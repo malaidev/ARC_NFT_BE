@@ -12,7 +12,9 @@ import { respond } from "../../util/respond";
  * @requestBody 
  *    backgroundUrl: url background
  *    photoUrl:  url photo
- *    name: name of owner
+ *    joinedDate?: Date of joined
+ *    displayName: display name of owner
+ *    username: username of owner
  *  
  * @param {*} res
  *     result of owner
@@ -20,28 +22,11 @@ import { respond } from "../../util/respond";
  *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  // const owner:IPerson = req.body as any;
-  // const ctl = new NFTOwnerController(owner);
-  // const user = req['session'] as any;
-  // try {
-  //     owner.wallet = user.walletId;
-  //     const hasOwner = (await ctl.findPerson(user.walletId) as IUser);
-  //     if (hasOwner.success===false) {
-  //         const result = await ctl.create();
-  //         res.code(200).send(result);
-  //     } else {
-  //         return respond("Current Owner has been created already", true, 501);
-  //     }
-  // } catch (error) {
-  //     res.code(400).send(error);
-  // }
-  const { backgroundUrl, photoUrl, joinedDate, name } = req.body as any;
-  /** remove the auth */
-  // const user = req['session'] as any;
+  const { backgroundUrl, photoUrl, joinedDate, displayName, username } = req.body as any;
   const { ownerId } = req.params as any;
   const user = { walletId: ownerId };
   const ctl = new NFTOwnerController();
-  const result = await ctl.createOwner(backgroundUrl, photoUrl, user.walletId, joinedDate, name);
+  const result = await ctl.createOwner(backgroundUrl, photoUrl, user.walletId, joinedDate, displayName, username);
   res.send(result);
 };
 /**
@@ -87,17 +72,19 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
  * @param {*} res
  * Array <IPerson>
  * interface IPerson {
-  _id?: string;                   // user id
-  backgroundUrl: string;          // background image url
-  photoUrl: string;               // photo image url
-  wallet: string;                 // wallet address
-  joinedDate: Date;               // joined date
-  name: string;                   // display name
-  nfts: Array<INFT>;              // owned nfts
-  created: Array<INFT>;           // created nfts
-  favourites: Array<INFT>;        // favourite nfts
-  history: Array<IHistory>;       // activities of current user
-}
+    _id?: string;                         // user id
+    backgroundUrl: string;                // background image url
+    photoUrl: string;                     // photo image url
+    wallet: string;                       // wallet address
+    joinedDate: Date;                     // joined date
+    username: string;                     // username
+    displayName: string;                  // display name
+
+    nfts: Array<INFTSimple>;              // owned nfts
+    created: Array<INFTSimple>;           // created nfts
+    favourites: Array<INFTSimple>;        // favourite nfts
+    history: Array<IHistory>;             // activities of current user
+  }
  * 
  */
 export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {

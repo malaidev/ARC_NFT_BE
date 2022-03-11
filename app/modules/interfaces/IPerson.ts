@@ -4,17 +4,18 @@ import { IHistory } from "./IHistory";
 import { INFT, INFTSimple } from "./INFT";
 
 export interface IPerson {
-  _id?: string;                   // user id
-  backgroundUrl: string;          // background image url
-  photoUrl: string;               // photo image url
-  wallet: string;                 // wallet address
-  joinedDate: Date;               // joined date
-  name: string;                   // display name
+  _id?: string;                         // user id
+  backgroundUrl: string;                // background image url
+  photoUrl: string;                     // photo image url
+  wallet: string;                       // wallet address
+  joinedDate: Date;                     // joined date
+  username: string;                     // username
+  displayName: string;                  // display name
 
   nfts: Array<INFTSimple>;              // owned nfts
   created: Array<INFTSimple>;           // created nfts
   favourites: Array<INFTSimple>;        // favourite nfts
-  history: Array<IHistory>;       // activities of current user
+  history: Array<IHistory>;             // activities of current user
 }
 
 const IPersonSchema = new mongoose.Schema<IPerson>( {
@@ -22,7 +23,9 @@ const IPersonSchema = new mongoose.Schema<IPerson>( {
   photoUrl: String,
   wallet: String,
   joinedDate: Date,
-  name: String,
+  username: String,
+  displayName: String,
+
   nfts: [{
     ref: 'NFT',
     type: ObjectId
