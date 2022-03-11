@@ -233,6 +233,11 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("Nft not found", true, 501);
     }
     const owner = await ownerTable.findOne(this.findUserQuery(ownerId)) as IPerson;
+
+
+    console.log(owner);
+
+
     if (!owner) {
       return respond("to onwer not found.", true, 422);
     }
@@ -241,7 +246,7 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("This NFT already favourite");
     }else{
       owner.favourites.push(nftResult);
-      ownerTable.replaceOne({owner:owner.wallet},owner);
+      ownerTable.replaceOne({wallet:owner.wallet},owner);
       await nft.updateOne({_id:nftResult._id},{$inc:{like:1}});
       return respond("Favourite updated");
     }
@@ -250,7 +255,7 @@ export class NFTOwnerController extends AbstractEntity {
    * 
    * @param ownerId 
    * @param contract 
-   * @param nftId 
+   * @param nftId   
    * @returns 
    */
   async removeFavourite(ownerId: String, contract: String,nftId: String) {
@@ -273,7 +278,7 @@ export class NFTOwnerController extends AbstractEntity {
     const index = owner.favourites.indexOf(nftResult,0);
     if (index>-1){
       owner.favourites.splice(index,1);
-      ownerTable.replaceOne({owner:owner.wallet},owner);
+      ownerTable.replaceOne({wallet:owner.wallet},owner);
       await nft.updateOne({_id:nftResult._id},{$inc:{like:-1}});
       return respond("Favourite removed");
     }else{
