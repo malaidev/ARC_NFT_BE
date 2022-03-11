@@ -172,26 +172,26 @@ export class NFTController extends AbstractEntity {
       history: [],
       status: "created"
     }
-    collection.nfts.push(nft);
-    const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
-    if (!curOwner)
-      collection.owners.push(owner);
-    else
-      curOwner.nfts.push(nft);
+    // collection.nfts.push(nft);
+    // const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
+    // if (!curOwner)
+    //   collection.owners.push(owner);
+    // else
+    //   curOwner.nfts.push(nft);
     
-    const curCreator = collection.owners.find(item => item.wallet === creator.wallet);
-    if (curCreator) 
-      curCreator.created.push(nft);
+    // const curCreator = collection.owners.find(item => item.wallet === creator.wallet);
+    // if (curCreator) 
+    //   curCreator.created.push(nft);
 
     collectionTable.replaceOne({contract: collection.contract}, collection);
     if (owner.wallet === creator.wallet) {
       owner.nfts.push(nft);
-      owner.created.push(nft);
+      // owner.created.push(nft);
       ownerTable.replaceOne({wallet: owner.wallet}, owner);
     } else {
       owner.nfts.push(nft);
       ownerTable.replaceOne({wallet: owner.wallet}, owner);
-      creator.created.push(nft);
+      // creator.created.push(nft);
       ownerTable.replaceOne({wallet: creator.wallet}, creator);
     }
     const result = await nftTable.insertOne(nft);
@@ -254,9 +254,9 @@ export class NFTController extends AbstractEntity {
     };
     nft.owner = to;
     nftTable.replaceOne({collection: contract, index: nftId}, nft);
-    collection.history.push(history);
-    if (!collection.owners.find(item => item.wallet === toOwner.wallet))
-      collection.owners.push(toOwner);
+    // collection.history.push(history);
+    // if (!collection.owners.find(item => item.wallet === toOwner.wallet))
+    //   collection.owners.push(toOwner);
     collectionTable.replaceOne({contract:collection.contract}, collection);
     const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
     /**Aris Edit */
@@ -270,9 +270,9 @@ export class NFTController extends AbstractEntity {
     // }
     /** */
     toOwner.nfts.push(nft);
-    fromOwner.history.push(history);
+    // fromOwner.history.push(history);
     ownerTable.replaceOne({wallet: fromOwner.wallet}, fromOwner);
-    toOwner.history.push(history);
+    // toOwner.history.push(history);
     ownerTable.replaceOne({wallet: toOwner.wallet}, toOwner);
     const result = await historyTable.insertOne(history);
     return (result

@@ -5,43 +5,40 @@ import { INFT, INFTSimple } from "./INFT";
 
 export interface IPerson {
   _id?: string;                         // user id
-  backgroundUrl: string;                // background image url
   photoUrl: string;                     // photo image url
   wallet: string;                       // wallet address
-  joinedDate: Date;                     // joined date
-  username: string;                     // username
-  displayName: string;                  // display name
+  username?: string;                     // username
+  bio?: string;                  // display name
+  social?: string;
 
-  nfts: Array<INFTSimple>;              // owned nfts
-  created: Array<INFTSimple>;           // created nfts
-  favourites: Array<INFTSimple>;        // favourite nfts
-  history: Array<IHistory>;             // activities of current user
+  nfts: Array<INFTSimple>;              // owned nfts - collection and index
+  collections: Array<string>;             // collection contract address list
 }
 
-const IPersonSchema = new mongoose.Schema<IPerson>( {
-  backgroundUrl: String,
-  photoUrl: String,
-  wallet: String,
-  joinedDate: Date,
-  username: String,
-  displayName: String,
+// const IPersonSchema = new mongoose.Schema<IPerson>( {
+//   backgroundUrl: String,
+//   photoUrl: String,
+//   wallet: String,
+//   joinedDate: Date,
+//   username: String,
+//   displayName: String,
 
-  nfts: [{
-    ref: 'NFT',
-    type: ObjectId
-  }],
-  created: [{
-    ref: 'NFT',
-    type: ObjectId
-  }],
-  favourites: [{
-    ref: 'NFT',
-    type: ObjectId
-  }],
-  history: [{
-    ref: 'History',
-    type: ObjectId
-  }],
-});
+//   nfts: [{
+//     ref: 'NFT',
+//     type: ObjectId
+//   }],
+//   created: [{
+//     ref: 'NFT',
+//     type: ObjectId
+//   }],
+//   favourites: [{
+//     ref: 'NFT',
+//     type: ObjectId
+//   }],
+//   history: [{
+//     ref: 'History',
+//     type: ObjectId
+//   }],
+// });
 
-export const PersonModel = mongoose.model<IPerson>('Person', IPersonSchema);
+// export const PersonModel = mongoose.model<IPerson>('Person', IPersonSchema);
