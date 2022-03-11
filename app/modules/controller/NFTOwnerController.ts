@@ -13,7 +13,6 @@ export class NFTOwnerController extends AbstractEntity {
   protected nftTable = "NFT" as string;
   protected historyTable = "History" as string;
   protected collectionTable = "NFTCollection" as string;
-
   constructor(user?: IPerson) {
     super();
     this.data = user;
@@ -70,11 +69,12 @@ export class NFTOwnerController extends AbstractEntity {
     if (findOwner && findOwner._id) {
       return respond("Current user has been created", true, 501)
     }
+    let joinDate = joinedDate?new Date(joinedDate):new Date();
     const person: IPerson = {
       backgroundUrl,
       photoUrl,
       wallet,
-      joinedDate,
+      joinedDate:joinDate,
       name,
       nfts: [],
       created: [],
@@ -83,7 +83,7 @@ export class NFTOwnerController extends AbstractEntity {
     }
     const result = await collection.insertOne(person);
     return (result
-      ? respond(`Successfully created a new owner with id ${result.insertedId}`, true, 201)
+      ? respond(`Successfully created a new owner with id ${result.insertedId}`, false, 201)
       : respond("Failed to create a new owner.", true, 501));
   }
   /**
@@ -114,23 +114,18 @@ export class NFTOwnerController extends AbstractEntity {
   async findOwner(ownerId: string): Promise<IPerson | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.nftTable);
+        // const collection = this.mongodb.collection(this.nftTable);
         const result = await this.findPerson(ownerId);
-        if (result && result['code'] == 200) {
-          const ntfsResult = await collection.find(this.findOwnerNtfs(ownerId)).toArray();
-          result['data']['nfts'] = ntfsResult;
-        }
+        // if (result && result['code'] == 200) {
+        //   const ntfsResult = await collection.find(this.findOwnerNtfs(ownerId)).toArray();
+        //   result['data']['nfts'] = ntfsResult;
+        // }
         return result;
-
-
-
-
       }
     } catch (error) {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * 
    * @param ownerId  eq WalletId
@@ -189,7 +184,6 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * 
    * @param ownerId eq walletId
@@ -218,25 +212,55 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * 
    * @param ownerId 
+   * @param contract 
+   * @param nftId 
    * @returns 
    */
-
   async insertFavourite(ownerId: String, contract: String,nftId: String) {
-
     const collTable = this.mongodb.collection(this.collectionTable);
     const nft = this.mongodb.collection(this.nftTable);
     const ownerTable= this.mongodb.collection(this.table);
-
     const collection = await collTable.findOne(this.findCollectionItem(contract))
-
     if (!collection) {
       return respond("collection not found", true, 501);
     }
-
+    const queryNft = this.findNFTItem(contract, nftId);
+    const nftResult = await nft.findOne(queryNft) as INFT;
+    if (!nftResult) {
+      return respond("Nft not found", true, 501);
+    }
+    const owner = await ownerTable.findOne(this.findUserQuery(ownerId)) as IPerson;
+    if (!owner) {
+      return respond("to onwer not found.", true, 422);
+    }
+    const index = owner.favourites.indexOf(nftResult,0);
+    if (index>-1){
+      return respond("This NFT already favourite");
+    }else{
+      owner.favourites.push(nftResult);
+      ownerTable.replaceOne({owner:owner.wallet},owner);
+      await nft.updateOne({_id:nftResult._id},{$inc:{like:1}});
+      return respond("Favourite updated");
+    }
+  }
+  /**
+   * 
+   * @param ownerId 
+   * @param contract 
+   * @param nftId 
+   * @returns 
+   */
+  async removeFavourite(ownerId: String, contract: String,nftId: String) {
+    const collTable = this.mongodb.collection(this.collectionTable);
+    const nft = this.mongodb.collection(this.nftTable);
+    const ownerTable= this.mongodb.collection(this.table);
+    const collection = await collTable.findOne(this.findCollectionItem(contract))
+    if (!collection) {
+      return respond("collection not found", true, 501);
+    }
     const queryNft = this.findNFTItem(contract, nftId);
     const nftResult = await nft.findOne(queryNft) as INFT;
     if (!nftResult) {
@@ -249,12 +273,13 @@ export class NFTOwnerController extends AbstractEntity {
     const index = owner.favourites.indexOf(nftResult,0);
     if (index>-1){
       owner.favourites.splice(index,1);
+      ownerTable.replaceOne({owner:owner.wallet},owner);
+      await nft.updateOne({_id:nftResult._id},{$inc:{like:-1}});
+      return respond("Favourite removed");
+    }else{
+      return respond("Nothing removed ");
     }
-    owner.favourites.push(nftResult);
-    ownerTable.replaceOne({owner:owner.wallet},owner);
-    return respond("Favourite updated");
   }
-
   /**
    * Mounts a generic query to find an user by its ownerId.
    * @param ownerId =walletId
@@ -267,7 +292,7 @@ export class NFTOwnerController extends AbstractEntity {
   }
   private findOwnerNtfs(ownerId: String): Object {
     return {
-      'owner.wallet': ownerId
+      owner: ownerId
     }
   }
   private findOwnerHistory(ownerId: String): Object {
@@ -292,7 +317,6 @@ export class NFTOwnerController extends AbstractEntity {
       // },
     }
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -303,7 +327,6 @@ export class NFTOwnerController extends AbstractEntity {
       contract: contract,
     };
   }
-
   /**
    * Mounts a generic query to find an item by its collection contract and index.
    * @param contract
@@ -315,6 +338,4 @@ export class NFTOwnerController extends AbstractEntity {
       index: nftId
     };
   }
-
-
 }
