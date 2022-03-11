@@ -10,8 +10,13 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
  *    Array<INFTCollection>
       interface INFTCollection {
         _id?: string;                  
+        logo: string;                 // uri of nft logo
         name: string;                 // name of nft collection
+        creator: IPerson;             // creator of Collection
         contract: string;             // collection contract address
+        floorPrice: number;           // Floor Price
+        volume: number;               // Volume of collection
+        latestPrice: number;          // Latest Price
         nfts: Array<INFT>;            // nft list
         owners: Array<IPerson>;       // owner list
         history: Array<IHistory>;     // history of collection
@@ -142,15 +147,18 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  * @param req 
  *    contract: Collection Contract Address
  *    name:     Collection Name
+ *    logoUrl:  logo url
+ *    creator:  creator wallet address
+ *    
  * @param res 
  *    result of creation
  *      success:  201
  *      fail:     501
  */
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, name } = req.body as any;
+  const { contract, name, logoUrl, creator } = req.body as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(contract, name);
+  const result = await ctl.createCollection(contract, name, logoUrl, creator);
   res.send(result);
 }
 

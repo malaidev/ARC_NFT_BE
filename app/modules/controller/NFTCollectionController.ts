@@ -188,10 +188,27 @@ export class NFTCollectionController extends AbstractEntity {
    *      success:  201
    *      fail:     501
    */
-  async createCollection(contract: string, name: string): Promise<IResponse> {
+  async createCollection(contract: string, name: string, logoUrl: string, creatorAddress: string): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
+    const ownerTable = this.mongodb.collection(this.ownerTable);
+
+    const creator = await ownerTable.findOne(this.findPerson(creatorAddress)) as IPerson;
+    if (!creator) {
+      return respond("Cannot find creator", true, 501);
+    }
+
     const nftCollection : INFTCollection = {
-      name: name, contract: contract, nfts: [], owners: [], history: [], activity: []
+      name: name,
+      contract: contract,
+      nfts: [],
+      owners: [],
+      history: [],
+      activity: [],
+      logo: logoUrl,
+      creator: creator,
+      floorPrice: 0,
+      volume: 0,
+      latestPrice: 0
     }
 
     const query = this.findCollectionItem(contract);

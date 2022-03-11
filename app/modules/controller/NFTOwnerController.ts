@@ -63,7 +63,7 @@ export class NFTOwnerController extends AbstractEntity {
    * @param name 
    * @returns new owner created
    */
-  async createOwner(backgroundUrl: string, photoUrl: string, wallet: string, joinedDate: Date, name: string): Promise<IPerson | IResponse> {
+  async createOwner(backgroundUrl: string, photoUrl: string, wallet: string, joinedDate: Date, displayName: string, username: string): Promise<IPerson | IResponse> {
     const collection = this.mongodb.collection(this.table);
     const findOwner = await collection.findOne(this.findUserQuery(wallet)) as IPerson
     if (findOwner && findOwner._id) {
@@ -74,12 +74,13 @@ export class NFTOwnerController extends AbstractEntity {
       backgroundUrl,
       photoUrl,
       wallet,
-      joinedDate:joinDate,
-      name,
+      joinedDate: joinDate,
+      displayName: displayName,
       nfts: [],
       created: [],
       favourites: [],
-      history: []
+      history: [],
+      username: username
     }
     const result = await collection.insertOne(person);
     return (result

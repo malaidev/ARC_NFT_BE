@@ -189,8 +189,16 @@ export class NFTController extends AbstractEntity {
     }
 
     collection.nfts.push(nft);
-    if (!collection.owners.find(item => item.wallet === owner.wallet))
+    const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
+    if (!curOwner)
       collection.owners.push(owner);
+    else
+      curOwner.nfts.push(nft);
+    
+    const curCreator = collection.owners.find(item => item.wallet === creator.wallet);
+    if (curCreator) 
+      curCreator.created.push(nft);
+
     collectionTable.replaceOne({contract: collection.contract}, collection);
 
     if (owner.wallet === creator.wallet) {
