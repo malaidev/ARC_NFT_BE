@@ -60,7 +60,8 @@ export class NFTOwnerController extends AbstractEntity {
    * @param photoUrl 
    * @param wallet 
    * @param joinedDate 
-   * @param name 
+   * @param displayName 
+   * @param username
    * @returns new owner created
    */
   async createOwner(backgroundUrl: string, photoUrl: string, wallet: string, joinedDate: Date, displayName: string, username: string): Promise<IPerson | IResponse> {

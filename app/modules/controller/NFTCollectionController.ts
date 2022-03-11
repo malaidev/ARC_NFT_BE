@@ -184,6 +184,8 @@ export class NFTCollectionController extends AbstractEntity {
    * 
    * @param contract Collection Contract Address
    * @param name Collection Name
+   * @param logoUrl logo url
+   * @param creatorAddress creator wallet address
    * @returns result of creation
    *      success:  201
    *      fail:     501
