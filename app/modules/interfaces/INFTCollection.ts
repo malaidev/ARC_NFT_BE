@@ -1,8 +1,3 @@
-import * as mongoose from 'mongoose';
-import { INFT } from "./INFT";
-import { IHistory } from "./IHistory";
-import { IPerson } from "./IPerson";
-import { IBid } from "./IBid";
 
 export interface INFTCollection {
   _id?: string;

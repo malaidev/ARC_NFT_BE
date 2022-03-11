@@ -1,7 +1,4 @@
-import { ObjectId } from "mongodb";
-import mongoose from "mongoose";
-import { IHistory } from "./IHistory";
-import { INFT, INFTSimple } from "./INFT";
+import { INFTSimple } from "./INFT";
 
 export interface IPerson {
   _id?: string;                         // user id

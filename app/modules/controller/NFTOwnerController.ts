@@ -5,7 +5,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IPerson } from "../interfaces/IPerson";
 import { INFT } from "../interfaces/INFT";
-import { IHistory } from "../interfaces/IHistory";
+import { IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
@@ -165,7 +165,7 @@ export class NFTOwnerController extends AbstractEntity {
    * @param filters IQueryFilters
    * @returns IHistory
    */
-  async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IHistory> | IResponse> {
+  async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
         const collection = this.mongodb.collection(this.historyTable)
@@ -175,10 +175,10 @@ export class NFTOwnerController extends AbstractEntity {
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
           const items = await collection.aggregate(aggregation).toArray();
-          return items as Array<IHistory>;
+          return items as Array<IActivity>;
         } else {
           const result = await collection.find(query).toArray();
-          return result as Array<IHistory>
+          return result as Array<IActivity>
         }
       } else {
         throw new Error("Could not connect to the database.");

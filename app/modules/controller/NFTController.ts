@@ -1,5 +1,5 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IHistory } from "../interfaces/IHistory";
+import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
@@ -83,7 +83,7 @@ export class NFTController extends AbstractEntity {
    * @param nftId NFT item index in collection
    * @returns Array<IHistory>
    */
-  async getItemHistory(collection: string, nftId: string): Promise<Array<IHistory> | IResponse> {
+  async getItemHistory(collection: string, nftId: string): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collection, nftId);
@@ -243,7 +243,7 @@ export class NFTController extends AbstractEntity {
     if (fromOwner.wallet === toOwner.wallet) {
       return respond("old owner and new owner are same", true, 422);
     }
-    const history :IHistory = {
+    const history :IActivity = {
       collection: contract,
       nftId: nftId,
       type: "transfer",

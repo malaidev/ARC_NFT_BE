@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IHistory } from "./IHistory";
+import { IActivity } from "./IActivity";
 import { IPerson } from "./IPerson";
 
 
@@ -20,7 +20,7 @@ export interface INFT extends INFTSimple {
   auctionEnd?: Date;              // auction end time
   protocol?: string;              // protocol
   priceHistory: Array<IPrice>;    // price history list of nft
-  history: Array<IHistory>;       // history list
+  history: Array<IActivity>;       // history list
   status: string;                 // status of current nft
 }
 

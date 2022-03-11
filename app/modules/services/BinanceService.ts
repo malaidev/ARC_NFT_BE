@@ -26,7 +26,7 @@ class BinanceService {
             markets.forEach((market: any, i) => {
                 // Only include usdt markets
                 if (market.lowercaseId.indexOf('usdt') >= 0) {
-                    // this.registerSocket(market.lowercaseId);
+                    this.registerSocket(market.lowercaseId);
                 }
             });
         } catch (e) {
@@ -49,29 +49,29 @@ class BinanceService {
         const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@trade`);
         console.log(socket);
         this.sockets[pairKey] = socket;
-        // return new Promise<any>((resolve, reject) => {
-        //     socket.on('open', () => {
-        //         // console.log('connected to websocket', socket);
-        //         // socket.send(Date.now());
-        //     });
+        return new Promise<any>((resolve, reject) => {
+            socket.on('open', () => {
+                // console.log('connected to websocket', socket);
+                // socket.send(Date.now());
+            });
 
-        //     socket.on('message', (data) => {
-        //         const response: any = JSON.parse(data);
-        //         pairKey = pair as keyof typeof this.sockets;
-        //         this.prices[pairKey] = response.p;
-        //         // console.log('Data Received.--', response);
-        //         resolve(response.p);
-        //     });
+            socket.on('message', (data) => {
+                const response: any = JSON.parse(data);
+                pairKey = pair as keyof typeof this.sockets;
+                this.prices[pairKey] = response.p;
+                // console.log('Data Received.--', response);
+                resolve(response.p);
+            });
     
-        //     socket.on('close', () => {
-        //         reject();
-        //         console.log('Socket Closing..');
-        //     });
+            socket.on('close', () => {
+                reject();
+                console.log('Socket Closing..');
+            });
     
-        //     socket.on('error', (e) => {
-        //         console.log('Socket error', e);
-        //     });
-        // });
+            socket.on('error', (e) => {
+                console.log('Socket error', e);
+            });
+        });
     }
 
 }
