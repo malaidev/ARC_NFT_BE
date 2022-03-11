@@ -37,8 +37,10 @@ export const  nft = async (router: any, options: any) => {
    router.get("/owners/:ownerId/history",getOwnerHistory)
    router.get("/owners/:ownerId/collection",getOwnerCollection)
 
-   router.post("/favourite/:ownerId/:contract/:nftId",favourite)
-   router.post("/favourite/:ownerId/:contract/:nftId/unlike",removeFavourite)
+  //  router.post("/favourite/:ownerId/:contract/:nftId",favourite)
+  router.post("/favourite",favourite)
+  router.post("/favourite/dislike",removeFavourite)
+  //  router.post("/favourite/:ownerId/:contract/:nftId/unlike",removeFavourite)
 
 
 
