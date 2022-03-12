@@ -217,174 +217,197 @@
            "bidOn",
            "type" ]
      },
-     "IPerson":{
-        "type":"object",
-        "properties":{
-           "_id":{
-              "type":"string"
-           },
-           "backgroundUrl":{
-              "type":"string"
-           },
-           "photoUrl":{
-              "type":"string"
-           },
-           "wallet":{
-              "type":"string"
-           },
-           "joinedDate":{
-              "type":"string",
-              "format":"date-time"
-           },
-           "name":{
-              "type":"string"
-           },
-           "nfts":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/INFT"
-              }
-           },
-           "created":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/INFT"
-              }
-           },
-           "favourites":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/INFT"
-              }
-           },
-           "history":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/IHistory"
-              }
-           }
-        },
-        "required":[
-           "backgroundUrl",
-           "photoUrl",
-           "wallet",
-           "joinedDate",
-           "name",
-           "nfts",
-           "created",
-           "favourites",
-           "history" ]
-     },
-      "INFTCollection": {
-        "type": "object",
-        "properties": {
-            "_id": {
-                "type": "string"
-            },
-            "name": {
-                "type": "string"
-            },
-            "contract": {
-                "type": "string"
-            },
-            "nfts": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/INFT"
-                }
-            },
-            "owners": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/IPerson"
-                }
-            },
-            "history": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/IHistory"
-                }
-            },
-            "activity": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/IBid"
-                }
-            }
+    
+     "IPerson": {
+      "type": "object",
+      "properties": {
+          "_id": {
+              "type": "string"
           },
-          "required": [
-              "name",
-              "contract",
-              "nfts",
-              "owners",
-              "history",
-              "activity"
-          ]          
+          "photoUrl": {
+              "type": "string"
+          },
+          "wallet": {
+              "type": "string"
+          },
+          "username": {
+              "type": "string"
+          },
+          "bio": {
+              "type": "string"
+          },
+          "social": {
+              "type": "string"
+          },
+          "nfts": {
+              "type": "array",
+              "items": {
+                  "$ref": "#/definitions/INFTSimple"
+              }
+          },
+          "collections": {
+              "type": "array",
+              "items": {
+                  "type": "string"
+              }
+          }
+      },
+      "required": [
+          "photoUrl",
+          "wallet",
+          "nfts",
+          "collections"
+      ]
+   },
+   
+   "INFTSimple": {
+         "type": "object",
+         "properties": {
+            "collection": {
+               "type": "string"
+            },
+            "index": {
+               "type": "string"
+            }
+         },
+         "required": [
+            "collection",
+            "index"
+         ]        
       },
 
-     "INFT":{
-        "type":"object",
-        "properties":{
-           "_id":{
-              "type":"string"
-           },
-           "collection":{
-              "type":"string"
-           },
-           "index":{
-              "type":"string"
-           },
-           "owner":{
-              "$ref":"#/definitions/IPerson"
-           },
-           "creator":{
-              "$ref":"#/definitions/IPerson"
-           },
-           "artURI":{
-              "type":"string"
-           },
-           "price":{
-              "type":"number"
-           },
-           "like":{
-              "type":"number"
-           },
-           "auctionEnd":{
-              "type":"string",
-              "format":"date-time"
-           },
-           "protocol":{
-              "type":"string"
-           },
-           "priceHistory":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/IPrice"
-              }
-           },
-           "history":{
-              "type":"array",
-              "items":{
-                 "$ref":"#/definitions/IHistory"
-              }
-           },
-           "status":{
-              "type":"string"
-           }
-        },
-        "required":[
-           "collection",
-           "index",
-           "owner",
-           "creator",
-           "artURI",
-           "price",
-           "like",
-           "priceHistory",
-           "history",
-           "status"
-        ]
-     },
+
+      "INFTCollection": {
+         "type": "object",
+         "properties": {
+             "_id": {
+                 "type": "string"
+             },
+             "logoUrl": {
+                 "type": "string"
+             },
+             "featuredUrl": {
+                 "type": "string"
+             },
+             "bannerUrl": {
+                 "type": "string"
+             },
+             "name": {
+                 "type": "string"
+             },
+             "creator": {
+                 "type": "string"
+             },
+             "contract": {
+                 "type": "string"
+             },
+             "url": {
+                 "type": "string"
+             },
+             "description": {
+                 "type": "string"
+             },
+             "category": {
+                 "type": "string"
+             },
+             "links": {
+                 "type": "array",
+                 "items": {
+                     "type": "string"
+                 }
+             },
+             "creatorEarning": {
+                 "type": "number"
+             },
+             "blockchain": {
+                 "type": "string"
+             },
+             "isVerified": {
+                 "type": "boolean"
+             },
+             "isExplicit": {
+                 "type": "boolean"
+             },
+             "explicitContent": {
+                 "type": "string"
+             }
+         },
+         "required": [
+             "name",
+             "creator",
+             "contract",
+             "links",
+             "creatorEarning",
+             "blockchain",
+             "isVerified",
+             "isExplicit"
+         ]       
+       },
+
+       "INFT": {
+         "type": "object",
+         "properties": {
+             "collection": {
+                 "type": "string"
+             },
+             "index": {
+                 "type": "string"
+             },
+             "_id": {
+                 "type": "string"
+             },
+             "owner": {
+                 "type": "string"
+             },
+             "creator": {
+                 "type": "string"
+             },
+             "artURI": {
+                 "type": "string"
+             },
+             "price": {
+                 "type": "number"
+             },
+             "like": {
+                 "type": "number"
+             },
+             "auctionEnd": {
+                 "type": "string",
+                 "format": "date-time"
+             },
+             "protocol": {
+                 "type": "string"
+             },
+             "priceHistory": {
+                 "type": "array",
+                 "items": {
+                     "$ref": "#/definitions/IPrice"
+                 }
+             },
+             "history": {
+                 "type": "array",
+                 "items": {
+                     "$ref": "#/definitions/IActivity"
+                 }
+             },
+             "status": {
+                 "type": "string"
+             }
+         },
+         "required": [
+             "artURI",
+             "collection",
+             "creator",
+             "history",
+             "index",
+             "like",
+             "owner",
+             "price",
+             "priceHistory",
+             "status"
+         ],
+         "additionalProperties": false
+     } ,
      "IPrice":{
         "type":"object",
         "properties":{
@@ -401,7 +424,8 @@
            "timestamp"
         ]
      },
-     "IHistory":{
+     
+     "IActivity":{
         "type":"object",
         "properties":{
            "_id":{
@@ -456,7 +480,7 @@
                      "schema":{
                         "type":"array",
                         "items":{
-                           "$ref":"#/definitions/INFT"
+                           "$ref":"#/definitions/INFTCollection"
                         }
                      }
                   }
@@ -561,7 +585,7 @@
                        "schema":{
                           "type":"array",
                           "items":{
-                             "$ref":"#/definitions/IHistory"
+                             "$ref":"#/definitions/IActivity"
                           }
                        }
                     }
@@ -732,7 +756,7 @@
                        "schema":{
                           "type":"array",
                           "items":{
-                            "$ref":"#/definitions/IHistory"
+                            "$ref":"#/definitions/IActivity"
                          }  
                        }
                     }
@@ -969,7 +993,7 @@
                     "application/json":{
                        "schema":{
                           "type":"object",
-                          "$ref":"#/definitions/IHistory"
+                          "$ref":"#/definitions/IActivity"
                        }
                     }
                  }
@@ -1034,7 +1058,7 @@
                        "schema":{                        
                           "type":"array",
                           "items":{
-                            "$ref":"#/definitions/IHistory"
+                            "$ref":"#/definitions/IActivity"
                          } 
                        }
                     }
