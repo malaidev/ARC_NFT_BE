@@ -20,14 +20,18 @@ class BinanceService {
     }
 
     private registerAllSockets = async () => {
-        const exchange = new ccxt.binance();
-        const markets = await exchange.fetchMarkets();
-        markets.forEach((market: any, i) => {
-            // Only include usdt markets
-            if (market.lowercaseId.indexOf('usdt') >= 0) {
-                this.registerSocket(market.lowercaseId);
-            }
-        });
+        try {
+            const exchange = new ccxt.binance();
+            const markets = await exchange.fetchMarkets();
+            markets.forEach((market: any, i) => {
+                // Only include usdt markets
+                if (market.lowercaseId.indexOf('usdt') >= 0) {
+                    this.registerSocket(market.lowercaseId);
+                }
+            });
+        } catch (e) {
+            console.log(e.message);
+        }
     }
 
     async getPrice(pair: String) {
@@ -43,6 +47,7 @@ class BinanceService {
     private registerSocket(pair: String) {
         let pairKey = pair as keyof typeof this.sockets;
         const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@trade`);
+        console.log(socket);
         this.sockets[pairKey] = socket;
         return new Promise<any>((resolve, reject) => {
             socket.on('open', () => {

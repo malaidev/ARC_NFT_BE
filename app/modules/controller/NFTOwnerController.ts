@@ -5,7 +5,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IPerson } from "../interfaces/IPerson";
 import { INFT } from "../interfaces/INFT";
-import { IHistory } from "../interfaces/IHistory";
+import { IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
@@ -72,16 +72,17 @@ export class NFTOwnerController extends AbstractEntity {
     }
     let joinDate = joinedDate?new Date(joinedDate):new Date();
     const person: IPerson = {
-      backgroundUrl,
+      // backgroundUrl,
       photoUrl,
       wallet,
-      joinedDate: joinDate,
-      displayName: displayName,
+      // joinedDate: joinDate,
+      // displayName: displayName,
       nfts: [],
-      created: [],
-      favourites: [],
-      history: [],
-      username: username
+      // created: [],
+      // favourites: [],
+      // history: [],
+      username: username,
+      collections: []
     }
     const result = await collection.insertOne(person);
     return (result
@@ -164,7 +165,7 @@ export class NFTOwnerController extends AbstractEntity {
    * @param filters IQueryFilters
    * @returns IHistory
    */
-  async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IHistory> | IResponse> {
+  async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
         const collection = this.mongodb.collection(this.historyTable)
@@ -174,10 +175,10 @@ export class NFTOwnerController extends AbstractEntity {
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
           const items = await collection.aggregate(aggregation).toArray();
-          return items as Array<IHistory>;
+          return items as Array<IActivity>;
         } else {
           const result = await collection.find(query).toArray();
-          return result as Array<IHistory>
+          return result as Array<IActivity>
         }
       } else {
         throw new Error("Could not connect to the database.");
@@ -240,15 +241,15 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("to onwer not found.", true, 422);
     }
     // const index = owner.favourites.indexOf(nftResult,0);
-    const index = await owner.favourites.findIndex(o => o.index === nftResult.index);
-    if (index>=0){
+    // const index = await owner.favourites.findIndex(o => o.index === nftResult.index);
+    // if (index>=0){
       return respond("This NFT already favourite");
-    }else{
-      owner.favourites.push(nftResult);
-      ownerTable.replaceOne({wallet:owner.wallet},owner);
-      await nft.updateOne({_id:nftResult._id},{$inc:{like:1}});
-      return respond("Favourite updated");
-    }
+    // }else{
+    //   owner.favourites.push(nftResult);
+    //   ownerTable.replaceOne({wallet:owner.wallet},owner);
+    //   await nft.updateOne({_id:nftResult._id},{$inc:{like:1}});
+    //   return respond("Favourite updated");
+    // }
   }
   /**
    * 
@@ -275,16 +276,16 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("to onwer not found.", true, 422);
     }
     console.log(nftResult);
-    const index = await owner.favourites.findIndex(o => o.index === nftResult.index);
-    console.log(index);
-    if (index>=0){
-      owner.favourites.splice(index,1);
-      ownerTable.replaceOne({wallet:owner.wallet},owner);
-      await nft.updateOne({_id:nftResult._id},{$inc:{like:-1}});
+    // const index = await owner.favourites.findIndex(o => o.index === nftResult.index);
+    // console.log(index);
+    // if (index>=0){
+    //   owner.favourites.splice(index,1);
+    //   ownerTable.replaceOne({wallet:owner.wallet},owner);
+    //   await nft.updateOne({_id:nftResult._id},{$inc:{like:-1}});
       return respond("Favourite removed");
-    }else{
-      return respond("Nothing removed ");
-    }
+    // }else{
+    //   return respond("Nothing removed ");
+    // }
   }
   /**
    * Mounts a generic query to find an user by its ownerId.

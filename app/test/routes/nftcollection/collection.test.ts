@@ -18,60 +18,60 @@ test("getCollection API test [GET] [/collection]", async () => {
   expect(res.statusCode).toEqual(200);
 });
 
-//get items - no collection
-test("getItems API test [GET] [/collection/:contract/items]", async () => {
-  const res = await app.inject({
-    method: 'GET',
-    url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/items",
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    }
-  });
-  expect(res.statusCode).toEqual(200);
-  expect(JSON.parse(res.body).code).toEqual(422);
-});
+// //get items - no collection
+// test("getItems API test [GET] [/collection/:contract/items]", async () => {
+//   const res = await app.inject({
+//     method: 'GET',
+//     url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/items",
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     }
+//   });
+//   expect(res.statusCode).toEqual(200);
+//   expect(JSON.parse(res.body).code).toEqual(422);
+// });
 
-//get owners - no collection
-test("getOwners API test [GET] [/collection/:contract/owners]", async () => {
-  const res = await app.inject({
-    method: 'GET',
-    url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/owners",
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    }
-  });
-  console.log(JSON.parse(res.body));
-  expect(res.statusCode).toEqual(200);
-  expect(JSON.parse(res.body).code).toEqual(422);
-});
+// //get owners - no collection
+// test("getOwners API test [GET] [/collection/:contract/owners]", async () => {
+//   const res = await app.inject({
+//     method: 'GET',
+//     url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/owners",
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     }
+//   });
+//   console.log(JSON.parse(res.body));
+//   expect(res.statusCode).toEqual(200);
+//   expect(JSON.parse(res.body).code).toEqual(422);
+// });
 
-//get histories - no collection
-test("getHistory API test [GET] [/collection/:contract/history]", async () => {
-  const res = await app.inject({
-    method: 'GET',
-    url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/history",
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    }
-  });
-  console.log(JSON.parse(res.body));
-  expect(res.statusCode).toEqual(200);
-  expect(JSON.parse(res.body).code).toEqual(422);
-});
+// //get histories - no collection
+// test("getHistory API test [GET] [/collection/:contract/history]", async () => {
+//   const res = await app.inject({
+//     method: 'GET',
+//     url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/history",
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     }
+//   });
+//   console.log(JSON.parse(res.body));
+//   expect(res.statusCode).toEqual(200);
+//   expect(JSON.parse(res.body).code).toEqual(422);
+// });
 
-//get activities - no collection
-test("getActivities API test [GET] [/collection/:contract/activity]", async () => {
-  const res = await app.inject({
-    method: 'GET',
-    url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/activity",
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    }
-  });
-  console.log(JSON.parse(res.body));
-  expect(res.statusCode).toEqual(200);
-  expect(JSON.parse(res.body).code).toEqual(422);
-});
+// //get activities - no collection
+// test("getActivities API test [GET] [/collection/:contract/activity]", async () => {
+//   const res = await app.inject({
+//     method: 'GET',
+//     url: "http://localhost:3001/ws/v2/nft/collection/NO_COLLECTION/activity",
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     }
+//   });
+//   console.log(JSON.parse(res.body));
+//   expect(res.statusCode).toEqual(200);
+//   expect(JSON.parse(res.body).code).toEqual(422);
+// });
 
 
 //create collection
@@ -84,50 +84,56 @@ test("Create Collection API test [POST] [/collection/:collectionId/create]", asy
     },
     payload: {
       contract:contract,
-      name: 'test'
+      name: 'test',
+      creator: owner,
+      logoUrl: 'logourl',
+      blockchain: 'Ethereum',
+      category: 'category'
     }
   });
-  expect(res.statusCode).toEqual(200);
-  expect(JSON.parse(res.body).code).not.toEqual(422);
-});
 
-//get items - no collection
-test("getItems API test [GET] [/collection/:contract/items]", async () => {
-  const res = await app.inject({
-    method: 'GET',
-    url: `http://localhost:3001/ws/v2/nft/collection/${contract}/items`,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    }
-  });
   console.log(res.body);
   expect(res.statusCode).toEqual(200);
-
-  const result = JSON.parse(res.body);
-  if (result.code) {
-    expect(JSON.parse(res.body).code).toEqual(422);
-  } else {
-    console.log(result.length);
-  }
+  expect(JSON.parse(res.body).code).toEqual(200);
 });
 
+// //get items - no collection
+// test("getItems API test [GET] [/collection/:contract/items]", async () => {
+//   const res = await app.inject({
+//     method: 'GET',
+//     url: `http://localhost:3001/ws/v2/nft/collection/${contract}/items`,
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     }
+//   });
 
-//place bid on
-test("placeBid API test [GET] [/collection/placeBid]", async () => {
-  const res = await app.inject({
-    method: 'POST',
-    url: `http://localhost:3001/ws/v2/nft/collection/placeBid`,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-    payload: {
-      contract: contract,
-      nftId: '1',
-      from: owner,
-      price: 1,
-      type: 'Bid'
-    }
-  });
-  console.log(JSON.parse(res.body));
-  expect(res.statusCode).toEqual(200);
-});
+//   expect(res.statusCode).toEqual(200);
+
+//   const result = JSON.parse(res.body);
+//   if (result.code) {
+//     expect(JSON.parse(res.body).code).toEqual(422);
+//   } else {
+//     console.log(result.length);
+//   }
+// });
+
+
+// //place bid on
+// test("placeBid API test [GET] [/collection/placeBid]", async () => {
+//   const res = await app.inject({
+//     method: 'POST',
+//     url: `http://localhost:3001/ws/v2/nft/collection/placeBid`,
+//     headers: {
+//       'Access-Control-Allow-Origin': '*',
+//     },
+//     payload: {
+//       contract: contract,
+//       nftId: '1',
+//       from: owner,
+//       price: 1,
+//       type: 'Bid'
+//     }
+//   });
+//   console.log(JSON.parse(res.body));
+//   expect(res.statusCode).toEqual(200);
+// });

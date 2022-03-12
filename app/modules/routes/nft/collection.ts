@@ -25,7 +25,7 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
  */
 export const getCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollection();
+  const result = await ctl.getCollections();
   res.send(result);
 };
 
@@ -145,10 +145,25 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  * Method: POST
  * 
  * @param req 
- *    contract: Collection Contract Address
- *    name:     Collection Name
- *    logoUrl:  logo url
- *    creator:  creator wallet address
+ *    contract*: Collection Contract Address
+ *    name*:     Collection Name
+ *    logoUrl*:  logo url
+ *    creator*:  creator wallet address
+ *    featuredUrl?:
+ *    bannerUrl?:
+ *    URL?:
+ *    description?:
+ *    category*:
+ *    linkSite?: 
+ *    linkDiscord?:
+ *    linkInstagram?:
+ *    linkMedium?:
+ *    linkTelegram?:
+ *    creatorEarning?:
+ *    blockchain*:
+ *    isVerified*:
+ *    isExplicit*:
+ *    explicitContent?:
  *    
  * @param res 
  *    result of creation
@@ -156,9 +171,15 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      fail:     501
  */
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, name, logoUrl, creator } = req.body as any;
+  const { contract, name, logoUrl, creator, 
+    featuredUrl, bannerUrl, URL, description, category, 
+    linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent } = req.body as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(contract, name, logoUrl, creator);
+  const result = await ctl.createCollection(contract, name, logoUrl, creator, 
+    featuredUrl, bannerUrl, URL, description, category, 
+    linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent);
   res.send(result);
 }
 
