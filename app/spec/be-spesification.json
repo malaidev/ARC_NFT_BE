@@ -688,6 +688,31 @@
      },
 
 
+     "/nft/activities":{
+      "get":{
+         "description":"Get all NFTs in collection",
+         "tags":[
+            "Activities"
+         ],
+           
+         "responses":{
+            "200":{
+               "description":"return NFTs in collection",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"array",
+                        "items":{
+                           "$ref":"#/definitions/IActivity"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+
      "/nft/items/create":{
         "post":{
            "description":"Create NFT item - save to MongoDB ",
@@ -721,6 +746,29 @@
            }
         }
      },
+     "/nft/items":{
+      "get":{
+         "description":"Get all NFTs in collection",
+         "tags":[
+            "Items"
+         ], 
+         "responses":{
+            "200":{
+               "description":"all NFTs in collection",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                      "type":"array",
+                      "items":{
+                         "$ref":"#/definitions/INFT"
+                      } 
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
      "/nft/items/{contract}/{nftId}/history":{
         "get":{
            "description":"Get NFT item history",
@@ -805,40 +853,7 @@
            }
         }
      },
-     "/nft/items/{contract}":{
-        "get":{
-           "description":"Get all NFTs in collection",
-           "tags":[
-              "Items"
-           ],           
-           "parameters":[
-              {
-                 "in":"path",
-                 "name":"contract",
-                 "schema":{
-                    "type":"string"
-                 },
-                 "required":true,
-                 "description":"Collection Contract Address"
-              }
-           ],
-           "responses":{
-              "200":{
-                 "description":"all NFTs in collection",
-                 "content":{
-                    "application/json":{
-                       "schema":{
-                        "type":"array",
-                        "items":{
-                           "$ref":"#/definitions/INFT"
-                        } 
-                       }
-                    }
-                 }
-              }
-           }
-        }
-     },
+     
      "/nft/items/transfer":{
         "post":{
            "description":"Transfer NFT item from old owner to new owner",
