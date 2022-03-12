@@ -10,11 +10,11 @@ import { respond } from "../../util/respond";
  * @param {*} req
  *  ownerId: string 
  * @requestBody 
- *    backgroundUrl: url background
+ 
  *    photoUrl:  url photo
- *    joinedDate?: Date of joined
- *    displayName: display name of owner
+ *    bio?: Description about owner
  *    username: username of owner
+ *    social : social media
  *  
  * @param {*} res
  *     result of owner
@@ -22,11 +22,11 @@ import { respond } from "../../util/respond";
  *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  const { backgroundUrl, photoUrl, joinedDate, displayName, username } = req.body as any;
+  const {  photoUrl, bio, username,social } = req.body as any;
   const { ownerId } = req.params as any;
   const user = { walletId: ownerId };
   const ctl = new NFTOwnerController();
-  const result = await ctl.createOwner(backgroundUrl, photoUrl, user.walletId, joinedDate, displayName, username);
+  const result = await ctl.createOwner( photoUrl, user.walletId, bio, username,social);
   res.send(result);
 };
 /**

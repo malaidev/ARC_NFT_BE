@@ -5,9 +5,8 @@ export interface IPerson {
   photoUrl: string;                     // photo image url
   wallet: string;                       // wallet address
   username?: string;                     // username
-  bio?: string;                  // display name
+  bio?: string;                          // display name
   social?: string;
-
   nfts: Array<INFTSimple>;              // owned nfts - collection and index
   collections: Array<string>;             // collection contract address list
 }
