@@ -405,8 +405,7 @@
              "price",
              "priceHistory",
              "status"
-         ],
-         "additionalProperties": false
+         ] 
      } ,
      "IPrice":{
         "type":"object",
