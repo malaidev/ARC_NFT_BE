@@ -23,15 +23,15 @@ export const nft = async (router: any, options: any) => {
   router.post("/collection/create", createCollection);
 
   router.get("/activity", getAllActivites);
-  router.post("/activity/placeBid", config.route("jwt"), placeBid);
+  // router.post("/activity/placeBid", config.route("jwt"), placeBid);
 
   router.post("/items/create", config.route("jwt"), createItem);
   
   router.get("/items", getAllItems);
 
   router.get("/items/:contract/:nftId/history", getItemHistory);
-  router.get("/items/:contract/:nftId/detail", getItemDetail);
-  router.post("/items/transfer", config.route("jwt"), transferItem);
+  router.get("/items/:contract/:nftId", getItemDetail);
+  // router.post("/items/transfer", config.route("jwt"), transferItem);
   
   router.get("/owners", getAllOwners);  
 
