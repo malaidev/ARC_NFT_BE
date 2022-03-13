@@ -770,9 +770,10 @@
       }
    },
 
+   
      "/nft/items/create":{
         "post":{
-           "description":"Create NFT item - save to MongoDB ",
+           "description":"Create NFT item - save DB  ",
            "tags":[
               "Items"
            ],
@@ -803,6 +804,41 @@
            }
         }
      },
+     "/nft/items/transfer":{
+      "post":{
+         "description":"Transfer NFT item from old owner to new owner",
+         "tags":[
+            "Items"
+         ],
+         "security":[
+            {
+               "bearerAuth":[
+                  
+               ]
+            }
+         ],
+         "requestBody":{
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "type":"object",
+                     "$ref":"#/definitions/TransferParam"
+                  }
+               }
+            }
+         },
+         "responses":{
+            "201":{
+               "description":"transfer Items with contract"       
+            },
+            "501":{
+             "description":"cannot find collection or nft"       
+           },"422":{
+             "description":"cannot find owner"       
+          }
+         }
+      }
+   },
      "/nft/items":{
       "get":{
          "description":"Get all NFTs in collection",
@@ -911,45 +947,11 @@
         }
      },
      
-     "/nft/items/transfer":{
-        "post":{
-           "description":"Transfer NFT item from old owner to new owner",
-           "tags":[
-              "Items"
-           ],
-           "security":[
-              {
-                 "bearerAuth":[
-                    
-                 ]
-              }
-           ],
-           "requestBody":{
-              "content":{
-                 "application/json":{
-                    "schema":{
-                       "type":"object",
-                       "$ref":"#/definitions/TransferParam"
-                    }
-                 }
-              }
-           },
-           "responses":{
-              "201":{
-                 "description":"transfer Items with contract"       
-              },
-              "501":{
-               "description":"cannot find collection or nft"       
-             },"422":{
-               "description":"cannot find owner"       
-            }
-           }
-        }
-     },
+    
      "/nft/owners":{
         "get":{
            "description":"get NFT Owner ",
-           "tags":[ "Owner"  ],
+           "tags":[ "Person"  ],
            "parameters":[
         
                {
@@ -993,58 +995,82 @@
                  }
               }
            }
-        },
-        "post":{
-           "description":"Create Owner ",
-           "tags":[
-              "Owner"
-           ],
-           "security":[     {
-                 "bearerAuth":[ ]
-              }
-           ],
-           "requestBody":{
-              "content":{
-                 "application/json":{
-                    "schema":{
-                       "type":"object",
-                       "$ref":"#/definitions/CreateOwnerParam"
-                    }
-                 }
-              }
-           },
-           "responses":{ 
-              "201":{
-                "description":"Success created NFT"
-              }
-           }
-        },
-        "put":{
-           "description":"Update Owner ",
-           "tags":["Owner" ],
-           "security":[ {"bearerAuth":[]  }   ],
-           "requestBody":{
-              "content":{
-                 "application/json":{
-                    "schema":{
-                       "type":"object",
-                       "$ref":"#/definitions/UpdateOwnerParam"
-                    }
-                 }
-              }
-           },
-           "responses":{
-              "201":{
-                "description":"Success created NFT"
-              }
-           }
-        }
+        } 
+        
      },
      "/nft/owners/{ownerId}":{
+         "post":{
+            "description":"Create Owner ",
+            "tags":[
+               "Person"
+            ],
+            "security":[     {
+                  "bearerAuth":[ ]
+               }
+            ],
+            "parameters":[
+            {
+               "in":"path",
+               "name":"ownerId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Owner Address"
+            }
+         ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/CreateOwnerParam"
+                     }
+                  }
+               }
+            },
+            "responses":{ 
+               "201":{
+               "description":"Success created NFT"
+               }
+            }
+         },
+         "put":{
+            "description":"Update User ",
+            "tags":["Person" ],
+            "security":[ {"bearerAuth":[]  }   ],
+            "parameters":[
+               {
+                  "in":"path",
+                  "name":"ownerId",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "required":true,
+                  "description":"owner Address"
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/UpdateOwnerParam"
+                     }
+                  }
+               }
+            },
+            
+            "responses":{
+               "201":{
+               "description":"Success Update User"
+               }
+            }
+         },
         "get":{
            "description":"getOwner ",
            "tags":[
-              "Owner"
+              "Person"
            ], 
            "parameters":[
               {
@@ -1076,7 +1102,7 @@
         "get":{
            "description":"getOwner Ntf Item ",
            "tags":[
-              "Owner"
+              "Person"
            ], 
            "parameters":[
               {
@@ -1108,7 +1134,7 @@
         "get":{
            "description":"getOwnerHistory ",
            "tags":[
-              "Owner"
+              "Person"
            ], 
            "parameters":[
               {
@@ -1137,15 +1163,12 @@
               }
            }
         }
-     },
-
-
-  
+     }, 
 
      "/nft/owners/{ownerId}/collection":{
         "get":{
            "description":"Get collection ",
-           "tags":[ "Owner"  ],            
+           "tags":[ "Person"  ],            
            "parameters":[
               {
                  "in":"path",
@@ -1173,65 +1196,10 @@
               }
            }
         }
-     },
+     }
 
  
-     "/nft/favourite":{
-      "post":{
-         "description":"favourites updated",
-         "tags":[
-            "Owner"
-         ],
-        
-         "requestBody":{
-            "content":{
-               "application/json":{
-                  "schema":{
-                     "type":"object",
-                     "$ref":"#/definitions/UpdateFavoriteParam"
-                  }
-               }
-            }
-         },
-                  
-         "responses":{
-            "200":{
-               "description":"Success"          
-            },
-            "201":{
-               "description":"Success"          
-            }
-         }
-      }
-   },
-   "/nft/favourite/dislike":{
-      "post":{
-         "description":"favourites removed",
-         "tags":[
-            "Owner"
-         ],
-        
-         "requestBody":{
-            "content":{
-               "application/json":{
-                  "schema":{
-                     "type":"object",
-                     "$ref":"#/definitions/UpdateFavoriteParam"
-                  }
-               }
-            }
-         },
-                  
-         "responses":{
-            "200":{
-               "description":"Success"          
-            },
-            "201":{
-               "description":"Success"          
-            }
-         }
-      }
-   }
+    
 
 
   }
