@@ -16,6 +16,8 @@ export interface INFTCollection {
   isVerified: boolean;          // verified flag
   isExplicit: boolean;         // explicit flag
   explicitContent?: string;
+  platform: string;             // platform
+  properties: Object;
 }
 
 // const INFTCollectionSchema = new mongoose.Schema<INFTCollection>( {

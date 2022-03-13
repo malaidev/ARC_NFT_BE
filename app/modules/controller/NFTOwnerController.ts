@@ -122,8 +122,8 @@ export class NFTOwnerController extends AbstractEntity {
       social,
       bio,
       username: username,
-      nfts: [],
-      collections: []
+      // nfts: [],
+      // collections: []
       // created: [],
       // favourites: [],
       // history: [],

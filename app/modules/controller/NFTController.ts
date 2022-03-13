@@ -60,13 +60,16 @@ export class NFTController extends AbstractEntity {
    * @param nftId NFT item index
    * @returns INFT object including NFT item information
    */
-  async getItemDetail(collection: string, nftId: string): Promise<INFT | IResponse> {
+  async getItemDetail(collection: string, nftId: string): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collection, nftId);
         const result = await this.findOne(query);
         if (result) {
-          return result;
+          const personTable = this.mongodb.collection(this.personTable);
+          const owner = await personTable.findOne({wallet: result.owner});
+          result.ownerDetail = owner;
+          return respond(result);
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -77,6 +80,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   /**
    * Get NFT item history
    * @param collection Collection Contract Address
@@ -90,7 +94,7 @@ export class NFTController extends AbstractEntity {
         const result = await this.findOne(query) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
-          const history = await activityTable.find({collection: collection, nftId: nftId, type: 'transfer'});
+          const history = await activityTable.find({ collection: collection, nftId: nftId, type: 'transfer' }).toArray();
           return respond(history);
         }
         return respond("nft not found.", true, 422);
@@ -175,9 +179,10 @@ export class NFTController extends AbstractEntity {
       artURI: artURI,
       price: price,
       name: "",
-      properties: [],
+      properties: {},
       isLockContent: false,
-      isExplicit: false
+      isExplicit: false,
+      status: 'For Sale'
     }
     // collection.nfts.push(nft);
     // const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
@@ -192,11 +197,11 @@ export class NFTController extends AbstractEntity {
 
     collectionTable.replaceOne({contract: collection.contract}, collection);
     if (owner.wallet === creator.wallet) {
-      owner.nfts.push(nft);
+      // owner.nfts.push(nft);
       // owner.created.push(nft);
       ownerTable.replaceOne({wallet: owner.wallet}, owner);
     } else {
-      owner.nfts.push(nft);
+      // owner.nfts.push(nft);
       ownerTable.replaceOne({wallet: owner.wallet}, owner);
       // creator.created.push(nft);
       ownerTable.replaceOne({wallet: creator.wallet}, creator);
@@ -265,18 +270,18 @@ export class NFTController extends AbstractEntity {
     // if (!collection.owners.find(item => item.wallet === toOwner.wallet))
     //   collection.owners.push(toOwner);
     collectionTable.replaceOne({contract:collection.contract}, collection);
-    const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
+    // const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
     /**Aris Edit */
     // const index = fromOwner.nfts.indexOf(foundResult, 0);
-    const index = await fromOwner.nfts.findIndex(o => o.index === foundResult.index);
-    if (index >=0) {
-      fromOwner.nfts.splice(index, 1);
-    }
+    // const index = await fromOwner.nfts.findIndex(o => o.index === foundResult.index);
+    // if (index >=0) {
+    //   fromOwner.nfts.splice(index, 1);
+    // }
     // if (index > -1) {
     //   fromOwner.nfts.splice(index, 1);
     // }
     /** */
-    toOwner.nfts.push(nft);
+    // toOwner.nfts.push(nft);
     // fromOwner.history.push(history);
     ownerTable.replaceOne({wallet: fromOwner.wallet}, fromOwner);
     // toOwner.history.push(history);

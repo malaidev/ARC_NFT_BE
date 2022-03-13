@@ -175,7 +175,7 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      fail:     501
  */
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, name, logoUrl, creator, 
+  const { contract, name, logoUrl, creator, platform,
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
     creatorEarning, blockchain, isVerified, isExplicit, explicitContent } = req.body as any;
@@ -183,7 +183,7 @@ export const createCollection = async (req: FastifyRequest, res: FastifyReply) =
   const result = await ctl.createCollection(contract, name, logoUrl, creator, 
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent);
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, platform);
   res.send(result);
 }
 
