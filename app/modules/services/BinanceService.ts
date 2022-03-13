@@ -26,7 +26,7 @@ class BinanceService {
             markets.forEach((market: any, i) => {
                 // Only include usdt markets
                 if (market.lowercaseId.indexOf('usdt') >= 0) {
-                    // this.registerSocket(market.lowercaseId);
+                    this.registerSocket(market.lowercaseId);
                 }
             });
         } catch (e) {

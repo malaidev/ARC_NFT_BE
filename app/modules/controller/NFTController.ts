@@ -94,8 +94,14 @@ export class NFTController extends AbstractEntity {
         const result = await this.findOne(query) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
-          const history = await activityTable.find({ collection: collection, nftId: nftId, type: 'transfer' }).toArray();
-          return respond(history);
+          const history = await activityTable.find({ collection: collection, nftId: nftId, type: 'Transfer' }).toArray();
+
+          const detailedActivity = await Promise.all(history.map(async activity => {
+            const nft = await this.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
+            activity.nftObject = {artUri: nft.artURI, name: nft.name};
+            return activity;
+          }));
+          return respond(detailedActivity);
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -262,7 +268,7 @@ export class NFTController extends AbstractEntity {
       price: price,
       from: fromOwner.wallet,
       to: toOwner.wallet,
-      date: curDate,
+      date: new Date().getTime()
     };
     nft.owner = to;
     nftTable.replaceOne({collection: contract, index: nftId}, nft);

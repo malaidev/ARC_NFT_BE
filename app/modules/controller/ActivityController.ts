@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
@@ -58,16 +59,23 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+
         let aggregation = {} as any;
         
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
 
-        const result = await table.aggregate(aggregation).toArray() as Array<IActivity>;
+        const result = await table.aggregate(aggregation).toArray();
 
         if (result) {
-          return respond(result);
+          const activities = await Promise.all(result.map(async activity => {
+            const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
+            activity.nftObject = {artUri: nft.artURI, name: nft.name};
+            return activity;
+          }));
+          return respond(activities);
         }
         return respond("activity not found.", true, 422);
       } else {
