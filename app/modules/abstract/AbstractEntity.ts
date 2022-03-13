@@ -245,13 +245,19 @@ import {
             [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
           },
         });
-  
+        
+
+        // matches.push({
+        //   [item.fieldName]: new RegExp(item.query, "igm"),
+
+        // });
       if (filters.filters.length) {
         const matches = [];
         filters.filters.forEach((item) => {
-          matches.push({
-            [item.fieldName]: new RegExp(item.query, "igm"),
-          });
+            matches.push({
+              [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),
+
+            });
         });
   
         aggregation.push({

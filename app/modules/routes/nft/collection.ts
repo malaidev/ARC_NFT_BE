@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
+import { parseQueryUrl } from "../../util/parse-query-url";
 
 /**
  * Get All Collections
@@ -24,8 +25,11 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
       }
  */
 export const getCollections = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollections();
+  const result = await ctl.getCollections(filters);
   res.send(result);
 };
 
