@@ -183,23 +183,9 @@ export const createCollection = async (req: FastifyRequest, res: FastifyReply) =
   res.send(result);
 }
 
-/**
- * Owner place a bid to the NFT item in collection
- * Method: POST
- * 
- * @param {*} req
- *    contract: Collection Contract Address
- *    nftId:    Index of NFT item in collection
- *    from:     Bidder wallet address
- *    price:    Bid price
- *    type:     Bid type
- * @param {*} res
- *    success:  201
- *    fail:     501
- */
- export const placeBid = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, from, price, type} = req.body as any;
+export const getCollectionDetail =async (req:FastifyRequest, res: FastifyReply) => {
+  const {contract} = req.params as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.placeBid(contract, nftId, from, price, type);
+  const result = await ctl.getCollectionDetail(contract);
   res.send(result);
-};
+}
