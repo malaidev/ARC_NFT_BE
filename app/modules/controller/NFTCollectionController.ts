@@ -83,10 +83,11 @@ export class NFTCollectionController extends AbstractEntity {
             });
 
             return {
+              _id:collection._id,
+              contract:collection.contract,
               logoUrl: collection.logoUrl,
               featuredUrl:collection.featuredUrl,
               bannerUrl:collection.bannerUrl,
-              contract:collection.contract,
               url:collection.url,
               description:collection.description,
               category:collection.category,

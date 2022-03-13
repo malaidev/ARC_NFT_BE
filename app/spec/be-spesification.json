@@ -1055,7 +1055,7 @@
                   "application/json":{
                      "schema":{
                         "type":"object",
-                        "$ref":"#/definitions/UpdateOwnerParam"
+                        "$ref":"#/definitions/CreateOwnerParam"
                      }
                   }
                }
