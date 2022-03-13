@@ -11,10 +11,11 @@ import { respond } from "../../util/respond";
  *  ownerId: string 
  * @requestBody 
  
- *    photoUrl:  url photo
- *    bio?: Description about owner
- *    username: username of owner
- *    social : social media
+ photoUrl: string;                     // photo image url
+  wallet: string;                       // wallet address
+  username?: string;                     // username
+  bio?: string;                          // display name
+  social?: string;
  *  
  * @param {*} res
  *     result of owner
@@ -34,9 +35,11 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
  * @param req 
  * ownerId: string 
  * @requestBody 
- *    backgroundUrl: url background
- *    photoUrl:  url photo
- *    name: name of owner
+ photoUrl: string;                     // photo image url
+  wallet: string;                       // wallet address
+  username?: string;                     // username
+  bio?: string;                          // display name
+  social?: string;
  * @param res 
  *      result of owner
  *      success:  201
