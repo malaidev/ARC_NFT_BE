@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ActivityController } from "../../controller/ActivityController";
+import { parseQueryUrl } from "../../util/parse-query-url";
 
 /**
  * Get all NFTs in collection
@@ -10,7 +11,33 @@ import { ActivityController } from "../../controller/ActivityController";
  *    Array<IActivity>
  */
  export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new ActivityController();
-  const result = await ctl.getAllActivites();
+  const result = await ctl.getAllActivites(filters);
+
+  res.send(result);
+};
+
+
+/**
+ * Owner place a bid to the NFT item in collection
+ * Method: POST
+ * 
+ * @param {*} req
+ *    contract: Collection Contract Address
+ *    nftId:    Index of NFT item in collection
+ *    from:     Bidder wallet address
+ *    price:    Bid price
+ *    type:     Bid type
+ * @param {*} res
+ *    success:  201
+ *    fail:     501
+ */
+ export const placeBid = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, from, price, type} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.placeBid(contract, nftId, from, price, type);
   res.send(result);
 };
