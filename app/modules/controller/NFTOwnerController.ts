@@ -26,13 +26,40 @@ export class NFTOwnerController extends AbstractEntity {
   ): Promise<Array<IPerson> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.table);
+        const owner = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const collection =  this.mongodb.collection(this.collectionTable);
         let aggregation = {} as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-        const items = await collection.aggregate(aggregation).toArray();
-        return items as Array<IPerson>;
+        const result = await owner.aggregate(aggregation).toArray() as Array<IPerson>;
+
+        if (result){
+            const items= await Promise.all(result.map(async(item)=>{
+            const ntfs = await nftTable.find({
+              owner:item.wallet
+            }).count();
+            const colls = await collection.find({
+              creator:item.wallet
+            }).count();
+
+            return {
+              _id:item._id,                         
+              photoUrl:item.photoUrl,
+              wallet: item.wallet,
+              username:item.username,                  // username
+              bio:item.bio,
+              social:item.social,
+              nfts:ntfs,
+              collections: colls
+            }
+            }))
+
+            return respond(items);
+        }
+
+        
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -49,8 +76,26 @@ export class NFTOwnerController extends AbstractEntity {
   async findPerson(personId: string): Promise<IPerson | IResponse> {
     const query = this.findUserQuery(personId);
     const result = await this.findOne(query);
+    const nftTable = this.mongodb.collection(this.nftTable);
+    const collection =  this.mongodb.collection(this.collectionTable);
+    const ntfs = await nftTable.find({
+      owner:personId
+    }).count();
+    const colls = await collection.find({
+      creator:personId
+    }).count();
+    
     if (result) {
-      return respond(result, false, 200);
+      return respond({
+        _id:result._id,                         
+        photoUrl:result.photoUrl,
+        wallet: result.wallet,
+        username:result.username,                  // username
+        bio:result.bio,
+        social:result.social,
+        nfts:ntfs,
+        collections:colls
+      });
     }
     return respond("Person not found.", true, 422);
   }
@@ -64,25 +109,25 @@ export class NFTOwnerController extends AbstractEntity {
    * @param username
    * @returns new owner created
    */
-  async createOwner(backgroundUrl: string, photoUrl: string, wallet: string, joinedDate: Date, displayName: string, username: string): Promise<IPerson | IResponse> {
+  async createOwner(photoUrl: string, wallet: string, bio: string,  username: string,social:string): Promise<IPerson | IResponse> {
     const collection = this.mongodb.collection(this.table);
     const findOwner = await collection.findOne(this.findUserQuery(wallet)) as IPerson
     if (findOwner && findOwner._id) {
       return respond("Current user has been created", true, 501)
     }
-    let joinDate = joinedDate?new Date(joinedDate):new Date();
+    
     const person: IPerson = {
-      // backgroundUrl,
       photoUrl,
       wallet,
-      // joinedDate: joinDate,
-      // displayName: displayName,
+      social,
+      bio,
+      username: username,
       nfts: [],
+      collections: []
       // created: [],
       // favourites: [],
       // history: [],
-      username: username,
-      collections: []
+      
     }
     const result = await collection.insertOne(person);
     return (result
@@ -236,7 +281,7 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("Nft not found", true, 501);
     }
     const owner = await ownerTable.findOne(this.findUserQuery(ownerId)) as IPerson;
-    console.log(nftResult);
+    // console.log(nftResult);
     if (!owner) {
       return respond("to onwer not found.", true, 422);
     }
@@ -316,7 +361,7 @@ export class NFTOwnerController extends AbstractEntity {
   }
   private findOwnerCollection(ownerId: String): Object {
     return {
-      'owners.wallet': ownerId
+      'creator': ownerId
       // $match: {
       //   owners:{
       //     wallet:ownerId

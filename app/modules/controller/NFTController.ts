@@ -112,11 +112,16 @@ export class NFTController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
-        const result = await nftTable.find().toArray();
-        if (result) {
-          return result;
+        // const result = await nftTable.find().toArray();
+        let aggregation = {} as any;
+        if (filters) {
+          aggregation = this.parseFilters(filters);
         }
-        return respond("collection not found.", true, 422);
+        const result = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
+        if (result) {
+          return respond(result);
+        }
+        return respond("Items not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }

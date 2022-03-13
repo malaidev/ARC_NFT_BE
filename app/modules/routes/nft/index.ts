@@ -26,11 +26,13 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/placeBid", config.route("jwt"), placeBid);
 
   router.post("/items/create", config.route("jwt"), createItem);
+  
   router.get("/items", getAllItems);
+
   router.get("/items/:contract/:nftId/history", getItemHistory);
   router.get("/items/:contract/:nftId/detail", getItemDetail);
   router.post("/items/transfer", config.route("jwt"), transferItem);
-
+  
   router.get("/owners", getAllOwners);  
 
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
@@ -41,6 +43,6 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/history",getOwnerHistory)
   router.get("/owners/:ownerId/collection",getOwnerCollection)
 
-  router.post("/favourite",favourite)
-  router.post("/favourite/dislike",removeFavourite)
+  // router.post("/favourite",favourite)
+  // router.post("/favourite/dislike",removeFavourite)
 };
