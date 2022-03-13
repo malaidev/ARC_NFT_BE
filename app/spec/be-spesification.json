@@ -65,22 +65,58 @@
                "fieldName",
                "query"
             ]
-      },
- 
+      }, 
     "ParamCreateCollection":{
       "type":"object",
       "properties":{ 
          "contract":{
             "type":"string"
-         },
-         "name":{
-          "type":"string"
+         },"name":{
+            "type":"string"
          },"logoUrl":{
             "type":"string"
-         },"creator ":{
+         },"creator":{
+            "type":"string"
+         },"featuredUrl":{
+            "type":"string"
+         },"bannerUrl":{
+            "type":"string"
+         },"URL":{
+            "type":"string"
+         },"description":{
+            "type":"string"
+         },"category":{
+            "type":"string"
+         },"linkSite":{
+            "type":"string"         
+         },"linkDiscord":{
+            "type":"string"
+         },"linkInstagram":{
+            "type":"string"
+         },"linkMedium":{
+            "type":"string"
+         },"linkTelegram":{
+            "type":"string"                            
+         },"creatorEarning":{
+            "type":"string"
+         },"blockchain":{
+            "type":"string",
+            "enum": ["Ethereum", "Polygon","BSC", "Optimism"]
+         },"isVerified":{
+            "type":"string"
+         },"isExplicit":{
+            "type":"string"
+         },"explicitContent":{
             "type":"string"
          }
-      }
+         
+      },"required":[
+         "contract",
+         "name",
+         "logoUrl",
+         "blockchain",
+         "bidOn",
+         "type" ]
    },
 
    "TransferParam":{
@@ -150,15 +186,21 @@
           }          
         }
     },
+ 
     "CreateOwnerParam":{
       "type":"object",
       "properties":{ 
           "backgroundUrl":{
             "type":"string"
-           },
+          },
+          "joinedDate":{
+            "type":"string",
+            "format": "date-time"
+          },
           "photoUrl":{
             "type":"string"
           },
+
           "displayName":{
             "type":"string"
           },
@@ -167,7 +209,22 @@
           }
         }
     },
- 
+    "UpdateOwnerParam":{
+      "type":"object",
+      "properties":{ 
+          "backgroundUrl":{
+            "type":"string"
+          },
+          
+          "photoUrl":{
+            "type":"string"
+          },
+
+          "displayName":{
+            "type":"string"
+          } 
+        }
+    },
     "UpdateFavoriteParam":{
       "type":"object",
       "properties":{ 
@@ -963,7 +1020,7 @@
            }
         },
         "put":{
-           "description":"update Owner ",
+           "description":"Update Owner ",
            "tags":["Owner" ],
            "security":[ {"bearerAuth":[]  }   ],
            "requestBody":{
@@ -971,7 +1028,7 @@
                  "application/json":{
                     "schema":{
                        "type":"object",
-                       "$ref":"#/definitions/CreateOwnerParam"
+                       "$ref":"#/definitions/UpdateOwnerParam"
                     }
                  }
               }
