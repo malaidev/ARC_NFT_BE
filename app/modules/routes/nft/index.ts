@@ -32,7 +32,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/items/:contract/:nftId/history", getItemHistory);
   router.get("/items/:contract/:nftId/detail", getItemDetail);
   router.post("/items/transfer", config.route("jwt"), transferItem);
-  
+
   router.get("/owners", getAllOwners);  
 
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);

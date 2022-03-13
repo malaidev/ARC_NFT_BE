@@ -89,6 +89,7 @@ export class NFTCollectionController extends AbstractEntity {
               featuredUrl:collection.featuredUrl,
               bannerUrl:collection.bannerUrl,
               contract:collection.contract,
+              creator:collection.creator,
               url:collection.url,
               description:collection.description,
               category:collection.category,
@@ -193,7 +194,7 @@ export class NFTCollectionController extends AbstractEntity {
           const activities = await activityTable.find({collection: result.contract}).toArray();
           return respond(activities);
         }
-        return respond("collection not found.", true, 422);
+        return respond("Activities not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
