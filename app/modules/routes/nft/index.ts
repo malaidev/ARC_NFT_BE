@@ -43,5 +43,4 @@ export const nft = async (router: any, options: any) => {
 
   router.post("/favourite",favourite)
   router.post("/favourite/dislike",removeFavourite)
-
 };

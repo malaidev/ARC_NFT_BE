@@ -67,7 +67,7 @@ export class NFTCollectionController extends AbstractEntity {
           const collections = await Promise.all(result.map(async (collection) => {
             let volume = 0;
             let _24h = 0;
-            let floorPrice = Number.MAX_VALUE;
+            let floorPrice = 0;
             let owners = [];
 
             const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
