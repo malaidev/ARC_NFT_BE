@@ -84,6 +84,13 @@ export class NFTCollectionController extends AbstractEntity {
 
             return {
               logoUrl: collection.logoUrl,
+              featuredUrl:collection.featuredUrl,
+              bannerUrl:collection.bannerUrl,
+              contract:collection.contract,
+              url:collection.url,
+              description:collection.description,
+              category:collection.category,
+              links:collection.links,
               name: collection.name,
               blockchain: collection.blockchain,
               volume: volume,
@@ -91,7 +98,8 @@ export class NFTCollectionController extends AbstractEntity {
               floorPrice: floorPrice,
               owners: owners.length,
               items: nfts.length,
-              isVerified: collection.isVerified
+              isVerified: collection.isVerified,
+              isExplicit:collection.isExplicit
             };
           }));
 
