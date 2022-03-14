@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
@@ -34,6 +35,7 @@ import { respond } from "../util/respond";
  *
  */
 export class ActivityController extends AbstractEntity {
+  
   protected data: IActivity;
   protected table: string = "Activity";
   protected collectionTable: string = "NFTCollection";
@@ -87,53 +89,211 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  /**
-   * Owner place a bid to the NFT item in collection
-   * It gets collection, owner, nft from db collections
-   * Create new bid and add it to collection activity list and update collection
-   * 
-   * @param contract Collection Contract Address
-   * @param nftId Index of NFT item in collection
-   * @param fromUser Bidder wallet address
-   * @param price Bid price
-   * @param type Bid type
-   * @returns result of creation
-   *      success:  201
-   *      fail:     501
-   */
-   async placeBid(contract: string, nftId: string, fromUser: string, price: number, type: string) {
-    const collectionTable = this.mongodb.collection(this.table);
-    const ownerTable = this.mongodb.collection(this.ownerTable);
-    const nftTable = this.mongodb.collection(this.nftTable);
+  async transfer(contract: string, nftId: string, seller: string, buyer: string) {
+    try {
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
 
-    const collection = await collectionTable.findOne(this.findCollectionItem(contract)) as INFTCollection;
-    if (!collection) {
-      return respond("Current collection has not been created already", true, 501);
+        const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
+
+        if (nft) {
+          if (nft.owner !== seller) {
+            return respond("from wallet isnt nft's owner.", true, 422);
+          }
+
+          if (nft.owner == buyer) {
+            return respond("destination wallet is nft's owner", true, 422);
+          }
+
+          const transfer: IActivity = {
+            collection: contract,
+            nftId: nftId,
+            type: "Transfer",
+            date: new Date().getTime(),
+            from: seller,
+            to: buyer
+          }
+
+          nft.status = "Transfer";
+          nft.owner = buyer;
+          await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+
+          const result = await activityTable.insertOne(transfer);
+          return (result
+            ? respond('Successfully created a new transfer with id ${result.insertedId}')
+            : respond("Failed to create a new activity.", true, 501)); 
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::makeOffer::${this.table}`, error);
+      return respond(error.message, true, 500);
     }
+  }
 
-    const owner = await ownerTable.findOne(this.findPerson(fromUser)) as IPerson;
-    if (!owner) {
-      return respond("Cannot find owner", true, 501);
+  async approveOffer(contract: string, nftId: string, seller: string, buyer: string, activityId: string) {
+    try {
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+
+        const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
+
+        if (nft) {
+          if (nft.owner !== seller) {
+            return respond("seller isnt nft's owner.", true, 422);
+          }
+
+          const offer = await activityTable.findOne({_id: new ObjectId(activityId)}) as IActivity;
+          if (!offer ||offer.collection !== contract || offer.nftId !== nftId) {
+            return respond("Offer id is invalid", true, 422);
+          }
+
+          if (offer.from != seller) {
+            return respond("seller isnt offer's seller", true, 422);
+          }
+
+          if (offer.to != buyer) {
+            return respond("buyer isnt offer's buyer", true, 422);
+          }
+
+          const sold: IActivity = {
+            collection: contract,
+            nftId: nftId,
+            type: "Sold",
+            price: offer.price,
+            date: new Date().getTime(),
+            from: seller,
+            to: buyer
+          }
+
+          nft.status = "Sold";
+          nft.owner = buyer;
+          await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+
+          const result = await activityTable.insertOne(sold);
+          return (result
+            ? respond('Successfully created a new sold with id ${result.insertedId}')
+            : respond("Failed to create a new activity.", true, 501)); 
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::makeOffer::${this.table}`, error);
+      return respond(error.message, true, 500);
     }
+  }
 
-    const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
-    if (!nft) {
-      return respond("Cannot find nft", true, 501);
+  async makeOffer(contract: string, nftId: string, seller: string, buyer: string, price: number, endDate: number) {
+    try {
+      if (this.mongodb) {
+
+        if (price <= 0) {
+          return respond("price cannot be negative or zero", true, 422);
+        }
+
+        const startDate = new Date().getTime();
+        console.log(startDate, endDate, startDate > endDate);
+        if (startDate > endDate) {
+          return respond("start date cannot be after enddate", true, 422);
+        }
+
+        const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+
+        const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
+
+        if (nft) {
+          if (nft.owner !== seller) {
+            return respond("seller isnt nft's owner.", true, 422);
+          }
+
+          const offer: IActivity = {
+            collection: contract,
+            nftId: nftId,
+            type: "Offer",
+            price: price,
+            startDate: new Date().getTime(),
+            endDate: endDate,
+            from: seller,
+            to: buyer
+          }
+
+          const result = await activityTable.insertOne(offer);
+          return (result
+            ? respond('Successfully created a new makeoffer with id ${result.insertedId}')
+            : respond("Failed to create a new activity.", true, 501)); 
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::makeOffer::${this.table}`, error);
+      return respond(error.message, true, 500);
     }
+  }
 
-    const bid : IActivity = {
-      collection: contract,
-      type: type,
-      nftId: "",
-      price: 0,
-      from: "",
-      to: "",
-      date: undefined
-    };
+  async listForSale(contract: string, nftId: string, seller: string, price: number, endDate: number, fee: number): Promise<IResponse> {
+    try {
+      if (this.mongodb) {
 
-    // collection.activity.push(bid);
-    collectionTable.replaceOne({contract:collection.contract}, collection);
-    return respond("Bid Success");
+        if (price <= 0) {
+          return respond("price cannot be negative or zero", true, 422);
+        }
+
+        const startDate = new Date().getTime();
+        console.log(startDate, endDate, startDate > endDate);
+        if (startDate > endDate) {
+          return respond("start date cannot be after enddate", true, 422);
+        }
+
+        const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+
+        const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
+
+        if (nft) {
+          if (nft.owner !== seller) {
+            return respond("seller isnt nft's owner.", true, 422);
+          }
+
+          if (nft.status === "For Sale") {
+            return respond("Current NFT is already listed for sale.", true, 422);
+          }
+
+          nft.status = "For Sale";
+          await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+
+          const offer: IActivity = {
+            collection: contract,
+            nftId: nftId,
+            type: "List",
+            price: price,
+            startDate: new Date().getTime(),
+            endDate: endDate,
+            from: seller,
+            fee: fee
+          }
+
+          const result = await activityTable.insertOne(offer);
+          return (result
+            ? respond('Successfully created a new listforsale with id ${result.insertedId}')
+            : respond("Failed to create a new activity.", true, 501)); 
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::listForSale::${this.table}`, error);
+      return respond(error.message, true, 500);
+    }
   }
 
   /**
