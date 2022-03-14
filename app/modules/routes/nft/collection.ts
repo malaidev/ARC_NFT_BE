@@ -58,9 +58,12 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
       }
  */
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters = parseQueryUrl(query);
   const contract = req.params['contract'] as any;
+  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getItems(contract);
+  const result = await ctl.getItems(contract,filters);
   res.send(result);
 };
 

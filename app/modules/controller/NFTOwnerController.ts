@@ -195,7 +195,9 @@ export class NFTOwnerController extends AbstractEntity {
   async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.historyTable)
+        const activity = this.mongodb.collection(this.historyTable)
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const collection= this.mongodb.collection(this.collectionTable)
         let aggregation = {} as any;
         const query = this.findOwnerHistory(ownerId);
         if (filters) {
@@ -203,9 +205,21 @@ export class NFTOwnerController extends AbstractEntity {
           aggregation.push({ $match: { ...query }, });
         };
 
-        const result = await collection.aggregate(aggregation).toArray() as Array<IActivity>;
+        const result = await activity.aggregate(aggregation).toArray() as Array<IActivity>;
         if (result){
-          return respond(result);
+          const resActivities = await Promise.all(result.map(async(item)=>{
+            const nfts = await nftTable.findOne({collection:item.collection,index:item.nftId}) as INFT;
+            const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
+            return {
+              ...item,
+              nft:{...nfts},
+              collection:{...coll}
+            }
+
+
+        }))
+
+          return respond(resActivities);
         }
 
         return respond("Activities not found.", true, 422);

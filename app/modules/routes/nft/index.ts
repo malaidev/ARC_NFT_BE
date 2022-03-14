@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, transferItem } from "./item";
 import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail } from "./collection";
-import { createOwner,favourite,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, removeFavourite, updateOwner } from "./owner";
+import { createOwner,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
 import { getAllActivites, placeBid } from "./activity";
 
 /**
@@ -26,11 +26,10 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/placeBid", config.route("jwt"), placeBid);
 
   router.post("/items/create", config.route("jwt"), createItem);
-  
   router.get("/items", getAllItems);
-
   router.get("/items/:contract/:nftId/history", getItemHistory);
   router.get("/items/:contract/:nftId/detail", getItemDetail);
+
   router.post("/items/transfer", config.route("jwt"), transferItem);
 
   router.get("/owners", getAllOwners);  
