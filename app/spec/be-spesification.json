@@ -275,7 +275,7 @@
             } 
          }
       } ,
-      "ApproveParam":{
+      "ApproveCancelParam":{
          "type":"object",
          "properties":{ 
             "contract":{
@@ -462,8 +462,32 @@
                  "type": "string"
              },
              "properties": {
-                 "type": "object" 
-             }
+               "type": "object",
+               "properties": {
+                   "constructor": {
+                       "type": "object",
+                       "properties": {
+                           "prototype": {},
+                           "length": {
+                               "type": "number"
+                           },
+                           "arguments": {},
+                           "caller": {
+                               "$ref": "#/definitions/interface-1323940878-9821-11285-1323940878-0-212510"
+                           }
+                       },
+                       "required": [
+                           "prototype",
+                           "length",
+                           "arguments",
+                           "caller"
+                       ] 
+                   }
+               },
+               "required": [
+                   "constructor"
+               ] 
+           }
          },
          "required": [
              "name",
@@ -495,8 +519,7 @@
              "length",
              "arguments",
              "caller"
-         ],
-         "additionalProperties": false
+         ] 
      },
 
        "INFT": {
@@ -646,15 +669,16 @@
                   "enum": ["ASC", "DESC"]
                },
                "description":"ASC/DESC"
-            },
-            
+            },            
             {
                "in":"query",
                "name":"filters",
                "schema":{
                   "type":"string"
                },
-               "description":"[{fieldName:@field,query:@value}]"
+               "description":"[{fieldName:@field,query:@value}]",
+               "example":"[{\"fieldName\":\"isVerified\",\"query\":\"false\"}]"
+
             }
          ],           
          "responses":{
@@ -882,7 +906,34 @@
             "tags":[
                "Activity"
             ],
-            
+            "parameters":[        
+               {
+                  "in":"query",
+                  "name":"orderBy",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"fieldName"
+               },
+               {
+                  "in":"query",
+                  "name":"direction",
+                  "schema":{
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
+                  },
+                  "description":"ASC/DESC"
+               },            
+               {
+                  "in":"query",
+                  "name":"filters",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"[{fieldName:@field,query:@value}]",
+                  "example":"[{\"fieldName\":\"type\",\"query\":\"Offer\"}]"
+               }
+            ], 
             "responses":{
                "200":{
                   "description":"return NFTs in collection",
@@ -981,14 +1032,14 @@
                   "application/json":{
                      "schema":{
                         "type":"object",
-                        "$ref":"#/definitions/ApproveParam"
+                        "$ref":"#/definitions/ApproveCancelParam"
                      }
                   }
                }
             },
             "responses":{
                "201":{
-                  "description":"Success Appove Offer"
+                  "description":"Success Aprpove Offer"
                },
                "501":{
                "description":"cannot find Offer"
@@ -1001,7 +1052,7 @@
       },
       "/nft/activity/transfer":{
          "post":{
-            "description":"approveOffer an offer",
+            "description":"transfer nft Item",
             "tags":[
                "Activity"
             ],           
@@ -1022,6 +1073,72 @@
             "responses":{
                "201":{
                   "description":"Success Transfer"
+               },
+               "501":{
+               "description":"cannot find collection"
+               },
+               "422":{
+                  "description":"cannot find an Offer"
+               }
+            }
+         }
+      },
+      "/nft/activity/cancelOffer":{
+         "post":{
+            "description":"cancel Offer",
+            "tags":[
+               "Activity"
+            ],           
+            "security":[     {
+               "bearerAuth":[]
+            }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/ApproveCancelParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success Cancel an Offer"
+               },
+               "501":{
+               "description":"cannot find collection"
+               },
+               "422":{
+                  "description":"cannot find an Offer"
+               }
+            }
+         }
+      },
+      "/nft/activity/cancelListForSale":{
+         "post":{
+            "description":"cancel ListForSale",
+            "tags":[
+               "Activity"
+            ],           
+            "security":[     {
+               "bearerAuth":[]
+            }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/ApproveCancelParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success Cancel List ForSale"
                },
                "501":{
                "description":"cannot find collection"
@@ -1072,7 +1189,34 @@
          "description":"Get all NFTs in collection",
          "tags":[
             "Items"
-         ], 
+         ],
+         "parameters":[        
+            {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]"
+            }
+         ],          
          "responses":{
             "200":{
                "description":"all NFTs in collection",
@@ -1335,15 +1479,41 @@
               "Person"
            ], 
            "parameters":[
-              {
-                 "in":"path",
-                 "name":"ownerId",
-                 "schema":{
-                    "type":"string"
-                 },
-                 "required":true,
-                 "description":"owner Address"
-              }
+            {
+               "in":"path",
+               "name":"ownerId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Owner Address"
+            },
+            {
+             "in":"query",
+             "name":"orderBy",
+             "schema":{
+                "type":"string"
+             },
+             "description":"fieldName"
+          },
+          {
+             "in":"query",
+             "name":"direction",
+             "schema":{
+                "type":"string",
+                "enum": ["ASC", "DESC"]
+             },
+             "description":"ASC/DESC"
+          },            
+          {
+             "in":"query",
+             "name":"filters",
+             "schema":{
+                "type":"string"
+             },
+             "description":"[{fieldName:@field,query:@value}]"                
+            
+          }
            ],
            "responses":{
               "200":{
@@ -1375,8 +1545,35 @@
                  },
                  "required":true,
                  "description":"Owner Address"
-              }
+              },
+              {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]"                
+              
+            }
            ],
+           
            "responses":{
               "200":{
                  "description":"getOwnerHistory",
@@ -1400,15 +1597,40 @@
            "description":"Get collection ",
            "tags":[ "Person"  ],            
            "parameters":[
-              {
-                 "in":"path",
-                 "name":"ownerId",
-                 "schema":{
-                    "type":"string"
-                 },
-                 "required":true,
-                 "description":"owner address"
-              }
+            {
+               "in":"path",
+               "name":"ownerId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Owner Address"
+            },
+            {
+             "in":"query",
+             "name":"orderBy",
+             "schema":{
+                "type":"string"
+             },
+             "description":"fieldName"
+          },
+          {
+             "in":"query",
+             "name":"direction",
+             "schema":{
+                "type":"string",
+                "enum": ["ASC", "DESC"]
+             },
+             "description":"ASC/DESC"
+          },            
+          {
+             "in":"query",
+             "name":"filters",
+             "schema":{
+                "type":"string"
+             }                
+            
+          }
            ],
            "responses":{
               "200":{
@@ -1427,10 +1649,5 @@
            }
         }
      }
-
- 
-    
-
-
   }
 }
