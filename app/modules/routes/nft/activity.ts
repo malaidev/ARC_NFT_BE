@@ -33,7 +33,7 @@ import { parseQueryUrl } from "../../util/parse-query-url";
  *    endDate:     end date
  *    fee:        seller's fee
  * @param {*} res
- *    success:  201
+ *    success:  200
  *    fail:     501
  */
  export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
@@ -61,5 +61,20 @@ export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
   const {contract, nftId, seller, buyer} = req.body as any;
   const ctl = new ActivityController();
   const result = await ctl.transfer(contract, nftId, seller, buyer);
+  res.send(result);
+};
+
+export const cancelOffer = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, buyer, activityId} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.cancelOffer(contract, nftId, seller, buyer, activityId);
+  res.send(result);
+};
+
+
+export const cancelListForSale = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, activityId} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.cancelListForSale(contract, nftId, seller, activityId);
   res.send(result);
 };

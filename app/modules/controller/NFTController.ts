@@ -23,7 +23,6 @@ import { respond } from "../util/respond";
  * @method getItemHistory
  * @method getItems
  * @method createNFT
- * @method transferNFT
  * @method findNFTItem
  * @method findCollection
  * @method findPerson
