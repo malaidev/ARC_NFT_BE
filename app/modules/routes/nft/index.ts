@@ -1,8 +1,8 @@
 import { config } from "../../../config/config";
-import { createItem, getAllItems, getItemDetail, getItemHistory, transferItem } from "./item";
+import { createItem, getAllItems, getItemDetail, getItemHistory } from "./item";
 import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail } from "./collection";
-import { createOwner,favourite,getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, removeFavourite, updateOwner } from "./owner";
-import { getAllActivites, placeBid } from "./activity";
+import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
+import { approveOffer, makeOffer, getAllActivites, listForSale, transfer } from "./activity";
 
 /**
  * Exports the nft collection actions routes.
@@ -19,19 +19,18 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/:contract/history", getHistory);
   router.get("/collection/:contract/activity",getActivities);
   router.get("/collection/:contract",getCollectionDetail);
-
   router.post("/collection/create", createCollection);
 
   router.get("/activity", getAllActivites);
-  // router.post("/activity/placeBid", config.route("jwt"), placeBid);
+  router.post("/activity/listForSale", listForSale);
+  router.post("/activity/makeOffer", makeOffer);
+  router.post("/activity/approveOffer", approveOffer);
+  router.post("/activity/transfer", transfer);
 
-  router.post("/items/create", config.route("jwt"), createItem);
-  
   router.get("/items", getAllItems);
-
+  router.post("/items/create", config.route("jwt"), createItem);
   router.get("/items/:contract/:nftId/history", getItemHistory);
   router.get("/items/:contract/:nftId", getItemDetail);
-  // router.post("/items/transfer", config.route("jwt"), transferItem);
   
   router.get("/owners", getAllOwners);  
 
@@ -42,7 +41,4 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/nfts", getOwnerNtfs)
   router.get("/owners/:ownerId/history",getOwnerHistory)
   router.get("/owners/:ownerId/collection",getOwnerCollection)
-
-  // router.post("/favourite",favourite)
-  // router.post("/favourite/dislike",removeFavourite)
 };

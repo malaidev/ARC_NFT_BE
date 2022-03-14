@@ -28,16 +28,38 @@ import { parseQueryUrl } from "../../util/parse-query-url";
  * @param {*} req
  *    contract: Collection Contract Address
  *    nftId:    Index of NFT item in collection
- *    from:     Bidder wallet address
- *    price:    Bid price
- *    type:     Bid type
+ *    seller:     seller wallet address
+ *    price:    price for sale
+ *    endDate:     end date
+ *    fee:        seller's fee
  * @param {*} res
  *    success:  201
  *    fail:     501
  */
- export const placeBid = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, from, price, type} = req.body as any;
+ export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, price, endDate, fee} = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.placeBid(contract, nftId, from, price, type);
+  const result = await ctl.listForSale(contract, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
+  res.send(result);
+};
+
+export const makeOffer = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, buyer, price, endDate} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.makeOffer(contract, nftId, seller, buyer, price, endDate);
+  res.send(result);
+};
+
+export const approveOffer = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, buyer, activityId} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.approveOffer(contract, nftId, seller, buyer, activityId);
+  res.send(result);
+};
+
+export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId, seller, buyer} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.transfer(contract, nftId, seller, buyer);
   res.send(result);
 };

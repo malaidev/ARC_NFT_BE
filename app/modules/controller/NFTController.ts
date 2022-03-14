@@ -94,7 +94,7 @@ export class NFTController extends AbstractEntity {
         const result = await this.findOne(query) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
-          const history = await activityTable.find({ collection: collection, nftId: nftId, type: 'Transfer' }).toArray();
+          const history = await activityTable.find({collection: collection, $or: [{type: 'Sold'}, {type: 'Transfer'}]}).toArray();
 
           const detailedActivity = await Promise.all(history.map(async activity => {
             const nft = await this.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
@@ -188,115 +188,15 @@ export class NFTController extends AbstractEntity {
       properties: {},
       isLockContent: false,
       isExplicit: false,
-      status: 'For Sale'
+      status: 'Minted'
     }
-    // collection.nfts.push(nft);
-    // const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
-    // if (!curOwner)
-    //   collection.owners.push(owner);
-    // else
-    //   curOwner.nfts.push(nft);
-    
-    // const curCreator = collection.owners.find(item => item.wallet === creator.wallet);
-    // if (curCreator) 
-    //   curCreator.created.push(nft);
 
-    collectionTable.replaceOne({contract: collection.contract}, collection);
-    if (owner.wallet === creator.wallet) {
-      // owner.nfts.push(nft);
-      // owner.created.push(nft);
-      ownerTable.replaceOne({wallet: owner.wallet}, owner);
-    } else {
-      // owner.nfts.push(nft);
-      ownerTable.replaceOne({wallet: owner.wallet}, owner);
-      // creator.created.push(nft);
-      ownerTable.replaceOne({wallet: creator.wallet}, creator);
-    }
     const result = await nftTable.insertOne(nft);
     return (result
             ? respond('Successfully created a new nft with id ${result.insertedId}')
             : respond("Failed to create a new nft.", true, 501)); 
   }
-  /**
-   * Transfer NFT item from old owner to new owner
-   * At first, it gets collection, old owner, new owner, nft
-   * Create new history with data
-   * Add created history to the collection, old owner, new owner's history
-   * Remove nft from old owner's nfts list and add it to the new owner's nft list
-   * Insert new history to the history table
-   * 
-   * @param contract Collection Contract Address
-   * @param nftId NFT item index
-   * @param from Old owner wallet address
-   * @param to New owner wallet address
-   * @param curDate transaction date
-   * @param price sell price
-   * @returns 
-   */
-  async transferNFT(contract: string, nftId: string, from: string, to: string, curDate: Date, price: number) : Promise<IResponse> {
-    const collectionTable = this.mongodb.collection(this.nftCollectionTable);
-    const nftTable = this.mongodb.collection(this.table);
-    const ownerTable = this.mongodb.collection(this.personTable);
-    const activityTable = this.mongodb.collection(this.activityTable);
-    const collection = await collectionTable.findOne(this.findCollection(contract)) as INFTCollection;
-    if (!collection) {
-      return respond("collection not found", true, 501);
-    }
-    const query = this.findNFTItem(contract, nftId);
-    const nft = await nftTable.findOne(query) as INFT;
-    if (!nft) {
-      return respond("nft not found", true, 501);
-    }
-    if (nft.owner !== from) {
-      return respond("nft's owner is different from paraemter", true, 422);
-    }
-    const fromOwner = await ownerTable.findOne(this.findPerson(from)) as IPerson;
-    if (!fromOwner) {
-      return respond("from owner not found.", true, 422);
-    }
-    const toOwner = await ownerTable.findOne(this.findPerson(to)) as IPerson;
-    if (!toOwner) {
-      return respond("to onwer not found.", true, 422);
-    }
-    if (fromOwner.wallet === toOwner.wallet) {
-      return respond("old owner and new owner are same", true, 422);
-    }
-    const history :IActivity = {
-      collection: contract,
-      nftId: nftId,
-      type: "transfer",
-      price: price,
-      from: fromOwner.wallet,
-      to: toOwner.wallet,
-      date: new Date().getTime()
-    };
-    nft.owner = to;
-    nftTable.replaceOne({collection: contract, index: nftId}, nft);
-    // collection.history.push(history);
-    // if (!collection.owners.find(item => item.wallet === toOwner.wallet))
-    //   collection.owners.push(toOwner);
-    collectionTable.replaceOne({contract:collection.contract}, collection);
-    // const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
-    /**Aris Edit */
-    // const index = fromOwner.nfts.indexOf(foundResult, 0);
-    // const index = await fromOwner.nfts.findIndex(o => o.index === foundResult.index);
-    // if (index >=0) {
-    //   fromOwner.nfts.splice(index, 1);
-    // }
-    // if (index > -1) {
-    //   fromOwner.nfts.splice(index, 1);
-    // }
-    /** */
-    // toOwner.nfts.push(nft);
-    // fromOwner.history.push(history);
-    ownerTable.replaceOne({wallet: fromOwner.wallet}, fromOwner);
-    // toOwner.history.push(history);
-    ownerTable.replaceOne({wallet: toOwner.wallet}, toOwner);
-    const result = await activityTable.insertOne(history);
-    return (result
-            ? respond('Successfully created a new history with id ${result.insertedId}')
-            : respond("Failed to create a new history.", true, 501));
-  }
+  
   /**
    * Mounts a generic query to find an item by its collection contract and index.
    * @param contract

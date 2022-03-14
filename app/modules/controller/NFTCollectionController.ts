@@ -233,7 +233,7 @@ export class NFTCollectionController extends AbstractEntity {
         const result = await this.findOne(query) as INFTCollection;
 
         if (result) {
-          const history = await activityTable.find({collection: result.contract, type: 'Transfer'}).toArray();
+          const history = await activityTable.find({collection: result.contract, $or: [{type: 'Sold'}, {type: 'Transfer'}]}).toArray();
           return respond(history);
         }
         return respond("collection not found.", true, 422);

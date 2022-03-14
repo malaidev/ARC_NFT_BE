@@ -101,26 +101,3 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.createNFT(contract, nftId, artURI, price, ownerAddr, creatorAddr);
   res.send(result);
 };
-
-/**
- * Transfer NFT item from old owner to new owner
- * Method: POST
- * 
- * @param {*} req
- *    contract:         Collection Contract Address
- *    nftId:            NFT item index
- *    from:             Old owner wallet address
- *    to:               New owner wallet address
- *    transactionDate:  transaction date
- *    price:            sell price
- * @param {*} res
- *    success:  201
- *    failure:  501 (cannot find collection or nft)
- *              422 (cannot find owner)
- */
-export const transferItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, from, to, transactionDate, price} = req.body as any;
-  const ctl = new NFTController();
-  const result = await ctl.transferNFT(contract, nftId, from, to, transactionDate, price);
-  res.send(result);
-};

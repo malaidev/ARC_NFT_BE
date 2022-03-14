@@ -5,10 +5,13 @@ export interface IActivity {
   collection: string;             // collection contract address
   nftId: string;                  // id of nft item
   type: string;                   // type of activity collection, sale, mint, transfer, list
-  price: number;                  // price of activity
+  price?: number;                  // price of activity
   from?: string;                  // original owner
   to?: string;                    // new owner
   by?: string;
-  date: number;                     // date of activity
+  date?: number;                     // date of activity
+  startDate?: number;
+  endDate?: number;
+  fee?: number;
 }
 
