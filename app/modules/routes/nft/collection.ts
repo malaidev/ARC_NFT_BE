@@ -117,8 +117,11 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
  */
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const contract = req.params['contract'] as any;
+  const query = req.url.split("?")[1];
+  const filters = parseQueryUrl(query);
+  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getHistory(contract);
+  const result = await ctl.getHistory(contract,filters);
   res.send(result);
 };
 
@@ -142,8 +145,11 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
  */
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
   const contract = req.params['contract'] as any;
+  const query = req.url.split("?")[1];
+  const filters = parseQueryUrl(query);
+  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getActivity(contract);
+  const result = await ctl.getActivity(contract,filters);
   res.send(result);
 };
 

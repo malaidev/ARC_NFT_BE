@@ -25,7 +25,12 @@ import { respond } from "../../util/respond";
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const {  photoUrl, bio, username,social } = req.body as any;
   const { ownerId } = req.params as any;
+  const userSession = req['session'] as any;
+
   const user = { walletId: ownerId };
+  if (userSession.walletId !==ownerId){
+    return res.code(400).send('Wallet Id not equal with wallet Session');
+  }
   const ctl = new NFTOwnerController();
   const result = await ctl.createOwner( photoUrl, user.walletId, bio, username,social);
   res.send(result);
@@ -53,6 +58,12 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const { ownerId } = req.params as any;
   const user = ownerId;
   try {
+
+    const userSession = req['session'] as any;
+    if (userSession.walletId !==ownerId){
+      return res.code(400).send('Wallet Id not equal with wallet Session');
+    }
+
     const hasOwner = (await ctl.findPerson(user) as IUser);
     if (hasOwner.success === false) {
       res.code(400).send(hasOwner);
