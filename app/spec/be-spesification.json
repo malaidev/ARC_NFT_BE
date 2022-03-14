@@ -112,8 +112,7 @@
             "type":"string"
          },"properties": {
             "type": "object"
-        }
-         
+        }         
          
       },"required":[
          "name",
@@ -629,6 +628,34 @@
          "description":"Get All Collections",
          "tags":[
             "Collection"
+         ],
+         "parameters":[        
+            {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },
+            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]"
+            }
          ],           
          "responses":{
             "200":{
@@ -1168,7 +1195,8 @@
                   "in":"query",
                   "name":"direction",
                   "schema":{
-                     "type":"string"
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
                   },
                   "description":"ASC/DESC"
                },
