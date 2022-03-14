@@ -19,34 +19,3 @@ export interface INFTCollection {
   platform: string;             // platform
   properties: Object;
 }
-
-// const INFTCollectionSchema = new mongoose.Schema<INFTCollection>( {
-//   name: String,
-//   contract: String,
-//   logo: String,
-//   creator: {
-//     ref: 'Person',
-//     type: mongoose.Schema.Types.ObjectId
-//   },
-//   floorPrice: Number,
-//   volume: Number,
-//   latestPrice: Number,
-//   nfts: [{
-//     ref: 'NFT',
-//     type: mongoose.Schema.Types.ObjectId
-//   }],
-//   owners: [{
-//     ref: 'Person',
-//     type: mongoose.Schema.Types.ObjectId
-//   }],
-//   history: [{
-//     ref: 'History',
-//     type: mongoose.Schema.Types.ObjectId
-//   }],
-//   activity: [{
-//     ref: 'Bid',
-//     type: mongoose.Schema.Types.ObjectId
-//   }]
-// })
-
-// export const NFTCollectionModel = mongoose.model<INFTCollection>('NFTCollection', INFTCollectionSchema);
