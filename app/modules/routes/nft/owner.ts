@@ -122,7 +122,7 @@ export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params['ownerId'] as string;
   const ctl = new NFTOwnerController();
-  const result = await ctl.findOwner(walletId)
+  const result = await ctl.findPerson(walletId)
   res.send(result);
 }
 /**
@@ -181,7 +181,7 @@ export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) =>
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTOwnerController();
-  const result = await ctl.getOwnerHistory(walletId);
+  const result = await ctl.getOwnerHistory(walletId,filters);
   res.send(result);
 };
 /**
@@ -205,8 +205,8 @@ activity: Array<IBid>;        // activity of collection
 export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params['ownerId'] as string;
   const query = req.url.split("?")[1];
-  const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerCollection(walletId, filters);
   res.send(result);
@@ -227,7 +227,6 @@ export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply)
 export const favourite=async(req: FastifyRequest, res: FastifyReply) => {
   
   const {walletId,contract,nftId} = req.body as any;
-
   const ctl = new NFTOwnerController();
   const result = await ctl.insertFavourite(walletId,contract,nftId)
   res.send(result);

@@ -11,7 +11,7 @@ export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
   protected table = "Person" as string;
   protected nftTable = "NFT" as string;
-  protected historyTable = "History" as string;
+  protected historyTable = "Activity" as string;
   protected collectionTable = "NFTCollection" as string;
   constructor(user?: IPerson) {
     super();
@@ -48,7 +48,7 @@ export class NFTOwnerController extends AbstractEntity {
               _id:item._id,                         
               photoUrl:item.photoUrl,
               wallet: item.wallet,
-              username:item.username,                  // username
+              username:item.username,
               bio:item.bio,
               social:item.social,
               nfts:ntfs,
@@ -90,7 +90,7 @@ export class NFTOwnerController extends AbstractEntity {
         _id:result._id,                         
         photoUrl:result.photoUrl,
         wallet: result.wallet,
-        username:result.username,                  // username
+        username:result.username,           
         bio:result.bio,
         social:result.social,
         nfts:ntfs,
@@ -154,26 +154,7 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  /**
-   * 
-   * @param ownerId  eq Wallet Id
-   * @returns IPerson
-   */
-  async findOwner(ownerId: string): Promise<IPerson | IResponse> {
-    try {
-      if (this.mongodb) {
-        // const collection = this.mongodb.collection(this.nftTable);
-        const result = await this.findPerson(ownerId);
-        // if (result && result['code'] == 200) {
-        //   const ntfsResult = await collection.find(this.findOwnerNtfs(ownerId)).toArray();
-        //   result['data']['nfts'] = ntfsResult;
-        // }
-        return result;
-      }
-    } catch (error) {
-      return respond(error.message, true, 500);
-    }
-  }
+   
   /**
    * 
    * @param ownerId  eq WalletId
@@ -188,15 +169,16 @@ export class NFTOwnerController extends AbstractEntity {
         const collection = this.mongodb.collection(this.nftTable)
         let aggregation = {} as any;
         const query = this.findOwnerNtfs(ownerId);
+
         if (filters) {
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
-          const items = await collection.aggregate(aggregation).toArray();
-          return items as Array<INFT>;
-        } else {
-          const result = await collection.find(query).toArray();
-          return result as Array<INFT>
         }
+        const result = await collection.aggregate(aggregation).toArray() as Array<INFT>;
+        if (result){
+          return respond(result);
+        }
+        return respond("Items not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -213,18 +195,42 @@ export class NFTOwnerController extends AbstractEntity {
   async getOwnerHistory(ownerId: string, filters?: IQueryFilters): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.historyTable)
+        const activity = this.mongodb.collection(this.historyTable)
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const collection= this.mongodb.collection(this.collectionTable)
         let aggregation = {} as any;
         const query = this.findOwnerHistory(ownerId);
         if (filters) {
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
-          const items = await collection.aggregate(aggregation).toArray();
-          return items as Array<IActivity>;
-        } else {
-          const result = await collection.find(query).toArray();
-          return result as Array<IActivity>
+        };
+
+        const result = await activity.aggregate(aggregation).toArray() as Array<IActivity>;
+        if (result){
+          const resActivities = await Promise.all(result.map(async(item)=>{
+            const nfts = await nftTable.findOne({collection:item.collection,index:item.nftId}) as INFT;
+            const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
+            
+            return {
+              ...item,
+              nft:{artUri: nfts.artURI, name: nfts.name},
+              collection:{...coll}
+            }
+
+
+        }))
+
+          return respond(resActivities);
         }
+
+        return respond("Activities not found.", true, 422);
+
+        //   const items = await collection.aggregate(aggregation).toArray();
+        //   return items as Array<IActivity>;
+        // } else {
+        //   const result = await collection.find(query).toArray();
+        //   return result as Array<IActivity>
+        // }
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -242,17 +248,64 @@ export class NFTOwnerController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const collection = this.mongodb.collection(this.collectionTable)
+        const nftTable = this.mongodb.collection(this.nftTable);
         let aggregation = {} as any;
+
         const query = this.findOwnerCollection(ownerId);
-        if (filters.filters.length > 0) {
+        if (filters){
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
-          const items = await collection.aggregate(aggregation).toArray();
-          return items as Array<INFTCollection>;
-        } else {
-          const result = await collection.find(query).toArray();
-          return result as Array<INFTCollection>
         }
+        const result = await collection.aggregate(aggregation).toArray() as Array<INFTCollection>;
+        if (result){
+          const collections = await Promise.all(result.map(async (collection) => {
+            let volume = 0;
+            let _24h = 0;
+            let floorPrice = Number.MAX_VALUE;
+            let owners = [];
+            const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
+            nfts.forEach(nft => {
+              volume += nft.price;
+              if (floorPrice > nft.price)
+                floorPrice = nft.price;
+              if (owners.indexOf(nft.owner) == -1)
+                owners.push(nft.owner);
+            });
+            return {
+              _id:collection._id,
+              logoUrl: collection.logoUrl,
+              featuredUrl:collection.featuredUrl,
+              bannerUrl:collection.bannerUrl,
+              contract:collection.contract,
+              creator:collection.creator,
+              url:collection.url,
+              description:collection.description,
+              category:collection.category,
+              links:collection.links,
+              name: collection.name,
+              blockchain: collection.blockchain,
+              volume: volume,
+              _24h: _24h,
+              floorPrice: floorPrice,
+              owners: owners.length,
+              items: nfts.length,
+              isVerified: collection.isVerified,
+              isExplicit:collection.isExplicit
+            };
+          }));
+
+          return respond(collections);
+        }
+        return respond("collection not found.", true, 422);
+        // if (filters.filters.length > 0) {
+        //   aggregation = this.parseFilters(filters);
+        //   aggregation.push({ $match: { ...query }, });
+        //   const items = await collection.aggregate(aggregation).toArray();
+        //   return items as Array<INFTCollection>;
+        // } else {
+        //   const result = await collection.find(query).toArray();
+        //   return result as Array<INFTCollection>
+        // }
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -351,10 +404,10 @@ export class NFTOwnerController extends AbstractEntity {
     return {
       $or: [
         {
-          'from.wallet': ownerId
+          'from': ownerId
         },
         {
-          'to.wallet': ownerId
+          'to': ownerId
         }
       ]
     }
