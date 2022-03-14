@@ -198,7 +198,7 @@ export class NFTController extends AbstractEntity {
 
     const result = await nftTable.insertOne(nft);
     return (result
-            ? respond('Successfully created a new nft with id ${result.insertedId}')
+            ? respond(`Successfully created a new nft with id ${result.insertedId}`)
             : respond("Failed to create a new nft.", true, 501)); 
   }
   

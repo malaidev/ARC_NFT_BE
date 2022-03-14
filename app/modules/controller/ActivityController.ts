@@ -176,7 +176,7 @@ export class ActivityController extends AbstractEntity {
 
           const result = await activityTable.insertOne(sold);
           return (result
-            ? respond('Successfully created a new sold with id ${result.insertedId}')
+            ? respond(`Successfully created a new sold with id ${result.insertedId}`)
             : respond("Failed to create a new activity.", true, 501)); 
         }
         return respond("nft not found.", true, 422);
@@ -226,7 +226,7 @@ export class ActivityController extends AbstractEntity {
 
           const result = await activityTable.insertOne(offer);
           return (result
-            ? respond('Successfully created a new makeoffer with id ${result.insertedId}')
+            ? respond(`Successfully created a new makeoffer with id ${result.insertedId}`)
             : respond("Failed to create a new activity.", true, 501)); 
         }
         return respond("nft not found.", true, 422);
