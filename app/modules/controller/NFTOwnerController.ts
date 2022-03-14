@@ -122,8 +122,8 @@ export class NFTOwnerController extends AbstractEntity {
       social,
       bio,
       username: username,
-      nfts: [],
-      collections: []
+      // nfts: [],
+      // collections: []
       // created: [],
       // favourites: [],
       // history: [],
@@ -210,9 +210,10 @@ export class NFTOwnerController extends AbstractEntity {
           const resActivities = await Promise.all(result.map(async(item)=>{
             const nfts = await nftTable.findOne({collection:item.collection,index:item.nftId}) as INFT;
             const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
+            
             return {
               ...item,
-              nft:{...nfts},
+              nft:{artUri: nfts.artURI, name: nfts.name},
               collection:{...coll}
             }
 

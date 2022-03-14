@@ -47,7 +47,7 @@ class BinanceService {
     private registerSocket(pair: String) {
         let pairKey = pair as keyof typeof this.sockets;
         const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@trade`);
-        console.log(socket);
+        // console.log(socket);
         this.sockets[pairKey] = socket;
         return new Promise<any>((resolve, reject) => {
             socket.on('open', () => {

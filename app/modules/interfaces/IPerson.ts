@@ -7,8 +7,6 @@ export interface IPerson {
   username?: string;                     // username
   bio?: string;                          // display name
   social?: string;
-  nfts: Array<INFTSimple>;              // owned nfts - collection and index
-  collections: Array<string>;             // collection contract address list
 }
 
 // const IPersonSchema = new mongoose.Schema<IPerson>( {
