@@ -108,15 +108,25 @@
             "type":"string"
          },"explicitContent":{
             "type":"string"
-         }
+         },"platform":{
+            "type":"string"
+         },"properties": {
+            "type": "object"
+        }
+         
          
       },"required":[
-         "contract",
          "name",
-         "logoUrl",
+         "creator",
+         "contract",
+         "links",
+         "creatorEarning",
          "blockchain",
-         "bidOn",
-         "type" ]
+         "isVerified",
+         "isExplicit",
+         "platform",
+         "properties"
+       ]
    },
 
    "TransferParam":{
@@ -224,21 +234,7 @@
             "type":"string"
           } 
         }
-    },
-    "UpdateFavoriteParam":{
-      "type":"object",
-      "properties":{ 
-          "ownerId":{
-            "type":"string"
-           },
-          "contract":{
-            "type":"string"
-          },
-          "nftId":{
-            "type":"string"
-          }      
-        }
-    },
+    } ,
  
 
      "IBid":{
@@ -375,6 +371,12 @@
              },
              "explicitContent": {
                  "type": "string"
+             },
+             "platform": {
+                 "type": "string"
+             },
+             "properties": {
+                 "type": "object" 
              }
          },
          "required": [
@@ -385,9 +387,31 @@
              "creatorEarning",
              "blockchain",
              "isVerified",
-             "isExplicit"
-         ]       
-       },
+             "isExplicit",
+             "platform",
+             "properties"
+         ] 
+     },
+     "interface-1323940878-9821-11285-1323940878-0-212510": {
+         "type": "object",
+         "properties": {
+             "prototype": {},
+             "length": {
+                 "type": "number"
+             },
+             "arguments": {},
+             "caller": {
+                 "$ref": "#/definitions/interface-1323940878-9821-11285-1323940878-0-212510"
+             }
+         },
+         "required": [
+             "prototype",
+             "length",
+             "arguments",
+             "caller"
+         ],
+         "additionalProperties": false
+     },
 
        "INFT": {
          "type": "object",
