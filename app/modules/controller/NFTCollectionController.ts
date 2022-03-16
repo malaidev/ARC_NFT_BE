@@ -58,6 +58,8 @@ export class NFTCollectionController extends AbstractEntity {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
+
         let aggregation = {} as any;
         // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
         if (filters) {
@@ -78,6 +80,8 @@ export class NFTCollectionController extends AbstractEntity {
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
+
+            const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
             return {
               _id:collection._id,
               logoUrl: collection.logoUrl,
@@ -85,6 +89,7 @@ export class NFTCollectionController extends AbstractEntity {
               bannerUrl:collection.bannerUrl,
               contract:collection.contract,
               creator:collection.creator,
+              creatorDetail: creator,
               url:collection.url, 
               description:collection.description,
               category:collection.category,
