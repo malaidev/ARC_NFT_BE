@@ -85,7 +85,7 @@ export class NFTCollectionController extends AbstractEntity {
               bannerUrl:collection.bannerUrl,
               contract:collection.contract,
               creator:collection.creator,
-              url:collection.url,
+              url:collection.url, 
               description:collection.description,
               category:collection.category,
               links:collection.links,
