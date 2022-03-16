@@ -203,21 +203,14 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(contract);
         let aggregation = {} as any;
-        
-
-        
-
         const result = await this.findOne(query) as INFTCollection;
 
-
         if (result) {
-
           if (filters) {
             aggregation = this.parseFilters(filters);
             aggregation.push({ $match: {collection:result.contract }, });
           };
 
-          // const activities = await activityTable.find({collection: result.contract}).toArray();
           const activities = await activityTable.aggregate(aggregation).toArray();
           const detailedActivity = await Promise.all(activities.map(async activity => {
             const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
@@ -357,6 +350,8 @@ export class NFTCollectionController extends AbstractEntity {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
+    const ownerTable = this.mongodb.collection(this.ownerTable);
+
     const collection = await collectionTable.findOne(this.findCollectionItem(contract));
     if (!collection) {
       return respond("collection not found", true, 501);
@@ -372,6 +367,10 @@ export class NFTCollectionController extends AbstractEntity {
     collection.owners = owners.length;
     collection.items = nfts.length;
     collection._24h = 0;
+
+    const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
+    collection.creatorDetail = creator;
+
 
     return respond(collection);
   }
