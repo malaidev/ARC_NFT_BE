@@ -167,7 +167,7 @@ export class ActivityController extends AbstractEntity {
           offer.type = "Sold";
           offer.date = new Date().getTime();
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), offer);
-          return (result
+          return (result                  
             ? respond(`Successfully created a new sold with id ${activityId}`)
             : respond("Failed to create a new activity.", true, 501)); 
         }
@@ -217,7 +217,7 @@ export class ActivityController extends AbstractEntity {
           }
 
           const result = await activityTable.insertOne(offer);
-          return (result
+          return (result                  
             ? respond(`Successfully created a new offer with id ${result.insertedId}`)
             : respond("Failed to create a new activity.", true, 501)); 
         }
