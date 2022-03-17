@@ -62,6 +62,33 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 /**
+ * Get NFT item history
+ * Method: GET
+ * 
+ * @param {*} req
+ *    contract: Collection Contract Address
+ *    nftId:    NFT item index in collection
+ * @param {*} res
+ *    Array<IHistory>
+      interface IHistory {
+        _id?: string;                   // id of activity
+        collection: string;             // collection contract address
+        nftId: string;                  // id of nft item
+        type: string;                   // type of activity (ex; list, offer, etc)
+        price: number;                  // price of activity
+        from: IPerson;                  // original owner
+        to: IPerson;                    // new owner
+        date: Date;                     // date of activity
+      }
+ */
+export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
+  const {contract, nftId} = req.params as any;
+  const ctl = new NFTController();
+  const result = await ctl.getItemOffers(contract, nftId);
+  res.send(result);
+};
+
+/**
  * Get all NFTs in collection
  * Method: GET
  * 
