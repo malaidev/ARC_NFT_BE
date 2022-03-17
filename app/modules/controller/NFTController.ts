@@ -64,7 +64,6 @@ export class NFTController extends AbstractEntity {
       if (this.mongodb) {
         const query = this.findNFTItem(collection, nftId);
         const result = await this.findOne(query);
-        const collectionTable = this.mongodb.collection(this.nftCollectionTable);
 
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
@@ -93,19 +92,12 @@ export class NFTController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
-        const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collection, nftId);
         const result = await nftTable.findOne(query) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
           const history = await activityTable.find({collection: collection, $or: [{type: 'Sold'}, {type: 'Transfer'}]}).toArray();
-
-          const detailedActivity = await Promise.all(history.map(async activity => {
-            const nft = await this.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
-            activity.nftObject = {artUri: nft.artURI, name: nft.name};
-            return activity;
-          }));
-          return respond(detailedActivity);
+          return respond(history);
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -116,6 +108,35 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+  /**
+   * Get NFT item Offers
+   * @param collection Collection Contract Address
+   * @param nftId NFT item index in collection
+   * @returns Array<IActivity>
+   */
+   async getItemOffers(collection: string, nftId: string): Promise<IResponse> {
+
+    try {
+      if (this.mongodb) {
+        const nftTable = this.mongodb.collection(this.table);
+        const activityTable = this.mongodb.collection(this.activityTable);
+        const query = this.findNFTItem(collection, nftId);
+        const result = await nftTable.findOne(query) as INFT;
+        if (result) {
+          const offers = await activityTable.find({collection: collection, type: 'Offer'}).toArray();
+          return respond(offers);
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getItemOffers::${this.table}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
   /**
    * Get all NFTs in collection
    * @param contract Collection Contract Address

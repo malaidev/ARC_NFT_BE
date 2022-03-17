@@ -239,11 +239,18 @@ export class NFTCollectionController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.activityTable);
+        const nftTable = this.mongodb.collection(this.nftTable);
+
         const query = this.findCollectionItem(contract);
         const result = await this.findOne(query) as INFTCollection;
         if (result) {
           const history = await activityTable.find({collection: result.contract, $or: [{type: 'Sold'}, {type: 'Transfer'}]}).toArray();
-          return respond(history);
+          const detailedActivity = await Promise.all(history.map(async activity => {
+            const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
+            activity.nftObject = {artUri: nft.artURI, name: nft.name};
+            return activity;
+          }));
+          return respond(detailedActivity);
         }
         return respond("collection not found.", true, 422);
       } else {

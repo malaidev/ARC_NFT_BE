@@ -18,7 +18,7 @@ const config = {
     ('error-only' as 'error-only' | 'action-only' | 'any'),
   mongodb: {
     host: process.env['MONGODB_HOST'],
-    database: 'DepoMetamaskUsers',
+    database: 'ArcMarketDB',
     username: process.env['MONGODB_USER'],
     password: process.env['MONGODB_PASSWORD'],
     port: process.env['MONGODB_PORT'],
