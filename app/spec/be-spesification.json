@@ -1353,6 +1353,50 @@
          }
       }
    },
+ 
+   "/nft/items/{contract}/{nftId}/offers":{
+      "get":{
+         "description":"Get NFT item offers",
+         "tags":[
+            "Items"
+         ], 
+         "parameters":[
+            {
+               "in":"path",
+               "name":"contract",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Collection offers"
+            },
+            {
+               "in":"path",
+               "name":"nftId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"offers  in collection"
+            }
+         ],
+         "responses":{
+            "200":{
+               "description":"get NFT offers",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"array",
+                        "items":{
+                          "$ref":"#/definitions/IActivity"
+                       }  
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
      "/nft/items/{contract}/{nftId}/history":{
         "get":{
            "description":"Get NFT item history",
