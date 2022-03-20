@@ -1,6 +1,6 @@
 import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, getItemOffers } from "./item";
-import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail } from "./collection";
+import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail, getTopCollections } from "./collection";
 import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, updateOwner } from "./owner";
 import { approveOffer, makeOffer, getAllActivites, listForSale, transfer, cancelOffer, cancelListForSale } from "./activity";
 
@@ -14,6 +14,7 @@ export const nft = async (router: any, options: any) => {
    * remove auth
    */
   router.get("/collection", getCollections);
+  router.get("/collection/top", getTopCollections);
   router.get("/collection/:contract/items", getItems);
   router.get("/collection/:contract/owners",  getOwners);
   router.get("/collection/:contract/history", getHistory);

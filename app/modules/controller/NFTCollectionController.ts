@@ -53,6 +53,7 @@ export class NFTCollectionController extends AbstractEntity {
     super();
     this.data = nft;
   }
+
   async getCollections(filters?:IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -108,6 +109,73 @@ export class NFTCollectionController extends AbstractEntity {
             };
           }));
           return respond(collections);
+        }
+        return respond("collection not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`NFTController::getCollection::${this.ownerTable}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
+  async getTopCollections(filters?:IQueryFilters): Promise<IResponse> {
+    try {
+      if (this.mongodb) {
+        const collectionTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
+
+        let aggregation = {} as any;
+        // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
+        if (filters) {
+          aggregation = this.parseFilters(filters);
+        }
+        const result = await collectionTable.aggregate(aggregation).toArray() as Array<INFTCollection>;
+        if (result) {
+          const collections = await Promise.all(result.map(async (collection) => {
+            let volume = 0;
+            let _24h = 0;
+            let floorPrice = 0;
+            let owners = [];
+            const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
+            nfts.forEach(nft => {
+              volume += nft.price;
+              if (floorPrice > nft.price)
+                floorPrice = nft.price;
+              if (owners.indexOf(nft.owner) == -1)
+                owners.push(nft.owner);
+            });
+
+            const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
+            return {
+              _id:collection._id,
+              logoUrl: collection.logoUrl,
+              featuredUrl:collection.featuredUrl,
+              bannerUrl:collection.bannerUrl,
+              contract:collection.contract,
+              creator:collection.creator,
+              creatorDetail: creator,
+              url:collection.url, 
+              description:collection.description,
+              category:collection.category,
+              links:collection.links,
+              name: collection.name,
+              blockchain: collection.blockchain,
+              volume: volume,
+              _24h: _24h,
+              floorPrice: floorPrice,
+              owners: owners.length,
+              items: nfts.length,
+              isVerified: collection.isVerified,
+              isExplicit:collection.isExplicit,
+              properties: collection.properties,
+              platform: collection.platform
+            };
+          }));
+
+          return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
         }
         return respond("collection not found.", true, 422);
       } else {

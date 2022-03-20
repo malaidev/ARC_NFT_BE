@@ -33,6 +33,15 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
   res.send(result);
 };
 
+export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getTopCollections(filters);
+  res.send(result);
+};
+
 /**
  * Get NFT Items in collection
  * Method: GET
