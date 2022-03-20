@@ -646,58 +646,112 @@
      } 
   },
   "paths":{
-   "/nft/collection":{
-      "get":{
-         "description":"Get All Collections",
-         "tags":[
-            "Collection"
-         ],
-         "parameters":[        
-            {
-               "in":"query",
-               "name":"orderBy",
-               "schema":{
-                  "type":"string"
+      "/nft/collection":{
+         "get":{
+            "description":"Get All Collections",
+            "tags":[
+               "Collection"
+            ],
+            "parameters":[        
+               {
+                  "in":"query",
+                  "name":"orderBy",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"fieldName"
                },
-               "description":"fieldName"
-            },
-            {
-               "in":"query",
-               "name":"direction",
-               "schema":{
-                  "type":"string",
-                  "enum": ["ASC", "DESC"]
-               },
-               "description":"ASC/DESC"
-            },            
-            {
-               "in":"query",
-               "name":"filters",
-               "schema":{
-                  "type":"string"
-               },
-               "description":"[{fieldName:@field,query:@value}]",
-               "example":"[{\"fieldName\":\"isVerified\",\"query\":\"false\"}]"
+               {
+                  "in":"query",
+                  "name":"direction",
+                  "schema":{
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
+                  },
+                  "description":"ASC/DESC"
+               },            
+               {
+                  "in":"query",
+                  "name":"filters",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"[{fieldName:@field,query:@value}]",
+                  "example":"[{\"fieldName\":\"isVerified\",\"query\":\"false\"}]"
 
-            }
-         ],           
-         "responses":{
-            "200":{
-               "description":"All Collections",
-               "content":{
-                  "application/json":{
-                     "schema":{
-                        "type":"array",
-                        "items":{
-                           "$ref":"#/definitions/INFTCollection"
+               }
+            ],           
+            "responses":{
+               "200":{
+                  "description":"All Collections",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/definitions/INFTCollection"
+                           }
                         }
                      }
                   }
                }
             }
          }
-      }
-   },
+      },
+
+
+      "/nft/collection/top":{
+         "get":{
+            "description":"Get Top Collections",
+            "tags":[
+               "Collection"
+            ],
+            "parameters":[        
+               {
+                  "in":"query",
+                  "name":"orderBy",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"fieldName"
+               },
+               {
+                  "in":"query",
+                  "name":"direction",
+                  "schema":{
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
+                  },
+                  "description":"ASC/DESC"
+               },            
+               {
+                  "in":"query",
+                  "name":"filters",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"[{fieldName:@field,query:@value}]",
+                  "example":"[{\"fieldName\":\"isVerified\",\"query\":\"false\"}]"
+
+               }
+            ],           
+            "responses":{
+               "200":{
+                  "description":"Top Collections",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/definitions/INFTCollection"
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
 
      "/nft/collection/{contract}/items":{
         "get":{
