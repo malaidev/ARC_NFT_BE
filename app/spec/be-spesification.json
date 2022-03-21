@@ -1003,35 +1003,8 @@
             }
          }
       },
-      "/nft/collection/create":{
-         "post":{
-            "description":"Create new collection and persisted to DB",
-            "tags":[
-               "Collection"
-            ],
-            "security":[   {
-                  "bearerAuth":[]
-               }
-            ],
-            "requestBody":{
-               "content":{
-                  "application/json":{
-                     "schema":{
-                        "type":"object",
-                        
-                        "$ref":"#/definitions/ParamCreateCollection"
-                     }
-                  }
-               }
-            },
-            "responses":{
-               "201":{
-                  "description":"Success"                 
-               }
-            }
-         }
-      },
-
+      
+      
       "/nft/activity":{
          "get":{
             "description":"Get all NFTs in collection",
@@ -1282,39 +1255,7 @@
          }
       },
   
-     "/nft/items/create":{
-        "post":{
-           "description":"Create NFT item - save DB  ",
-           "tags":[
-              "Items"
-           ],
-           "security":[     {
-                 "bearerAuth":[]
-              }
-           ],
-           "requestBody":{
-              "content":{
-                 "application/json":{
-                    "schema":{
-                       "type":"object",
-                       "$ref":"#/definitions/CreateItemParam"
-                    }
-                 }
-              }
-           },
-           "responses":{
-              "201":{
-                 "description":"Success created NFT"
-              },
-              "501":{
-               "description":"cannot find collection"
-               },
-               "422":{
-                  "description":"cannot find owner and creator"
-               }
-           }
-        }
-     },
+      
     
      "/nft/items":{
       "get":{
@@ -1352,6 +1293,56 @@
          "responses":{
             "200":{
                "description":"all NFTs in collection",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                      "type":"array",
+                      "items":{
+                         "$ref":"#/definitions/INFT"
+                      } 
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+   "/nft/items/trending":{
+      "get":{
+         "description":"Get trending  NFTs in collection",
+         "tags":[
+            "Items"
+         ],
+         "parameters":[        
+            {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]"
+            }
+         ],          
+         "responses":{
+            "200":{
+               "description":"trending NFTs in collection",
                "content":{
                   "application/json":{
                      "schema":{
