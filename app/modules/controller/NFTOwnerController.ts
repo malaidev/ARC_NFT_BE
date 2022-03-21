@@ -313,6 +313,82 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+
+
+  /**
+   * 
+   * @param ownerId 
+   * 
+   * @param contract 
+   * @param nftId 
+   * @returns 
+   */
+
+
+   async getOwnerOffers (ownerId: string, filters?: IQueryFilters): Promise<Array<IActivity> | IResponse> {
+    try {
+      if (this.mongodb) {
+        const activity = this.mongodb.collection(this.historyTable)
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const collection= this.mongodb.collection(this.collectionTable)
+        let aggregation = {} as any;
+        // const query = this.findOwnerHistory(ownerId);
+        if (filters) {
+          aggregation = this.parseFilters(filters);
+          aggregation.push({ $match: { 
+            '$and':[
+                {'type':'Offer'}
+            ],
+            $or: [
+              {
+                'from': ownerId
+              },
+              {
+                'to': ownerId
+              }
+            ]
+          }, });
+          console.log(aggregation);
+        };
+
+        const result = await activity.aggregate(aggregation).toArray() as Array<IActivity>;
+        if (result){
+          const resActivities = await Promise.all(result.map(async(item)=>{
+            const nfts = await nftTable.findOne({collection:item.collection,index:item.nftId}) as INFT;
+            const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
+            
+            return {
+              ...item,
+              nft:{artUri: nfts.artURI, name: nfts.name},
+              collection:{...coll}
+            }
+
+
+        }))
+
+          return respond(resActivities);
+        }
+
+        return respond("Activities not found.", true, 422);
+
+        //   const items = await collection.aggregate(aggregation).toArray();
+        //   return items as Array<IActivity>;
+        // } else {
+        //   const result = await collection.find(query).toArray();
+        //   return result as Array<IActivity>
+        // }
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+  }
+
+
+
+
   /**
    * 
    * @param ownerId 
