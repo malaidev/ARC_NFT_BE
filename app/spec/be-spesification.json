@@ -1759,6 +1759,68 @@
         }
      }, 
 
+      "/nft/owners/{ownerId}/offers ":{
+         "get":{
+            "description":"get offers by wallet",
+            "tags":[
+               "Person"
+            ], 
+            "parameters":[
+               {
+                  "in":"path",
+                  "name":"ownerId",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "required":true,
+                  "description":"Owner Address"
+               },
+               {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]"                
+               
+            }
+            ],
+            
+            "responses":{
+               "200":{
+                  "description":"Offer List",
+                  "content":{
+                     "application/json":{
+                        "schema":{                        
+                           "type":"array",
+                           "items":{
+                           "$ref":"#/definitions/IActivity"
+                        } 
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }, 
+
      "/nft/owners/{ownerId}/collection":{
         "get":{
            "description":"Get collection ",
