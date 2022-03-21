@@ -15,7 +15,8 @@ export interface INFT {
   lockContent?: string;           // content
   isExplicit: boolean;            // explicit flag
   explicitContent?: string;       // explicit content
-  status?: string;                // For Sale, Minted, Sold
+  status?: string;                // For Sale, Minted, Sold,
+  status_date?:number
 }
 
 export interface IPrice {

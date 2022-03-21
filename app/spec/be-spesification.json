@@ -705,17 +705,44 @@
            "tags":[
               "Collection"
            ], 
-           "parameters":[
-              {
-                 "in":"path",
-                 "name":"contract",
-                 "schema":{
-                    "type":"string"
-                 },
-                 "required":true,
-                 "description":"Contract Id"
-              }
-           ],
+           
+           "parameters":[    
+            {
+               "in":"path",
+               "name":"contract",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Contract Id"
+            },    
+            {
+               "in":"query",
+               "name":"orderBy",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"fieldName"
+            },
+            {
+               "in":"query",
+               "name":"direction",
+               "schema":{
+                  "type":"string",
+                  "enum": ["ASC", "DESC"]
+               },
+               "description":"ASC/DESC"
+            },            
+            {
+               "in":"query",
+               "name":"filters",
+               "schema":{
+                  "type":"string"
+               },
+               "description":"[{fieldName:@field,query:@value}]" 
+            }
+         ],   
+
            "responses":{
               "200":{
                  "description":"get NFT Item contract",
@@ -773,17 +800,44 @@
            "tags":[
               "Collection"
            ],            
-           "parameters":[
-              {
-                 "in":"path",
-                 "name":"contract",
-                 "schema":{
-                    "type":"string"
-                 },
-                 "required":true,
-                 "description":"Collection Contract Address"
-              }
-           ],
+           
+           "parameters":[    
+               {
+                  "in":"path",
+                  "name":"contract",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "required":true,
+                  "description":"Contract Id"
+               },    
+               {
+                  "in":"query",
+                  "name":"orderBy",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"fieldName"
+               },
+               {
+                  "in":"query",
+                  "name":"direction",
+                  "schema":{
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
+                  },
+                  "description":"ASC/DESC"
+               },            
+               {
+                  "in":"query",
+                  "name":"filters",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"[{fieldName:@field,query:@value}]" 
+
+               }
+         ],   
            "responses":{
               "200":{
                  "description":"Response Get transfer history of NFT items in collection",
@@ -806,9 +860,8 @@
             "description":"Get all activities (bids and transfer) of NFT items in collection",
             "tags":[
                "Collection"
-            ],
-               
-            "parameters":[
+            ],               
+            "parameters":[    
                {
                   "in":"path",
                   "name":"contract",
@@ -816,9 +869,34 @@
                      "type":"string"
                   },
                   "required":true,
-                  "description":"Collection Contract Address"
+                  "description":"Contract Id"
+               },    
+               {
+                  "in":"query",
+                  "name":"orderBy",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"fieldName"
+               },
+               {
+                  "in":"query",
+                  "name":"direction",
+                  "schema":{
+                     "type":"string",
+                     "enum": ["ASC", "DESC"]
+                  },
+                  "description":"ASC/DESC"
+               },            
+               {
+                  "in":"query",
+                  "name":"filters",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "description":"[{fieldName:@field,query:@value}]" 
                }
-            ],
+            ], 
             "responses":{
                "200":{
                   "description":"Activities base on contract",
@@ -1268,6 +1346,50 @@
                      "schema":{
                         "type":"object",
                         "$ref":"#/definitions/INFT"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+ 
+   "/nft/items/{contract}/{nftId}/offers":{
+      "get":{
+         "description":"Get NFT item offers",
+         "tags":[
+            "Items"
+         ], 
+         "parameters":[
+            {
+               "in":"path",
+               "name":"contract",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"Collection offers"
+            },
+            {
+               "in":"path",
+               "name":"nftId",
+               "schema":{
+                  "type":"string"
+               },
+               "required":true,
+               "description":"offers  in collection"
+            }
+         ],
+         "responses":{
+            "200":{
+               "description":"get NFT offers",
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"array",
+                        "items":{
+                          "$ref":"#/definitions/IActivity"
+                       }  
                      }
                   }
                }
