@@ -11,3 +11,4 @@ yarn.lock
 venv
 cdk.out
 __pycache__
+thunder-tests
