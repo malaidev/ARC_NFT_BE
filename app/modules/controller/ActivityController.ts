@@ -17,6 +17,7 @@ import { respond } from "../util/respond";
  * @property {historyTable}
  * @property {nftCollectionTable}
  * 
+ * 
  * @method getAllActivites
  * @method listForSale
  * @method makeOffer
@@ -59,6 +60,8 @@ export class ActivityController extends AbstractEntity {
    */
   async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {
     try {
+
+      
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
@@ -187,12 +190,14 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
 
+        if (isNaN(Number(endDate))){return respond("endDate should be unix timestamp", true, 422);}
+
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
 
         const startDate = new Date().getTime();
-        console.log(startDate, endDate, startDate > endDate);
+        // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -236,10 +241,12 @@ export class ActivityController extends AbstractEntity {
   async listForSale(contract: string, nftId: string, seller: string, price: number, endDate: number, fee: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
-
+        
+        if (isNaN(Number(endDate))){return respond("endDate should be unix timestamp", true, 422);}
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
+        
 
         const startDate = new Date().getTime();
         console.log(startDate, endDate, startDate > endDate);
