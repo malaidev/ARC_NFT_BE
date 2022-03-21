@@ -45,44 +45,46 @@ async function mount() {
     secret: config.jwt,
   });
  
-  app.register( SwaggerPlugin, {
-    routePrefix: '/doc',
-    mode: 'static',
-    exposeRoute: true,
-    specification: {
-      path: './app/spec/be-spesification.json',
-      postProcessor: function(swaggerObject) {
-        return swaggerObject
-      } , 
-      baseDir: '/app/spec',
-    },
-    swagger: {
-      info: {
-        title: 'DEPO API',
-        description: 'REST API DEPO documentation',
-        version: '1.0.0'
+  if (process.env.ENV !== 'production') {
+    await app.register( SwaggerPlugin, {
+      routePrefix: '/doc',
+      mode: 'static',
+      exposeRoute: true,
+      specification: {
+        path: './app/spec/be-spesification.json',
+        postProcessor: function(swaggerObject) {
+          return swaggerObject
+        } , 
+        baseDir: '/app/spec',
       },
-      externalDocs: {
-        url: 'https://swagger.io',
-        description: 'Find more info here'
-      },
-      host: 'staging.api.depo.io:443',
-      schemes: [
-        'http',      
-        'https'
-      ],
-      consumes: ['application/json'],
-      produces: ['application/json'] ,
-      securityDefinitions: {
-        ApiToken: {
-          description: 'Authorization header token, sample: "Bearer #TOKEN#"',
-          type: 'apiKey',
-          name: 'Authorization',
-          in: 'header'
-        } 
+      swagger: {
+        info: {
+          title: 'DEPO API',
+          description: 'REST API DEPO documentation',
+          version: '1.0.0'
+        },
+        externalDocs: {
+          url: 'https://swagger.io',
+          description: 'Find more info here'
+        },
+        host: 'staging.api.depo.io:443',
+        schemes: [
+          'http',      
+          'https'
+        ],
+        consumes: ['application/json'],
+        produces: ['application/json'] ,
+        securityDefinitions: {
+          ApiToken: {
+            description: 'Authorization header token, sample: "Bearer #TOKEN#"',
+            type: 'apiKey',
+            name: 'Authorization',
+            in: 'header'
+          } 
+        }
       }
-    }
-    });
+      });
+  }
     
 /**
  * This hooks acts as middlewares performing
