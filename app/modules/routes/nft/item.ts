@@ -103,7 +103,23 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new NFTController();
   const result = await ctl.getItems(filters);
   res.send(result);
+};
 
+/**
+ * Get all NFTs in collection
+ * Method: GET
+ * 
+ * @param {*} req
+ * @param {*} res
+ *    Array<INFT>
+ */
+ export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const ctl = new NFTController();
+  const result = await ctl.getTrendingItems(filters);
+  res.send(result);
 };
 
 /**
