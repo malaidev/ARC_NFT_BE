@@ -139,7 +139,6 @@ export class NFTController extends AbstractEntity {
 
   /**
    * Get all NFTs in collection
-   * @param contract Collection Contract Address
    * @param filters filter
    * @returns Array<INFT>
    */
@@ -177,6 +176,52 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+/**
+ * Get all trending NFTs in collection
+ * @param filters filter
+ * @returns Array<INFT>
+ */
+async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  try {
+    if (this.mongodb) {
+      const nftTable = this.mongodb.collection(this.table);
+      const collTable = this.mongodb.collection(this.nftCollectionTable);
+      const activityTable = this.mongodb.collection(this.activityTable);
+
+      let aggregation = {} as any;
+      if (filters) {
+        aggregation = this.parseFilters(filters);
+      }
+      const result = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
+      if (result) {
+        const resultsNFT= await Promise.all(result.map(async(item)=>{
+          const collection=await collTable.findOne({contract:item.collection}) as INFTCollection
+          const activity = await activityTable.find({contract:item.collection, nftId: item.index, type: "Offer"}).toArray() as Array<IActivity>;
+
+          return {
+            ...item,
+            collection_details:{
+              _id:collection._id,
+              contract:collection.contract,
+              name: collection.name
+            },
+            counts: activity.length
+          }
+        }));
+        
+        return respond(resultsNFT.sort((item1, item2) => item2.counts - item1.counts).slice(0, 10));
+      }
+      return respond("Items not found.", true, 422);
+    } else {
+      throw new Error("Could not connect to the database.");
+    }
+  } catch (error) {
+    console.log(`NFTController::getTrendingItems::${this.table}`, error);
+    return respond(error.message, true, 500);
+  }
+}
+
   /**
    * Create NFT item - save to NFT table in db
    * It check collection, owner and creator.
