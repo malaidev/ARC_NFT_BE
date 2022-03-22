@@ -16,12 +16,18 @@ export interface INFT {
   isExplicit: boolean;            // explicit flag
   explicitContent?: string;       // explicit content
   royalties?:number,              // royalties
-  tokenType?:string,              // eq ERC721 or ERC 1155
   status?: string;                // For Sale, Minted, Sold,
-  status_date?:number
+  status_date?:number,
+  tokenType?:TokenType,              // eq ERC721 or ERC 1155
 }
 
+export enum TokenType {
+  ERC20=<any>"ERC20", 
+  ERC721=<any>"ERC721",
+  ERC1155=<any>"ERC1155"
+}
 export interface IPrice {
   price: number;
   timestamp: Date;
 }
+

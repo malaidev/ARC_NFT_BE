@@ -1,6 +1,6 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
-import { INFT } from "../interfaces/INFT";
+import { INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -309,6 +309,11 @@ export class NFTController extends AbstractEntity {
     if (!creator) {
       return respond("creator not found.", true, 422);
     }
+    if (!TokenType[tokenType]){
+      let x=[];
+      for (const k in TokenType) { x.push(k) };
+      return respond(`Token Type value only accept ${x.join()}`)
+    }
     const nft: INFT = {
       collection: contract,
       index: nftId,
@@ -322,10 +327,11 @@ export class NFTController extends AbstractEntity {
       isLockContent: isLockContent ?? false,
       isExplicit: isExplicit ?? false,
       royalties:royalties??0,
-      tokenType:tokenType??"",
+      
       status: "Minted",
       status_date: new Date().getTime(),
       properties: properties ?? {},
+      tokenType:TokenType[tokenType]
     };
 
     const result = await nftTable.insertOne(nft);
