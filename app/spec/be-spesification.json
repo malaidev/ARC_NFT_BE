@@ -168,6 +168,9 @@
           } , 
           "creatorAddr":{
             "type":"string"
+          },
+          "properties":{
+            "type":"string"
           }          
         }
     },
@@ -1256,7 +1259,39 @@
       },
   
       
-    
+      "/nft/items/create":{
+         "post":{
+            "description":"Create NFT item - save DB  ",
+            "tags":[
+               "Items"
+            ],
+            "security":[     {
+                  "bearerAuth":[]
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/CreateItemParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success created NFT"
+               },
+               "501":{
+                "description":"cannot find collection"
+                },
+                "422":{
+                   "description":"cannot find owner and creator"
+                }
+            }
+         }
+      },
      "/nft/items":{
       "get":{
          "description":"Get all NFTs in collection",
