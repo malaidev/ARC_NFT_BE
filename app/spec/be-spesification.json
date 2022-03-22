@@ -683,6 +683,34 @@
         ]
      } 
   },
+   "/nft/collection/create":{
+      "post":{
+         "description":"Create new collection and persisted to DB",
+         "tags":[
+            "Collection"
+         ],
+         "security":[   {
+               "bearerAuth":[]
+            }
+         ],
+         "requestBody":{
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "type":"object",
+                     
+                     "$ref":"#/definitions/ParamCreateCollection"
+                  }
+               }
+            }
+         },
+         "responses":{
+            "201":{
+               "description":"Success"                 
+            }
+         }
+      }
+   },
   "paths":{
       "/nft/collection":{
          "get":{
