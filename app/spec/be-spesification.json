@@ -148,33 +148,64 @@
           }          
         }
     },
-    "CreateItemParam":{
-      "type":"object",
-      "properties":{ 
-        "contract":{
-            "type":"string"
-        },
-        "nftId":{
-          "type":"string"
-          },
-          "artURI":{
-            "type":"string"
-          },
-          "price":{
-            "type":"number"
-          },
-          "ownerAddr":{
-            "type":"string"
-          } , 
-          "creatorAddr":{
-            "type":"string"
-          },
-          "properties":{
-            "type":"string"
-          }          
-        }
-    },
- 
+    "CreateItemParam": {
+      "type": "object",
+      "properties": {
+         "contract": {
+            "type": "string"
+         },
+         "nftId": {
+            "type": "string"
+         },
+         "ownerAddr": {
+            "type": "string"
+         },
+         "creatorAddr": {
+            "type": "string"
+         }, 
+         "artURI": {
+            "type": "string"
+         },
+         "name": {
+            "type": "string"
+         },
+         "price": {
+            "type": "number"
+         },
+         "externalLink": {
+            "type": "string"
+         },
+         "description": {
+            "type": "string"
+         },
+         "properties": {
+            "type": "object"                     
+         },
+         "isLockContent": {
+            "type": "boolean"
+         },
+         "lockContent": {
+            "type": "string"
+         },
+         "isExplicit": {
+            "type": "boolean"
+         },
+         "explicitContent": {
+            "type": "string"
+         } 
+      },
+      "required": [
+         "contract",
+         "nftId",
+         "ownerAddr",
+         "creatorAddr",
+         "artURI",
+         "name",
+         "price" 
+      ]  
+   },
+
+     
     "CreateOwnerParam":{
       "type":"object",
       "properties":{ 
@@ -525,69 +556,73 @@
          ] 
      },
 
-       "INFT": {
+      "INFT": {
          "type": "object",
          "properties": {
-             "collection": {
-                 "type": "string"
-             },
-             "index": {
-                 "type": "string"
-             },
-             "_id": {
-                 "type": "string"
-             },
-             "owner": {
-                 "type": "string"
-             },
-             "creator": {
-                 "type": "string"
-             },
-             "artURI": {
-                 "type": "string"
-             },
-             "price": {
-                 "type": "number"
-             },
-             "like": {
-                 "type": "number"
-             },
-             "auctionEnd": {
-                 "type": "string",
-                 "format": "date-time"
-             },
-             "protocol": {
-                 "type": "string"
-             },
-             "priceHistory": {
-                 "type": "array",
-                 "items": {
-                     "$ref": "#/definitions/IPrice"
-                 }
-             },
-             "history": {
-                 "type": "array",
-                 "items": {
-                     "$ref": "#/definitions/IActivity"
-                 }
-             },
-             "status": {
-                 "type": "string"
-             }
+            "_id": {
+               "type": "string"
+            },
+            "collection": {
+               "type": "string"
+            },
+            "index": {
+               "type": "string"
+            },
+            "owner": {
+               "type": "string"
+            },
+            "creator": {
+               "type": "string"
+            },
+            "artURI": {
+               "type": "string"
+            },
+            "name": {
+               "type": "string"
+            },
+            "price": {
+               "type": "number"
+            },
+            "externalLink": {
+               "type": "string"
+            },
+            "description": {
+               "type": "string"
+            },
+            "properties": {
+               "type": "object"                     
+            },
+            "isLockContent": {
+               "type": "boolean"
+            },
+            "lockContent": {
+               "type": "string"
+            },
+            "isExplicit": {
+               "type": "boolean"
+            },
+            "explicitContent": {
+               "type": "string"
+            },
+            "status": {
+               "type": "string"
+            },
+            "status_date": {
+               "type": "number"
+            }
          },
          "required": [
-             "artURI",
-             "collection",
-             "creator",
-             "history",
-             "index",
-             "like",
-             "owner",
-             "price",
-             "priceHistory",
-             "status"
-         ] 
-     } ,
+            "collection",
+            "index",
+            "owner",
+            "creator",
+            "artURI",
+            "name",
+            "price" 
+         ]  
+      },
+
+
      "IPrice":{
         "type":"object",
         "properties":{
