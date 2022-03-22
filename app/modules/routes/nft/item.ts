@@ -139,8 +139,33 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
  *              422 (cannot find owner and creator)
  */
 export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, artURI, price, ownerAddr, creatorAddr,properties} = req.body as any;
+  const {contract, 
+        nftId,
+        artURI, 
+        price, 
+        ownerAddr, 
+        creatorAddr,
+        name,
+        externalLink,
+        description, 
+        properties,
+        isLockContent,lockContent,isExplicit,explicitContent} = req.body as any;
   const ctl = new NFTController();
-  const result = await ctl.createNFT(contract, nftId, artURI, price, ownerAddr, creatorAddr,properties);
+  const result = await ctl.createNFT(
+    contract,
+    nftId,
+    ownerAddr,
+    creatorAddr,
+    artURI,
+    price,
+    name,
+    externalLink,
+    description,
+    isLockContent,
+    lockContent,
+    isExplicit,
+    explicitContent,
+    properties
+  );
   res.send(result);
 };
