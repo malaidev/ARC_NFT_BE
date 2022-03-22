@@ -237,7 +237,7 @@ async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse
    * @param creatorAddr 
    * @returns 
    */
-  async createNFT(contract: string, nftId: string, artURI: string, price: number, ownerAddr: string, creatorAddr: string): Promise<IResponse> {
+  async createNFT(contract: string, nftId: string, artURI: string, price: number, ownerAddr: string, creatorAddr: string,properties:object): Promise<IResponse> {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
@@ -267,10 +267,11 @@ async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse
       artURI: artURI,
       price: price,
       name: "",
-      properties: {},
+      
       isLockContent: false,
       isExplicit: false,
-      status: 'Minted'
+      status: 'Minted',
+      properties: properties??{},
     }
 
     const result = await nftTable.insertOne(nft);
