@@ -31,7 +31,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelListForSale", cancelListForSale);
 
   router.get("/items", getAllItems);
-  // router.post("/items/create", config.route("jwt"), createItem);
+  router.post("/items/create", config.route("jwt"), createItem);
   router.get("/items/:contract/:nftId/history", getItemHistory);
   router.get("/items/:contract/:nftId/offers", getItemOffers);
   router.get("/items/:contract/:nftId", getItemDetail);
