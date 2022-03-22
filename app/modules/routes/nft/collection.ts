@@ -182,10 +182,11 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *    linkMedium?:
  *    linkTelegram?:
  *    creatorEarning?:
- *    blockchain*:
+ *    blockchain*: string - ERC721 or ERC1135
  *    isVerified*:
  *    isExplicit*:
  *    explicitContent?:
+ *    properties: string (JSON Stringify)
  *    
  * @param res 
  *    result of creation
