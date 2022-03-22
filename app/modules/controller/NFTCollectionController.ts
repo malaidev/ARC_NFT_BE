@@ -384,7 +384,7 @@ export class NFTCollectionController extends AbstractEntity {
   async createCollection(contract: string, name: string, logoUrl: string, creatorAddress: string,
     featuredUrl: string, bannerUrl: string, URL: string, description: string, category: string, 
     linkSite: string, linkDiscord: string, linkInstagram: string, linkMedium: string, linkTelegram: string, 
-    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string
+    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string, properties: string
     ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -432,7 +432,7 @@ export class NFTCollectionController extends AbstractEntity {
         linkInstagram ?? '', linkMedium ?? '',
         linkTelegram ?? ''],
         platform: platform ?? 'Unknown',
-        properties: {}
+        properties: JSON.parse(properties)
       }
       const result = await collection.insertOne(nftCollection);
       return (result

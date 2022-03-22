@@ -196,12 +196,12 @@ export const createCollection = async (req: FastifyRequest, res: FastifyReply) =
   const { contract, name, logoUrl, creator, platform,
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent } = req.body as any;
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, properties } = req.body as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.createCollection(contract, name, logoUrl, creator, 
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, platform);
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, platform, properties);
   res.send(result);
 }
 
