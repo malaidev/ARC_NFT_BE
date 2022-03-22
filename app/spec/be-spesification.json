@@ -180,8 +180,11 @@
          },
          "properties": {
             "type": "object"                     
-         },
-         "isLockContent": {
+         },"royalties": {
+            "type": "number"
+         }, "tokenType": {
+            "type": "string"
+         },"isLockContent": {
             "type": "boolean"
          },
          "lockContent": {
@@ -591,8 +594,11 @@
             },
             "properties": {
                "type": "object"                     
-            },
-            "isLockContent": {
+            }, "royalties": {
+               "type": "number"
+            }, "tokenType": {
+               "type": "string"
+            },"isLockContent": {
                "type": "boolean"
             },
             "lockContent": {
