@@ -100,8 +100,8 @@
          },"creatorEarning":{
             "type":"string"
          },"blockchain":{
-            "type":"string",
-            "enum": ["Ethereum", "Polygon","BSC", "Optimism"]
+            "type":"string", 
+            "enum": ["ERC721", "ERC1155" ]
          },"isVerified":{
             "type":"string"
          },"isExplicit":{
