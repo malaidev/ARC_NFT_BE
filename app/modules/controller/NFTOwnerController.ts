@@ -101,7 +101,11 @@ export class NFTOwnerController extends AbstractEntity {
       });
     }else{
       await personTable.insertOne({
-        wallet:personId
+        wallet:personId,
+        photoUrl:"",
+        social:"",
+        bio:"",
+        username: ""
       });
       const result = await this.findOne(query);
       return respond(result);
