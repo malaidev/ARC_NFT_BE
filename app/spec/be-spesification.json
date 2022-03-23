@@ -100,8 +100,8 @@
          },"creatorEarning":{
             "type":"string"
          },"blockchain":{
-            "type":"string",
-            "enum": ["Ethereum", "Polygon","BSC", "Optimism"]
+            "type":"string", 
+            "enum": ["ERC721", "ERC1155" ]
          },"isVerified":{
             "type":"string"
          },"isExplicit":{
@@ -180,8 +180,11 @@
          },
          "properties": {
             "type": "object"                     
-         },
-         "isLockContent": {
+         },"royalties": {
+            "type": "number"
+         }, "tokenType": {
+            "type": "string"
+         },"isLockContent": {
             "type": "boolean"
          },
          "lockContent": {
@@ -591,8 +594,11 @@
             },
             "properties": {
                "type": "object"                     
-            },
-            "isLockContent": {
+            }, "royalties": {
+               "type": "number"
+            }, "tokenType": {
+               "type": "string"
+            },"isLockContent": {
                "type": "boolean"
             },
             "lockContent": {
@@ -683,34 +689,7 @@
         ]
      } 
   },
-   "/nft/collection/create":{
-      "post":{
-         "description":"Create new collection and persisted to DB",
-         "tags":[
-            "Collection"
-         ],
-         "security":[   {
-               "bearerAuth":[]
-            }
-         ],
-         "requestBody":{
-            "content":{
-               "application/json":{
-                  "schema":{
-                     "type":"object",
-                     
-                     "$ref":"#/definitions/ParamCreateCollection"
-                  }
-               }
-            }
-         },
-         "responses":{
-            "201":{
-               "description":"Success"                 
-            }
-         }
-      }
-   },
+   
   "paths":{
       "/nft/collection":{
          "get":{
@@ -764,7 +743,34 @@
             }
          }
       },
-
+      "/nft/collection/create":{
+         "post":{
+            "description":"Create new collection and persisted to DB",
+            "tags":[
+               "Collection"
+            ],
+            "security":[   {
+                  "bearerAuth":[]
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        
+                        "$ref":"#/definitions/ParamCreateCollection"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success"                 
+               }
+            }
+         }
+      },
 
       "/nft/collection/top":{
          "get":{
