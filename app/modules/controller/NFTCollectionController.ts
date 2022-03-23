@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
@@ -340,48 +341,39 @@ export class NFTCollectionController extends AbstractEntity {
    * Create new collection - save to MongoDB 
    * It check collection is in database, then fail
    * Otherwise add new collection
-   * 
-   * @param contract 
+   * @param logoFile 
+   * @param featuredImgFile 
+   * @param bannerImgFile 
    * @param name 
-   * @param logoUrl 
-   * @param creatorAddress 
-   * @param featuredUrl 
-   * @param bannerUrl 
-   * @param URL 
    * @param description 
    * @param category 
-   * @param linkSite 
-   * @param linkDiscord 
-   * @param linkInstagram 
-   * @param linkMedium 
-   * @param linkTelegram 
+   * @param siteUrl 
+   * @param discordUrl 
+   * @param instagramUrl 
+   * @param mediumUrl 
+   * @param telegramUrl 
    * @param creatorEarning 
    * @param blockchain 
-   * @param isVerified 
    * @param isExplicit 
-   * @param explicitContent 
+   * @param creatorId 
    * @returns result of creation
    */
-  async createCollection(contract: string, name: string, logoUrl: string, creatorAddress: string,
-    featuredUrl: string, bannerUrl: string, URL: string, description: string, category: string, 
-    linkSite: string, linkDiscord: string, linkInstagram: string, linkMedium: string, linkTelegram: string, 
-    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string, properties: string
+  async createCollection(logoFile, featuredImgFile, bannerImgFile, name, description, category,
+    siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
+    creatorEarning, blockchain, isExplicit, creatorId
     ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
-      const creator = await ownerTable.findOne(this.findPerson(creatorAddress)) as IPerson;
+      const creator = await ownerTable.findOne(this.findPersonById(creatorId)) as IPerson;
       if (!creator) {
         throw new Error("creator address is invalid or missing");
       }
-      if (contract == '' || !contract) {
-        throw new Error("contract address is invalid or missing");
-      }
-      if (logoUrl == '' || !logoUrl) {
+      if (logoFile == '' || !logoFile) {
         throw new Error("logoUrl is invalid or missing");
       }
       if (name == '' || !name) {
-        throw new Error("logoUrl is invalid or missing");
+        throw new Error("name is invalid or missing");
       }
       if (blockchain == '' || !blockchain) {
         throw new Error("blockchain is invalid or missing");
@@ -389,35 +381,44 @@ export class NFTCollectionController extends AbstractEntity {
       if (category == '' || !category) {
         throw new Error("category is invalid or missing");
       }
-      const query = this.findCollectionItem(contract);
+      const query = this.findCollectionItemByName(name);
       const findResult = await collection.findOne(query) as INFTCollection;
       if (findResult && findResult._id) {
-        throw new Error("Current collection has been created already");
+        throw new Error("Same collection name detected");
       }
+
+      let contract = "";
+      if (blockchain == 'ERC721')
+        contract = '0x8113901EEd7d41Db3c9D327484be1870605e4144';
+      else if (blockchain == 'ERC1155')
+        contract = '0xaf8fC965cF9572e5178ae95733b1631440e7f5C8';
+
       const nftCollection : INFTCollection = {
         name: name,
         contract: contract,
         creator: creator.wallet,
         creatorEarning: creatorEarning,
         blockchain: blockchain,
-        isVerified: isVerified ?? false,
+        isVerified: false,
         isExplicit: isExplicit ?? false,
-        logoUrl: logoUrl ?? '',
-        featuredUrl: featuredUrl ?? '',
-        bannerUrl: bannerUrl ?? '',
-        url: URL ?? '',
+        logoUrl: logoFile ?? '',
+        featuredUrl: featuredImgFile ?? '',
+        bannerUrl: bannerImgFile ?? '',
         description: description ?? '',
         category: category ?? '',
-        explicitContent: isExplicit ? explicitContent ?? '' : '',
-        links: [linkSite ?? '', linkDiscord ?? '',
-        linkInstagram ?? '', linkMedium ?? '',
-        linkTelegram ?? ''],
-        platform: platform ?? 'Unknown',
-        properties: JSON.parse(properties)
+        links: [siteUrl ?? '', discordUrl ?? '',
+        instagramUrl ?? '', mediumUrl ?? '',
+        telegramUrl ?? ''],
+        platform: 'Unknown',
+        properties: {}
       }
       const result = await collection.insertOne(nftCollection);
+      
+      if (result)
+        nftCollection._id = result.insertedId;
+
       return (result
-              ? respond(`Successfully created a new collection with id ${result.insertedId}`)
+              ? respond({...nftCollection, creator: creator})
               : respond("Failed to create a new collection.", true, 500));
     } catch (e) {
       return respond(e.message, true, 500);
@@ -469,14 +470,37 @@ export class NFTCollectionController extends AbstractEntity {
       contract: contract,
     };
   }
+
+  /**
+   * Mounts a generic query to find a collection by contract address.
+   * @param contract
+   * @returns
+   */
+   private findCollectionItemByName(name: string): Object {
+    return {
+      name: name,
+    };
+  }
+
   /**
    * Mounts a generic query to find a person by wallet address.
-   * @param contract
+   * @param address
    * @returns
    */
    private findPerson(address: string): Object {
     return {
       wallet: address,
+    };
+  }
+
+  /**
+   * Mounts a generic query to find a person by wallet address.
+   * @param contract
+   * @returns
+   */
+   private findPersonById(id: string): Object {
+    return {
+      _id: new ObjectId(id),
     };
   }
 
