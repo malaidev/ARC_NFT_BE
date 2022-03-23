@@ -171,6 +171,9 @@
          },
          "price": {
             "type": "number"
+         }, "tokenType": {
+            "type": "string",
+            "enum": ["ERC20","ERC721", "ERC1155" ]
          },
          "externalLink": {
             "type": "string"
@@ -182,9 +185,6 @@
             "type": "object"                     
          },"royalties": {
             "type": "number"
-         }, "tokenType": {
-            "type": "string",
-            "enum": ["ERC20","ERC721", "ERC1155" ]
          },"isLockContent": {
             "type": "boolean"
          },
