@@ -149,7 +149,7 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
         externalLink,
         description, 
         properties,
-        isLockContent,lockContent,isExplicit,explicitContent} = req.body as any;
+        isLockContent,lockContent,isExplicit,explicitContent,royalties,tokenType} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(
     contract,
@@ -165,6 +165,8 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
     lockContent,
     isExplicit,
     explicitContent,
+    royalties,
+    tokenType,
     properties
   );
   res.send(result);
