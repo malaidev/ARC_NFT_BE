@@ -7,9 +7,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ethersproject/abi": "^5.5.0",
     "@uniswap/sdk": "^3.0.3",
     "@walletconnect/web3-provider": "^1.7.1",
-    "@ethersproject/abi": "^5.5.0",
     "@wert-io/widget-sc-signer": "^0.0.2",
     "aws-sdk": "^2.1016.0",
     "axios": "^0.21.4",
@@ -28,6 +28,7 @@
     "fastify-plugin": "^2.3.3",
     "fastify-swagger": "^4.17.1",
     "http": "0.0.1-security",
+    "ipfs-http-client": "^56.0.1",
     "jest": "^27.5.1",
     "mailgun-js": "^0.22.0",
     "minimum-tls-version": "0.0.3",
