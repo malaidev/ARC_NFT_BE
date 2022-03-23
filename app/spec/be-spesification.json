@@ -73,9 +73,14 @@
             "type":"string"
          },"name":{
             "type":"string"
-         },"logoUrl":{
-            "type":"string"
          },"creator":{
+            "type":"string"
+         },"blockchain":{
+            "type":"string", 
+            "enum": ["ERC20","ERC721", "ERC1155" ]
+         },"category":{
+            "type":"string"
+         },"logoUrl":{
             "type":"string"
          },"featuredUrl":{
             "type":"string"
@@ -84,8 +89,6 @@
          },"URL":{
             "type":"string"
          },"description":{
-            "type":"string"
-         },"category":{
             "type":"string"
          },"linkSite":{
             "type":"string"         
@@ -99,9 +102,6 @@
             "type":"string"                            
          },"creatorEarning":{
             "type":"string"
-         },"blockchain":{
-            "type":"string", 
-            "enum": ["ERC20","ERC721", "ERC1155" ]
          },"isVerified":{
             "type":"string"
          },"isExplicit":{
@@ -118,13 +118,8 @@
          "name",
          "creator",
          "contract",
-         "links",
-         "creatorEarning",
-         "blockchain",
-         "isVerified",
-         "isExplicit",
-         "platform",
-         "properties"
+         "blockchain",         
+         "category"
        ]
    },
  
