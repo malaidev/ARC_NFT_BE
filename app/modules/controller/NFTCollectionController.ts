@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { create } from 'ipfs-http-client';
+import { uploadImage } from "../util/morailsHelper";
 
 /**
  * This is the NFTCollection controller class.
@@ -364,7 +364,6 @@ export class NFTCollectionController extends AbstractEntity {
     siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
     creatorEarning, blockchain, isExplicit, creatorId
     ): Promise<IResponse> {
-    const client = create({url: 'https://ipfs.infura.io:5001/api/v0'});
 
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -397,19 +396,16 @@ export class NFTCollectionController extends AbstractEntity {
       else if (blockchain == 'ERC1155')
         contract = '0xaf8fC965cF9572e5178ae95733b1631440e7f5C8';
 
-      const logoFileIPFS = await client.add(logoFile)
-      const logoUrl = `https://ipfs.infura.io/ipfs/${logoFileIPFS.path}`
+      const logoUrl = await uploadImage(logoFile);
     
       let featureUrl = '';
       if (featuredImgFile) {
-        const featureFileIPFS = await client.add(featuredImgFile)
-        featureUrl = `https://ipfs.infura.io/ipfs/${featureFileIPFS.path}`
+        featureUrl = await uploadImage(featuredImgFile)
       }
 
       let bannerUrl = '';
       if (bannerImgFile) {
-        const bannerFileIPFS = await client.add(bannerImgFile)
-        bannerUrl = `https://ipfs.infura.io/ipfs/${bannerFileIPFS.path}`
+        bannerUrl = await uploadImage(bannerImgFile)
       }
 
       const nftCollection : INFTCollection = {

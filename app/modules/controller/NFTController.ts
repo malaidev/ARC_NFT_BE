@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { create } from 'ipfs-http-client';
+import { uploadImage } from "../util/morailsHelper";
 
 /**
  * This is the NFT controller class.
@@ -280,7 +280,6 @@ export class NFTController extends AbstractEntity {
     isExplicit,
     tokenType
   ): Promise<IResponse> {
-    const client = create({url: 'https://ipfs.infura.io:5001/api/v0'});
 
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
@@ -297,9 +296,7 @@ export class NFTController extends AbstractEntity {
       return respond("collection not found.", true, 422);
     }
 
-    const added = await client.add(artFile)
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`
-
+    const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
       index: "0",
