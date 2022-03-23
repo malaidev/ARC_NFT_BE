@@ -73,9 +73,14 @@
             "type":"string"
          },"name":{
             "type":"string"
-         },"logoUrl":{
-            "type":"string"
          },"creator":{
+            "type":"string"
+         },"blockchain":{
+            "type":"string", 
+            "enum": ["ERC20","ERC721", "ERC1155" ]
+         },"category":{
+            "type":"string"
+         },"logoUrl":{
             "type":"string"
          },"featuredUrl":{
             "type":"string"
@@ -84,8 +89,6 @@
          },"URL":{
             "type":"string"
          },"description":{
-            "type":"string"
-         },"category":{
             "type":"string"
          },"linkSite":{
             "type":"string"         
@@ -99,9 +102,6 @@
             "type":"string"                            
          },"creatorEarning":{
             "type":"string"
-         },"blockchain":{
-            "type":"string",
-            "enum": ["Ethereum", "Polygon","BSC", "Optimism"]
          },"isVerified":{
             "type":"string"
          },"isExplicit":{
@@ -118,13 +118,8 @@
          "name",
          "creator",
          "contract",
-         "links",
-         "creatorEarning",
-         "blockchain",
-         "isVerified",
-         "isExplicit",
-         "platform",
-         "properties"
+         "blockchain",         
+         "category"
        ]
    },
  
@@ -171,6 +166,9 @@
          },
          "price": {
             "type": "number"
+         }, "tokenType": {
+            "type": "string",
+            "enum": ["ERC20","ERC721", "ERC1155" ]
          },
          "externalLink": {
             "type": "string"
@@ -180,8 +178,9 @@
          },
          "properties": {
             "type": "object"                     
-         },
-         "isLockContent": {
+         },"royalties": {
+            "type": "number"
+         },"isLockContent": {
             "type": "boolean"
          },
          "lockContent": {
@@ -201,7 +200,8 @@
          "creatorAddr",
          "artURI",
          "name",
-         "price" 
+         "price",
+         "tokenType" 
       ]  
    },
 
@@ -591,8 +591,11 @@
             },
             "properties": {
                "type": "object"                     
-            },
-            "isLockContent": {
+            }, "royalties": {
+               "type": "number"
+            }, "tokenType": {
+               "type": "string"
+            },"isLockContent": {
                "type": "boolean"
             },
             "lockContent": {
@@ -683,6 +686,7 @@
         ]
      } 
   },
+   
   "paths":{
       "/nft/collection":{
          "get":{
@@ -736,7 +740,34 @@
             }
          }
       },
-
+      "/nft/collection/create":{
+         "post":{
+            "description":"Create new collection and persisted to DB",
+            "tags":[
+               "Collection"
+            ],
+            "security":[   {
+                  "bearerAuth":[]
+               }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        
+                        "$ref":"#/definitions/ParamCreateCollection"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success"                 
+               }
+            }
+         }
+      },
 
       "/nft/collection/top":{
          "get":{

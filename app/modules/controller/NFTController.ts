@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
-import { INFT } from "../interfaces/INFT";
+import { INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -307,6 +307,7 @@ export class NFTController extends AbstractEntity {
       status: "Created",
       status_date: new Date().getTime(),
       properties: properties ?? {},
+      tokenType:TokenType[tokenType]
     };
 
     const result = await nftTable.insertOne(nft);
