@@ -18,7 +18,7 @@ export interface INFT {
   royalties?:number,              // royalties
   status?: string;                // For Sale, Minted, Sold,
   status_date?:number,
-  tokenType?:TokenType,              // eq ERC721 or ERC 1155
+  tokenType:TokenType,              // eq ERC721 or ERC 1155
 }
 
 export enum TokenType {

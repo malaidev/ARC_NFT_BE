@@ -101,7 +101,7 @@
             "type":"string"
          },"blockchain":{
             "type":"string", 
-            "enum": ["ERC721", "ERC1155" ]
+            "enum": ["ERC20","ERC721", "ERC1155" ]
          },"isVerified":{
             "type":"string"
          },"isExplicit":{
@@ -183,7 +183,8 @@
          },"royalties": {
             "type": "number"
          }, "tokenType": {
-            "type": "string"
+            "type": "string",
+            "enum": ["ERC20","ERC721", "ERC1155" ]
          },"isLockContent": {
             "type": "boolean"
          },
@@ -204,7 +205,8 @@
          "creatorAddr",
          "artURI",
          "name",
-         "price" 
+         "price",
+         "tokenType" 
       ]  
    },
 
