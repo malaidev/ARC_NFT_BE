@@ -278,7 +278,7 @@ export class NFTController extends AbstractEntity {
     properties,
     unlockableContent,
     isExplicit,
-    blockchain
+    tokenType
   ): Promise<IResponse> {
     const client = create({url: 'https://ipfs.infura.io:5001/api/v0'});
 
@@ -315,7 +315,7 @@ export class NFTController extends AbstractEntity {
       status_date: new Date().getTime(),
       properties: properties ?? {},
       lockContent: unlockableContent,
-      tokenType: blockchain == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
+      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
     };
 
     const result = await nftTable.insertOne(nft);

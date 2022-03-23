@@ -135,7 +135,7 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
   "properties": "object",
   "unlockableContent": "string",
   "isExplicit": "boolean",
-  "blockchain": "string",
+  "tokenType": "string",
  * @param {*} res
  *    success:  201
  *    failure:  501 (cannot find collection)
@@ -150,7 +150,7 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
     properties,
     unlockableContent,
     isExplicit,
-    blockchain} = req.body as any;
+    tokenType} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(
     artFile, 
@@ -161,7 +161,7 @@ export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
     properties,
     unlockableContent,
     isExplicit,
-    blockchain
+    tokenType
   );
   res.send(result);
 };
