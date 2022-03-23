@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
-import { INFT } from "../interfaces/INFT";
+import { INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -314,7 +314,8 @@ export class NFTController extends AbstractEntity {
       status: "Created",
       status_date: new Date().getTime(),
       properties: properties ?? {},
-      lockContent: unlockableContent
+      lockContent: unlockableContent,
+      tokenType: blockchain == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
     };
 
     const result = await nftTable.insertOne(nft);

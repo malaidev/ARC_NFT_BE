@@ -44,18 +44,18 @@ class Pipeline(core.Stack):
                         )
                     ],
                 ),
-                codepipeline.StageProps(
-                    stage_name="Approval",
-                    actions=[
-                        actions.ManualApprovalAction(                            
-                            additional_information="Need your approval to build...!",
-                            # external_entity_link="#{GitSourceVariables.ImageURI}",
-                            notify_emails=["henry@depo.io" ],
-                            action_name=self.give_name("approvebuild"),   
-                            run_order=1 
-                        ),
-                    ],
-                ),                
+                # codepipeline.StageProps(
+                #     stage_name="Approval",
+                #     actions=[
+                #         actions.ManualApprovalAction(                            
+                #             additional_information="Need your approval to build...!",
+                #             # external_entity_link="#{GitSourceVariables.ImageURI}",
+                #             notify_emails=["henry@depo.io" ],
+                #             action_name=self.give_name("approvebuild"),   
+                #             run_order=1 
+                #         ),
+                #     ],
+                # ),                
                 codepipeline.StageProps(
                     stage_name="Build",
                     actions=[
