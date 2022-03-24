@@ -167,26 +167,22 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  * Method: POST
  * 
  * @param req 
- *    contract*: Collection Contract Address
- *    name*:     Collection Name
- *    logoUrl*:  logo url
- *    creator*:  creator wallet address
- *    featuredUrl?:
- *    bannerUrl?:
- *    URL?:
- *    description?:
- *    category*:
- *    linkSite?: 
- *    linkDiscord?:
- *    linkInstagram?:
- *    linkMedium?:
- *    linkTelegram?:
- *    creatorEarning?:
- *    blockchain*: string - ERC721 or ERC1155
- *    isVerified*:
- *    isExplicit*:
- *    explicitContent?:
- *    properties: string (JSON Stringify)
+  "logoFile": "file", 
+  "featuredImgFile": "file",
+  "bannerImgFile": "file",
+  "name": "string",
+  "url": "string",
+  "description": "string",
+  "category": "string",
+  "siteUrl": "string",
+  "discordUrl": "string",
+  "instagramUrl": "string",
+  "mediumUrl": "string",
+  "telegramUrl": "string",
+  "creatorEarnings": "number",
+  "blockchain": "string",     (ERC721 | ERC1155)
+  "isExplicit": "boolean",
+  "creatorId": "string", (owner Id in mongodb)
  *    
  * @param res 
  *    result of creation
@@ -194,15 +190,13 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      fail:     501
  */
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, name, logoUrl, creator, platform,
-    featuredUrl, bannerUrl, URL, description, category, 
-    linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, properties } = req.body as any;
+  const { logoFile, featuredImgFile, bannerImgFile, name, description, category,
+    siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
+    creatorEarning, blockchain, isExplicit, creatorId } = req.body as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(contract, name, logoUrl, creator, 
-    featuredUrl, bannerUrl, URL, description, category, 
-    linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, platform, properties);
+  const result = await ctl.createCollection(logoFile, featuredImgFile, bannerImgFile, name, description, category,
+    siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
+    creatorEarning, blockchain, isExplicit, creatorId);
   res.send(result);
 }
 

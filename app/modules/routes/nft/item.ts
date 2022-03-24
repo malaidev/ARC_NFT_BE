@@ -127,47 +127,41 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
  * Method: POST
  * 
  * @param {*} req
- *    contract:     Collection Contract Address
- *    nftId:        NFT item index
- *    artURI:       URI of NFT item
- *    price:        price of NFT item
- *    ownerAddr:    Owner wallet address
- *    creatorAddr:  Creator wallet address
+  "artFile": "string" - ipfs url of image
+  "name": "string",
+  "externalLink": "string",
+  "description": "string",
+  "collectionId": "string", (collection id in mongodb)
+  "properties": "object",
+  "unlockableContent": "string",
+  "isExplicit": "boolean",
+  "tokenType": "string",
  * @param {*} res
  *    success:  201
  *    failure:  501 (cannot find collection)
  *              422 (cannot find owner and creator)
  */
 export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, 
-        nftId,
-        artURI, 
-        price, 
-        ownerAddr, 
-        creatorAddr,
-        name,
-        externalLink,
-        description, 
-        properties,
-        isLockContent,lockContent,isExplicit,explicitContent,royalties,tokenType} = req.body as any;
+  const {artFile, 
+    name,
+    externalLink, 
+    description, 
+    collectionId, 
+    properties,
+    unlockableContent,
+    isExplicit,
+    tokenType} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(
-    contract,
-    nftId,
-    ownerAddr,
-    creatorAddr,
-    artURI,
-    price,
+    artFile, 
     name,
-    externalLink,
-    description,
-    isLockContent,
-    lockContent,
+    externalLink, 
+    description, 
+    collectionId, 
+    properties,
+    unlockableContent,
     isExplicit,
-    explicitContent,
-    royalties,
-    tokenType,
-    properties
+    tokenType
   );
   res.send(result);
 };
