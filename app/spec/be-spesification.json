@@ -117,32 +117,16 @@
           "category"
         ]
     },
-  
-    "PlaceBidParam":{
-       "type":"object",
-       "properties":{ 
-         "contract":{
-             "type":"string"
-         },
-         "nftId":{
-           "type":"string"
-           },
-           "from":{
-             "type":"string"
-           },
-           "price":{
-             "type":"string"
-           },
-           "type":{
-             "type":"string"
-           }          
-         }
-     },
+   
      "CreateItemParam": {
        "type": "object",
        "properties": {
           "artFile": {
-             "type": "string"
+             "type": "string",
+             "format": "binary"
+          }, "tokenType": {
+            "type": "string",
+            "enum": ["ERC20","ERC721", "ERC1155" ]
           },
           "name": {
              "type": "string"
@@ -164,10 +148,7 @@
           } ,
           "isExplicit": {
              "type": "boolean"
-          }, "tokenType": {
-            "type": "string",
-            "enum": ["ERC20","ERC721", "ERC1155" ]
-         }
+          }
           
        },
        "required": [
@@ -1277,7 +1258,7 @@
              ],
              "requestBody":{
                 "content":{
-                   "application/json":{
+                  "multipart/form-data":{
                       "schema":{
                          "type":"object",
                          "$ref":"#/definitions/CreateItemParam"
