@@ -74,8 +74,7 @@
              "type":"string",
              "format": "binary"
           },"creatorId":{
-            "type":"string",
-            "description":"(owner Id in mongodb)"
+            "type":"string"
           },"featuredImgFile":{
              "type":"string",
              "format": "binary"
