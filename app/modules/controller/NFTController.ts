@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
 import { INFT, TokenType } from "../interfaces/INFT";
@@ -6,6 +7,8 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
+import { uploadImage } from "../util/morailsHelper";
+
 /**
  * This is the NFT controller class.
  * Do all the NFT's functions such as
@@ -267,76 +270,58 @@ export class NFTController extends AbstractEntity {
    * @returns
    */
   async createNFT(
-    contract: string,
-    nftId: string,
-    ownerAddr: string,
-    creatorAddr: string,
-    artURI: string,
-    price: number,
-    name: string,
-    externalLink?: string,
-    description?: string,
-    isLockContent?: boolean,
-    lockContent?: string,
-    isExplicit?: boolean, // explicit flag
-    explicitContent?: string,
-    royalties?:number,
-    tokenType?:string,
-    properties?: object
+    artFile, 
+    name,
+    externalLink, 
+    description, 
+    collectionId, 
+    properties,
+    unlockableContent,
+    isExplicit,
+    tokenType
   ): Promise<IResponse> {
+
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
-    let query = this.findNFTItem(contract, nftId);
+
+    let query = this.findNFTItemByArt(artFile);
     const findResult = (await nftTable.findOne(query)) as INFT;
     if (findResult && findResult._id) {
       return respond("Current nft has been created already", true, 501);
     }
-    query = this.findCollection(contract);
+    query = this.findCollectionById(collectionId);
     const collection = (await collectionTable.findOne(query)) as INFTCollection;
     if (!collection) {
       return respond("collection not found.", true, 422);
     }
-    const owner = (await ownerTable.findOne(
-      this.findPerson(ownerAddr)
-    )) as IPerson;
-    if (!owner) {
-      return respond("owner not found.", true, 422);
-    }
-    const creator = (await ownerTable.findOne(
-      this.findPerson(creatorAddr)
-    )) as IPerson;
-    if (!creator) {
-      return respond("creator not found.", true, 422);
-    }
-    if (!TokenType[tokenType]){
-      let x=[];
-      for (const k in TokenType) { x.push(k) };
-      return respond(`Token Type value only accept ${x.join()}`)
-    }
+
+    const url = await uploadImage(artFile);
     const nft: INFT = {
-      collection: contract,
-      index: nftId,
-      owner: owner.wallet,
-      creator: creator.wallet,
-      artURI: artURI,
-      price: price,
+      collection: collection.contract,
+      index: "0",
+      owner: '',
+      creator: '',
+      artURI: url,
+      price: 0,
       name: name ?? "",
       externalLink: externalLink ?? "",
       description: description ?? "",
-      isLockContent: isLockContent ?? false,
       isExplicit: isExplicit ?? false,
-      royalties:royalties??0,
-      
-      status: "Minted",
+      status: "Created",
       status_date: new Date().getTime(),
       properties: properties ?? {},
-      tokenType:TokenType[tokenType]
+      lockContent: unlockableContent,
+      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
     };
 
     const result = await nftTable.insertOne(nft);
+
+    if (result)
+      nft._id = result.insertedId;
+      
     return result
-      ? respond(`Successfully created a new nft with id ${result.insertedId}`)
+      ? respond(nft)
       : respond("Failed to create a new nft.", true, 501);
   }
 
@@ -351,6 +336,18 @@ export class NFTController extends AbstractEntity {
       index: nftId,
     };
   }
+
+  /**
+   * Mounts a generic query to find an item by its collection contract and index.
+   * @param contract
+   * @returns
+   */
+   private findNFTItemByArt(art: string): Object {
+    return {
+      artURI: art
+    };
+  }
+
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -361,6 +358,18 @@ export class NFTController extends AbstractEntity {
       contract: contract,
     };
   }
+
+  /**
+   * Mounts a generic query to find a collection by contract address.
+   * @param contract
+   * @returns
+   */
+   private findCollectionById(id: string): Object {
+    return {
+      _id: new ObjectId(id),
+    };
+  }
+
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param contract

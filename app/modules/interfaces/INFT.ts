@@ -11,7 +11,6 @@ export interface INFT {
   externalLink?: string;          // external link
   description?: string;           // description of nft
   properties: Object;             // traits of nft item
-  isLockContent: boolean;         // content flag
   lockContent?: string;           // content
   isExplicit: boolean;            // explicit flag
   explicitContent?: string;       // explicit content
