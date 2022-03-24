@@ -79,7 +79,8 @@ export class NFTOwnerController extends AbstractEntity {
 
     const query = this.findUserQuery(personId);
     const personTable = this.mongodb.collection(this.table);
-    const result = await this.findOne(query);
+    // const result = await this.findOne(query);
+    const result= await personTable.findOne(query);
     const nftTable = this.mongodb.collection(this.nftTable);
     const collection =  this.mongodb.collection(this.collectionTable);
     const ntfs = await nftTable.find({
@@ -88,9 +89,11 @@ export class NFTOwnerController extends AbstractEntity {
     const colls = await collection.find({
       creator:personId
     }).count();  
+
+    console.log('==>>>>>>>>>>',result);
     if (result) {
       return respond({
-        _id:result._id,                         
+        id:result._id,                         
         photoUrl:result.photoUrl,
         wallet: result.wallet,
         username:result.username,           
@@ -107,8 +110,18 @@ export class NFTOwnerController extends AbstractEntity {
         bio:"",
         username: ""
       });
-      const result = await this.findOne(query);
-      return respond(result);
+
+      const result= await personTable.findOne(query);
+      return respond({
+        id:result._id,                         
+        photoUrl:result.photoUrl,
+        wallet: result.wallet,
+        username:result.username,           
+        bio:result.bio,
+        social:result.social,
+        nfts:0,
+        collections:0
+      });
     }
     
   }

@@ -133,6 +133,7 @@ export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params['ownerId'] as string;
   const ctl = new NFTOwnerController();
   const result = await ctl.findPerson(walletId)
+  
   res.send(result);
 }
 /**
