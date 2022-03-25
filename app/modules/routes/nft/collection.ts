@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
+import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
 
 /**
@@ -189,15 +190,63 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      success:  201
  *      fail:     501
  */
-export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { logoFile, featuredImgFile, bannerImgFile, name, description, category,
-    siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
-    creatorEarning, blockchain, isExplicit, creatorId } = req.body as any;
-  const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(logoFile, featuredImgFile, bannerImgFile, name, description, category,
-    siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
-    creatorEarning, blockchain, isExplicit, creatorId);
+export const createCollection = async (req,res) => {
+
+
+  
+  if (req.body && !req.body.logoFile) {
+    throw new Error("logoUrl is invalid or missing");
+  }
+  
+  let logoBody:any=null;
+  let featuredImgBody:any=null;
+  let bannerImgBody:any=null;
+
+  if (req.body && req.body.logoFile){
+    logoBody = "data:" + req.body.logoFile.mimetype+ ";base64,"+ Buffer.from(await req.body.logoFile.toBuffer()).toString('base64') // access files
+  };
+
+  if (req.body && req.body.featuredImgFile){
+    featuredImgBody = "data:" + req.body.featuredImgFile.mimetype+ ";base64,"+ Buffer.from(await req.body.featuredImgFile.toBuffer()).toString('base64') // access files
+ };
+ if (req.body && req.body.bannerImgFile){
+  bannerImgBody = "data:" + req.body.bannerImgFile.mimetype+ ";base64,"+ Buffer.from(await req.body.bannerImgFile.toBuffer()).toString('base64') // access files
+};
+
+const body = Object.fromEntries(
+  Object.keys(req.body).map((key) => [key, req.body[key].value])
+);
+
+const logoFile =logoBody?await uploadImageBase64({name:req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")),img:logoBody}):'';
+const featuredImgFile = featuredImgBody? await uploadImageBase64({name:req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf(".")),img:featuredImgBody}):'';
+const bannerImgFile = bannerImgBody?await uploadImageBase64({name:req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf(".")),img:bannerImgBody}):'';
+
+body.logoFile=logoFile;
+body.featuredImgFile=featuredImgFile;
+body.bannerImgFile=bannerImgFile;
+
+
+
+console.log(body);
+
+const ctl = new NFTCollectionController();
+  const result = await ctl.createCollection(body.logoFile, body.featuredImgFile, body.bannerImgFile, body.name, body.description, body.category,
+  body.siteUrl, body.discordUrl, body.instagramUrl, body.mediumUrl, body.telegramUrl, 
+  body.creatorEarning, body.blockchain, body.isExplicit, body.creatorId);
   res.send(result);
+
+
+ 
+
+
+  // const { logoFile, featuredImgFile, bannerImgFile, name, description, category,
+  //   siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
+  //   creatorEarning, blockchain, isExplicit, creatorId } = req.body as any;
+  // const ctl = new NFTCollectionController();
+  // const result = await ctl.createCollection(logoFile, featuredImgFile, bannerImgFile, name, description, category,
+  //   siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
+  //   creatorEarning, blockchain, isExplicit, creatorId);
+  // res.send(result);
 }
 
 export const getCollectionDetail =async (req:FastifyRequest, res: FastifyReply) => {
