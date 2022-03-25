@@ -134,15 +134,16 @@
           "name": {
              "type": "string"
           },
+          "collectionId": {
+            "type": "string"
+          },
           "externalLink": {
              "type": "string"
           },
           "description": {
              "type": "string"
           }, 
-          "collectionId": {
-             "type": "string"
-          },
+         
           "properties": {
             "type": "object"                     
           },
@@ -156,7 +157,9 @@
        },
        "required": [
           "artFile",
-          "tokenType" 
+          "tokenType",
+           "name",
+           "collectionId"
        ]  
     }, 
       
