@@ -202,14 +202,15 @@ export const createCollection = async (req,res) => {
   let featuredImgBody:any=null;
   let bannerImgBody:any=null;
 
-  if (req.body && req.body.logoFile){
+
+  if (req.body && req.body.logoFile && req.body.logoFile.value!==''){
     logoBody = "data:" + req.body.logoFile.mimetype+ ";base64,"+ Buffer.from(await req.body.logoFile.toBuffer()).toString('base64') // access files
   };
 
-  if (req.body && req.body.featuredImgFile){
+  if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value!==''){
     featuredImgBody = "data:" + req.body.featuredImgFile.mimetype+ ";base64,"+ Buffer.from(await req.body.featuredImgFile.toBuffer()).toString('base64') // access files
  };
- if (req.body && req.body.bannerImgFile){
+ if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value!==''){
   bannerImgBody = "data:" + req.body.bannerImgFile.mimetype+ ";base64,"+ Buffer.from(await req.body.bannerImgFile.toBuffer()).toString('base64') // access files
 };
 
@@ -225,19 +226,11 @@ body.logoFile=logoFile;
 body.featuredImgFile=featuredImgFile;
 body.bannerImgFile=bannerImgFile;
 
-
-
-console.log(body);
-
 const ctl = new NFTCollectionController();
   const result = await ctl.createCollection(body.logoFile, body.featuredImgFile, body.bannerImgFile, body.name, body.description, body.category,
   body.siteUrl, body.discordUrl, body.instagramUrl, body.mediumUrl, body.telegramUrl, 
   body.creatorEarning, body.blockchain, body.isExplicit, body.creatorId);
   res.send(result);
-
-
- 
-
 
   // const { logoFile, featuredImgFile, bannerImgFile, name, description, category,
   //   siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
