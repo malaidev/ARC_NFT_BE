@@ -365,6 +365,8 @@ export class NFTCollectionController extends AbstractEntity {
     creatorEarning, blockchain, isExplicit, creatorId
     ): Promise<IResponse> {
 
+
+    
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
@@ -372,9 +374,7 @@ export class NFTCollectionController extends AbstractEntity {
       if (!creator) {
         throw new Error("creator address is invalid or missing");
       }
-      if (logoFile == '' || !logoFile) {
-        throw new Error("logoUrl is invalid or missing");
-      }
+      
       if (name == '' || !name) {
         throw new Error("name is invalid or missing");
       }
@@ -384,6 +384,8 @@ export class NFTCollectionController extends AbstractEntity {
       if (category == '' || !category) {
         throw new Error("category is invalid or missing");
       }
+
+      console.log('--->>>>>')
       const query = this.findCollectionItemByName(name);
       const findResult = await collection.findOne(query) as INFTCollection;
       if (findResult && findResult._id) {
@@ -396,17 +398,17 @@ export class NFTCollectionController extends AbstractEntity {
       else if (blockchain == 'ERC1155')
         contract = '0xaf8fC965cF9572e5178ae95733b1631440e7f5C8';
 
-      const logoUrl = await uploadImage(logoFile);
+      // const logoUrl = await uploadImage(logoFile);
     
-      let featureUrl = '';
-      if (featuredImgFile) {
-        featureUrl = await uploadImage(featuredImgFile)
-      }
+      // let featureUrl = '';
+      // if (featuredImgFile) {
+      //   featureUrl = await uploadImage(featuredImgFile)
+      // }
 
-      let bannerUrl = '';
-      if (bannerImgFile) {
-        bannerUrl = await uploadImage(bannerImgFile)
-      }
+      // let bannerUrl = '';
+      // if (bannerImgFile) {
+      //   bannerUrl = await uploadImage(bannerImgFile)
+      // }
 
       const nftCollection : INFTCollection = {
         name: name,
@@ -416,9 +418,9 @@ export class NFTCollectionController extends AbstractEntity {
         blockchain: blockchain,
         isVerified: false,
         isExplicit: isExplicit ?? false,
-        logoUrl: logoUrl,
-        featuredUrl: featureUrl,
-        bannerUrl: bannerUrl,
+        logoUrl: logoFile,
+        featuredUrl: featuredImgFile,
+        bannerUrl: bannerImgFile,
         description: description ?? '',
         category: category ?? '',
         links: [siteUrl ?? '', discordUrl ?? '',
@@ -427,6 +429,9 @@ export class NFTCollectionController extends AbstractEntity {
         platform: 'Unknown',
         properties: {}
       }
+
+      console.log('nft');
+      console.log(nftCollection);
       const result = await collection.insertOne(nftCollection);
       
       if (result)

@@ -3,6 +3,7 @@ const fastify = require("fastify");
 const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
+const multiPart=require('fastify-multipart');
 
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
@@ -44,6 +45,9 @@ async function mount() {
   await app.register(cookie, {
     secret: config.jwt,
   });
+
+  await app.register(multiPart, { attachFieldsToBody: true })
+  
  
   if (process.env.ENV !== 'production') {
     await app.register( SwaggerPlugin, {

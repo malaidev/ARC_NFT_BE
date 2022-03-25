@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTController } from "../../controller/NFTController";
 import { parseQueryUrl } from "../../util/parse-query-url";
-
+import { uploadImageBase64 } from "../../util/morailsHelper";
 /**
  * Get NFT item detail information
  * Method: GET
@@ -141,27 +141,49 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
  *    failure:  501 (cannot find collection)
  *              422 (cannot find owner and creator)
  */
-export const createItem = async (req: FastifyRequest, res: FastifyReply) => {
-  const {artFile, 
-    name,
-    externalLink, 
-    description, 
-    collectionId, 
-    properties,
-    unlockableContent,
-    isExplicit,
-    tokenType} = req.body as any;
+export const createItem = async (req, res) => {
+
+
+
+  if (req.body && !req.body.artFile) {
+    throw new Error("artURI is invalid or missing");
+  }
+
+  let artBody:any=null;
+  
+  if (req.body && req.body.artFile && req.body.artFile.value!==''){
+    artBody = "data:" + req.body.artFile.mimetype+ ";base64,"+ Buffer.from(await req.body.artFile.toBuffer()).toString('base64') // access files
+  };
+  
+
+  const body = Object.fromEntries(
+    Object.keys(req.body).map((key) => [key, req.body[key].value])
+  );
+
+  const artFile =artBody?await uploadImageBase64({name:req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf(".")),img:artBody}):'';
+
+  body.artFile= artFile;
+
+  // const {, 
+  //   name,
+  //   externalLink, 
+  //   description, 
+  //   collectionId, 
+  //   properties,
+  //   unlockableContent,
+  //   isExplicit,
+  //   tokenType} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(
-    artFile, 
-    name,
-    externalLink, 
-    description, 
-    collectionId, 
-    properties,
-    unlockableContent,
-    isExplicit,
-    tokenType
+    body.artFile, 
+    body.name,
+    body.externalLink, 
+    body.description, 
+    body.collectionId, 
+    body.properties,
+    body.unlockableContent,
+    body.isExplicit,
+    body.tokenType
   );
   res.send(result);
 };

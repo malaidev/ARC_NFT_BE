@@ -296,13 +296,13 @@ export class NFTController extends AbstractEntity {
       return respond("collection not found.", true, 422);
     }
 
-    const url = await uploadImage(artFile);
+    // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
       index: "0",
       owner: '',
       creator: '',
-      artURI: url,
+      artURI: artFile,
       price: 0,
       name: name ?? "",
       externalLink: externalLink ?? "",
