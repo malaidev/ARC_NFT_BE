@@ -285,12 +285,12 @@ export class NFTController extends AbstractEntity {
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
 
-    let query = this.findNFTItemByArt(artFile);
-    const findResult = (await nftTable.findOne(query)) as INFT;
-    if (findResult && findResult._id) {
-      return respond("Current nft has been created already", true, 501);
-    }
-    query = this.findCollectionById(collectionId);
+    // let query = this.findNFTItemByArt(artFile);
+    // const findResult = (await nftTable.findOne(query)) as INFT;
+    // if (findResult && findResult._id) {
+    //   return respond("Current nft has been created already", true, 501);
+    // }
+    let query = this.findCollectionById(collectionId);
     const collection = (await collectionTable.findOne(query)) as INFTCollection;
     if (!collection) {
       return respond("collection not found.", true, 422);
