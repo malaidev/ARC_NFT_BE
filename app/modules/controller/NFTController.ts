@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { uploadImage } from "../util/morailsHelper";
+import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 
 /**
  * This is the NFT controller class.
@@ -278,17 +278,27 @@ export class NFTController extends AbstractEntity {
     properties,
     unlockableContent,
     isExplicit,
-    tokenType
+    tokenType,
+    artName
+
   ): Promise<IResponse> {
 
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
 
-    let query = this.findNFTItemByArt(artFile);
+
+
+    if (!ObjectId.isValid(collectionId)){
+      return respond("Invalid Collection Id", true, 422);
+    }
+
+    const artIpfs =artFile?await uploadImageBase64({name:artName,img:artFile}):'';
+
+    let query = this.findNFTItemByArt(artIpfs);
     const findResult = (await nftTable.findOne(query)) as INFT;
     if (findResult && findResult._id) {
-      return respond("Current nft has been created already", true, 501);
+      return respond("Current nft has been created already", true, 422);
     }
     query = this.findCollectionById(collectionId);
     const collection = (await collectionTable.findOne(query)) as INFTCollection;
@@ -296,13 +306,16 @@ export class NFTController extends AbstractEntity {
       return respond("collection not found.", true, 422);
     }
 
+
+    
+    
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
       index: "0",
       owner: '',
       creator: '',
-      artURI: artFile,
+      artURI: artIpfs,
       price: 0,
       name: name ?? "",
       externalLink: externalLink ?? "",
@@ -310,7 +323,7 @@ export class NFTController extends AbstractEntity {
       isExplicit: isExplicit ?? false,
       status: "Created",
       status_date: new Date().getTime(),
-      properties: properties ?? {},
+      properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
       tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
     };
