@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { uploadImage } from "../util/morailsHelper";
+import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 
 /**
  * This is the NFTCollection controller class.
@@ -362,30 +362,38 @@ export class NFTCollectionController extends AbstractEntity {
    */
   async createCollection(logoFile, featuredImgFile, bannerImgFile, name, description, category,
     siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
-    creatorEarning, blockchain, isExplicit, creatorId
+    creatorEarning, blockchain, isExplicit, creatorId,logoName,featureName,bannerName
     ): Promise<IResponse> {
 
 
-    
+      
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
+
+
+      if (!ObjectId.isValid(creatorId)){
+        return respond("Invalid creatorID", true, 422);
+      }
+
       const creator = await ownerTable.findOne(this.findPersonById(creatorId)) as IPerson;
       if (!creator) {
-        throw new Error("creator address is invalid or missing");
+        return respond("creator address is invalid or missing", true, 422);
+        
       }
       
       if (name == '' || !name) {
-        throw new Error("name is invalid or missing");
+        return respond("name is invalid or missing", true, 422);
+       
       }
       if (blockchain == '' || !blockchain) {
-        throw new Error("blockchain is invalid or missing");
+        return respond("blockchain is invalid or missing", true, 422);
+        
       }
       if (category == '' || !category) {
-        throw new Error("category is invalid or missing");
+        return respond("category is invalid or missing", true, 422);
       }
 
-      console.log('--->>>>>')
       const query = this.findCollectionItemByName(name);
       const findResult = await collection.findOne(query) as INFTCollection;
       if (findResult && findResult._id) {
@@ -398,17 +406,12 @@ export class NFTCollectionController extends AbstractEntity {
       else if (blockchain == 'ERC1155')
         contract = '0xaf8fC965cF9572e5178ae95733b1631440e7f5C8';
 
-      // const logoUrl = await uploadImage(logoFile);
-    
-      // let featureUrl = '';
-      // if (featuredImgFile) {
-      //   featureUrl = await uploadImage(featuredImgFile)
-      // }
+      const  logoIpfs =logoFile?await uploadImageBase64({name:logoName,img:logoFile}):'';
+      
+      const featuredIpfs = featuredImgFile? await uploadImageBase64({name:featureName,img:featuredImgFile}):'';
+      
+       const bannerIpfs = bannerImgFile?await uploadImageBase64({name:bannerName,img:bannerImgFile}):'';
 
-      // let bannerUrl = '';
-      // if (bannerImgFile) {
-      //   bannerUrl = await uploadImage(bannerImgFile)
-      // }
 
       const nftCollection : INFTCollection = {
         name: name,
@@ -418,9 +421,9 @@ export class NFTCollectionController extends AbstractEntity {
         blockchain: blockchain,
         isVerified: false,
         isExplicit: isExplicit ?? false,
-        logoUrl: logoFile,
-        featuredUrl: featuredImgFile,
-        bannerUrl: bannerImgFile,
+        logoUrl: logoIpfs,
+        featuredUrl: featuredIpfs,
+        bannerUrl: bannerIpfs,
         description: description ?? '',
         category: category ?? '',
         links: [siteUrl ?? '', discordUrl ?? '',
