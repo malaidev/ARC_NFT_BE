@@ -58,6 +58,132 @@ export class NFTCollectionController extends AbstractEntity {
     this.data = nft;
   }
 
+
+
+/**
+ * COMBINE SEARCH COLLECTION AND ITEMS 
+ * @param keyword 
+ * @returns collection Array and items Array
+ */
+  
+async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< void|IResponse> {
+
+  try{
+    if (this.mongodb){
+        const collectionTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
+
+        let aggregation=[] as any;
+        if (filters) {
+          aggregation = this.parseFilters(filters);
+        };
+        
+        if (keyword){
+          aggregation.push({
+            $match:{
+              $or:[
+                {"name" : {$regex :new RegExp(keyword, 'igm')}},
+                {"description" : {$regex :new RegExp(keyword, 'igm')}},
+                {"blockchain" : {$regex :new RegExp(keyword, 'igm')}},
+                {"category" : {$regex :new RegExp(keyword, 'igm')}},
+                {"creator" : {$regex :new RegExp(keyword, 'igm')}},
+                {"platform" : {$regex :new RegExp(keyword, 'igm')}},
+              ]
+            }
+          })  
+        }
+        const result = await collectionTable.aggregate(aggregation).toArray() as Array<INFTCollection>;
+        let collections = [];
+        if (result){
+          collections = await Promise.all(result.map(async (collection) => {
+            let volume = 0;
+            let floorPrice = 0;
+            let owners = [];
+            const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
+            nfts.forEach(nft => {
+              volume += nft.price;
+              if (floorPrice > nft.price)
+                floorPrice = nft.price;
+              if (owners.indexOf(nft.owner) == -1)
+                owners.push(nft.owner);
+            });
+
+            const {_24h, todayTrade} = await this.get24HValues(collection.contract);
+
+            const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
+            return {
+              _id:collection._id,
+              logoUrl: collection.logoUrl,
+              featuredUrl:collection.featuredUrl,
+              bannerUrl:collection.bannerUrl,
+              contract:collection.contract,
+              creator:collection.creator,
+              creatorDetail: creator,
+              url:collection.url, 
+              description:collection.description,
+              category:collection.category,
+              links:collection.links,
+              name: collection.name,
+              blockchain: collection.blockchain,
+              volume: volume,
+              _24h: todayTrade,
+              _24hPercent: _24h,
+              floorPrice: floorPrice,
+              owners: owners.length,
+              items: nfts.length,
+              isVerified: collection.isVerified,
+              isExplicit:collection.isExplicit,
+              properties: collection.properties,
+              platform: collection.platform
+            };
+          }));
+        }
+
+        let aggregationNft = [] as any;
+        if (filters) {
+          aggregationNft = this.parseFilters(filters);
+        };
+        if (keyword){
+          aggregationNft.push({
+            $match:{
+              $or:[
+                {"collection" : {$regex :new RegExp(keyword, 'igm')}},
+                {"index" : {$regex :new RegExp(keyword, 'igm')}},
+                {"owner" : {$regex :new RegExp(keyword, 'igm')}},
+                {"creator" : {$regex :new RegExp(keyword, 'igm')}},
+                {"platform" : {$regex :new RegExp(keyword, 'igm')}},
+                {"name" : {$regex :new RegExp(keyword, 'igm')}},
+                {"description" : {$regex :new RegExp(keyword, 'igm')}},
+                {"tokenType" : {$regex :new RegExp(keyword, 'igm')}},
+              ]
+            }
+          })  
+        }
+        
+        const resultNft = await nftTable.aggregate(aggregationNft).toArray() as Array<INFTCollection>;
+        let items =[];
+        if (resultNft){
+          items=resultNft
+        }
+
+        return respond({
+          collections,
+          items
+        })
+
+    }else{
+      throw new Error("Could not connect to the database.");
+    }
+    
+  } catch (error){
+    
+    return respond(error.message, true, 500);
+  }
+
+}
+
+
   async getCollections(filters?:IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
