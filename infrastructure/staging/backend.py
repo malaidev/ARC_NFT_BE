@@ -164,13 +164,13 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
-                                        "name": "AWS_S3_USER_BUCKET",
+                                        "name": "AWS_S3_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_secret"}
                                         },
                                     },
                                     {
-                                        "name": "AWS_S3_SECRET",
+                                        "name": "AWS_S3_USER_BUCKET",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_bucket"}
                                         },
@@ -186,8 +186,7 @@ class Stack(core.Stack):
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "moralis", "key": "moralis_appid"}
                                         },
-                                    },
-                                    ,
+                                    },                                    
                                     {
                                         "name": "MORALIS_MASTER_KEY",
                                         "valueFrom": {
