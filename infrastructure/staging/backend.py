@@ -157,6 +157,43 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "contracts", "key": "pk_id"}
                                         },
                                     },
+                                    {
+                                        "name": "AWS_S3_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "AWS_S3_USER_BUCKET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_secret"}
+                                        },
+                                    },
+                                    {
+                                        "name": "AWS_S3_SECRET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_bucket"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MORALIS_URL",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_url"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MORALIS_APPID",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_appid"}
+                                        },
+                                    },
+                                    ,
+                                    {
+                                        "name": "MORALIS_MASTER_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_masterkey"}
+                                        },
+                                    },
                                 ],
                             }
                         ]
