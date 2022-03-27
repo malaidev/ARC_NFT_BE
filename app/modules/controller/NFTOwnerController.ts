@@ -7,6 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { INFT } from "../interfaces/INFT";
 import { IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
+import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
   protected table = "Person" as string;
@@ -90,7 +91,6 @@ export class NFTOwnerController extends AbstractEntity {
       creator:personId
     }).count();  
 
-    console.log('==>>>>>>>>>>',result);
     if (result) {
       return respond({
         id:result._id,                         
@@ -183,6 +183,37 @@ export class NFTOwnerController extends AbstractEntity {
     }
   }
    
+
+ async updateOwnerPhoto(wallet:string,body:any): Promise<IPerson | IResponse>{
+  try {
+    if (this.mongodb) {
+      
+      
+      const person = this.mongodb.collection(this.table);
+      const findOwner = await person.findOne(this.findUserQuery(wallet)) as IPerson
+      if (!findOwner) {
+        return respond("Current user not exists", true, 422)
+      }
+      const img = await S3uploadImageBase64(body,wallet);
+      const result = await person.updateOne({ wallet }, { $set: { photoUrl:img } })
+
+      if (result){
+        const result= await person.findOne(this.findUserQuery(wallet)) as IPerson;
+        return respond(result)
+      }
+
+
+
+      return respond("owner not found.", true, 422);
+    } else {
+      throw new Error("Could not connect to the database.");
+    }
+  }
+  catch (error) {
+    return respond(error.message, true, 500);
+  }
+ }
+
   /**
    * 
    * @param ownerId  eq WalletId
