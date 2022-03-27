@@ -55,6 +55,8 @@ export class NFTController extends AbstractEntity {
     super();
     this.data = nft;
   }
+
+
   /**
    * Get NFT item detail information
    *

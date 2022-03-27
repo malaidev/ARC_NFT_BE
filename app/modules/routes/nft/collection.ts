@@ -3,6 +3,25 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
 import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
 
+
+
+
+/**
+ * Get all combine Collections and Items
+ * @param req 
+ * @param res 
+ */
+
+ export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+  const keyword = req.query['keyword'] as string;
+  const ctl = new NFTCollectionController();
+  
+  const result = await ctl.searchCollectionsItems(keyword,filters);
+  res.send(result);
+};
+
 /**
  * Get All Collections
  * Method: GET
