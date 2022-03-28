@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
 import { createItem, getAllItems, getItemDetail, getItemHistory, getItemOffers, getTrendingItems } from "./item";
 import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail, getTopCollections, getCollectionsItems} from "./collection";
-import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, getOwnerOffers, updateOwner} from "./owner";
+import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, getOwnerOffers, updateOwner, uploadOwnerPhoto} from "./owner";
 import { approveOffer, makeOffer, getAllActivites, listForSale, transfer, cancelOffer, cancelListForSale } from "./activity";
 
 /**
@@ -40,9 +40,11 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners", getAllOwners);  
 
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
+  router.post("/owners/:ownerId/upload-profile",config.route("jwt"),  uploadOwnerPhoto);  
   router.put("/owners/:ownerId", config.route("jwt"),  updateOwner);
 
   router.get("/owners/:ownerId",  getOwner);  
+  
   router.get("/owners/:ownerId/nfts", getOwnerNtfs)
   router.get("/owners/:ownerId/history",getOwnerHistory)
   router.get("/owners/:ownerId/collection",getOwnerCollection)

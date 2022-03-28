@@ -5,6 +5,38 @@ import { IUser } from "../../interfaces/IUser";
 import { IWallet } from "../../interfaces/IWallet";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
+
+
+
+
+
+
+export const uploadOwnerPhoto= async (req,res)=>{
+
+
+  
+  const { ownerId } = req.params as any;
+  const userSession = req['session'] as any;
+  
+  console.log('oooooo',userSession)
+
+  if (req.body && !req.body.photoFile) {
+    return res.code(400).send('Please upload file ');
+  }
+  
+  if (userSession.walletId.toLowerCase() !==ownerId.toLowerCase()){
+    return res.code(400).send('Wallet Id not equal with Wallet Login Session');
+  }
+  const { photoFile} = req.body as any;
+  const photoBody = "data:" + req.body.photoFile.mimetype + ";base64," + Buffer.from(await req.body.photoFile.toBuffer()).toString('base64') // access files
+
+const ctl = new NFTOwnerController();
+  const result = await ctl.updateOwnerPhoto(ownerId,photoBody);
+  res.send(result);
+
+}
+
+
 /**
  * 
  * @param {*} req
