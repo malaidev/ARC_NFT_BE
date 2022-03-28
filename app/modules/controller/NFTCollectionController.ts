@@ -8,7 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
-
+import { url } from "inspector";
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -57,28 +57,21 @@ export class NFTCollectionController extends AbstractEntity {
     super();
     this.data = nft;
   }
-
-
-
 /**
  * COMBINE SEARCH COLLECTION AND ITEMS 
  * @param keyword 
  * @returns collection Array and items Array
  */
-  
 async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< void|IResponse> {
-
   try{
     if (this.mongodb){
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
-
         let aggregation=[] as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
         };
-        
         if (keyword){
           aggregation.push({
             $match:{
@@ -108,9 +101,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
-
             const {_24h, todayTrade} = await this.get24HValues(collection.contract);
-
             const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
             return {
               _id:collection._id,
@@ -139,7 +130,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
             };
           }));
         }
-
         let aggregationNft = [] as any;
         if (filters) {
           aggregationNft = this.parseFilters(filters);
@@ -160,30 +150,22 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
             }
           })  
         }
-        
         const resultNft = await nftTable.aggregate(aggregationNft).toArray() as Array<INFTCollection>;
         let items =[];
         if (resultNft){
           items=resultNft
         }
-
         return respond({
           collections,
           items
         })
-
     }else{
       throw new Error("Could not connect to the database.");
     }
-    
   } catch (error){
-    
     return respond(error.message, true, 500);
   }
-
 }
-
-
   async getCollections(filters?:IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -191,7 +173,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         const activityTable = this.mongodb.collection(this.activityTable);
-
         let aggregation = {} as any;
         // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
         if (filters) {
@@ -211,9 +192,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
-
             const {_24h, todayTrade} = await this.get24HValues(collection.contract);
-
             const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
             return {
               _id:collection._id,
@@ -252,7 +231,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-
   async getTopCollections(filters?:IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -260,7 +238,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         const activityTable = this.mongodb.collection(this.activityTable);
-
         let aggregation = {} as any;
         // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
         if (filters) {
@@ -280,9 +257,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
-
             const {_24h, todayTrade} = await this.get24HValues(collection.contract);
-
             const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
             return {
               _id:collection._id,
@@ -310,7 +285,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               platform: collection.platform
             };
           }));
-
           return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
         }
         return respond("collection not found.", true, 422);
@@ -334,7 +308,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
-
         const query = this.findCollectionItem(contract);
         const result = await this.findOne(query) as INFTCollection;
         if (result) {
@@ -408,13 +381,11 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         const query = this.findCollectionItem(contract);
         let aggregation = {} as any;
         const result = await this.findOne(query) as INFTCollection;
-
         if (result) {
           if (filters) {
             aggregation = this.parseFilters(filters);
             aggregation.push({ $match: {collection:result.contract }, });
           };
-
           const activities = await activityTable.aggregate(aggregation).toArray();
           const detailedActivity = await Promise.all(activities.map(async activity => {
             const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
@@ -444,7 +415,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.activityTable);
         const nftTable = this.mongodb.collection(this.nftTable);
-
         const query = this.findCollectionItem(contract);
         const result = await this.findOne(query) as INFTCollection;
         if (result) {
@@ -490,55 +460,49 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
     siteUrl, discordUrl, instagramUrl, mediumUrl, telegramUrl, 
     creatorEarning, blockchain, isExplicit, creatorId,logoName,featureName,bannerName
     ): Promise<IResponse> {
-
-
-      
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
-
-
       if (!ObjectId.isValid(creatorId)){
         return respond("Invalid creatorID", true, 422);
       }
-
       const creator = await ownerTable.findOne(this.findPersonById(creatorId)) as IPerson;
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
-        
       }
-      
       if (name == '' || !name) {
         return respond("name is invalid or missing", true, 422);
-       
       }
       if (blockchain == '' || !blockchain) {
         return respond("blockchain is invalid or missing", true, 422);
-        
       }
       if (category == '' || !category) {
         return respond("category is invalid or missing", true, 422);
       }
-
       const query = this.findCollectionItemByName(name);
       const findResult = await collection.findOne(query) as INFTCollection;
       if (findResult && findResult._id) {
-        throw new Error("Same collection name detected");
+        return respond("Same collection name detected", true, 422);
       }
+      const findUrl= await collection.findOne( {
+        links:siteUrl,
+      })
 
+      /** Validation in siteurl variable if exists in array Links in other collection */
+      if (findUrl && findUrl._id){
+        return respond("Same collection site url detected", true, 422);
+      }
       let contract = "";
+      /** Default contract for ERC721 and ERC1155 */
       if (blockchain == 'ERC721')
         contract = '0x8113901EEd7d41Db3c9D327484be1870605e4144';
       else if (blockchain == 'ERC1155')
         contract = '0xaf8fC965cF9572e5178ae95733b1631440e7f5C8';
 
+      /** Upload contains nft picture into moralis */
       const  logoIpfs =logoFile?await uploadImageBase64({name:logoName,img:logoFile}):'';
-      
       const featuredIpfs = featuredImgFile? await uploadImageBase64({name:featureName,img:featuredImgFile}):'';
-      
-       const bannerIpfs = bannerImgFile?await uploadImageBase64({name:bannerName,img:bannerImgFile}):'';
-
-
+      const bannerIpfs = bannerImgFile?await uploadImageBase64({name:bannerName,img:bannerImgFile}):'';
       const nftCollection : INFTCollection = {
         name: name,
         contract: contract,
@@ -558,14 +522,9 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         platform: 'Unknown',
         properties: {}
       }
-
-      console.log('nft');
-      console.log(nftCollection);
       const result = await collection.insertOne(nftCollection);
-      
       if (result)
         nftCollection._id = result.insertedId;
-
       return (result
               ? respond({...nftCollection, creator: creator})
               : respond("Failed to create a new collection.", true, 500));
@@ -583,7 +542,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
     const ownerTable = this.mongodb.collection(this.ownerTable);
-
     const collection = await collectionTable.findOne(this.findCollectionItem(contract));
     if (!collection) {
       return respond("collection not found", true, 501);
@@ -598,15 +556,11 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
     collection.totalVolume = 0;
     collection.owners = owners.length;
     collection.items = nfts.length;
-
     const {_24h, todayTrade} = await this.get24HValues(contract);
     collection._24h = todayTrade;
     collection._24hPercent = _24h;
-
     const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
     collection.creatorDetail = creator;
-
-
     return respond(collection);
   }
   /**
@@ -619,7 +573,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       contract: contract,
     };
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -630,7 +583,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       name: name,
     };
   }
-
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param address
@@ -641,7 +593,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       wallet: address,
     };
   }
-
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param contract
@@ -652,12 +603,9 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       _id: new ObjectId(id),
     };
   }
-
   private async get24HValues(address: string) {
     const activityTable = this.mongodb.collection(this.activityTable);
-
     const soldList = await activityTable.find({collection: address}).toArray() as Array<IActivity>;
-
     let yesterDayTrade = 0;
     let todayTrade = 0;
     const todayDate = new Date();
@@ -665,14 +613,12 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     const dayBeforeDate = new Date(todayDate.getTime());
     dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
-
     soldList.forEach(sold => {
       if (sold.date > yesterdayDate.getTime() / 1000) 
         todayTrade += sold.price;
       else if (sold.date > dayBeforeDate.getTime() / 1000)
         yesterDayTrade += sold.price;
     });
-
     let _24h;
     if (todayTrade == 0)
       _24h = 0;
@@ -680,7 +626,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       _24h = 100;
     else
       _24h = todayTrade / yesterDayTrade * 100;
-      
     return {_24h, todayTrade};
   }
 }

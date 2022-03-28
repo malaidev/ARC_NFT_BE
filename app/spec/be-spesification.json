@@ -162,6 +162,19 @@
            "collectionId"
        ]  
     }, 
+    "CreateUploadParam": {
+      "type": "object",
+      "properties": {
+         "photoFile": {
+            "type": "string",
+            "format": "binary"
+         } 
+         
+      },
+      "required": [
+         "photoFile" 
+      ]  
+   }, 
       
      "CreateOwnerParam":{
        "type":"object",
@@ -1666,6 +1679,51 @@
                }
             }
          }
+      },     
+      
+      "/owners/{ownerId}/upload-profile":{
+         "post":{
+            "description":"Upload Profile",
+            "tags":[
+               "Person"
+            ],
+            "parameters":[
+               {
+                  "in":"path",
+                  "name":"ownerId",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "required":true,
+                  "description":"Owner Address"
+               }
+            ],
+            "security":[     {
+                  "bearerAuth":[]
+               }
+            ],
+            "requestBody":{
+               "content":{
+                 "multipart/form-data":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/CreateUploadParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success created NFT"
+               },
+               "501":{
+                "description":"cannot find collection"
+                },
+                "422":{
+                   "description":"cannot find owner and creator"
+                }
+            }
+         }
       },
       "/nft/owners/{ownerId}/nfts":{
          "get":{
@@ -1898,6 +1956,62 @@
                            "type":"array",
                            "items":{
                              "$ref":"#/definitions/INFTCollection"
+                           }                           
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/nft/search":{
+         "get":{
+            "description":"Search Collection and Items ",
+            "tags":[ "Search"  ],            
+            "parameters":[             
+             {
+              "in":"query",
+              "name":"orderBy",
+              "schema":{
+                 "type":"string"
+              },
+              "description":"fieldName"
+           },
+           {
+              "in":"query",
+              "name":"direction",
+              "schema":{
+                 "type":"string",
+                 "enum": ["ASC", "DESC"]
+              },
+              "description":"ASC/DESC"
+           },            
+           {
+              "in":"query",
+              "name":"keyword",
+              "schema":{
+                 "type":"string"
+              }                
+             
+           }
+            ],
+            "responses":{
+               "200":{
+                  "description":" Return INFTCollection",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type": "object",
+                           "properties": {
+                              "collections": {
+                                 "type": "array",
+                                 "$ref":"#/definitions/INFTCollection"
+                              },
+                              "items": {
+                                 "type": "array",
+                                 "$ref":"#/definitions/INFT"
+                              } 
+                             
                            }                           
                         }
                      }
