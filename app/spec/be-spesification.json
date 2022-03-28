@@ -1905,6 +1905,62 @@
                }
             }
          }
+      },
+      "/nft/search":{
+         "get":{
+            "description":"Search Collection and Items ",
+            "tags":[ "Search"  ],            
+            "parameters":[             
+             {
+              "in":"query",
+              "name":"orderBy",
+              "schema":{
+                 "type":"string"
+              },
+              "description":"fieldName"
+           },
+           {
+              "in":"query",
+              "name":"direction",
+              "schema":{
+                 "type":"string",
+                 "enum": ["ASC", "DESC"]
+              },
+              "description":"ASC/DESC"
+           },            
+           {
+              "in":"query",
+              "name":"filters",
+              "schema":{
+                 "type":"string"
+              }                
+             
+           }
+            ],
+            "responses":{
+               "200":{
+                  "description":" Return INFTCollection",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type": "object",
+                           "properties": {
+                              "collections": {
+                                 "type": "array",
+                                 "$ref":"#/definitions/INFTCollection"
+                              },
+                              "items": {
+                                 "type": "array",
+                                 "$ref":"#/definitions/INFT"
+                              } 
+                             
+                           }                           
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
    }
  }
