@@ -162,6 +162,19 @@
            "collectionId"
        ]  
     }, 
+    "CreateUploadParam": {
+      "type": "object",
+      "properties": {
+         "photoFile": {
+            "type": "string",
+            "format": "binary"
+         } 
+         
+      },
+      "required": [
+         "photoFile" 
+      ]  
+   }, 
       
      "CreateOwnerParam":{
        "type":"object",
@@ -1666,6 +1679,51 @@
                }
             }
          }
+      },     
+      
+      "/owners/{ownerId}/upload-profile":{
+         "post":{
+            "description":"Upload Profile",
+            "tags":[
+               "Person"
+            ],
+            "parameters":[
+               {
+                  "in":"path",
+                  "name":"ownerId",
+                  "schema":{
+                     "type":"string"
+                  },
+                  "required":true,
+                  "description":"Owner Address"
+               }
+            ],
+            "security":[     {
+                  "bearerAuth":[]
+               }
+            ],
+            "requestBody":{
+               "content":{
+                 "multipart/form-data":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/CreateUploadParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success created NFT"
+               },
+               "501":{
+                "description":"cannot find collection"
+                },
+                "422":{
+                   "description":"cannot find owner and creator"
+                }
+            }
+         }
       },
       "/nft/owners/{ownerId}/nfts":{
          "get":{
@@ -1930,7 +1988,7 @@
            },            
            {
               "in":"query",
-              "name":"filters",
+              "name":"keyword",
               "schema":{
                  "type":"string"
               }                
