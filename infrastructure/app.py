@@ -57,8 +57,8 @@ pipeline_sydney.add_dependency(base_stack_sydney)
 pipeline_ireland_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ireland-staging", base_stack_ireland.outputs, env=ireland, tags=common_tags)
 pipeline_ireland_staging.add_dependency(base_stack_ireland)
 
-pipeline_london_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-london-staging", base_stack_ireland.outputs, env=london, tags=common_tags)
-pipeline_ireland_staging.add_dependency(base_stack_london)
+pipeline_london_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-london-staging", base_stack_london.outputs, env=london, tags=common_tags)
+pipeline_london_staging.add_dependency(base_stack_london)
 
 pipeline_ohio_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ohio-staging", base_stack_ohio.outputs, env=ohio, tags=common_tags)
 pipeline_ohio_staging.add_dependency(base_stack_ohio)
