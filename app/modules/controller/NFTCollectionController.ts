@@ -8,6 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
+import { url } from "inspector";
 
 /**
  * This is the NFTCollection controller class.
@@ -523,7 +524,15 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       const query = this.findCollectionItemByName(name);
       const findResult = await collection.findOne(query) as INFTCollection;
       if (findResult && findResult._id) {
-        throw new Error("Same collection name detected");
+        return respond("Same collection name detected", true, 422);
+        
+      }
+
+      const findUrl= await collection.findOne( {
+        links:siteUrl,
+      })
+      if (findUrl && findUrl._id){
+        return respond("Same collection site url detected", true, 422);
       }
 
       let contract = "";
