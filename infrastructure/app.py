@@ -27,6 +27,9 @@ ireland = cdk.Environment(
     region="eu-west-1",
 )
 
+london = cdk.Environment(account=account,region="eu-west-2",)
+
+
 ohio = cdk.Environment(account=account, region="us-east-2")
 
 
@@ -38,6 +41,7 @@ base_stack_frankfurt = BaseStack(app, f"{namespace}-base-frankfurt", props=props
 base_stack_sydney = BaseStack(app, f"{namespace}-base-sydney", props=props, env=sydney)
 base_stack_ireland = BaseStack(app, f"{namespace}-base-ireland", props=props, env=ireland)
 base_stack_ohio = BaseStack(app, f"{namespace}-base-ohio", props=props, env=ohio)
+base_stack_london = BaseStack(app, f"{namespace}-base-london", props=props, env=london)
 
 # Production
 pipeline_virginia = ProductionPipeline(app, f"{props['namespace']}-pipeline-virginia", base_stack_virginia.outputs, env=virginia, tags=common_tags)
@@ -52,6 +56,9 @@ pipeline_sydney.add_dependency(base_stack_sydney)
 # Staging
 pipeline_ireland_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ireland-staging", base_stack_ireland.outputs, env=ireland, tags=common_tags)
 pipeline_ireland_staging.add_dependency(base_stack_ireland)
+
+pipeline_london_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-london-staging", base_stack_ireland.outputs, env=london, tags=common_tags)
+pipeline_ireland_staging.add_dependency(base_stack_london)
 
 pipeline_ohio_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ohio-staging", base_stack_ohio.outputs, env=ohio, tags=common_tags)
 pipeline_ohio_staging.add_dependency(base_stack_ohio)
