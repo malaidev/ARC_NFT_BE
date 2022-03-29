@@ -44,12 +44,12 @@ export class NFTOwnerController extends AbstractEntity {
             const colls = await collection.find({
               creator:item.wallet
             }).count();
-            if (item.photoUrl){
-              photo=await S3GetSignedUrl(item.photoUrl);
-            }
+            // if (item.photoUrl){
+            //   photo=await S3GetSignedUrl(item.photoUrl);
+            // }
             return {
               _id:item._id,                         
-              photoUrl:photo,
+              photoUrl:item.photoUrl,
               wallet: item.wallet,
               username:item.username,
               bio:item.bio,
@@ -95,12 +95,12 @@ export class NFTOwnerController extends AbstractEntity {
 
     if (result) {
       let photo='';
-      if (result.photoUrl){
-        photo=await S3GetSignedUrl(result.photoUrl);
-      }
+      // if (result.photoUrl){
+      //   photo=await S3GetSignedUrl(result.photoUrl);
+      // }
       return respond({
         id:result._id,                         
-        photoUrl:photo,
+        photoUrl:result.photoUrl,
         wallet: result.wallet,
         username:result.username,           
         bio:result.bio,
@@ -327,7 +327,6 @@ export class NFTOwnerController extends AbstractEntity {
         if (filters){
           aggregation = this.parseFilters(filters);
           aggregation.push({ $match: { ...query }, });
-          console.log(aggregation);
         }else{
           aggregation.push({ $match: { ...query }, });
         }
@@ -445,7 +444,6 @@ export class NFTOwnerController extends AbstractEntity {
               }
             ]
           }, });
-          console.log(aggregation);
         };
 
         const result = await activity.aggregate(aggregation).toArray() as Array<IActivity>;
@@ -506,7 +504,6 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("Nft not found", true, 501);
     }
     const owner = await ownerTable.findOne(this.findUserQuery(ownerId)) as IPerson;
-    // console.log(nftResult);
     if (!owner) {
       return respond("to onwer not found.", true, 422);
     }
@@ -545,9 +542,7 @@ export class NFTOwnerController extends AbstractEntity {
     if (!owner) {
       return respond("to onwer not found.", true, 422);
     }
-    console.log(nftResult);
     // const index = await owner.favourites.findIndex(o => o.index === nftResult.index);
-    // console.log(index);
     // if (index>=0){
     //   owner.favourites.splice(index,1);
     //   ownerTable.replaceOne({wallet:owner.wallet},owner);
