@@ -10,7 +10,7 @@ export class SignerController extends AbstractEntity {
   protected table = "Authlog";
   protected data: IAuthSignerProps;
 
-  message = "Please, sign this message to proceed: ";
+  message = "Welcome to ARC, please sign this to connect to our site, rest assured this is not a transaction and will not cost you anything: ";
 
   constructor(walletId: string) {
     super();
