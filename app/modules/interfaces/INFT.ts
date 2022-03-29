@@ -18,6 +18,14 @@ export interface INFT {
   status?: string;                // For Sale, Minted, Sold,
   status_date?:number,
   tokenType:TokenType,              // eq ERC721 or ERC 1155
+  contentType: ContentType,
+}
+
+export enum ContentType {
+  MUSIC=<any>"Music",
+  IMAGE=<any>"Image",
+  VIDEO=<any>"Video",
+  OTHER=<any>"Other",
 }
 
 export enum TokenType {

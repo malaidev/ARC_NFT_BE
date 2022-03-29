@@ -141,15 +141,13 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
   "unlockableContent": "string",
   "isExplicit": "boolean",
   "tokenType": "string",
+  "contentType": "string" (Image, Music, Video, Other)
  * @param {*} res
  *    success:  201
  *    failure:  501 (cannot find collection)
  *              422 (cannot find owner and creator)
  */
 export const createItem = async (req, res) => {
-
-
-
   if (req.body && !req.body.artFile) {
     throw new Error("artURI is invalid or missing");
   }
@@ -181,7 +179,8 @@ export const createItem = async (req, res) => {
     body.unlockableContent,
     body.isExplicit,
     body.tokenType,
-    body.artName
+    body.artName,
+    body.contentType
   );
   res.send(result);
 };

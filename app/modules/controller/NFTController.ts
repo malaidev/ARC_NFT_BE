@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
-import { INFT, TokenType } from "../interfaces/INFT";
+import { ContentType, INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -281,8 +281,8 @@ export class NFTController extends AbstractEntity {
     unlockableContent,
     isExplicit,
     tokenType,
-    artName
-
+    artName,
+    contentType
   ): Promise<IResponse> {
 
     const nftTable = this.mongodb.collection(this.table);
@@ -333,7 +333,8 @@ export class NFTController extends AbstractEntity {
       status_date: new Date().getTime(),
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
-      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
+      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
+      contentType: contentType === 'Music' ? ContentType.MUSIC : contentType === 'Image' ? ContentType.IMAGE : contentType === 'VIDEO' ? ContentType.VIDEO : ContentType.OTHER
     };
 
     const result = await nftTable.insertOne(nft);
