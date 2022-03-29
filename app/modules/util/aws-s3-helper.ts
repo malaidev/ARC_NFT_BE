@@ -14,9 +14,9 @@ export const S3uploadImageBase64 = async(data,wallet) => {
     const s3bucket = new AWS.S3({accessKeyId:s3_key,secretAccessKey:s3_secret});
     const params = {
         Bucket: s3_bucket,
-        Key: `pp_${wallet}`,
+        Key: `pp_${wallet}.${type}`,
         Body: base64Data,
-        // ACL: 'public-read',
+        ACL: 'public-read',
         ContentEncoding: 'base64', // required
         ContentType: `image/${type}` // required. Notice the back ticks
       }
@@ -37,7 +37,7 @@ export const S3uploadImageBase64 = async(data,wallet) => {
       }
       // Save the Location (url) to your database and Key if needs be.
       // As good developers, we should return the url and let other function do the saving to database etc
-      return key;
+      return location;
 }
 export const S3GetSignedUrl=async(key)=>{
     AWS.config.update(configParams);
@@ -48,7 +48,8 @@ export const S3GetSignedUrl=async(key)=>{
          url = await s3bucket.getSignedUrl('getObject', {
             Bucket: s3_bucket,
             Key: key,
-            Expires:  60 * 60 * 24
+            Expires: 86400,
+            region:'us-east-2'
         });
       } catch (error) {
          console.log(error)
