@@ -8,6 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
+import { dateDiff } from "../util/datediff-helper";
 
 /**
  * This is the NFT controller class.
@@ -81,7 +82,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItemDetail::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -113,7 +113,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItemHistory::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -142,7 +141,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItemOffers::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -157,6 +155,7 @@ export class NFTController extends AbstractEntity {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
+        const acttable = this.mongodb.collection(this.activityTable);
         // const result = await nftTable.find().toArray();
         let aggregation = {} as any;
         if (filters) {
@@ -168,6 +167,26 @@ export class NFTController extends AbstractEntity {
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
+
+              const act = await acttable.findOne(
+                {
+                  collection: item.collection,
+                  nftId: item.index,
+                },
+                  {
+                    limit: 1,
+                    sort: {
+                      startDate: -1,
+                    },
+                  }
+              );
+              
+
+              let timeDiff='';
+              if (act && act.endDate){
+                  timeDiff =dateDiff(new Date().getTime(),act.endDate);
+              };
+              item.timeLeft=timeDiff;
               const collection = (await collTable.findOne({
                 contract: item.collection,
               })) as INFTCollection;
@@ -188,7 +207,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItems::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -251,7 +269,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getTrendingItems::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
