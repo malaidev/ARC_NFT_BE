@@ -249,7 +249,7 @@ export class ActivityController extends AbstractEntity {
         
 
         const startDate = new Date().getTime();
-        console.log(startDate, endDate, startDate > endDate);
+        // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -258,7 +258,7 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
 
         const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
-
+        console.log(nft);
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);

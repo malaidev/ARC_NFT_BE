@@ -77,27 +77,16 @@ export class NFTOwnerController extends AbstractEntity {
    * @returns `IPerson`
    */
   async findPerson(personId: string): Promise<IPerson | IResponse> {
-
-
-
     const query = this.findUserQuery(personId);
     const personTable = this.mongodb.collection(this.table);
     // const result = await this.findOne(query);
     const result= await personTable.findOne(query);
     const nftTable = this.mongodb.collection(this.nftTable);
     const collection =  this.mongodb.collection(this.collectionTable);
-    const ntfs = await nftTable.find({
-      owner:personId
-    }).count();
-    const colls = await collection.find({
-      creator:personId
-    }).count();  
+    const ntfs = await nftTable.find({owner:personId}).count();
+    const colls = await collection.find({creator:personId}).count();  
 
     if (result) {
-      let photo='';
-      // if (result.photoUrl){
-      //   photo=await S3GetSignedUrl(result.photoUrl);
-      // }
       return respond({
         id:result._id,                         
         photoUrl:result.photoUrl,
@@ -202,8 +191,6 @@ export class NFTOwnerController extends AbstractEntity {
       }
       const img = await S3uploadImageBase64(body,wallet);
       const result = await person.updateOne({ wallet }, { $set: { photoUrl:img } })
-
-
       if (result){
 
         return this.findPerson(wallet);

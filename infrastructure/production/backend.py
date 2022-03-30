@@ -26,11 +26,11 @@ class Stack(core.Stack):
         hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
             self,
             "HostedZone",
-            hosted_zone_id="Z10237791C4313JM4CYEV",
-            zone_name="api.depo.io",
+            hosted_zone_id="Z03693222PH960ZUMVX4R",
+            zone_name="api.arc.market",
         )
 
-        domain = "api.depo.io"
+        domain = "api.arc.market"
 
         # ACM
         certificate = cm.Certificate(

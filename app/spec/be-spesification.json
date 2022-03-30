@@ -10,10 +10,12 @@
    },
    "servers":[
       {
-         "url":"https://staging.api.arc.market/ws/v2/",
+         "url":"https://staging.api.arc.market/ws/v2/", 
+         "description":"Backend API "
+      },{
+         "url":"https://staging.api.depo.io/ws/v2/",
          "description":"Backend API"
-      },
-      {
+      },{
          "url":"http://localhost:3001/ws/v2/",
          "description":"Backend API Local"
       }
@@ -1969,23 +1971,7 @@
             "description":"Search Collection and Items ",
             "tags":[ "Search"  ],            
             "parameters":[             
-             {
-              "in":"query",
-              "name":"orderBy",
-              "schema":{
-                 "type":"string"
-              },
-              "description":"fieldName"
-           },
-           {
-              "in":"query",
-              "name":"direction",
-              "schema":{
-                 "type":"string",
-                 "enum": ["ASC", "DESC"]
-              },
-              "description":"ASC/DESC"
-           },            
+               
            {
               "in":"query",
               "name":"keyword",
