@@ -9,6 +9,7 @@ import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
+import { v4 } from "uuid";
 
 /**
  * This is the NFT controller class.
@@ -299,7 +300,8 @@ export class NFTController extends AbstractEntity {
     isExplicit,
     tokenType,
     artName,
-    contentType
+    contentType,
+    owner,
   ): Promise<IResponse> {
 
     const nftTable = this.mongodb.collection(this.table);
@@ -332,14 +334,14 @@ export class NFTController extends AbstractEntity {
     }
 
 
-    
+    const uuid = v4();
     
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: "0",
-      owner: '',
-      creator: '',
+      index: uuid,
+      owner:owner,
+      creator: owner,
       artURI: artIpfs,
       price: 0,
       name: name ?? "",
