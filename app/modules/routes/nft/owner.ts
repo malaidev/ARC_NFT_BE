@@ -12,14 +12,8 @@ import { respond } from "../../util/respond";
 
 
 export const uploadOwnerPhoto= async (req,res)=>{
-
-
-  
   const { ownerId } = req.params as any;
   const userSession = req['session'] as any;
-  
-  console.log('oooooo',userSession)
-
   if (req.body && !req.body.photoFile) {
     return res.code(400).send('Please upload file ');
   }
@@ -29,8 +23,7 @@ export const uploadOwnerPhoto= async (req,res)=>{
   }
   const { photoFile} = req.body as any;
   const photoBody = "data:" + req.body.photoFile.mimetype + ";base64," + Buffer.from(await req.body.photoFile.toBuffer()).toString('base64') // access files
-
-const ctl = new NFTOwnerController();
+  const ctl = new NFTOwnerController();
   const result = await ctl.updateOwnerPhoto(ownerId,photoBody);
   res.send(result);
 
