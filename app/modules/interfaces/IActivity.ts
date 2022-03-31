@@ -11,4 +11,5 @@ export interface IActivity {
   startDate?: number;               // start date of activity
   endDate?: number;                 // end date of activity
   fee?: number;                     // fee of list for sale
+  nonce?:number;                    // Nonce
 }

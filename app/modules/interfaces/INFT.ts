@@ -19,7 +19,8 @@ export interface INFT {
   status_date?:number,
   tokenType:TokenType,              // eq ERC721 or ERC 1155
   contentType: ContentType,
-  timeLeft?:string
+  timeLeft?:string,
+  nonce?:number
 }
 
 export enum ContentType {
