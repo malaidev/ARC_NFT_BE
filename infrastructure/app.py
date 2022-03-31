@@ -4,6 +4,7 @@ from aws_cdk import core as cdk
 from base import Base as BaseStack
 from production.pipeline import Pipeline as ProductionPipeline
 from staging.pipeline import Pipeline as StagingPipeline
+from development.pipeline import Pipeline as DevelopmentPipeline
 
 common_tags = {"Application": "depo-backend", "project": "Depo"}
 
@@ -53,14 +54,15 @@ pipeline_frankfurt.add_dependency(base_stack_frankfurt)
 pipeline_sydney = ProductionPipeline(app, f"{props['namespace']}-pipeline-sydney", base_stack_sydney.outputs, env=sydney, tags=common_tags)
 pipeline_sydney.add_dependency(base_stack_sydney)
 
+pipeline_ireland = ProductionPipeline(app, f"{props['namespace']}-pipeline-ireland", base_stack_ireland.outputs, env=ireland, tags=common_tags)
+pipeline_ireland.add_dependency(base_stack_ireland)
+
 # Staging
-pipeline_ireland_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ireland-staging", base_stack_ireland.outputs, env=ireland, tags=common_tags)
-pipeline_ireland_staging.add_dependency(base_stack_ireland)
-
-pipeline_london_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-london-staging", base_stack_london.outputs, env=london, tags=common_tags)
-pipeline_london_staging.add_dependency(base_stack_london)
-
 pipeline_ohio_staging = StagingPipeline(app, f"{props['namespace']}-pipeline-ohio-staging", base_stack_ohio.outputs, env=ohio, tags=common_tags)
 pipeline_ohio_staging.add_dependency(base_stack_ohio)
+
+# Development
+pipeline_london_staging = DevelopmentPipeline(app, f"{props['namespace']}-pipeline-london-staging", base_stack_london.outputs, env=london, tags=common_tags)
+pipeline_london_staging.add_dependency(base_stack_london)
 
 app.synth()

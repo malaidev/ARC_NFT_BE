@@ -2,6 +2,7 @@
 **/dist
 *lock.json
 .env
+.venv
 *-local*
 **/logs/*.*
 dbaconfig.ts*
