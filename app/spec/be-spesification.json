@@ -10,12 +10,10 @@
    },
    "servers":[
       {
-         "url":"https://staging.api.arc.market/ws/v2/", 
+         "url":"https://development.api.arc.market/ws/v2/", 
          "description":"Backend API "
-      },{
-         "url":"https://staging.api.depo.io/ws/v2/",
-         "description":"Backend API"
-      },{
+      },
+      {
          "url":"http://localhost:3001/ws/v2/",
          "description":"Backend API Local"
       }
