@@ -9,6 +9,8 @@ import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { url } from "inspector";
+import TextHelper from "../util/TextHelper";
+
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -466,6 +468,8 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       if (!ObjectId.isValid(creatorId)){
         return respond("Invalid creatorID", true, 422);
       }
+
+
       const creator = await ownerTable.findOne(this.findPersonById(creatorId)) as IPerson;
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
@@ -484,6 +488,12 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       if (findResult && findResult._id) {
         return respond("Same collection name detected", true, 422);
       }
+
+
+      if (!siteUrl.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
+        return respond("invalid url", true, 422);
+      }
+
       const findUrl= await collection.findOne( {
         links:siteUrl,
       })
