@@ -77,7 +77,8 @@ export class ActivityController extends AbstractEntity {
         if (result) {
           const activities = await Promise.all(result.map(async activity => {
             const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
-            activity.nftObject = {artUri: nft.artURI, name: nft.name};
+            // activity.nftObject = {artUri: nft.artURI, name: nft.name};
+            activity.nft = {artUri: nft.artURI, name: nft.name};
             return activity;
           }));
           return respond(activities);

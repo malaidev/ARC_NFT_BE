@@ -130,10 +130,11 @@ export class NFTController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.table);
         const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collection, nftId);
-        const result = (await nftTable.findOne(query)) as INFT;
+        const result = await nftTable.findOne(query) as INFT;
+        console.log(result);
         if (result) {
           const offers = await activityTable
-            .find({ collection: collection, type: "Offer" })
+            .find({ collection: collection, nftId:nftId, type: "Offer" })
             .toArray();
           return respond(offers);
         }
