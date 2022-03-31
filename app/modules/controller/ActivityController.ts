@@ -219,8 +219,8 @@ export class ActivityController extends AbstractEntity {
             price: price,
             startDate: new Date().getTime(),
             endDate: endDate,
-            from: seller,
-            to: buyer
+            from: buyer, 
+            to: seller
           }
 
           const result = await activityTable.insertOne(offer);
