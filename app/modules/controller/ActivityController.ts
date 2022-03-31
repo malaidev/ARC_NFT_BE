@@ -221,7 +221,8 @@ export class ActivityController extends AbstractEntity {
             startDate: new Date().getTime(),
             endDate: endDate,
             from: buyer, 
-            to: seller
+            to: seller,
+            nonce:nft.nonce
           }
 
           const result = await activityTable.insertOne(offer);
