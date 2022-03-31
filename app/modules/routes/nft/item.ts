@@ -153,11 +153,6 @@ export const createItem = async (req, res) => {
   }
 
   const user = req['session'] as any;
-  // if (walletId.toLowerCase() !== user?.walletId.toLowerCase()) {
-  //   res.code(403)
-  //   .send('Forbidden');
-  // }
-  
   let artBody:any=null;
   
   if (req.body && req.body.artFile && req.body.artFile.value!==''){

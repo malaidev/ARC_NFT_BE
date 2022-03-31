@@ -340,7 +340,7 @@ export class NFTController extends AbstractEntity {
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: uuid,
+      index: uuid,      
       owner:owner,
       creator: owner,
       artURI: artIpfs,
@@ -354,7 +354,8 @@ export class NFTController extends AbstractEntity {
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
       tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType: contentType === 'Music' ? ContentType.MUSIC : contentType === 'Image' ? ContentType.IMAGE : contentType === 'VIDEO' ? ContentType.VIDEO : ContentType.OTHER
+      contentType: contentType === 'Music' ? ContentType.MUSIC : contentType === 'Image' ? ContentType.IMAGE : contentType === 'VIDEO' ? ContentType.VIDEO : ContentType.OTHER,
+      nonce:0
     };
 
     const result = await nftTable.insertOne(nft);
