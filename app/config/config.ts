@@ -74,6 +74,24 @@ const config = {
       },
     };
   },
+  routeParamsValidation:()=>{
+
+    
+      return {
+        schema:{
+           params: { 
+          type: 'object',
+          properties: { 
+                ownerId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
+                contract: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
+                nftId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" }
+           }
+        }
+        }
+       
+      }
+  },
+
   aws:{
     s3_user_bucket:process.env['AWS_S3_USER_BUCKET'],
     s3_key:process.env['AWS_S3_KEY'],

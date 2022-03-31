@@ -3,7 +3,6 @@ import { createItem, getAllItems, getItemDetail, getItemHistory, getItemOffers, 
 import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail, getTopCollections, getCollectionsItems} from "./collection";
 import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, getOwnerOffers, updateOwner, uploadOwnerPhoto} from "./owner";
 import { approveOffer, makeOffer, getAllActivites, listForSale, transfer, cancelOffer, cancelListForSale } from "./activity";
-
 /**
  * Exports the nft collection actions routes.
  * @param {*} router
@@ -15,11 +14,11 @@ export const nft = async (router: any, options: any) => {
    */
   router.get("/collection", getCollections);
   router.get("/collection/top", getTopCollections);
-  router.get("/collection/:contract/items", getItems);
-  router.get("/collection/:contract/owners",  getOwners);
-  router.get("/collection/:contract/history", getHistory);
-  router.get("/collection/:contract/activity",getActivities);
-  router.get("/collection/:contract",getCollectionDetail);
+  router.get("/collection/:contract/items", config.routeParamsValidation(),getItems);
+  router.get("/collection/:contract/owners",  config.routeParamsValidation(),getOwners);
+  router.get("/collection/:contract/history",config.routeParamsValidation(), getHistory);
+  router.get("/collection/:contract/activity",config.routeParamsValidation(),getActivities);
+  router.get("/collection/:contract",config.routeParamsValidation(),getCollectionDetail);
   router.post("/collection/create", config.route("jwt"), createCollection);
 
   router.get("/activity", getAllActivites);
@@ -32,9 +31,9 @@ export const nft = async (router: any, options: any) => {
 
   router.get("/items", getAllItems);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.get("/items/:contract/:nftId/history", getItemHistory);
-  router.get("/items/:contract/:nftId/offers", getItemOffers);
-  router.get("/items/:contract/:nftId", getItemDetail);
+  router.get("/items/:contract/:nftId/history",config.routeParamsValidation(), getItemHistory);
+  router.get("/items/:contract/:nftId/offers", config.routeParamsValidation(),getItemOffers);
+  router.get("/items/:contract/:nftId",config.routeParamsValidation(), getItemDetail);
   router.get("/items/trending", getTrendingItems);
   
   router.get("/owners", getAllOwners);  
@@ -43,12 +42,12 @@ export const nft = async (router: any, options: any) => {
   router.post("/owners/:ownerId/upload-profile",config.route("jwt"),  uploadOwnerPhoto);  
   router.put("/owners/:ownerId", config.route("jwt"),  updateOwner);
 
-  router.get("/owners/:ownerId",  getOwner);  
+  router.get("/owners/:ownerId",config.routeParamsValidation(),  getOwner);  
   
-  router.get("/owners/:ownerId/nfts", getOwnerNtfs)
-  router.get("/owners/:ownerId/history",getOwnerHistory)
-  router.get("/owners/:ownerId/collection",getOwnerCollection)
-  router.get("/owners/:ownerId/offers",getOwnerOffers)
+  router.get("/owners/:ownerId/nfts",config.routeParamsValidation(), getOwnerNtfs)
+  router.get("/owners/:ownerId/history",config.routeParamsValidation(),getOwnerHistory)
+  router.get("/owners/:ownerId/collection",config.routeParamsValidation(),getOwnerCollection)
+  router.get("/owners/:ownerId/offers",config.routeParamsValidation(),getOwnerOffers)
 
   router.get("/search",getCollectionsItems)
 };
