@@ -272,7 +272,7 @@ export class ActivityController extends AbstractEntity {
           const status_date=new Date().getTime();
           nft.status = "For Sale";
           nft.status_date=status_date;
-          nft.nonce=++nft.nonce
+          nft.nonce=nft.nonce?++nft.nonce:0
           // console.log(nft);
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
