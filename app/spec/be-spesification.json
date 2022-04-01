@@ -970,7 +970,7 @@
                          "schema":{
                             "type":"array",
                             "items":{
-                               "$ref":"#/definitions/IBid"
+                               "$ref":"#/definitions/IActivity"
                             }
                          }
                       }
