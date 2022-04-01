@@ -494,14 +494,14 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         return respond("invalid url", true, 422);
       }
 
-      const findUrl= await collection.findOne( {
-        links:siteUrl,
-      })
+      // const findUrl= await collection.findOne( {
+      //   links:siteUrl,
+      // })
 
-      /** Validation in siteurl variable if exists in array Links in other collection */
-      if (findUrl && findUrl._id){
-        return respond("Same collection site url detected", true, 422);
-      }
+      // /** Validation in siteurl variable if exists in array Links in other collection */
+      // if (findUrl && findUrl._id){
+      //   return respond("Same collection site url detected", true, 422);
+      // }
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == 'ERC721')
