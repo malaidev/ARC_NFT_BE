@@ -414,35 +414,42 @@ export class NFTOwnerController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collection= this.mongodb.collection(this.collectionTable)
         
+        // console.log('-->>>> wallet ofer',ownerId)
         let aggregation = [] as any;
         // const query = this.findOwnerHistory(ownerId);
         if (filters) {
           aggregation = this.parseFilters(filters);
+        }
           aggregation.push({ $match: { 
-            '$and':[
-                {'type':'Offer'}
-            ],
-            $or: [
-              {
-                'from': ownerId
+            $or:[
+                {type:'Offer'},
+                    {
+                from: {$regex :new RegExp(ownerId, 'igm')}
               },
               {
-                'to': ownerId
+                to: {$regex :new RegExp(ownerId, 'igm')}
               }
-            ]
+               
+            ],
+            // $or: [
+            //   {
+            //     'from': {$regex :new RegExp(ownerId, 'igm')}
+            //   },
+            //   // {
+            //   //   'to':  {$regex :new RegExp(ownerId, 'igm')}
+            //   // }
+            // ]
           }, });
-        };
-
-        const result = await activity.aggregate(aggregation).toArray() as Array<IActivity>;
+        const result = await activity.aggregate(aggregation).toArray();
         if (result){
           const resActivities = await Promise.all(result.map(async(item)=>{
             const nfts = await nftTable.findOne({collection:item.collection,index:item.nftId}) as INFT;
-            const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
-            
+            // const coll = await collection.findOne({contract:item.collection}) as INFTCollection;
+            item.nft= {artUri: nfts.artURI, name: nfts.name};
             return {
               ...item,
-              nft:{artUri: nfts.artURI, name: nfts.name},
-              collection:{...coll}
+              // nft:{artUri: nfts.artURI, name: nfts.name},
+              // collection:{...coll}
             }
 
 

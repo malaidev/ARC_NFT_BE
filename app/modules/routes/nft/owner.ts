@@ -226,8 +226,8 @@ export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) =>
 export const getOwnerOffers = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params['ownerId'] as string;
   const query = req.url.split("?")[1];
-  const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters=query?parseQueryUrl(query):null;
+  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerOffers(walletId,filters);
   res.send(result);
