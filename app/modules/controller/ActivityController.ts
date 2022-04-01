@@ -212,6 +212,9 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
+          nft.nonce=nft.nonce?++nft.nonce:0
+          await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+
           
           const offer: IActivity = {
             collection: contract,
