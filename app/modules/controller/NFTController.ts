@@ -107,6 +107,7 @@ export class NFTController extends AbstractEntity {
             .find({
               collection: collection,
               nftId:result.index,
+              
               // $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
             .toArray();
@@ -359,7 +360,7 @@ export class NFTController extends AbstractEntity {
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
       tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType: contentType === 'Music' ? ContentType.MUSIC : contentType === 'Image' ? ContentType.IMAGE : contentType === 'VIDEO' ? ContentType.VIDEO : ContentType.OTHER,
+      contentType: contentType === 'music' ? ContentType.MUSIC : contentType === 'image' ? ContentType.IMAGE : contentType === 'video' ? ContentType.VIDEO : ContentType.IMAGE,
       nonce:0
     };
 

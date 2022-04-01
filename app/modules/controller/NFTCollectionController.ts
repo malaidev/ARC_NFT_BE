@@ -489,8 +489,8 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         return respond("Same collection name detected", true, 422);
       }
 
-
-      if (!siteUrl.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
+      
+      if (siteUrl && !siteUrl.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
         return respond("invalid url", true, 422);
       }
 
