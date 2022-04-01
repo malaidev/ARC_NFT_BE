@@ -212,7 +212,8 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
-          nft.nonce=nft.nonce?++nft.nonce:0
+          let non=nft.nonce?nft.nonce:0;
+          nft.nonce=++non;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           
@@ -271,12 +272,11 @@ export class ActivityController extends AbstractEntity {
           if (nft.status === "For Sale") {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
-
           const status_date=new Date().getTime();
           nft.status = "For Sale";
           nft.status_date=status_date;
-          nft.nonce=nft.nonce?++nft.nonce:0
-          // console.log(nft);
+          let non=nft.nonce?nft.nonce:0;
+          nft.nonce=++non;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           const offer: IActivity = {
