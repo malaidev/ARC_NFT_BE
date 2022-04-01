@@ -101,11 +101,13 @@ export class NFTController extends AbstractEntity {
         const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
+
+          console.log(result);
           const history = await activityTable
             .find({
               collection: collection,
               nftId:result.index,
-              $or: [{ type: "Sold" }, { type: "Transfer" }],
+              // $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
             .toArray();
           return respond(history);
