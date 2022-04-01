@@ -158,6 +158,12 @@ export const createItem = async (req, res) => {
   if (req.body && req.body.artFile && req.body.artFile.value!==''){
     artBody = "data:" + req.body.artFile.mimetype+ ";base64,"+ Buffer.from(await req.body.artFile.toBuffer()).toString('base64') // access files
   };
+
+
+  // console.log(req.body.artFile.mimetype.substring(0,req.body.artFile.mimetype.lastIndexOf("/")));
+
+  let contentType=req.body.artFile.mimetype.substring(0,req.body.artFile.mimetype.lastIndexOf("/"));
+
   
 
   const body = Object.fromEntries(
@@ -166,6 +172,8 @@ export const createItem = async (req, res) => {
 
   // const artFile =artBody?await uploadImageBase64({name:req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf(".")),img:artBody}):'';
   
+
+
   body.artFile= artBody;
   body.artName= req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
   
@@ -181,7 +189,7 @@ export const createItem = async (req, res) => {
     body.isExplicit,
     body.tokenType,
     body.artName,
-    body.contentType,
+    contentType,
     user?.walletId.toLowerCase()
 
 
