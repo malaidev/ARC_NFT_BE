@@ -104,6 +104,7 @@ export class NFTController extends AbstractEntity {
           const history = await activityTable
             .find({
               collection: collection,
+              nftId:result.index,
               $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
             .toArray();
@@ -131,7 +132,7 @@ export class NFTController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collection, nftId);
         const result = await nftTable.findOne(query) as INFT;
-        console.log(result);
+        
         if (result) {
           const offers = await activityTable
             .find({ collection: collection, nftId:nftId, type: "Offer" })
@@ -192,6 +193,8 @@ export class NFTController extends AbstractEntity {
               const collection = (await collTable.findOne({
                 contract: item.collection,
               })) as INFTCollection;
+              delete item.nonce;
+
               return {
                 ...item,
                 collection_details: {
@@ -247,7 +250,7 @@ export class NFTController extends AbstractEntity {
                   type: "Offer",
                 })
                 .toArray()) as Array<IActivity>;
-
+                delete item.nonce;
               return {
                 ...item,
                 collection_details: {
