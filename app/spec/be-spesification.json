@@ -582,47 +582,50 @@
             "timestamp"
          ]
       },
-         "IActivity":{
+      "IActivity":{
          "type":"object",
-         "properties":{
-            "_id":{
-               "type":"string"
-            },
-            "collection":{
-               "type":"string"
-            },
-            "nftId":{
-               "type":"string"
-            },
-            "type":{
-               "type":"string"
-            },
-            "price":{
-               "type":"number"
-            },
-            "from":{
-             "type":"string"
-            },
-            
-            "to":{
-             "type":"string"
-             },
-             "by":{
-                "type":"string"
-            },
-            "date":{
-               "type":"string",
-               "format":"date-time"
-            }
+            "properties": {
+               "_id": {
+                  "type": "string"
+               },
+               "collection": {
+                  "type": "string"
+               },
+               "nftId": {
+                  "type": "string"
+               },
+               "type": {
+                  "type": "string"
+               },
+               "price": {
+                  "type": "number"
+               },
+               "from": {
+                  "type": "string"
+               },
+               "to": {
+                  "type": "string"
+               },
+               "by": {
+                  "type": "string"
+               },                
+               "startDate": {
+                  "type": "number"
+               },
+               "endDate": {
+                  "type": "number"
+               },
+               "fee": {
+                  "type": "number"
+               },
+               "nonce": {
+                  "type": "number"
+               }
          },
-         "required":[
+         "required": [
             "collection",
             "nftId",
-            "type",
-            "price",
-            "from",
-            "to",
-            "date"
+            "type"
          ]
       } 
    },
