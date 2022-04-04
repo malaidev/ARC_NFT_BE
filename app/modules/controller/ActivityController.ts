@@ -219,7 +219,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async listForSale(contract: string, nftId: string, seller: string, price: number, endDate: number, fee: number): Promise<IResponse> {
+  async listForSale(contract: string, nftId: string, seller: string, price: number, endDate: number, fee: number,r:string,s:string,v:string): Promise<IResponse> {
     try {
       if (this.mongodb) {
         if (isNaN(Number(endDate))){return respond("endDate should be unix timestamp", true, 422);}
@@ -234,13 +234,13 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
-        // const sortAct = await activityTable.findOne({
-        // },{
-        //   limit: 1,
-        //   sort: {
-        //     nonce: -1,
-        //   },
-        // })
+        const sortAct = await activityTable.findOne({
+        },{
+          limit: 1,
+          sort: {
+            nonce: -1,
+          },
+        })
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -251,6 +251,7 @@ export class ActivityController extends AbstractEntity {
           const status_date=new Date().getTime();
           nft.status = "For Sale";
           nft.status_date=status_date;
+          let non =sortAct.nonce?sortAct.nonce:0;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
           const offer: IActivity = {
             collection: contract,
@@ -261,11 +262,16 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: seller,
             fee: fee,
+            nonce:non+1,
+            signature:{r,s,v}
           }
           const result = await activityTable.insertOne(offer);
-          return (result
-            ? respond(`Successfully created a new listforsale with id ${result.insertedId}`)
-            : respond("Failed to create a new activity.", true, 501)); 
+          if (result){
+            const findData=await activityTable.findOne({ "_id" : new ObjectId(`${result.insertedId}`)});
+           return  respond(findData);
+          }else{
+            return respond("Failed to create a new activity.", true, 501);
+          }
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -302,6 +308,7 @@ export class ActivityController extends AbstractEntity {
           const status_date=new Date().getTime();
           nft.status = "Minted";
           nft.status_date=status_date;
+
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
           cancelList.type = "Canceled";
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), cancelList);
@@ -353,6 +360,31 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+
+  async signOffer(id: string, r:string,s:string,v:string) {
+    try {
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.table);
+        const actData = await activityTable.findOne(this.findActivtyWithId(id)) as IActivity;
+        if (actData) {
+          actData.signature={r,s,v}
+          const result = await activityTable.replaceOne(this.findActivtyWithId(id), actData);
+
+          return (result
+            ? respond('Sing offer update')
+            : respond("Failed to update activity.", true, 501)); 
+        }
+        return respond("activity not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::cancelOffer::${this.table}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
