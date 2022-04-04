@@ -1,8 +1,45 @@
 import { config } from "../../../config/config";
-import { createItem, getAllItems, getItemDetail, getItemHistory, getItemOffers, getTrendingItems } from "./item";
-import { getCollections, getActivities, getHistory, getItems, getOwners, createCollection, getCollectionDetail, getTopCollections, getCollectionsItems} from "./collection";
-import { createOwner, getAllOwners, getOwner, getOwnerCollection, getOwnerHistory, getOwnerNtfs, getOwnerOffers, updateOwner, uploadOwnerPhoto} from "./owner";
-import { approveOffer, makeOffer, getAllActivites, listForSale, transfer, cancelOffer, cancelListForSale, makeCollectionOffer } from "./activity";
+import { createItem,
+  getAllItems,
+  getItemDetail,
+  getItemHistory,
+  getItemOffers,
+  getTrendingItems
+} from "./item";
+import { 
+  getCollections, 
+  getActivities, 
+  getHistory, 
+  getItems, 
+  getOwners, 
+  createCollection, 
+  getCollectionDetail, 
+  getTopCollections, 
+  getCollectionsItems
+} from "./collection";
+import { 
+  createOwner, 
+  getAllOwners, 
+  getOwner, 
+  getOwnerCollection, 
+  getOwnerHistory, 
+  getOwnerNtfs, 
+  getOwnerOffers, 
+  updateOwner, 
+  uploadOwnerPhoto
+} from "./owner";
+import { 
+  approveOffer,
+  makeOffer,
+  getAllActivites,
+  listForSale,
+  transfer,
+  cancelOffer,
+  cancelListForSale,
+  makeCollectionOffer,
+  cancelCollectionOffer
+} from "./activity";
+
 /**
  * Exports the nft collection actions routes.
  * @param {*} router
@@ -29,6 +66,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelOffer", cancelOffer);
   router.post("/activity/cancelListForSale", cancelListForSale);
   router.post("/activity/makeCollectionOffer", makeCollectionOffer);
+  router.post("/activity/cancelCollectionOffer", cancelCollectionOffer);
 
   router.get("/items", getAllItems);
   router.post("/items/create", config.route("jwt"), createItem);

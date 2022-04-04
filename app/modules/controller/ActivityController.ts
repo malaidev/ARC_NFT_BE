@@ -429,6 +429,46 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+  async cancelCollectionOffer(collectionId: string, seller: string) {
+    try {
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.table);
+        const collectionTable = this.mongodb.collection(this.collectionTable);
+        const collection = await collectionTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
+        if (collection) {
+          if (collection.creator !== seller) {
+            return respond("seller isnt nft's creator.", true, 422);
+          }
+
+          const cancelList = await activityTable.findOne(this.findActivityWithCollectionId(collectionId)) as IActivity;
+          if (!cancelList) {
+            return respond("activity not found.", true, 422);
+          }
+
+          if (cancelList.from !== seller) {
+            return respond("seller isnt activity's owner.", true, 422);
+          }
+
+          collection.offerStatus = OfferStatusType.CANCELED;
+          await collectionTable.replaceOne(this.findCollectionById(collection._id), collection);
+
+          cancelList.type = ActivityType.CANCELED;
+          const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
+          return (result
+            ? respond('Offer canceled')
+            : respond("Failed to create a new activity.", true, 501)); 
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(`ActivityController::cancelOffer::${this.table}`, error);
+      return respond(error.message, true, 500);
+    }
+  }
+
   /**
    * Mounts a generic query to find a activity by id.
    * @param contract
@@ -437,6 +477,18 @@ export class ActivityController extends AbstractEntity {
    private findActivtyWithId(activtyId: string): Object {
     return {
       _id: new ObjectId(activtyId),
+    };
+  }
+
+  /**
+   * Mounts a generic query to find a activity by collection id.
+   * @param contract
+   * @returns
+   */
+   private findActivityWithCollectionId(collectionId: string): Object {
+    return {
+      _id: new ObjectId(collectionId),
+      type: ActivityType.OFFERCOLLECTION
     };
   }
 

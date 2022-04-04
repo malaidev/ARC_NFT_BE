@@ -85,3 +85,10 @@ export const makeCollectionOffer = async (req: FastifyRequest, res: FastifyReply
   const result = await ctl.makeCollectionOffer(collectionId, seller, buyer, price, endDate);
   res.send(result);
 };
+
+export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
+  const {collectionId, seller} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.cancelCollectionOffer(collectionId, seller);
+  res.send(result);
+};
