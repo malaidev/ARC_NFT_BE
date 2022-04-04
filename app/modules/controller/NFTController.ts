@@ -218,7 +218,6 @@ export class NFTController extends AbstractEntity {
               const collection = (await collTable.findOne({
                 contract: item.collection,
               })) as INFTCollection;
-              delete item.nonce;
 
               return {
                 ...item,
@@ -275,7 +274,6 @@ export class NFTController extends AbstractEntity {
                   type: "Offer",
                 })
                 .toArray()) as Array<IActivity>;
-                delete item.nonce;
               return {
                 ...item,
                 collection_details: {
@@ -382,8 +380,7 @@ export class NFTController extends AbstractEntity {
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
       tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType: contentType === 'music' ? ContentType.MUSIC : contentType === 'image' ? ContentType.IMAGE : contentType === 'video' ? ContentType.VIDEO : ContentType.IMAGE,
-      nonce:0
+      contentType: contentType === 'music' ? ContentType.MUSIC : contentType === 'image' ? ContentType.IMAGE : contentType === 'video' ? ContentType.VIDEO : ContentType.IMAGE
     };
 
     const result = await nftTable.insertOne(nft);

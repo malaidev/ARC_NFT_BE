@@ -208,12 +208,22 @@ export class ActivityController extends AbstractEntity {
 
         const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
 
+        const sortAct = await activityTable.findOne({
+          
+        },{
+          limit: 1,
+          sort: {
+            nonce: -1,
+          },
+        })
+
+        // console.log(sortAct);
+        
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
-          let non=nft.nonce?nft.nonce:0;
-          nft.nonce=++non;
+          let non =sortAct.nonce?sortAct.nonce:0;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           
@@ -226,7 +236,7 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: buyer, 
             to: seller,
-            nonce:nft.nonce
+            nonce:non+1
           }
 
           const result = await activityTable.insertOne(offer);
@@ -264,6 +274,14 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
 
         const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
+        // const sortAct = await activityTable.findOne({
+          
+        // },{
+        //   limit: 1,
+        //   sort: {
+        //     nonce: -1,
+        //   },
+        // })
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -275,8 +293,6 @@ export class ActivityController extends AbstractEntity {
           const status_date=new Date().getTime();
           nft.status = "For Sale";
           nft.status_date=status_date;
-          let non=nft.nonce?nft.nonce:0;
-          nft.nonce=++non;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           const offer: IActivity = {
@@ -288,7 +304,6 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: seller,
             fee: fee,
-            nonce:nft.nonce
           }
 
           const result = await activityTable.insertOne(offer);
