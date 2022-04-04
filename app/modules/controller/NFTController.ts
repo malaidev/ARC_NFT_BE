@@ -70,12 +70,34 @@ export class NFTController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collection, nftId);
+        const acttable = this.mongodb.collection(this.activityTable);
         const result = await this.findOne(query);
 
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
+          const act = await acttable.findOne(
+            {
+              collection: result.collection,
+              nftId: result.index,
+            },
+              {
+                limit: 1,
+                sort: {
+                  startDate: -1,
+                },
+              }
+          );
+          let timeDiff='';
+          if (act && act.endDate){
+            timeDiff =dateDiff(new Date().getTime(),act.endDate);
+        };
+
+
+
+          result.timeLeft=timeDiff;
           result.ownerDetail = owner;
+
           return respond(result);
         }
         return respond("nft not found.", true, 422);
