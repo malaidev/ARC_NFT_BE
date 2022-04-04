@@ -75,21 +75,18 @@ const config = {
     };
   },
   routeParamsValidation:()=>{
-
-    
-      return {
-        schema:{
-           params: { 
+    return {
+      schema:{
+        params: { 
           type: 'object',
           properties: { 
-                ownerId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
-                contract: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
-                nftId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" }
-           }
+            ownerId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
+            contract: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
+            nftId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" }
+          }
         }
-        }
-       
       }
+    }
   },
 
   aws:{
