@@ -334,8 +334,47 @@
                 "description":"Activity Id"
              } 
           }
-       } ,  
-  
+       } ,
+       "MakeCollectionOfferParam":{
+         "type":"object",
+         "properties":{ 
+            "collectionId":{
+               "type":"string",
+               "description":"Collection Id"
+            }, 
+            "seller":{
+               "type":"string",
+               "description":"seller wallet address"
+            },
+            "buyer":{
+               "type":"string",
+               "description":"buyer wallet address"
+            },
+            "price":{
+               "type":"number",
+               "format":"decimal",
+               "description":"price for sale"
+            },
+            "endDate":{
+               "type":"string",            
+               "format":"date-time",
+               "description":"end date"
+            } 
+         }
+      } ,  
+       "CancelCollectionParam":{
+         "type":"object",
+         "properties":{ 
+            "collectionId":{
+               "type":"string",
+               "description":"Collection Id"
+            },  
+            "seller":{
+               "type":"string",
+               "description":"seller wallet address"
+            } 
+         }
+      } ,  
        "TransferParam":{
           "type":"object",
           "properties":{ 
@@ -1312,7 +1351,7 @@
                   "application/json":{
                      "schema":{
                         "type":"object",
-                        "$ref":"#/definitions/MakeOfferParam"
+                        "$ref":"#/definitions/MakeCollectionOfferParam"
                      }
                   }
                }
@@ -1345,7 +1384,7 @@
                   "application/json":{
                      "schema":{
                         "type":"object",
-                        "$ref":"#/definitions/CancelParam"
+                        "$ref":"#/definitions/CancelCollectionParam"
                      }
                   }
                }
