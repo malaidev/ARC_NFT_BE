@@ -422,15 +422,16 @@ export class NFTOwnerController extends AbstractEntity {
         }
           aggregation.push({ $match: { 
             $or:[
-                {type:'Offer'},
-                    {
-                from: {$regex :new RegExp(ownerId, 'igm')}
-              },
               {
-                to: {$regex :new RegExp(ownerId, 'igm')}
-              }
-               
+                from: {$regex :new RegExp(ownerId, 'igm')}
+          },
+          {
+            to: {$regex :new RegExp(ownerId, 'igm')}
+          },
+          
             ],
+            type:'Offer',
+           
             // $or: [
             //   {
             //     'from': {$regex :new RegExp(ownerId, 'igm')}

@@ -177,6 +177,7 @@ export const createItem = async (req, res) => {
   body.artFile= artBody;
   body.artName= req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
   
+  
   const ctl = new NFTController();
   const result = await ctl.createNFT(
     body.artFile, 

@@ -387,12 +387,26 @@ export class NFTController extends AbstractEntity {
     }
 
 
-    const uuid = v4();
+    const sortNft = await nftTable.findOne({
+    },{
+      limit: 1,
+      sort: {
+        // timestamp: -1,
+        nftId: -1,
+      },
+    })
+
+  console.log(sortNft);
+    // const uuid = v4();
+
+    let nId =sortNft.index && Number(sortNft.index) ?Number(sortNft.index):0;
+
+    console.log('--->>>>>>',nId);
     
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: uuid,      
+      index: (nId+1).toString(),
       owner:owner,
       creator: owner,
       artURI: artIpfs,
