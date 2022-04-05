@@ -217,36 +217,68 @@
      "SellParam":{
        "type":"object",
        "properties":{ 
-           "contract":{
-             "type":"string",
-             "description":"Collection Contract Address"
-           },          
-           "nftId":{
-             "type":"string",
-             "description":"Index of NFT item in collection"
-           },
-           "seller":{
-             "type":"string",
-             "description":"seller wallet address"
-           },
-           "price":{
-             "type":"number",
-             "format":"decimal",
-             "description":"price for sale"
-           },
-           "endDate":{
-             "type":"string",            
-             "format":"date-time",
-             "description":"end date"
-           } ,
-           "fee":{
-             "type":"number",
-             "format":"decimal",
-             "description":"seller's fee"
-           } 
-          }
-        } ,
-      
+            "contract":{
+               "type":"string",
+               "description":"Collection Contract Address"
+            },          
+            "nftId":{
+               "type":"string",
+               "description":"Index of NFT item in collection"
+            },
+            "seller":{
+               "type":"string",
+               "description":"seller wallet address"
+            },
+            "price":{
+               "type":"number",
+               "format":"decimal",
+               "description":"price for sale"
+            },
+            "endDate":{
+               "type":"string",            
+               "format":"date-time",
+               "description":"end date"
+            } ,
+            "fee":{
+               "type":"number",
+               "format":"decimal",
+               "description":"seller's fee"
+            },
+            "r":{
+               "type":"string",
+               "description":"R Sign"
+             },
+             "v":{
+               "type":"string",
+               "description":"V Sign"
+             },
+             "s":{
+               "type":"string",
+               "description":"Sign"
+             } 
+         }
+      },
+      "SignParam":{
+         "type":"object",
+         "properties":{ 
+              "id":{
+                 "type":"string",
+                 "description":"Id to Sign"
+              },  
+              "r":{
+                 "type":"string",
+                 "description":"R Sign"
+               },
+               "v":{
+                 "type":"string",
+                 "description":"V Sign"
+               },
+               "s":{
+                 "type":"string",
+                 "description":"Sign"
+               } 
+           }
+        },
        "MakeOfferParam":{
           "type":"object",
           "properties":{ 
@@ -278,7 +310,7 @@
              } 
           }
        } ,
-       "ApproveCancelParam":{
+       "CancelParam":{
           "type":"object",
           "properties":{ 
              "contract":{
@@ -302,8 +334,47 @@
                 "description":"Activity Id"
              } 
           }
-       } ,  
-  
+       } ,
+       "MakeCollectionOfferParam":{
+         "type":"object",
+         "properties":{ 
+            "collectionId":{
+               "type":"string",
+               "description":"Collection Id"
+            }, 
+            "seller":{
+               "type":"string",
+               "description":"seller wallet address"
+            },
+            "buyer":{
+               "type":"string",
+               "description":"buyer wallet address"
+            },
+            "price":{
+               "type":"number",
+               "format":"decimal",
+               "description":"price for sale"
+            },
+            "endDate":{
+               "type":"string",            
+               "format":"date-time",
+               "description":"end date"
+            } 
+         }
+      } ,  
+       "CancelCollectionParam":{
+         "type":"object",
+         "properties":{ 
+            "collectionId":{
+               "type":"string",
+               "description":"Collection Id"
+            },  
+            "seller":{
+               "type":"string",
+               "description":"seller wallet address"
+            } 
+         }
+      } ,  
        "TransferParam":{
           "type":"object",
           "properties":{ 
@@ -1099,7 +1170,7 @@
                 }
              }
           }
-       },
+       },       
        "/nft/activity/makeOffer":{
           "post":{
              "description":"makeOffer an offer",
@@ -1148,7 +1219,7 @@
                    "application/json":{
                       "schema":{
                          "type":"object",
-                         "$ref":"#/definitions/ApproveCancelParam"
+                         "$ref":"#/definitions/CancelParam"
                       }
                    }
                 }
@@ -1214,7 +1285,7 @@
                    "application/json":{
                       "schema":{
                          "type":"object",
-                         "$ref":"#/definitions/ApproveCancelParam"
+                         "$ref":"#/definitions/CancelParam"
                       }
                    }
                 }
@@ -1247,7 +1318,7 @@
                    "application/json":{
                       "schema":{
                          "type":"object",
-                         "$ref":"#/definitions/ApproveCancelParam"
+                         "$ref":"#/definitions/CancelParam"
                       }
                    }
                 }
@@ -1265,8 +1336,105 @@
              }
           }
        },
-   
-       
+       "/nft/activity/makeCollectionOffer":{
+         "post":{
+            "description":"makeOffer an offer on Collection",
+            "tags":[
+               "Activity"
+            ],           
+            "security":[     {
+               "bearerAuth":[]
+            }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/MakeCollectionOfferParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success created MakeOffer"
+               },
+               "501":{
+               "description":"cannot find List Offer"
+               },
+               "422":{
+                  "description":"cannot find owner and creator"
+               }
+            }
+         }
+      },
+      "/nft/activity/cancelCollectionOffer":{
+         "post":{
+            "description":"cancel Offer of Collection",
+            "tags":[
+               "Activity"
+            ],           
+            "security":[     {
+               "bearerAuth":[]
+            }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/CancelCollectionParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success Cancel an Offer"
+               },
+               "501":{
+               "description":"cannot find collection"
+               },
+               "422":{
+                  "description":"cannot find an Offer"
+               }
+            }
+         }
+      },
+      "/nft/activity/signOffer":{
+         "post":{
+            "description":"cancel Offer of Collection",
+            "tags":[
+               "Activity"
+            ],           
+            "security":[     {
+               "bearerAuth":[]
+            }
+            ],
+            "requestBody":{
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "$ref":"#/definitions/SignParam"
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Success Sign an Offer"
+               },
+               "501":{
+               "description":"cannot find collection"
+               },
+               "422":{
+                  "description":"cannot find an Offer"
+               }
+            }
+         }
+      },
        "/nft/items/create":{
           "post":{
              "description":"Create NFT item - save DB  ",

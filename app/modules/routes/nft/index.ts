@@ -1,5 +1,6 @@
 import { config } from "../../../config/config";
-import { createItem,
+import { 
+  createItem,
   getAllItems,
   getItemDetail,
   getItemHistory,
@@ -37,7 +38,8 @@ import {
   cancelOffer,
   cancelListForSale,
   makeCollectionOffer,
-  cancelCollectionOffer
+  cancelCollectionOffer,
+  signOffer
 } from "./activity";
 
 /**
@@ -67,6 +69,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelListForSale", cancelListForSale);
   router.post("/activity/makeCollectionOffer", makeCollectionOffer);
   router.post("/activity/cancelCollectionOffer", cancelCollectionOffer);
+  router.post("/activity/signOffer", signOffer);
 
   router.get("/items", getAllItems);
   router.post("/items/create", config.route("jwt"), createItem);

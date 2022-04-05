@@ -12,6 +12,7 @@ export interface IActivity {
   endDate?: number;                 // end date of activity
   fee?: number;                     // fee of list for sale
   nonce?:number;                    // Nonce
+  signature?:object;                // signature of activity
 }
 
 

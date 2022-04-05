@@ -37,9 +37,9 @@ import { parseQueryUrl } from "../../util/parse-query-url";
  *    fail:     501
  */
  export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId, seller, price, endDate, fee} = req.body as any;
+  const {contract, nftId, seller, price, endDate, fee,r,s,v} = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.listForSale(contract, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
+  const result = await ctl.listForSale(contract, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0,r??'',s??'',v??'');
   res.send(result);
 };
 
@@ -92,3 +92,10 @@ export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyRep
   const result = await ctl.cancelCollectionOffer(collectionId, seller);
   res.send(result);
 };
+
+export const signOffer=async (req: FastifyRequest, res: FastifyReply) =>{
+  const {id,r,s,v} = req.body as any;
+  const ctl = new ActivityController();
+  const result = await ctl.signOffer(id,r,s,v);
+  res.send(result);
+}
