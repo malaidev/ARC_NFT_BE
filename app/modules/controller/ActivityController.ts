@@ -138,6 +138,7 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
+
           const offer = await activityTable.findOne(this.findActivtyWithId(activityId)) as IActivity;
           if (!offer ||offer.collection !== contract || offer.nftId !== nftId) {
             return respond("Offer id is invalid", true, 422);
@@ -148,17 +149,40 @@ export class ActivityController extends AbstractEntity {
           if (offer.to != buyer) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
-          const status_date=new Date().getTime();
-          nft.status = "Sold";
-          nft.owner = buyer;
-          nft.status_date=status_date;
-          await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
-          offer.type = ActivityType.SOLD;
-          offer.date = status_date;
-          const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), offer);
-          return (result                  
-            ? respond(`Successfully created a new sold with id ${activityId}`)
-            : respond("Failed to create a new activity.", true, 501)); 
+
+          if (offer.type === ActivityType.OFFERCOLLECTION) {
+            const status_date=new Date().getTime();
+            nft.status = "Sold";
+            nft.owner = buyer;
+            nft.status_date=status_date;
+            await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+
+            const sold: IActivity = {
+              collection: contract,
+              nftId: nftId,
+              type: ActivityType.SOLD,
+              date: status_date,
+              from: seller,
+              to: buyer
+            };
+
+            const result = await activityTable.insertOne(sold);
+            return (result
+              ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
+              : respond("Failed to create a new activity.", true, 501)); 
+          } else if (offer.type === ActivityType.OFFER) {
+            const status_date=new Date().getTime();
+            nft.status = "Sold";
+            nft.owner = buyer;
+            nft.status_date=status_date;
+            await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
+            offer.type = ActivityType.SOLD;
+            offer.date = status_date;
+            const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), offer);
+            return (result                  
+              ? respond(`Successfully created a new sold with id ${activityId}`)
+              : respond("Failed to create a new activity.", true, 501)); 
+          }
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -488,6 +512,18 @@ export class ActivityController extends AbstractEntity {
    private findActivityWithCollectionId(collectionId: string): Object {
     return {
       _id: new ObjectId(collectionId),
+      type: ActivityType.OFFERCOLLECTION
+    };
+  }
+
+  /**
+   * Mounts a generic query to find a activity by collection id.
+   * @param contract
+   * @returns
+   */
+   private findActivityWithContract(contract: string): Object {
+    return {
+      collection: contract,
       type: ActivityType.OFFERCOLLECTION
     };
   }
