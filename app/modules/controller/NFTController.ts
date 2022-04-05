@@ -99,7 +99,8 @@ export class NFTController extends AbstractEntity {
               collection: result.collection,
               type: ActivityType.OFFERCOLLECTION
             }) as IActivity;
-            timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+            if (collectionAct && collectionAct.endDate)
+              timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
 
           result.timeLeft=timeDiff;
