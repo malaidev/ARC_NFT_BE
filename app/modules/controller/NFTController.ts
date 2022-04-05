@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { IActivity } from "../interfaces/IActivity";
+import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { ContentType, INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
@@ -157,10 +157,10 @@ export class NFTController extends AbstractEntity {
         const result = await nftTable.findOne(query) as INFT;
         
         if (result) {
-          const offers = await activityTable
-            .find({ collection: collection, nftId:nftId, type: "Offer" })
+          const offersIndividual = await activityTable
+            .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
             .toArray();
-          return respond(offers);
+          return respond(offersIndividual);
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -269,7 +269,7 @@ export class NFTController extends AbstractEntity {
                 .find({
                   contract: item.collection,
                   nftId: item.index,
-                  type: "Offer",
+                  type: ActivityType.OFFER,
                 })
                 .toArray()) as Array<IActivity>;
               return {

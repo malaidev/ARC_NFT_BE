@@ -75,7 +75,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/items/:contract/:nftId",config.routeParamsValidation(), getItemDetail);
   router.get("/items/trending", getTrendingItems);
   
-  router.get("/owners", getAllOwners);  
+  router.get("/owners", getAllOwners);
 
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
   router.post("/owners/:ownerId/upload-profile",config.route("jwt"),  uploadOwnerPhoto);  
