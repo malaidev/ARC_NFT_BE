@@ -218,7 +218,6 @@ export class NFTController extends AbstractEntity {
                     },
                   }
               );
-              
 
               let timeDiff='';
               if (act && act.endDate){
@@ -230,7 +229,9 @@ export class NFTController extends AbstractEntity {
                   collection: item.collection,
                   type: ActivityType.OFFERCOLLECTION
                 }) as IActivity;
-                timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+
+                if (collectionAct && collectionAct.endDate)
+                  timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
               }
 
               item.timeLeft=timeDiff;
