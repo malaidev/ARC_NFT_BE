@@ -88,10 +88,19 @@ export class NFTController extends AbstractEntity {
                 },
               }
           );
+
           let timeDiff='';
-          if (act && act.endDate){
+          if (act && act.endDate) {
             timeDiff = dateDiff(new Date().getTime(),act.endDate);
-          };
+          }
+
+          if (!act) {
+            const collectionAct = await acttable.findOne({
+              collection: result.collection,
+              type: ActivityType.OFFERCOLLECTION
+            }) as IActivity;
+            timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+          }
 
           result.timeLeft=timeDiff;
           result.ownerDetail = owner;
@@ -160,7 +169,10 @@ export class NFTController extends AbstractEntity {
           const offersIndividual = await activityTable
             .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
             .toArray();
-          return respond(offersIndividual);
+          
+          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION});
+
+          return respond(offersIndividual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -212,7 +224,17 @@ export class NFTController extends AbstractEntity {
               if (act && act.endDate){
                   timeDiff =dateDiff(new Date().getTime(),act.endDate);
               };
+
+              if (!act) {
+                const collectionAct = await acttable.findOne({
+                  collection: item.collection,
+                  type: ActivityType.OFFERCOLLECTION
+                }) as IActivity;
+                timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+              }
+
               item.timeLeft=timeDiff;
+
               const collection = (await collTable.findOne({
                 contract: item.collection,
               })) as INFTCollection;
@@ -272,7 +294,15 @@ export class NFTController extends AbstractEntity {
                   type: ActivityType.OFFER,
                 })
                 .toArray()) as Array<IActivity>;
-              return {
+                
+                const collectionAct = await activityTable.findOne({
+                  collection: item.collection,
+                  type: ActivityType.OFFERCOLLECTION
+                }) as IActivity;
+              
+                activity.push(collectionAct);
+
+                return {
                 ...item,
                 collection_details: {
                   _id: collection._id,
@@ -332,8 +362,6 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
-
-
 
     if (!ObjectId.isValid(collectionId)){
       return respond("Invalid Collection Id", true, 422);
