@@ -170,7 +170,7 @@ export class NFTController extends AbstractEntity {
             .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
             .toArray();
           
-          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION});
+          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION}).toArray();
 
           return respond(offersIndividual.concat(offersCollection));
         }
