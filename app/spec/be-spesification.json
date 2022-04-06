@@ -1588,7 +1588,7 @@
                 "in":"path",
                 "name":"nftId",
                 "schema":{
-                   "type":"string"
+                   "type":"integer"
                 },
                 "required":true,
                 "description":"NFT item index"
@@ -1630,7 +1630,7 @@
                 "in":"path",
                 "name":"nftId",
                 "schema":{
-                   "type":"string"
+                   "type":"integer"
                 },
                 "required":true,
                 "description":"offers  in collection"
@@ -1673,7 +1673,7 @@
                   "in":"path",
                   "name":"nftId",
                   "schema":{
-                     "type":"string"
+                     "type":"integer"
                   },
                   "required":true,
                   "description":"NFT item index in collection"
