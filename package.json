@@ -45,6 +45,7 @@
     "require": "^2.4.20",
     "simple-get": "^4.0.1",
     "socket.io": "4.1.2",
+    "speakeasy": "^2.0.0",
     "supertest": "^6.2.2",
     "tap": "^15.1.6",
     "tedious": "^11.0.7",

@@ -8,6 +8,7 @@ import { respond } from "../../util/respond";
 import { isAPIKeyValid } from "../../util/ccxt-helper";
 import { SignerController } from "../../controller/SignerController";
 import moment = require("moment");
+import { TwoFaController } from "../../controller/TwoFAController";
 /**
  * GET one row from DB
  * @param {*} req
@@ -41,48 +42,12 @@ export const findOrCreateUser = async (
   req: FastifyRequest | any,
   res: FastifyReply | any
 ) => {
-  const { walletId, signature } = req.body as any;
+  const walletId = req.body.walletId ? req.body.walletId.toLowerCase() : null;
+  const signature = req.body.signature || null;
+  const twoFactorAuthenticationCode= req.body.twoFactorAuthenticationCode||null;
+
   if (walletId) {
-    /**
-     * The signer controller. Controls web3 transaction signature
-     */
-    const signer = new SignerController(walletId);
-    let user: IUser = {
-      settings: {
-        defaultWallet: walletId,
-      },
-      wallets: [{ address: walletId }],
-    };
-
-    const ctl = new DepoUserController(user);
-    // Tries to find an user which has the given wallet
-    const hasUser = (await ctl.findUser(walletId)) as IUser;
-    // Verify if has no "code" in hasUser, indicating an error
-    if (!hasUser.code) {
-      user = hasUser;
-      // If it doesn't it means that we're dealing with an existing user
-    } else {
-      // And if it didn't find, then create a new user
-      const result = await ctl.create();
-      if (!result.code) {
-        delete user._id;
-        delete result.authorizedBrowsers;
-      } else {
-        res.code(result.code).send(result);
-        return;
-      }
-    }
-    const verified = await signer.verifySignature(signature);
-    if (verified) {
-      // If everything is ok, generate a JWT
-      const jwt = await res.jwtSign({
-        uid: walletId,
-        exp: moment.utc().add(1, "day").unix(),
-      });
-
-      // And if it does, just sent back user's info
-      res.send({ user, jwt });
-    }
+    
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
   }
@@ -180,3 +145,48 @@ export const getSingingMessage = async (
     res.code(400).send(respond(error.message, true, 400));
   }
 };
+
+
+
+
+/**
+ * @param {*} req
+ * @param {*} res
+ */
+
+export const twoFAGenerate = async (req: FastifyRequest, res:FastifyReply)=>{
+  
+  const user = req["session"] as any;
+  const ctl = new TwoFaController();
+  
+  const result = await ctl.generateTwoFa(user.walletId);
+  res.send(result);
+}
+
+
+/**
+ * 
+ * @param req body twoFactorAuthenticationCode:string
+ * @param req body walletId
+ * @param res 
+ */
+ export const turnOn = async (req: FastifyRequest, res:FastifyReply)=>{
+  
+  const { twoFactorAuthenticationCode,walletId }=req.body as any;
+  const user = req["session"] as any;
+  const ctl = new TwoFaController();
+  
+  if (user.walletId !== walletId){
+    return respond('Incorect wallet id',true,401);
+  }
+  const result = await ctl.turnOnTwoFactorAuthentication(user.walletId,twoFactorAuthenticationCode);
+  if (result.status){
+    return findOrCreateUser(req,res);
+  }else{
+    res.send(result);
+  }
+  
+
+}
+
+
