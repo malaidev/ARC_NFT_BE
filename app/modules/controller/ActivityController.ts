@@ -216,21 +216,13 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
-        const sortAct = await activityTable.findOne(
-          {},
-          {
-            limit: 1,
-            sort: {
-              nonce: -1,
-            },
-          }
-        );
+        const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
         // console.log(sortAct);
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
-          let non = sortAct.nonce ? sortAct.nonce : 0;
+          const nonce = sortAct ? sortAct.nonce + 1 : 0;
           await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
           const offer: IActivity = {
             collection: contract,
@@ -241,7 +233,7 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: buyer,
             to: seller,
-            nonce: non + 1,
+            nonce,
           };
           const result = await activityTable.insertOne(offer);
           return result
@@ -275,21 +267,13 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
-        const sortAct = await activityTable.findOne(
-          {},
-          {
-            limit: 1,
-            sort: {
-              nonce: -1,
-            },
-          }
-        );
+        const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
         // console.log(sortAct);
         if (collection) {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
-          let non = sortAct.nonce ? sortAct.nonce : 0;
+          const nonce = sortAct ? sortAct.nonce + 1 : 0;
           collection.offerStatus = OfferStatusType.OFFERED;
           await collectionTable.replaceOne(this.findCollectionById(collectionId), collection);
           const offer: IActivity = {
@@ -300,7 +284,7 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: buyer,
             to: seller,
-            nonce: non + 1,
+            nonce,
           };
           const result = await activityTable.insertOne(offer);
           return result
@@ -355,7 +339,7 @@ export class ActivityController extends AbstractEntity {
           const status_date = new Date().getTime();
           nft.status = "For Sale";
           nft.status_date = status_date;
-          let non = sortAct.nonce ? sortAct.nonce : 0;
+          const nonce = sortAct ? sortAct.nonce + 1 : 0;
           await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
 
           const offer: IActivity = {
@@ -367,7 +351,7 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: seller,
             fee: fee,
-            nonce: non + 1,
+            nonce,
             signature: { r: "", s: "", v: "" },
           };
           const result = await activityTable.insertOne(offer);
