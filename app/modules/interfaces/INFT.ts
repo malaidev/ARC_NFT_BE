@@ -2,7 +2,7 @@
 export interface INFT {
   _id?: string;                   // id of nft
   collection: string;             // collection contract address
-  index: string;                  // index of nft in collection
+  index: number;                  // index of nft in collection
   owner: string;                  // owner
   creator: string;                // creator
   artURI: string;                 // URI of art image

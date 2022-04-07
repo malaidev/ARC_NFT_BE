@@ -131,8 +131,6 @@ export class NFTController extends AbstractEntity {
         const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
-
-          console.log(result);
           const history = await activityTable
             .find({
               collection: collection,
@@ -165,14 +163,15 @@ export class NFTController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collection, nftId);
         const result = await nftTable.findOne(query) as INFT;
-        
         if (result) {
           const offersIndividual = await activityTable
-            .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
+            .find({ collection:result.collection, nftId:result.index, type: ActivityType.OFFER })
             .toArray();
           
-          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION}).toArray();
+          console.log(offersIndividual)
 
+          const offersCollection = await activityTable.find({collection: result.collection, type: ActivityType.OFFERCOLLECTION}).toArray();
+          console.log(offersCollection)
           return respond(offersIndividual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
@@ -402,13 +401,10 @@ export class NFTController extends AbstractEntity {
     // const uuid = v4();
 
     let nId =sortNft.index && Number(sortNft.index) ?Number(sortNft.index):0;
-
-    console.log('--->>>>>>',nId);
-    
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: (nId+1).toString(),
+      index: (nId+1),
       owner:owner,
       creator: owner,
       artURI: artIpfs,
@@ -443,7 +439,7 @@ export class NFTController extends AbstractEntity {
   private findNFTItem(contract: string, nftId: string): Object {
     return {
       collection: contract,
-      index: nftId,
+      index: Number(nftId),
     };
   }
 
