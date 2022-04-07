@@ -58,18 +58,17 @@ export class NFTController extends AbstractEntity {
     this.data = nft;
   }
 
-
   /**
    * Get NFT item detail information
    *
    * @param collection Collection Contract Address
-   * @param nftId NFT item index
+   * @param index NFT item index
    * @returns INFT object including NFT item information
    */
-  async getItemDetail(collection: string, nftId: string): Promise<IResponse> {
+  async getItemDetail(collection: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findNFTItem(collection, nftId);
+        const query = this.findNFTItem(collection, index);
         const acttable = this.mongodb.collection(this.activityTable);
         const result = await this.findOne(query);
 
@@ -81,29 +80,24 @@ export class NFTController extends AbstractEntity {
               collection: result.collection,
               nftId: result.index,
             },
-              {
-                limit: 1,
-                sort: {
-                  startDate: -1,
-                },
-              }
+            { limit: 1, sort: { startDate: -1 } }
           );
 
-          let timeDiff='';
+          let timeDiff = "";
           if (act && act.endDate) {
-            timeDiff = dateDiff(new Date().getTime(),act.endDate);
+            timeDiff = dateDiff(new Date().getTime(), act.endDate);
           }
 
           if (!act) {
-            const collectionAct = await acttable.findOne({
+            const collectionAct = (await acttable.findOne({
               collection: result.collection,
-              type: ActivityType.OFFERCOLLECTION
-            }) as IActivity;
+              type: ActivityType.OFFERCOLLECTION,
+            })) as IActivity;
             if (collectionAct && collectionAct.endDate)
               timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
 
-          result.timeLeft=timeDiff;
+          result.timeLeft = timeDiff;
           result.ownerDetail = owner;
 
           return respond(result);
@@ -123,11 +117,11 @@ export class NFTController extends AbstractEntity {
    * @param nftId NFT item index in collection
    * @returns Array<IActivity>
    */
-  async getItemHistory(collection: string, nftId: string): Promise<IResponse> {
+  async getItemHistory(collection: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
-        const query = this.findNFTItem(collection, nftId);
+        const query = this.findNFTItem(collection, index);
         const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
@@ -136,8 +130,7 @@ export class NFTController extends AbstractEntity {
           const history = await activityTable
             .find({
               collection: collection,
-              nftId:result.index,
-              
+              index: result.index,
               // $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
             .toArray();
@@ -155,23 +148,32 @@ export class NFTController extends AbstractEntity {
   /**
    * Get NFT item Offers
    * @param collection Collection Contract Address
-   * @param nftId NFT item index in collection
+   * @param index NFT item index in collection
    * @returns Array<IActivity>
    */
-  async getItemOffers(collection: string, nftId: string): Promise<IResponse> {
+  async getItemOffers(collection: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         const activityTable = this.mongodb.collection(this.activityTable);
-        const query = this.findNFTItem(collection, nftId);
-        const result = await nftTable.findOne(query) as INFT;
-        
+        const query = this.findNFTItem(collection, index);
+        const result = (await nftTable.findOne(query)) as INFT;
+
         if (result) {
           const offersIndividual = await activityTable
-            .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
+            .find({
+              collection: collection,
+              nftId: index,
+              type: ActivityType.OFFER,
+            })
             .toArray();
-          
-          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION}).toArray();
+
+          const offersCollection = await activityTable
+            .find({
+              collection: collection,
+              type: ActivityType.OFFERCOLLECTION,
+            })
+            .toArray();
 
           return respond(offersIndividual.concat(offersCollection));
         }
@@ -200,42 +202,39 @@ export class NFTController extends AbstractEntity {
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-        const result = (await nftTable
-          .aggregate(aggregation)
-          .toArray()) as Array<INFT>;
+        const result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
-
               const act = await acttable.findOne(
                 {
                   collection: item.collection,
                   nftId: item.index,
                 },
-                  {
-                    limit: 1,
-                    sort: {
-                      startDate: -1,
-                    },
-                  }
+                {
+                  limit: 1,
+                  sort: {
+                    startDate: -1,
+                  },
+                }
               );
 
-              let timeDiff='';
-              if (act && act.endDate){
-                  timeDiff =dateDiff(new Date().getTime(),act.endDate);
-              };
+              let timeDiff = "";
+              if (act && act.endDate) {
+                timeDiff = dateDiff(new Date().getTime(), act.endDate);
+              }
 
               if (!act) {
-                const collectionAct = await acttable.findOne({
+                const collectionAct = (await acttable.findOne({
                   collection: item.collection,
-                  type: ActivityType.OFFERCOLLECTION
-                }) as IActivity;
+                  type: ActivityType.OFFERCOLLECTION,
+                })) as IActivity;
 
                 if (collectionAct && collectionAct.endDate)
                   timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
               }
 
-              item.timeLeft=timeDiff;
+              item.timeLeft = timeDiff;
 
               const collection = (await collTable.findOne({
                 contract: item.collection,
@@ -267,9 +266,7 @@ export class NFTController extends AbstractEntity {
    * @param filters filter
    * @returns Array<INFT>
    */
-  async getTrendingItems(
-    filters?: IQueryFilters
-  ): Promise<Array<INFT> | IResponse> {
+  async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
@@ -280,9 +277,7 @@ export class NFTController extends AbstractEntity {
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-        const result = (await nftTable
-          .aggregate(aggregation)
-          .toArray()) as Array<INFT>;
+        const result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -296,15 +291,15 @@ export class NFTController extends AbstractEntity {
                   type: ActivityType.OFFER,
                 })
                 .toArray()) as Array<IActivity>;
-                
-                const collectionAct = await activityTable.findOne({
-                  collection: item.collection,
-                  type: ActivityType.OFFERCOLLECTION
-                }) as IActivity;
-              
-                activity.push(collectionAct);
 
-                return {
+              const collectionAct = (await activityTable.findOne({
+                collection: item.collection,
+                type: ActivityType.OFFERCOLLECTION,
+              })) as IActivity;
+
+              activity.push(collectionAct);
+
+              return {
                 ...item,
                 collection_details: {
                   _id: collection._id,
@@ -316,11 +311,7 @@ export class NFTController extends AbstractEntity {
             })
           );
 
-          return respond(
-            resultsNFT
-              .sort((item1, item2) => item2.counts - item1.counts)
-              .slice(0, 10)
-          );
+          return respond(resultsNFT.sort((item1, item2) => item2.counts - item1.counts).slice(0, 10));
         }
         return respond("Items not found.", true, 422);
       } else {
@@ -347,36 +338,35 @@ export class NFTController extends AbstractEntity {
    * @returns
    */
   async createNFT(
-    artFile, 
+    artFile,
     name,
-    externalLink, 
-    description, 
-    collectionId, 
+    externalLink,
+    description,
+    collectionId,
     properties,
     unlockableContent,
     isExplicit,
     tokenType,
     artName,
     contentType,
-    owner,
+    owner
   ): Promise<IResponse> {
-
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
 
-    if (!ObjectId.isValid(collectionId)){
+    if (!ObjectId.isValid(collectionId)) {
       return respond("Invalid Collection Id", true, 422);
     }
 
-    const artIpfs =artFile?await uploadImageBase64({name:artName,img:artFile}):'';
+    const artIpfs = artFile ? await uploadImageBase64({ name: artName, img: artFile }) : "";
 
     let queryArt = this.findNFTItemByArt(artIpfs);
     const findResult = (await nftTable.findOne(queryArt)) as INFT;
     if (findResult && findResult._id) {
       return respond("Current nft has been created already", true, 422);
     }
-    
+
     // let query = this.findNFTItemByArt(artFile);
     // const findResult = (await nftTable.findOne(query)) as INFT;
     // if (findResult && findResult._id) {
@@ -388,28 +378,15 @@ export class NFTController extends AbstractEntity {
       return respond("collection not found.", true, 422);
     }
 
+    const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
 
-    const sortNft = await nftTable.findOne({
-    },{
-      limit: 1,
-      sort: {
-        // timestamp: -1,
-        nftId: -1,
-      },
-    })
+    let newIndex = sortNft ? sortNft.index + 1 : 0;
 
-  console.log(sortNft);
-    // const uuid = v4();
-
-    let nId =sortNft.index && Number(sortNft.index) ?Number(sortNft.index):0;
-
-    console.log('--->>>>>>',nId);
-    
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: (nId+1).toString(),
-      owner:owner,
+      index: newIndex,
+      owner: owner,
       creator: owner,
       artURI: artIpfs,
       price: 0,
@@ -421,18 +398,22 @@ export class NFTController extends AbstractEntity {
       status_date: new Date().getTime(),
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
-      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType: contentType === 'music' ? ContentType.MUSIC : contentType === 'image' ? ContentType.IMAGE : contentType === 'video' ? ContentType.VIDEO : ContentType.IMAGE
+      tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
+      contentType:
+        contentType === "music"
+          ? ContentType.MUSIC
+          : contentType === "image"
+          ? ContentType.IMAGE
+          : contentType === "video"
+          ? ContentType.VIDEO
+          : ContentType.IMAGE,
     };
 
     const result = await nftTable.insertOne(nft);
 
-    if (result)
-      nft._id = result.insertedId;
-      
-    return result
-      ? respond(nft)
-      : respond("Failed to create a new nft.", true, 501);
+    if (result) nft._id = result.insertedId;
+
+    return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
   }
 
   /**
@@ -440,10 +421,10 @@ export class NFTController extends AbstractEntity {
    * @param contract
    * @returns
    */
-  private findNFTItem(contract: string, nftId: string): Object {
+  private findNFTItem(contract: string, index: number): Object {
     return {
       collection: contract,
-      index: nftId,
+      index,
     };
   }
 
@@ -452,9 +433,9 @@ export class NFTController extends AbstractEntity {
    * @param contract
    * @returns
    */
-   private findNFTItemByArt(art: string): Object {
+  private findNFTItemByArt(art: string): Object {
     return {
-      artURI: art
+      artURI: art,
     };
   }
 
@@ -474,7 +455,7 @@ export class NFTController extends AbstractEntity {
    * @param contract
    * @returns
    */
-   private findCollectionById(id: string): Object {
+  private findCollectionById(id: string): Object {
     return {
       _id: new ObjectId(id),
     };
