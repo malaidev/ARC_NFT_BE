@@ -1,8 +1,8 @@
-import { Db } from 'mongodb';
-import { MongoDBService } from '../modules/services/MongoDB';
+import { Db } from "mongodb";
+import { MongoDBService } from "../modules/services/MongoDB";
 
 if (process.env && !process.env.ENV?.match(/prod|stag/gi)) {
-  const dotenv = require('dotenv');
+  const dotenv = require("dotenv");
   dotenv.config();
 }
 
@@ -10,25 +10,20 @@ const config = {
   io: null,
   __logPool: [],
 
-  env: process.env.ENV || 'staging',
-  env_db: process.env.ENV_DB || 'localdb',
-  logging: process.env.LOGGING && process.env.LOGGING === 'true' ? true : false,
-  logLevel:
-    process.env.LOG_LEVEL ||
-    ('error-only' as 'error-only' | 'action-only' | 'any'),
+  env: process.env.ENV || "staging",
+  env_db: process.env.ENV_DB || "localdb",
+  logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
+  logLevel: process.env.LOG_LEVEL || ("error-only" as "error-only" | "action-only" | "any"),
   mongodb: {
-    host: process.env['MONGODB_HOST'],
-    database: 'ArcMarketDB',
-    username: process.env['MONGODB_USER'],
-    password: process.env['MONGODB_PASSWORD'],
-    port: process.env['MONGODB_PORT'],
+    host: process.env["MONGODB_HOST"],
+    database: "ArcMarketDB",
+    username: process.env["MONGODB_USER"],
+    password: process.env["MONGODB_PASSWORD"],
+    port: process.env["MONGODB_PORT"],
     instance: null as Db,
     maxTries: 5,
     createInstance: async (tryCount = 1) => {
-      console.log(
-        "Trying to connect to the database. Connection counter: ",
-        tryCount
-      );
+      console.log("Trying to connect to the database. Connection counter: ", tryCount);
       try {
         const instance = new MongoDBService();
         config.mongodb.instance = await instance.connect();
@@ -38,31 +33,29 @@ const config = {
           await config.mongodb.createInstance(++tryCount);
         } else {
           console.log(error);
-          throw new Error(
-            `Couldn't connect to the database and gave up after ${config.mongodb.maxTries} tries.`
-          );
+          throw new Error(`Couldn't connect to the database and gave up after ${config.mongodb.maxTries} tries.`);
         }
         return;
       }
     },
   },
   server: {
-    port: process.env['SERVER_PORT'],
+    port: process.env["SERVER_PORT"],
   },
   jwt: {
-    secret: process.env['JWT_SECRET'],
+    secret: process.env["JWT_SECRET"],
   },
   mailer: {
-    apiKey: process.env['EMAIL_SERVICE_API_KEY'],
-    domain: process.env['EMAIL_SERVICE_DOMAIN'],
+    apiKey: process.env["EMAIL_SERVICE_API_KEY"],
+    domain: process.env["EMAIL_SERVICE_DOMAIN"],
   },
   contract: {
-    privateKey: process.env['CONTRACT_PRIVATE_KEY'],
-    depoTokenAddress: process.env['CONTRACT_DEPO_TOKEN_ADDRESS'],
-    paymentModuleAddress: process.env['CONTRACT_PAYMENT_MODULE_ADDRESS'],
-    pkId: process.env['CONTRACT_PK_ID'],
+    privateKey: process.env["CONTRACT_PRIVATE_KEY"],
+    depoTokenAddress: process.env["CONTRACT_DEPO_TOKEN_ADDRESS"],
+    paymentModuleAddress: process.env["CONTRACT_PAYMENT_MODULE_ADDRESS"],
+    pkId: process.env["CONTRACT_PK_ID"],
   },
-  route: (method: 'jwt' | 'token', permission?: string | number) => {
+  route: (method: "jwt" | "token", permission?: string | number) => {
     return {
       schema: {
         properties: {
@@ -74,31 +67,31 @@ const config = {
       },
     };
   },
-  routeParamsValidation:()=>{
+  routeParamsValidation: () => {
     return {
-      schema:{
-        params: { 
-          type: 'object',
-          properties: { 
-            ownerId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
-            contract: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" },
-            nftId: { type: 'string', pattern: "^[a-zA-Z0-9-_]+$" }
-          }
-        }
-      }
-    }
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            nftId: { type: "number" },
+          },
+        },
+      },
+    };
   },
 
-  aws:{
-    s3_user_bucket:process.env['AWS_S3_USER_BUCKET'],
-    s3_key:process.env['AWS_S3_KEY'],
-    s3_secret:process.env['AWS_S3_SECRET']
+  aws: {
+    s3_user_bucket: process.env["AWS_S3_USER_BUCKET"],
+    s3_key: process.env["AWS_S3_KEY"],
+    s3_secret: process.env["AWS_S3_SECRET"],
   },
-  moralis:{
-    server_url:process.env['MORALIS_URL'],
-    appid:process.env['MORALIS_APPID'],
-    master_key:process.env['MORALIS_MASTER_KEY'],
-  }
+  moralis: {
+    server_url: process.env["MORALIS_URL"],
+    appid: process.env["MORALIS_APPID"],
+    master_key: process.env["MORALIS_MASTER_KEY"],
+  },
 };
 
 export { config };

@@ -3,10 +3,6 @@ import { NFTController } from "../../controller/NFTController";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { uploadImageBase64 } from "../../util/morailsHelper";
 
-
-
-
-
 /**
  * Get NFT item detail information
  * Method: GET
@@ -33,7 +29,7 @@ import { uploadImageBase64 } from "../../util/morailsHelper";
       }
  */
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId} = req.params as any;
+  const { contract, nftId } = req.params as { contract: string; nftId: number };
   const ctl = new NFTController();
   const result = await ctl.getItemDetail(contract, nftId);
   res.send(result);
@@ -59,8 +55,8 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
         date: Date;                     // date of activity
       }
  */
- export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId} = req.params as any;
+export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
+  const { contract, nftId } = req.params as { contract: string; nftId: number };
   const ctl = new NFTController();
   const result = await ctl.getItemHistory(contract, nftId);
   res.send(result);
@@ -87,7 +83,7 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
-  const {contract, nftId} = req.params as any;
+  const { contract, nftId } = req.params as { contract: string; nftId: number };
   const ctl = new NFTController();
   const result = await ctl.getItemOffers(contract, nftId);
   res.send(result);
@@ -96,15 +92,17 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
 /**
  * Get all NFTs in collection
  * Method: GET
- * 
+ *
  * @param {*} req
  * @param {*} res
  *    Array<INFT>
  */
- export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
+export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters = query ? parseQueryUrl(query) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTController();
   const result = await ctl.getItems(filters);
   res.send(result);
@@ -113,15 +111,17 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
 /**
  * Get all NFTs in collection
  * Method: GET
- * 
+ *
  * @param {*} req
  * @param {*} res
  *    Array<INFT>
  */
- export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) => {
+export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters = query ? parseQueryUrl(query) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTController();
   const result = await ctl.getTrendingItems(filters);
   res.send(result);
@@ -152,39 +152,35 @@ export const createItem = async (req, res) => {
     throw new Error("artURI is invalid or missing");
   }
 
-  const user = req['session'] as any;
-  let artBody:any=null;
-  
-  if (req.body && req.body.artFile && req.body.artFile.value!==''){
-    artBody = "data:" + req.body.artFile.mimetype+ ";base64,"+ Buffer.from(await req.body.artFile.toBuffer()).toString('base64') // access files
-  };
+  const user = req["session"] as any;
+  let artBody: any = null;
 
+  if (req.body && req.body.artFile && req.body.artFile.value !== "") {
+    artBody =
+      "data:" +
+      req.body.artFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.artFile.toBuffer()).toString("base64"); // access files
+  }
 
   // console.log(req.body.artFile.mimetype.substring(0,req.body.artFile.mimetype.lastIndexOf("/")));
 
-  let contentType=req.body.artFile.mimetype.substring(0,req.body.artFile.mimetype.lastIndexOf("/"));
+  let contentType = req.body.artFile.mimetype.substring(0, req.body.artFile.mimetype.lastIndexOf("/"));
 
-  
-
-  const body = Object.fromEntries(
-    Object.keys(req.body).map((key) => [key, req.body[key].value])
-  );
+  const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
 
   // const artFile =artBody?await uploadImageBase64({name:req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf(".")),img:artBody}):'';
-  
 
+  body.artFile = artBody;
+  body.artName = req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
 
-  body.artFile= artBody;
-  body.artName= req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
-  
-  
   const ctl = new NFTController();
   const result = await ctl.createNFT(
-    body.artFile, 
+    body.artFile,
     body.name,
-    body.externalLink, 
-    body.description, 
-    body.collectionId, 
+    body.externalLink,
+    body.description,
+    body.collectionId,
     body.properties,
     body.unlockableContent,
     body.isExplicit,
@@ -192,8 +188,6 @@ export const createItem = async (req, res) => {
     body.artName,
     contentType,
     user?.walletId.toLowerCase()
-
-
   );
   res.send(result);
 };
