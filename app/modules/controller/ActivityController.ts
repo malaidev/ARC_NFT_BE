@@ -92,12 +92,12 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  async transfer(contract: string, index: number, seller: string, buyer: string) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (nft) {
           if (nft.owner !== seller) {
             return respond("from wallet isnt nft's owner.", true, 422);
@@ -107,7 +107,7 @@ export class ActivityController extends AbstractEntity {
           }
           const status_date = new Date().getTime();
           const transfer: IActivity = {
-            collection: contract,
+            collection: collectionId,
             nftId: index,
             type: ActivityType.TRANSFER,
             date: status_date,
@@ -117,7 +117,7 @@ export class ActivityController extends AbstractEntity {
           nft.status = "Transfer";
           nft.owner = buyer;
           nft.status_date = status_date;
-          await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+          await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const result = await activityTable.insertOne(transfer);
           return result
             ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
@@ -133,19 +133,19 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  async approveOffer(contract: string, index: number, seller: string, buyer: string, activityId: string) {
+  async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
 
           const offer = (await activityTable.findOne(this.findActivtyWithId(activityId))) as IActivity;
-          if (!offer || offer.collection !== contract || offer.nftId !== index) {
+          if (!offer || offer.collection !== collectionId || offer.nftId !== index) {
             return respond("Offer id is invalid", true, 422);
           }
           if (offer.from != seller) {
@@ -160,10 +160,10 @@ export class ActivityController extends AbstractEntity {
             nft.status = "Sold";
             nft.owner = buyer;
             nft.status_date = status_date;
-            await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+            await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
 
             const sold: IActivity = {
-              collection: contract,
+              collection: collectionId,
               nftId: index,
               type: ActivityType.SOLD,
               date: status_date,
@@ -180,7 +180,7 @@ export class ActivityController extends AbstractEntity {
             nft.status = "Sold";
             nft.owner = buyer;
             nft.status_date = status_date;
-            await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+            await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
             offer.type = ActivityType.SOLD;
             offer.date = status_date;
             const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), offer);
@@ -199,7 +199,7 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  async makeOffer(contract: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
+  async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
     try {
       if (this.mongodb) {
         if (isNaN(Number(endDate))) {
@@ -215,7 +215,7 @@ export class ActivityController extends AbstractEntity {
         }
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
         // console.log(sortAct);
         if (nft) {
@@ -223,9 +223,9 @@ export class ActivityController extends AbstractEntity {
             return respond("seller isnt nft's owner.", true, 422);
           }
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
-          await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+          await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const offer: IActivity = {
-            collection: contract,
+            collection: collectionId,
             nftId: index,
             type: ActivityType.OFFER,
             price: price,
@@ -277,7 +277,7 @@ export class ActivityController extends AbstractEntity {
           collection.offerStatus = OfferStatusType.OFFERED;
           await collectionTable.replaceOne(this.findCollectionById(collectionId), collection);
           const offer: IActivity = {
-            collection: collection.contract,
+            collection: collectionId,
             type: ActivityType.OFFERCOLLECTION,
             price: price,
             startDate: new Date().getTime(),
@@ -301,7 +301,7 @@ export class ActivityController extends AbstractEntity {
     }
   }
   async listForSale(
-    contract: string,
+    collectionId: string,
     index: number,
     seller: string,
     price: number,
@@ -325,7 +325,7 @@ export class ActivityController extends AbstractEntity {
 
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
 
         if (nft) {
@@ -340,10 +340,10 @@ export class ActivityController extends AbstractEntity {
           nft.status = "For Sale";
           nft.status_date = status_date;
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
-          await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+          await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
 
           const offer: IActivity = {
-            collection: contract,
+            collection: collectionId,
             nftId: index,
             type: ActivityType.LISTFORSALE,
             price: price,
@@ -375,12 +375,12 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  async cancelListForSale(contract: string, index: number, seller: string, activityId: string) {
+  async cancelListForSale(collectionId: string, index: number, seller: string, activityId: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -392,7 +392,7 @@ export class ActivityController extends AbstractEntity {
           if (!cancelList) {
             return respond("activity not found.", true, 422);
           }
-          if (cancelList.collection !== contract || cancelList.nftId !== index) {
+          if (cancelList.collection !== collectionId || cancelList.nftId !== index) {
             return respond("Invalid activity Id", true, 422);
           }
           if (cancelList.from !== seller) {
@@ -403,7 +403,7 @@ export class ActivityController extends AbstractEntity {
           nft.status = "Minted";
           nft.status_date = status_date;
 
-          await nftTable.replaceOne(this.findNFTItem(contract, index), nft);
+          await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
 
           cancelList.type = ActivityType.CANCELED;
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), cancelList);
@@ -420,12 +420,12 @@ export class ActivityController extends AbstractEntity {
     }
   }
 
-  async cancelOffer(contract: string, index: number, seller: string, buyer: string, activityId: string) {
+  async cancelOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        const nft = (await nftTable.findOne(this.findNFTItem(contract, index))) as INFT;
+        const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -437,7 +437,7 @@ export class ActivityController extends AbstractEntity {
           }
 
           if (
-            cancelList.collection !== contract ||
+            cancelList.collection !== collectionId ||
             cancelList.nftId !== index ||
             cancelList.from != seller ||
             cancelList.to != buyer
@@ -571,12 +571,12 @@ export class ActivityController extends AbstractEntity {
 
   /**
    * Mounts a generic query to find a NFT item by contract address and index.
-   * @param contract
+   * @param collectionId
    * @returns
    */
-  private findNFTItem(contract: string, index: number): Object {
+  private findNFTItem(collectionId: string, index: number): Object {
     return {
-      collection: contract,
+      collection: collectionId,
       index,
     };
   }

@@ -29,9 +29,9 @@ import { uploadImageBase64 } from "../../util/morailsHelper";
       }
  */
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId } = req.params as { contract: string; nftId: number };
+  const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
   const ctl = new NFTController();
-  const result = await ctl.getItemDetail(contract, nftId);
+  const result = await ctl.getItemDetail(collectionId, nftId);
   res.send(result);
 };
 
@@ -56,9 +56,9 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId } = req.params as { contract: string; nftId: number };
+  const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
   const ctl = new NFTController();
-  const result = await ctl.getItemHistory(contract, nftId);
+  const result = await ctl.getItemHistory(collectionId, nftId);
   res.send(result);
 };
 
@@ -83,9 +83,9 @@ export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => 
       }
  */
 export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId } = req.params as { contract: string; nftId: number };
+  const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
   const ctl = new NFTController();
-  const result = await ctl.getItemOffers(contract, nftId);
+  const result = await ctl.getItemOffers(collectionId, nftId);
   res.send(result);
 };
 

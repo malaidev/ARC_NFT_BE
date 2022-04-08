@@ -89,10 +89,10 @@ export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) 
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  const contract = req.params['contract'] as any;
+  const collectionId = req.params['collectionId'] as any;
   filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getItems(contract, filters);
+  const result = await ctl.getItems(collectionId, filters);
   res.send(result);
 };
 
@@ -119,9 +119,9 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
-  const contract = req.params['contract'] as any;
+  const collectionId = req.params['collectionId'] as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getOwners(contract);
+  const result = await ctl.getOwners(collectionId);
   res.send(result);
 };
 
@@ -145,12 +145,12 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const contract = req.params['contract'] as any;
+  const collectionId = req.params['collectionId'] as any;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getHistory(contract, filters);
+  const result = await ctl.getHistory(collectionId, filters);
   res.send(result);
 };
 
@@ -173,12 +173,12 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
         }
  */
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
-  const contract = req.params['contract'] as any;
+  const collectionId = req.params['collectionId'] as any;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getActivity(contract, filters);
+  const result = await ctl.getActivity(collectionId, filters);
   res.send(result);
 };
 
@@ -253,8 +253,8 @@ export const createCollection = async (req, res) => {
 }
 
 export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract } = req.params as any;
+  const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollectionDetail(contract);
+  const result = await ctl.getCollectionDetail(collectionId);
   res.send(result);
 }

@@ -53,11 +53,16 @@ export const nft = async (router: any, options: any) => {
    */
   router.get("/collection", getCollections);
   router.get("/collection/top", getTopCollections);
-  router.get("/collection/:contract/items", config.routeParamsValidation(),getItems);
-  router.get("/collection/:contract/owners",  config.routeParamsValidation(),getOwners);
-  router.get("/collection/:contract/history",config.routeParamsValidation(), getHistory);
-  router.get("/collection/:contract/activity",config.routeParamsValidation(),getActivities);
-  router.get("/collection/:contract",config.routeParamsValidation(),getCollectionDetail);
+
+
+  router.get("/collection/:collectionId/items", config.routeParamsValidation(),getItems);
+  router.get("/collection/:collectionId/owners",  config.routeParamsValidation(),getOwners);
+  router.get("/collection/:collectionId/history",config.routeParamsValidation(), getHistory);
+  router.get("/collection/:collectionId/activity",config.routeParamsValidation(),getActivities);
+  router.get("/collection/:collectionId",config.routeParamsValidation(),getCollectionDetail);
+  
+  
+  
   router.post("/collection/create", config.route("jwt"), createCollection);
 
   router.get("/activity", getAllActivites);
@@ -73,9 +78,11 @@ export const nft = async (router: any, options: any) => {
 
   router.get("/items", getAllItems);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.get("/items/:contract/:nftId/history",config.routeParamsValidation(), getItemHistory);
-  router.get("/items/:contract/:nftId/offers", config.routeParamsValidation(),getItemOffers);
-  router.get("/items/:contract/:nftId",config.routeParamsValidation(), getItemDetail);
+  router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
+  router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(),getItemOffers);
+  router.get("/items/:collectionId/:nftId",config.routeParamsValidation(), getItemDetail);
+  
+  
   router.get("/items/trending", getTrendingItems);
   
   router.get("/owners", getAllOwners);
