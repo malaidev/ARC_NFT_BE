@@ -139,7 +139,7 @@ export class NFTOwnerController extends AbstractEntity {
     
     const person: IPerson = {
       photoUrl,
-      wallet,
+      wallet:wallet,
       social,
       bio,
       username: username,
