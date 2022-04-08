@@ -54,7 +54,9 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     return res.code(400).send("Wallet Id not equal with Wallet Login Session");
   }
   const ctl = new NFTOwnerController();
-  const result = await ctl.createOwner(photoUrl, user.walletId, bio, username, social);
+ 
+  const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social);
+ 
   res.send(result);
 };
 /**
@@ -154,8 +156,9 @@ export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params["ownerId"] as string;
   const ctl = new NFTOwnerController();
-  const result = await ctl.findPerson(walletId);
-
+ 
+  const result = await ctl.findPerson(walletId.toLowerCase())
+ 
   res.send(result);
 };
 /**
@@ -186,7 +189,7 @@ export const getOwnerNtfs = async (req: FastifyRequest, res: FastifyReply) => {
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTOwnerController();
-  const result = await ctl.getOwnerNtfs(walletId, filters);
+  const result = await ctl.getOwnerNtfs(walletId.toLowerCase(), filters);
   res.send(result);
 };
 /**
@@ -214,7 +217,9 @@ export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) =>
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTOwnerController();
-  const result = await ctl.getOwnerHistory(walletId, filters);
+ 
+  const result = await ctl.getOwnerHistory(walletId.toLowerCase(),filters);
+ 
   res.send(result);
 };
 
@@ -226,7 +231,9 @@ export const getOwnerOffers = async (req: FastifyRequest, res: FastifyReply) => 
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
   const ctl = new NFTOwnerController();
-  const result = await ctl.getOwnerOffers(walletId, filters);
+ 
+  const result = await ctl.getOwnerOffers(walletId.toLowerCase(),filters);
+ 
   res.send(result);
 };
 /**
@@ -263,7 +270,7 @@ export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply)
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
   const ctl = new NFTOwnerController();
-  const result = await ctl.getOwnerCollection(walletId, filters);
+  const result = await ctl.getOwnerCollection(walletId.toLowerCase(), filters);
   res.send(result);
 };
 
@@ -280,7 +287,9 @@ export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply)
 export const favourite = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId, contract, nftId } = req.body as any;
   const ctl = new NFTOwnerController();
-  const result = await ctl.insertFavourite(walletId, contract, nftId);
+ 
+  const result = await ctl.insertFavourite(walletId.toLowerCase(),contract,nftId)
+ 
   res.send(result);
 };
 
@@ -297,6 +306,8 @@ export const favourite = async (req: FastifyRequest, res: FastifyReply) => {
 export const removeFavourite = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId, contract, nftId } = req.body as any;
   const ctl = new NFTOwnerController();
-  const result = await ctl.removeFavourite(walletId, contract, nftId);
+ 
+  const result = await ctl.removeFavourite(walletId.toLowerCase(),contract,nftId)
+ 
   res.send(result);
 };
