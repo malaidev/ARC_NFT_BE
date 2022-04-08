@@ -528,9 +528,11 @@ export class NFTCollectionController extends AbstractEntity {
       }
 
       
-      if (siteUrl && !siteUrl.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
-        return respond("invalid url", true, 422);
-      }
+      // if (siteUrl && !siteUrl.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
+      //   return respond("invalid url", true, 422);
+      // }
+
+ 
 
       // const findUrl= await collection.findOne( {
       //   links:siteUrl,
@@ -551,6 +553,17 @@ export class NFTCollectionController extends AbstractEntity {
       const  logoIpfs =logoFile?await uploadImageBase64({name:logoName,img:logoFile}):'';
       const featuredIpfs = featuredImgFile? await uploadImageBase64({name:featureName,img:featuredImgFile}):'';
       const bannerIpfs = bannerImgFile?await uploadImageBase64({name:bannerName,img:bannerImgFile}):'';
+
+
+      let logoResult=await collection.findOne({
+        logoUrl:logoIpfs
+      })
+      if (logoResult && logoResult._id) {
+        return respond("Current  Url Collection has been created already", true, 422);
+      }
+
+
+
       const nftCollection : INFTCollection = {
         name: name,
         contract: contract,
