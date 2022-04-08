@@ -27,7 +27,7 @@ export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) =>
  * Method: POST
  *
  * @param {*} req
- *    contract: Collection Contract Address
+ *    collectionId: Collection Id
  *    nftId:    Index of NFT item in collection
  *    seller:     seller wallet address
  *    price:    price for sale
@@ -38,44 +38,44 @@ export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) =>
  *    fail:     501
  */
 export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, price, endDate, fee } = req.body as any;
+  const { collectionId, nftId, seller, price, endDate, fee } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.listForSale(contract, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
+  const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
   res.send(result);
 };
 
 export const makeOffer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, buyer, price, endDate } = req.body as any;
+  const { collectionId, nftId, seller, buyer, price, endDate } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.makeOffer(contract, nftId, seller, buyer, price, endDate);
+  const result = await ctl.makeOffer(collectionId, nftId, seller, buyer, price, endDate);
   res.send(result);
 };
 
 export const approveOffer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, buyer, activityId } = req.body as any;
+  const { collectionId, nftId, seller, buyer, activityId } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.approveOffer(contract, nftId, seller, buyer, activityId);
+  const result = await ctl.approveOffer(collectionId, nftId, seller, buyer, activityId);
   res.send(result);
 };
 
 export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, buyer } = req.body as any;
+  const { collectionId, nftId, seller, buyer } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.transfer(contract, nftId, seller, buyer);
+  const result = await ctl.transfer(collectionId, nftId, seller, buyer);
   res.send(result);
 };
 
 export const cancelOffer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, buyer, activityId } = req.body as any;
+  const { collectionId, nftId, seller, buyer, activityId } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.cancelOffer(contract, nftId, seller, buyer, activityId);
+  const result = await ctl.cancelOffer(collectionId, nftId, seller, buyer, activityId);
   res.send(result);
 };
 
 export const cancelListForSale = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, nftId, seller, activityId } = req.body as any;
+  const { collectionId, nftId, seller, activityId } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.cancelListForSale(contract, nftId, seller, activityId);
+  const result = await ctl.cancelListForSale(collectionId, nftId, seller, activityId);
   res.send(result);
 };
 

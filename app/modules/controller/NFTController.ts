@@ -61,14 +61,14 @@ export class NFTController extends AbstractEntity {
   /**
    * Get NFT item detail information
    *
-   * @param collection Collection Contract Address
+   * @param collectionId Collection Contract Address
    * @param index NFT item index
    * @returns INFT object including NFT item information
    */
-  async getItemDetail(collection: string, index: number): Promise<IResponse> {
+  async getItemDetail(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
-        const query = this.findNFTItem(collection, index);
+        const query = this.findNFTItem(collectionId, index);
         const acttable = this.mongodb.collection(this.activityTable);
         const result = await this.findOne(query);
 
@@ -113,21 +113,21 @@ export class NFTController extends AbstractEntity {
 
   /**
    * Get NFT item history
-   * @param collection Collection Contract Address
+   * @param collectionId Collection Contract Address
    * @param nftId NFT item index in collection
    * @returns Array<IActivity>
    */
-  async getItemHistory(collection: string, index: number): Promise<IResponse> {
+  async getItemHistory(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
-        const query = this.findNFTItem(collection, index);
+        const query = this.findNFTItem(collectionId, index);
         const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
           const activityTable = this.mongodb.collection(this.activityTable);
           const history = await activityTable
             .find({
-              collection: collection,
+              collection: collectionId,
               index: result.index,
               // $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
@@ -149,19 +149,19 @@ export class NFTController extends AbstractEntity {
    * @param index NFT item index in collection
    * @returns Array<IActivity>
    */
-  async getItemOffers(collection: string, index: number): Promise<IResponse> {
+  async getItemOffers(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         const activityTable = this.mongodb.collection(this.activityTable);
-        const query = this.findNFTItem(collection, index);
+        const query = this.findNFTItem(collectionId, index);
         const result = (await nftTable.findOne(query)) as INFT;
 
         console.log(result);
         if (result) {
           const offersIndividual = await activityTable
             .find({
-              collection: result.collection,
+              collection: collectionId,
               nftId: result.index,
               $or:[
                 {
@@ -177,7 +177,7 @@ export class NFTController extends AbstractEntity {
 
           const offersCollection = await activityTable
             .find({
-              collection: collection,
+              collection: collectionId,
               type: ActivityType.OFFERCOLLECTION,
             })
             .toArray();
@@ -393,7 +393,7 @@ export class NFTController extends AbstractEntity {
 
     // const url = await uploadImage(artFile);
     const nft: INFT = {
-      collection: collection.contract,
+      collection: collectionId,
       index: newIndex,
       owner: owner,
       creator: owner,
@@ -427,12 +427,12 @@ export class NFTController extends AbstractEntity {
 
   /**
    * Mounts a generic query to find an item by its collection contract and index.
-   * @param contract
+   * @param collectionId
    * @returns
    */
-  private findNFTItem(contract: string, index: number): Object {
+  private findNFTItem(collectionId: string, index: number): Object {
     return {
-      collection: contract,
+      collection: collectionId,
       index,
     };
   }
