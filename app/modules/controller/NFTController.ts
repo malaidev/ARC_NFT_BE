@@ -163,15 +163,7 @@ export class NFTController extends AbstractEntity {
             .find({
               collection: collectionId,
               nftId: result.index,
-              $or:[
-                {
-                  type: ActivityType.LISTFORSALE,
-                },
-                {
-                  type: ActivityType.OFFER,
-                }
-              ]
-              
+              $or: [{ type: ActivityType.LISTFORSALE }, { type: ActivityType.OFFER }],
             })
             .toArray();
 
@@ -182,8 +174,6 @@ export class NFTController extends AbstractEntity {
             })
             .toArray();
 
-          
-          
           return respond(offersIndividual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
@@ -245,9 +235,7 @@ export class NFTController extends AbstractEntity {
 
               item.timeLeft = timeDiff;
 
-              const collection = (await collTable.findOne({
-                contract: item.collection,
-              })) as INFTCollection;
+              const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
 
               return {
                 ...item,
@@ -255,6 +243,7 @@ export class NFTController extends AbstractEntity {
                   _id: collection._id,
                   contract: collection.contract,
                   name: collection.name,
+                  platform: collection.platform,
                 },
               };
             })
@@ -290,12 +279,10 @@ export class NFTController extends AbstractEntity {
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
-              const collection = (await collTable.findOne({
-                contract: item.collection,
-              })) as INFTCollection;
+              const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
               const activity = (await activityTable
                 .find({
-                  contract: item.collection,
+                  collection: item.collection,
                   nftId: item.index,
                   type: ActivityType.OFFER,
                 })
@@ -314,6 +301,7 @@ export class NFTController extends AbstractEntity {
                   _id: collection._id,
                   contract: collection.contract,
                   name: collection.name,
+                  platform: collection.platform,
                 },
                 counts: activity.length,
               };

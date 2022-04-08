@@ -214,9 +214,9 @@
     "SellParam": {
       "type": "object",
       "properties": {
-        "contract": {
+        "collectionId": {
           "type": "string",
-          "description": "Collection Contract Address"
+          "description": "collection Id"
         },
         "nftId": {
           "type": "string",
@@ -267,9 +267,9 @@
     "MakeOfferParam": {
       "type": "object",
       "properties": {
-        "contract": {
+        "collectionId": {
           "type": "string",
-          "description": "Collection Contract Address"
+          "description": "collection Id"
         },
         "nftId": {
           "type": "string",
@@ -298,9 +298,9 @@
     "CancelParam": {
       "type": "object",
       "properties": {
-        "contract": {
+        "collectionId": {
           "type": "string",
-          "description": "Collection Contract Address"
+          "description": "collection Id"
         },
         "nftId": {
           "type": "string",
@@ -363,9 +363,9 @@
     "TransferParam": {
       "type": "object",
       "properties": {
-        "contract": {
+        "collectionId": {
           "type": "string",
-          "description": "Collection Contract Address"
+          "description": "collection Id"
         },
         "nftId": {
           "type": "string",
@@ -380,36 +380,7 @@
           "description": "buyer wallet address"
         }
       }
-    },
-
-    "IBid": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "type": "string"
-        },
-        "collection": {
-          "type": "string"
-        },
-        "bidder": {
-          "$ref": "#/definitions/IPerson"
-        },
-        "bidPrice": {
-          "type": "number"
-        },
-        "status": {
-          "type": "string"
-        },
-        "bidOn": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        }
-      },
-      "required": ["collection", "bidder", "bidPrice", "status", "bidOn", "type"]
-    },
-
+    }, 
     "IPerson": {
       "type": "object",
       "properties": {
@@ -779,7 +750,7 @@
       }
     },
 
-    "/nft/collection/{contract}/items": {
+    "/nft/collection/{collectionId}/items": {
       "get": {
         "description": "Get NFT Items in collection",
         "tags": ["Collection"],
@@ -787,12 +758,12 @@
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Contract Id"
+            "description": "collection Id"
           },
           {
             "in": "query",
@@ -838,19 +809,19 @@
         }
       }
     },
-    "/nft/collection/{contract}/owners": {
+    "/nft/collection/{collectionId}/owners": {
       "get": {
         "description": "Get owner list in collection",
         "tags": ["Collection"],
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Contract Id"
+            "description": "collection Id"
           }
         ],
         "responses": {
@@ -870,7 +841,7 @@
         }
       }
     },
-    "/nft/collection/{contract}/history": {
+    "/nft/collection/{collectionId}/history": {
       "get": {
         "description": "Get transfer history of NFT items in collection",
         "tags": ["Collection"],
@@ -878,12 +849,12 @@
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Contract Id"
+            "description": "collection Id"
           },
           {
             "in": "query",
@@ -928,19 +899,19 @@
         }
       }
     },
-    "/nft/collection/{contract}/activity": {
+    "/nft/collection/{collectionId}/activity": {
       "get": {
         "description": "Get all activities (bids and transfer) of NFT items in collection",
         "tags": ["Collection"],
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Contract Id"
+            "description": "collection Id"
           },
           {
             "in": "query",
@@ -985,7 +956,7 @@
         }
       }
     },
-    "/nft/collection/{contract}": {
+    "/nft/collection/{collectionId}": {
       "get": {
         "description": "Get all activities (bids and transfer) of NFT items in collection",
         "tags": ["Collection"],
@@ -993,12 +964,12 @@
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Collection Contract Address"
+            "description": "collection Id"
           }
         ],
         "responses": {
@@ -1484,19 +1455,19 @@
         }
       }
     },
-    "/nft/items/{contract}/{nftId}": {
+    "/nft/items/{collectionId}/{nftId}": {
       "get": {
         "description": "Get NFT item detail information",
         "tags": ["Items"],
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Collection Contract Address"
+            "description": "Collection Id"
           },
           {
             "in": "path",
@@ -1524,19 +1495,19 @@
       }
     },
 
-    "/nft/items/{contract}/{nftId}/offers": {
+    "/nft/items/{collectionId}/{nftId}/offers": {
       "get": {
         "description": "Get NFT item offers",
         "tags": ["Items"],
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Collection offers"
+            "description": "Collection Id"
           },
           {
             "in": "path",
@@ -1545,7 +1516,7 @@
               "type": "integer"
             },
             "required": true,
-            "description": "offers  in collection"
+            "description": "NFT id"
           }
         ],
         "responses": {
@@ -1565,19 +1536,19 @@
         }
       }
     },
-    "/nft/items/{contract}/{nftId}/history": {
+    "/nft/items/{collectionId}/{nftId}/history": {
       "get": {
         "description": "Get NFT item history",
         "tags": ["Items"],
         "parameters": [
           {
             "in": "path",
-            "name": "contract",
+            "name": "collectionId",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "Collection Contract Address"
+            "description": "collection Id"
           },
           {
             "in": "path",

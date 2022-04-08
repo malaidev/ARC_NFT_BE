@@ -6,29 +6,26 @@ import { IWallet } from "../../interfaces/IWallet";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
 
-
-
-
-
-
-export const uploadOwnerPhoto= async (req,res)=>{
+export const uploadOwnerPhoto = async (req, res) => {
   const { ownerId } = req.params as any;
-  const userSession = req['session'] as any;
+  const userSession = req["session"] as any;
   if (req.body && !req.body.photoFile) {
-    return res.code(400).send('Please upload file ');
+    return res.code(400).send("Please upload file ");
   }
-  
-  if (userSession.walletId.toLowerCase() !==ownerId.toLowerCase()){
-    return res.code(400).send('Wallet Id not equal with Wallet Login Session');
+
+  if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
+    return res.code(400).send("Wallet Id not equal with Wallet Login Session");
   }
-  const { photoFile} = req.body as any;
-  const photoBody = "data:" + req.body.photoFile.mimetype + ";base64," + Buffer.from(await req.body.photoFile.toBuffer()).toString('base64') // access files
+  const { photoFile } = req.body as any;
+  const photoBody =
+    "data:" +
+    req.body.photoFile.mimetype +
+    ";base64," +
+    Buffer.from(await req.body.photoFile.toBuffer()).toString("base64"); // access files
   const ctl = new NFTOwnerController();
-  const result = await ctl.updateOwnerPhoto(ownerId,photoBody);
+  const result = await ctl.updateOwnerPhoto(ownerId, photoBody);
   res.send(result);
-
-}
-
+};
 
 /**
  * 
@@ -48,16 +45,18 @@ export const uploadOwnerPhoto= async (req,res)=>{
  *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  const {  photoUrl, bio, username,social } = req.body as any;
+  const { photoUrl, bio, username, social } = req.body as any;
   const { ownerId } = req.params as any;
-  const userSession = req['session'] as any;
+  const userSession = req["session"] as any;
 
   const user = { walletId: ownerId };
-  if (userSession.walletId.toLowerCase() !==ownerId.toLowerCase()){
-    return res.code(400).send('Wallet Id not equal with Wallet Login Session');
+  if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
+    return res.code(400).send("Wallet Id not equal with Wallet Login Session");
   }
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social);
+ 
   res.send(result);
 };
 /**
@@ -83,12 +82,12 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const { ownerId } = req.params as any;
   const user = ownerId;
   try {
-    const userSession = req['session'] as any;
-    if (userSession.walletId.toLowerCase() !==ownerId.toLowerCase()){
-      return res.code(400).send('Wallet Id not equal with Wallet Login Session');
+    const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal with Wallet Login Session");
     }
 
-    const hasOwner = (await ctl.findPerson(user) as IUser);
+    const hasOwner = (await ctl.findPerson(user)) as IUser;
     if (hasOwner.success === false) {
       res.code(400).send(hasOwner);
     } else {
@@ -129,7 +128,7 @@ export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
   const ctl = new NFTOwnerController();
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const result = await ctl.findAllOwners(filters);
   res.send(result);
 };
@@ -155,12 +154,13 @@ export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
  * 
  */
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  const walletId = req.params['ownerId'] as string;
+  const walletId = req.params["ownerId"] as string;
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.findPerson(walletId.toLowerCase())
-  
+ 
   res.send(result);
-}
+};
 /**
  * @param {*} req
  *  *    onwerId : wallet address
@@ -184,10 +184,10 @@ status: string;                 // status of current nft
  * 
  */
 export const getOwnerNtfs = async (req: FastifyRequest, res: FastifyReply) => {
-  const walletId = req.params['ownerId'] as string;
+  const walletId = req.params["ownerId"] as string;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerNtfs(walletId.toLowerCase(), filters);
   res.send(result);
@@ -212,24 +212,28 @@ date: Date;                     // date of activity
  * 
  */
 export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const walletId = req.params['ownerId'] as string;
+  const walletId = req.params["ownerId"] as string;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.getOwnerHistory(walletId.toLowerCase(),filters);
+ 
   res.send(result);
 };
 
-
-
 export const getOwnerOffers = async (req: FastifyRequest, res: FastifyReply) => {
-  const walletId = req.params['ownerId'] as string;
+  const walletId = req.params["ownerId"] as string;
   const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters = query ? parseQueryUrl(query) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.getOwnerOffers(walletId.toLowerCase(),filters);
+ 
   res.send(result);
 };
 /**
@@ -259,51 +263,51 @@ activity: Array<IBid>;        // activity of collection
  * 
  */
 export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const walletId = req.params['ownerId'] as string;
+  const walletId = req.params["ownerId"] as string;
   const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
+  const filters = query ? parseQueryUrl(query) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerCollection(walletId.toLowerCase(), filters);
   res.send(result);
 };
 
-
-
 /**
- * @param(*) res 
+ * @param(*) res
  *  ownerId,
  *  contract
  *  nftId
  * @returns favourites updated
- *  
- * 
+ *
+ *
  */
 
-export const favourite=async(req: FastifyRequest, res: FastifyReply) => {
-  
-  const {walletId,contract,nftId} = req.body as any;
+export const favourite = async (req: FastifyRequest, res: FastifyReply) => {
+  const { walletId, contract, nftId } = req.body as any;
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.insertFavourite(walletId.toLowerCase(),contract,nftId)
+ 
   res.send(result);
-}
-
-
+};
 
 /**
- * @param(*) res 
+ * @param(*) res
  *  ownerId,
  *  contract
  *  nftId
  * @returns favourites removed
- *  
- * 
+ *
+ *
  */
 
-export const removeFavourite=async(req: FastifyRequest, res: FastifyReply) => {
-  
-  const {walletId,contract,nftId} = req.body as any;
+export const removeFavourite = async (req: FastifyRequest, res: FastifyReply) => {
+  const { walletId, contract, nftId } = req.body as any;
   const ctl = new NFTOwnerController();
+ 
   const result = await ctl.removeFavourite(walletId.toLowerCase(),contract,nftId)
+ 
   res.send(result);
-}
+};
