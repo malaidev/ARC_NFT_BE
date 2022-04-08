@@ -17,4 +17,11 @@ export interface INFTCollection {
   isExplicit: boolean;         // explicit flag
   platform: string;             // platform
   properties: Object;
+  offerStatus: OfferStatusType;
+}
+
+export enum OfferStatusType {
+  OFFERED=<any>"OFFERED",
+  CANCELED=<any>"CANCELED",
+  NONE=<any>"NONE",
 }
