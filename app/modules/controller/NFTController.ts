@@ -235,9 +235,7 @@ export class NFTController extends AbstractEntity {
 
               item.timeLeft = timeDiff;
 
-              const collection = (await collTable.findOne({
-                contract: item.collection,
-              })) as INFTCollection;
+              const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
 
               return {
                 ...item,
@@ -281,12 +279,10 @@ export class NFTController extends AbstractEntity {
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
-              const collection = (await collTable.findOne({
-                contract: item.collection,
-              })) as INFTCollection;
+              const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
               const activity = (await activityTable
                 .find({
-                  contract: item.collection,
+                  collection: item.collection,
                   nftId: item.index,
                   type: ActivityType.OFFER,
                 })
