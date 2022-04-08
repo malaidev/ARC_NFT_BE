@@ -3,22 +3,19 @@ import { NFTCollectionController } from "../../controller/NFTCollectionControlle
 import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
 
-
-
-
 /**
  * Get all combine Collections and Items
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 
- export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
+export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
-  const keyword = req.query['keyword'] as string;
+  const keyword = req.query["keyword"] as string;
   const ctl = new NFTCollectionController();
-  
-  const result = await ctl.searchCollectionsItems(keyword,filters);
+
+  const result = await ctl.searchCollectionsItems(keyword, filters);
   res.send(result);
 };
 
@@ -47,7 +44,9 @@ import { parseQueryUrl } from "../../util/parse-query-url";
 export const getCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
-  filters && filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollections(filters);
   res.send(result);
@@ -56,7 +55,9 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
 export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
-  filters && filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
   const ctl = new NFTCollectionController();
   const result = await ctl.getTopCollections(filters);
   res.send(result);
@@ -89,8 +90,8 @@ export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) 
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  const collectionId = req.params['collectionId'] as any;
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  const collectionId = req.params["collectionId"] as any;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTCollectionController();
   const result = await ctl.getItems(collectionId, filters);
   res.send(result);
@@ -119,7 +120,7 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req.params['collectionId'] as any;
+  const collectionId = req.params["collectionId"] as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getOwners(collectionId);
   res.send(result);
@@ -145,10 +146,10 @@ export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
       }
  */
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req.params['collectionId'] as any;
+  const collectionId = req.params["collectionId"] as any;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTCollectionController();
   const result = await ctl.getHistory(collectionId, filters);
   res.send(result);
@@ -173,10 +174,10 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
         }
  */
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
-  const collectionId = req.params['collectionId'] as any;
+  const collectionId = req.params["collectionId"] as any;
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
+  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
   const ctl = new NFTCollectionController();
   const result = await ctl.getActivity(collectionId, filters);
   res.send(result);
@@ -210,9 +211,6 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      fail:     501
  */
 export const createCollection = async (req, res) => {
-
-
-
   if (req.body && !req.body.logoFile) {
     throw new Error("logoUrl is invalid or missing");
   }
@@ -221,40 +219,69 @@ export const createCollection = async (req, res) => {
   let featuredImgBody: any = null;
   let bannerImgBody: any = null;
 
+  if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
+    logoBody =
+      "data:" +
+      req.body.logoFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
+  }
 
-  if (req.body && req.body.logoFile && req.body.logoFile.value !== '') {
-    logoBody = "data:" + req.body.logoFile.mimetype + ";base64," + Buffer.from(await req.body.logoFile.toBuffer()).toString('base64') // access files
-  };
+  if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
+    featuredImgBody =
+      "data:" +
+      req.body.featuredImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
+  }
+  if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
+    bannerImgBody =
+      "data:" +
+      req.body.bannerImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
+  }
 
-  if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== '') {
-    featuredImgBody = "data:" + req.body.featuredImgFile.mimetype + ";base64," + Buffer.from(await req.body.featuredImgFile.toBuffer()).toString('base64') // access files
-  };
-  if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== '') {
-    bannerImgBody = "data:" + req.body.bannerImgFile.mimetype + ";base64," + Buffer.from(await req.body.bannerImgFile.toBuffer()).toString('base64') // access files
-  };
-
-  const body = Object.fromEntries(
-    Object.keys(req.body).map((key) => [key, req.body[key].value])
-  );
+  const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
 
   body.logoFile = logoBody;
   body.featuredImgFile = featuredImgBody;
   body.bannerImgFile = bannerImgBody;
-  body.logoName = logoBody ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")) : '';
-  body.featureName = featuredImgBody ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf(".")) : '';
-  body.bannerName = bannerImgBody ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf(".")) : '';
-
+  body.logoName = logoBody ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")) : "";
+  body.featureName = featuredImgBody
+    ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf("."))
+    : "";
+  body.bannerName = bannerImgBody
+    ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
+    : "";
 
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(body.logoFile, body.featuredImgFile, body.bannerImgFile, body.name, body.description, body.category,
-    body.siteUrl, body.discordUrl, body.instagramUrl, body.mediumUrl, body.telegramUrl,
-    body.creatorEarning, body.blockchain, body.isExplicit, body.creatorId, body.logoName, body.featureName, body.bannerName);
+  const result = await ctl.createCollection(
+    body.logoFile,
+    body.featuredImgFile,
+    body.bannerImgFile,
+    body.name,
+    body.description,
+    body.category,
+    body.siteUrl,
+    body.discordUrl,
+    body.instagramUrl,
+    body.mediumUrl,
+    body.telegramUrl,
+    body.creatorEarning,
+    body.blockchain,
+    body.isExplicit,
+    body.creatorId,
+    body.logoName,
+    body.featureName,
+    body.bannerName
+  );
   res.send(result);
-}
+};
 
 export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollectionDetail(collectionId);
   res.send(result);
-}
+};

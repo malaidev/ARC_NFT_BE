@@ -1,6 +1,6 @@
 export interface IActivity {
   _id?: string; // id of activity
-  collection: string; // collection contract address
+  collection: string; // collection id
   nftId?: number; // id of nft item
   type: ActivityType; // type of activity collection, sale, mint, transfer, list
   price?: number; // price of activity
