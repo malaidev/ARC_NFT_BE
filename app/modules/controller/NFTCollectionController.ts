@@ -547,7 +547,7 @@ export class NFTCollectionController extends AbstractEntity {
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
-        creator: creator.wallet,
+        creator: creator.wallet.toLowerCase(),
         creatorEarning: creatorEarning,
         blockchain: blockchain,
         isVerified: false,
