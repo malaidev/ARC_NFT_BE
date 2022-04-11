@@ -325,6 +325,7 @@ export class ActivityController extends AbstractEntity {
 
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
 
@@ -359,7 +360,14 @@ export class ActivityController extends AbstractEntity {
             const findData = await activityTable.findOne({
               _id: new ObjectId(`${result.insertedId}`),
             });
-            return respond(findData);
+
+            const collectionData = await  collTable.findOne({
+              _id: new ObjectId(findData.collection),
+            })
+            return respond({
+              ...findData,
+              contract:collectionData.contract
+            });
           } else {
             return respond("Failed to create a new activity.", true, 501);
           }

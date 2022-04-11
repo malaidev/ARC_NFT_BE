@@ -351,7 +351,6 @@ export class NFTCollectionController extends AbstractEntity {
         }
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(collectionId);
-        console.log(query);
         let aggregation = {} as any;
         const result = await this.findOne(query);
         console.log(result);
@@ -547,7 +546,7 @@ export class NFTCollectionController extends AbstractEntity {
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
-        creator: creator.wallet,
+        creator: creator.wallet.toLowerCase(),
         creatorEarning: creatorEarning,
         blockchain: blockchain,
         isVerified: false,
