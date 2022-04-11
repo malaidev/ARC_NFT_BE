@@ -67,6 +67,9 @@ export class NFTCollectionController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
+        let SK=keyword.split(" ");
+        SK.push(keyword);
+        let searchKeyword= SK.map(function (e) { return new RegExp(e, "igm"); });
         let aggregation = [] as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
@@ -75,12 +78,16 @@ export class NFTCollectionController extends AbstractEntity {
           aggregation.push({
             $match: {
               $or: [
-                { name: { $regex: new RegExp(keyword, "igm") } },
-                { description: { $regex: new RegExp(keyword, "igm") } },
+                { name: { "$in": searchKeyword } },
+                { description: { "$in": searchKeyword } },
                 { blockchain: { $regex: new RegExp(keyword, "igm") } },
-                { category: { $regex: new RegExp(keyword, "igm") } },
-                { creator: { $regex: new RegExp(keyword, "igm") } },
-                { platform: { $regex: new RegExp(keyword, "igm") } },
+                { category: { "$in": searchKeyword } },
+                
+                { platform: { "$in": searchKeyword } },
+                { links: { "$in": searchKeyword } },
+                { 'properties.name': { "$in": searchKeyword } },
+                { 'properties.title': { "$in": searchKeyword } },
+
               ],
             },
           });
@@ -138,14 +145,16 @@ export class NFTCollectionController extends AbstractEntity {
           aggregationNft.push({
             $match: {
               $or: [
-                { collection: { $regex: new RegExp(keyword, "igm") } },
-                { index: { $regex: new RegExp(keyword, "igm") } },
-                { owner: { $regex: new RegExp(keyword, "igm") } },
-                { creator: { $regex: new RegExp(keyword, "igm") } },
-                { platform: { $regex: new RegExp(keyword, "igm") } },
-                { name: { $regex: new RegExp(keyword, "igm") } },
-                { description: { $regex: new RegExp(keyword, "igm") } },
-                { tokenType: { $regex: new RegExp(keyword, "igm") } },
+                { collection: { "$in": searchKeyword }},
+                { index: { "$in": searchKeyword } },
+                { owner: { "$in": searchKeyword } },
+                { creator: { "$in": searchKeyword } },
+                { platform:{ "$in": searchKeyword }},
+                { name: { "$in": searchKeyword } },
+                { description: { "$in": searchKeyword } },
+                { tokenType: { "$in": searchKeyword }},
+                { 'properties.name': { "$in": searchKeyword } },
+                { 'properties.title': { "$in": searchKeyword } },
               ],
             },
           });
