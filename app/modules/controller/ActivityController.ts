@@ -364,9 +364,11 @@ export class ActivityController extends AbstractEntity {
             const collectionData = await  collTable.findOne({
               _id: new ObjectId(findData.collection),
             })
+
+            findData.collectionId = findData.collection;
+            findData.collection=collectionData.contract;
             return respond({
               ...findData,
-              contract:collectionData.contract
             });
           } else {
             return respond("Failed to create a new activity.", true, 501);
