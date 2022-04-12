@@ -19,8 +19,6 @@ export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply
   res.send(result);
 };
 
-
-
 /**
  * Get All Collections
  * Method: GET
@@ -99,22 +97,19 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   res.send(result);
 };
 
-
 /**
  * Delete Collection By Id
  * @param req
  * @param res
  */
 
- export const deleteCollection = async(req: FastifyRequest, res: FastifyReply) => {
-  const {collectionId} = req.params as any;
+export const deleteCollection = async (req: FastifyRequest, res: FastifyReply) => {
+  const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
   const userSession = req["session"] as any;
-  const result= await ctl.deleteCollection(collectionId,userSession.walletId.toLowerCase());
+  const result = await ctl.deleteCollection(collectionId, userSession.walletId.toLowerCase());
   res.send(result);
-
-  
-}
+};
 
 /**
  * Get owner list in collection
@@ -303,5 +298,12 @@ export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply
   const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollectionDetail(collectionId);
+  res.send(result);
+};
+
+export const getCollectionByUrl = async (req: FastifyRequest, res: FastifyReply) => {
+  const { url } = req.params as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getCollectionByUrl(url);
   res.send(result);
 };
