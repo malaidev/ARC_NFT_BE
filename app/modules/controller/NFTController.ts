@@ -234,14 +234,17 @@ export class NFTController extends AbstractEntity {
               }
               item.timeLeft = timeDiff;
               const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
+              const actData = await acttable.find({collection:item.collection,nftId:item.index,type:{$in:[ActivityType.OFFER]}}).toArray();
               return {
                 ...item,
+                
                 collection_details: {
                   _id: collection._id,
                   contract: collection.contract,
                   name: collection.name,
                   platform: collection.platform,
                 },
+                offer_lists:actData
               };
             })
           );
