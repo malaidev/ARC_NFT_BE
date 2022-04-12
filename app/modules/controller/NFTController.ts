@@ -76,14 +76,9 @@ export class NFTController extends AbstractEntity {
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
-          const collectionData=await collTable.findOne({
-            _id:new ObjectId(result.collection)
-          })
+          const collectionData = await collTable.findOne({ _id: new ObjectId(result.collection) });
           const act = await acttable.findOne(
-            {
-              collection: result.collection,
-              nftId: result.index,
-            },
+            { collection: result.collection, nftId: result.index },
             { limit: 1, sort: { startDate: -1 } }
           );
 
@@ -100,9 +95,9 @@ export class NFTController extends AbstractEntity {
             if (collectionAct && collectionAct.endDate)
               timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
-          
-          result.collectionId=result.collection;
-          result.collection=collectionData.contract;
+
+          result.collectionId = result.collection;
+          result.collection = collectionData.contract;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
 
@@ -175,20 +170,13 @@ export class NFTController extends AbstractEntity {
             .toArray();
 
           const resultOffersInvidual = await Promise.all(
-              offersIndividual.map(async(item)=>{
-                console.log(item);
-                  const col = await collTable.findOne({
-                    _id:new ObjectId(item.collection)
-                  })
+            offersIndividual.map(async (item) => {
+              const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
 
-                  item.collectionId=item.collection;
-                  item.collection=col.contract
-                  return{
-                    ...item
-                  }
-              })
-
-              
+              item.collectionId = item.collection;
+              item.collection = col.contract;
+              return { ...item };
+            })
           );
 
           const offersCollection = await activityTable
@@ -435,6 +423,20 @@ export class NFTController extends AbstractEntity {
     if (result) nft._id = result.insertedId;
 
     return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
+  }
+
+  async updateNFT(id: string, nft: any) {
+    try {
+      if (this.mongodb) {
+        const collection = this.mongodb.collection(this.table);
+        const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
+        return respond(result);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
   }
 
   /**

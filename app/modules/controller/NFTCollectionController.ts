@@ -67,9 +67,11 @@ export class NFTCollectionController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
-        let SK=keyword.split(" ");
+        let SK = keyword.split(" ");
         SK.push(keyword);
-        let searchKeyword= SK.map(function (e) { return new RegExp(e, "igm"); });
+        let searchKeyword = SK.map(function (e) {
+          return new RegExp(e, "igm");
+        });
         let aggregation = [] as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
@@ -78,16 +80,15 @@ export class NFTCollectionController extends AbstractEntity {
           aggregation.push({
             $match: {
               $or: [
-                { name: { "$in": searchKeyword } },
-                { description: { "$in": searchKeyword } },
+                { name: { $in: searchKeyword } },
+                { description: { $in: searchKeyword } },
                 { blockchain: { $regex: new RegExp(keyword, "igm") } },
-                { category: { "$in": searchKeyword } },
-                
-                { platform: { "$in": searchKeyword } },
-                { links: { "$in": searchKeyword } },
-                { 'properties.name': { "$in": searchKeyword } },
-                { 'properties.title': { "$in": searchKeyword } },
+                { category: { $in: searchKeyword } },
 
+                { platform: { $in: searchKeyword } },
+                { links: { $in: searchKeyword } },
+                { "properties.name": { $in: searchKeyword } },
+                { "properties.title": { $in: searchKeyword } },
               ],
             },
           });
@@ -145,16 +146,16 @@ export class NFTCollectionController extends AbstractEntity {
           aggregationNft.push({
             $match: {
               $or: [
-                { collection: { "$in": searchKeyword }},
-                { index: { "$in": searchKeyword } },
-                { owner: { "$in": searchKeyword } },
-                { creator: { "$in": searchKeyword } },
-                { platform:{ "$in": searchKeyword }},
-                { name: { "$in": searchKeyword } },
-                { description: { "$in": searchKeyword } },
-                { tokenType: { "$in": searchKeyword }},
-                { 'properties.name': { "$in": searchKeyword } },
-                { 'properties.title': { "$in": searchKeyword } },
+                { collection: { $in: searchKeyword } },
+                { index: { $in: searchKeyword } },
+                { owner: { $in: searchKeyword } },
+                { creator: { $in: searchKeyword } },
+                { platform: { $in: searchKeyword } },
+                { name: { $in: searchKeyword } },
+                { description: { $in: searchKeyword } },
+                { tokenType: { $in: searchKeyword } },
+                { "properties.name": { $in: searchKeyword } },
+                { "properties.title": { $in: searchKeyword } },
               ],
             },
           });
@@ -530,8 +531,8 @@ export class NFTCollectionController extends AbstractEntity {
       if (findResult && findResult._id) {
         return respond("Same collection name detected", true, 422);
       }
-      const findUrl= await collection.findOne({ url })
-      if (findUrl){
+      const findUrl = await collection.findOne({ url });
+      if (findUrl && findUrl._id) {
         return respond("Same collection url detected", true, 422);
       }
       let contract = "";
