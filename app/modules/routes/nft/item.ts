@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTController } from "../../controller/NFTController";
 import { parseQueryUrl } from "../../util/parse-query-url";
-import { uploadImageBase64 } from "../../util/morailsHelper";
 
 /**
  * Get NFT item detail information
@@ -191,13 +190,24 @@ export const createItem = async (req, res) => {
   );
   res.send(result);
 };
-
-
+ 
 export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
   const { id } = req.params as { id: string};
   const ctl = new NFTController();
   const userSession = req["session"] as any;
   const result = await ctl.deleteItem(id,userSession.walletId.toLowerCase());
   res.send(result);
+};
+
+
+export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
+  const ctl = new NFTController();
+  const { nftId } = req.params as any;
+  try {
+    const result = await ctl.updateNFT(nftId, req.body);
+    res.send(result);
+  } catch (error) {
+    res.code(400).send(error);
+  }
 };
 

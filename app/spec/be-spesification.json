@@ -380,7 +380,7 @@
           "description": "buyer wallet address"
         }
       }
-    }, 
+    },
     "IPerson": {
       "type": "object",
       "properties": {
@@ -1573,6 +1573,38 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/nft/items/{nftId}": {
+      "put": {
+        "description": "Update NFT item",
+        "tags": ["Items"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nftId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "NFT Id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/definitions/INFT"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success Update NFT"
           }
         }
       }

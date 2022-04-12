@@ -280,6 +280,7 @@ export const createCollection = async (req, res) => {
     body.featuredImgFile,
     body.bannerImgFile,
     body.name,
+    body.url,
     body.description,
     body.category,
     body.siteUrl,

@@ -316,7 +316,7 @@ export class NFTOwnerController extends AbstractEntity {
               let _24h = 0;
               let floorPrice = Number.MAX_VALUE;
               let owners = [];
-              const nfts = (await nftTable.find({ collection: collection._id }).toArray()) as Array<INFT>;
+              const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
               const personInfo = (await person.findOne({ wallet: collection.creator })) as IPerson;
               nfts.forEach((nft) => {
                 volume += nft.price;
@@ -324,7 +324,7 @@ export class NFTOwnerController extends AbstractEntity {
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
 
-              const soldList = (await activityTable.find({ collection: collection._id }).toArray()) as Array<IActivity>;
+              const soldList = (await activityTable.find({ collection: `${collection._id}` }).toArray()) as Array<IActivity>;
 
               let yesterDayTrade = 0;
               let todayTrade = 0;
