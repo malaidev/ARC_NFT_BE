@@ -611,40 +611,68 @@ export class NFTCollectionController extends AbstractEntity {
     return respond(collection);
   }
 
+  /**
+   * Get collection detail information with items, activity
+   * @param collectionId collection Id
+   * @returns
+   */
+  async getCollectionByUrl(url: string): Promise<IResponse> {
+    const collectionTable = this.mongodb.collection(this.table);
+    const nftTable = this.mongodb.collection(this.nftTable);
+    const activityTable = this.mongodb.collection(this.activityTable);
+    const ownerTable = this.mongodb.collection(this.ownerTable);
+    const collection = await collectionTable.findOne({ url });
+    if (!collection) {
+      return respond("collection not found", true, 501);
+    }
+    const activities = await activityTable.find({ collection: `${collection._id}` }).toArray();
+    collection.activities = activities;
+    const nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
+    collection.nfts = nfts;
+    let owners = nfts.map((nft) => nft.owner);
+    owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
+    collection.floorPrice = 0;
+    collection.totalVolume = 0;
+    collection.owners = owners.length;
+    collection.items = nfts.length;
+    const { _24h, todayTrade } = await this.get24HValues(`${collection._id}`);
+    collection._24h = todayTrade;
+    collection._24hPercent = _24h;
+    const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
+    collection.creatorDetail = creator;
+    return respond(collection);
+  }
 
-   /**
-   * Delete  collection 
+  /**
+   * Delete  collection
    * @param collectionId collection Id
    * @returns
    */
 
-  async deleteCollection(collectionId:string,ownerId:string){
+  async deleteCollection(collectionId: string, ownerId: string) {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
-    
-    
-    try{
-    if (!ObjectId.isValid(collectionId)) {
-      return respond("Invalid CollectionId", true, 422);
-    }
 
-    const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
-    if (!collection){
-      return respond("Collection Not found",true,422)
-    }
-        
-    const nftData = await nftTable.findOne({collection:collectionId},{ limit: 1 })
-    
-    if (nftData){
-      return respond("This collection has Items",true,422)
-    }
-    const deleteCollection = await collectionTable.remove(this.findCollectionItem(collectionId));
-    return respond(`Collection ${collectionId} has been removed`);
+    try {
+      if (!ObjectId.isValid(collectionId)) {
+        return respond("Invalid CollectionId", true, 422);
+      }
 
-  } catch (e) {
-    return respond(e.message, true, 401);
-  }
+      const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
+      if (!collection) {
+        return respond("Collection Not found", true, 422);
+      }
 
+      const nftData = await nftTable.findOne({ collection: collectionId }, { limit: 1 });
+
+      if (nftData) {
+        return respond("This collection has Items", true, 422);
+      }
+      const deleteCollection = await collectionTable.remove(this.findCollectionItem(collectionId));
+      return respond(`Collection ${collectionId} has been removed`);
+    } catch (e) {
+      return respond(e.message, true, 401);
+    }
   }
 
   /**
