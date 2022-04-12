@@ -161,6 +161,7 @@ export class NFTController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.table);
         const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collectionId, index);
+        const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = (await nftTable.findOne(query)) as INFT;
 
         console.log(result);
@@ -173,6 +174,23 @@ export class NFTController extends AbstractEntity {
             })
             .toArray();
 
+          const resultOffersInvidual = await Promise.all(
+              offersIndividual.map(async(item)=>{
+                console.log(item);
+                  const col = await collTable.findOne({
+                    _id:new ObjectId(item.collection)
+                  })
+
+                  item.collectionId=item.collection;
+                  item.collection=col.contract
+                  return{
+                    ...item
+                  }
+              })
+
+              
+          );
+
           const offersCollection = await activityTable
             .find({
               collection: collectionId,
@@ -180,7 +198,7 @@ export class NFTController extends AbstractEntity {
             })
             .toArray();
 
-          return respond(offersIndividual.concat(offersCollection));
+          return respond(resultOffersInvidual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
       } else {
