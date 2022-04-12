@@ -531,6 +531,9 @@ export class NFTCollectionController extends AbstractEntity {
       if (findResult && findResult._id) {
         return respond("Same collection name detected", true, 422);
       }
+      if (!url) {
+        return respond("Collection url empty", true, 422);
+      }
       const findUrl = await collection.findOne({ url });
       if (findUrl && findUrl._id) {
         return respond("Same collection url detected", true, 422);
@@ -540,15 +543,13 @@ export class NFTCollectionController extends AbstractEntity {
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
       else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
       /** Upload contains nft picture into moralis */
-      const logoIpfs = logoFile ? await uploadImageBase64({ name: logoName, img: logoFile }) : "";
-      const featuredIpfs = featuredImgFile ? await uploadImageBase64({ name: featureName, img: featuredImgFile }) : "";
-      const bannerIpfs = bannerImgFile ? await uploadImageBase64({ name: bannerName, img: bannerImgFile }) : "";
-      let logoResult = await collection.findOne({
-        logoUrl: logoIpfs,
-      });
-      if (logoResult && logoResult._id) {
-        return respond("Current  Url Collection has been created already", true, 422);
-      }
+      const logoIpfs = logoFile ? await uploadImageBase64({ name: logoName, img: `${logoFile}_${Date.now()}` }) : "";
+      const featuredIpfs = featuredImgFile
+        ? await uploadImageBase64({ name: featureName, img: `${featuredImgFile}_${Date.now()}` })
+        : "";
+      const bannerIpfs = bannerImgFile
+        ? await uploadImageBase64({ name: bannerName, img: `${bannerImgFile}_${Date.now()}` })
+        : "";
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
