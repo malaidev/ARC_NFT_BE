@@ -191,3 +191,13 @@ export const createItem = async (req, res) => {
   );
   res.send(result);
 };
+
+
+export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
+  const { id } = req.params as { id: string};
+  const ctl = new NFTController();
+  const userSession = req["session"] as any;
+  const result = await ctl.deleteItem(id,userSession.walletId.toLowerCase());
+  res.send(result);
+};
+

@@ -10,7 +10,6 @@ import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
 import { v4 } from "uuid";
-
 /**
  * This is the NFT controller class.
  * Do all the NFT's functions such as
@@ -57,7 +56,6 @@ export class NFTController extends AbstractEntity {
     super();
     this.data = nft;
   }
-
   /**
    * Get NFT item detail information
    *
@@ -72,7 +70,6 @@ export class NFTController extends AbstractEntity {
         const acttable = this.mongodb.collection(this.activityTable);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = await this.findOne(query);
-
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
@@ -86,12 +83,10 @@ export class NFTController extends AbstractEntity {
             },
             { limit: 1, sort: { startDate: -1 } }
           );
-
           let timeDiff = "";
           if (act && act.endDate) {
             timeDiff = dateDiff(new Date().getTime(), act.endDate);
           }
-
           if (!act) {
             const collectionAct = (await acttable.findOne({
               collection: result.collection,
@@ -100,12 +95,10 @@ export class NFTController extends AbstractEntity {
             if (collectionAct && collectionAct.endDate)
               timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
-          
           result.collectionId=result.collection;
           result.collection=collectionData.contract;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
-
           return respond(result);
         }
         return respond("nft not found.", true, 422);
@@ -116,7 +109,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get NFT item history
    * @param collectionId Collection Contract Address
@@ -148,7 +140,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get NFT item Offers
    * @param collection Collection Contract Address
@@ -163,7 +154,6 @@ export class NFTController extends AbstractEntity {
         const query = this.findNFTItem(collectionId, index);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = (await nftTable.findOne(query)) as INFT;
-
         console.log(result);
         if (result) {
           const offersIndividual = await activityTable
@@ -173,31 +163,25 @@ export class NFTController extends AbstractEntity {
               $or: [{ type: ActivityType.LISTFORSALE }, { type: ActivityType.OFFER }],
             })
             .toArray();
-
           const resultOffersInvidual = await Promise.all(
               offersIndividual.map(async(item)=>{
                 console.log(item);
                   const col = await collTable.findOne({
                     _id:new ObjectId(item.collection)
                   })
-
                   item.collectionId=item.collection;
                   item.collection=col.contract
                   return{
                     ...item
                   }
               })
-
-              
           );
-
           const offersCollection = await activityTable
             .find({
               collection: collectionId,
               type: ActivityType.OFFERCOLLECTION,
             })
             .toArray();
-
           return respond(resultOffersInvidual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
@@ -208,7 +192,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get all NFTs in collection
    * @param filters filter
@@ -241,26 +224,20 @@ export class NFTController extends AbstractEntity {
                   },
                 }
               );
-
               let timeDiff = "";
               if (act && act.endDate) {
                 timeDiff = dateDiff(new Date().getTime(), act.endDate);
               }
-
               if (!act) {
                 const collectionAct = (await acttable.findOne({
                   collection: item.collection,
                   type: ActivityType.OFFERCOLLECTION,
                 })) as IActivity;
-
                 if (collectionAct && collectionAct.endDate)
                   timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
               }
-
               item.timeLeft = timeDiff;
-
               const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
-
               return {
                 ...item,
                 collection_details: {
@@ -282,7 +259,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get all trending NFTs in collection
    * @param filters filter
@@ -294,7 +270,6 @@ export class NFTController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.table);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const activityTable = this.mongodb.collection(this.activityTable);
-
         let aggregation = {} as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
@@ -311,14 +286,11 @@ export class NFTController extends AbstractEntity {
                   type: ActivityType.OFFER,
                 })
                 .toArray()) as Array<IActivity>;
-
               const collectionAct = (await activityTable.findOne({
                 collection: item.collection,
                 type: ActivityType.OFFERCOLLECTION,
               })) as IActivity;
-
               activity.push(collectionAct);
-
               return {
                 ...item,
                 collection_details: {
@@ -331,7 +303,6 @@ export class NFTController extends AbstractEntity {
               };
             })
           );
-
           return respond(resultsNFT.sort((item1, item2) => item2.counts - item1.counts).slice(0, 10));
         }
         return respond("Items not found.", true, 422);
@@ -342,7 +313,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Create NFT item - save to NFT table in db
    * It check collection, owner and creator.
@@ -375,19 +345,15 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
-
     if (!ObjectId.isValid(collectionId)) {
       return respond("Invalid Collection Id", true, 422);
     }
-
     const artIpfs = artFile ? await uploadImageBase64({ name: artName, img: artFile }) : "";
-
     let queryArt = this.findNFTItemByArt(artIpfs);
     const findResult = (await nftTable.findOne(queryArt)) as INFT;
     if (findResult && findResult._id) {
       return respond("Current nft has been created already", true, 422);
     }
-
     // let query = this.findNFTItemByArt(artFile);
     // const findResult = (await nftTable.findOne(query)) as INFT;
     // if (findResult && findResult._id) {
@@ -398,11 +364,8 @@ export class NFTController extends AbstractEntity {
     if (!collection) {
       return respond("collection not found.", true, 422);
     }
-
     const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
-
     let newIndex = sortNft ? sortNft.index + 1 : 0;
-
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collectionId,
@@ -429,14 +392,39 @@ export class NFTController extends AbstractEntity {
           ? ContentType.VIDEO
           : ContentType.IMAGE,
     };
-
     const result = await nftTable.insertOne(nft);
-
     if (result) nft._id = result.insertedId;
-
     return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
   }
-
+   /**
+   * Delete  collection 
+   * @param collectionId collection Id
+   * @returns
+   */
+    async deleteItem(id:string,ownerId:string){
+      try{
+      if (!ObjectId.isValid(id)) {
+        return respond("Invalid itemId ", true, 422);
+      }
+      const acttable = this.mongodb.collection(this.activityTable);
+      const nftTable = this.mongodb.collection(this.table);
+      const itemData = await nftTable.findOne({_id:new ObjectId(id)});
+      if (!itemData){
+        return respond("Items not Found",true,422);
+      }
+      if (itemData?.owner.toLowerCase() !== ownerId) {
+        return respond("this item not belong to this user", true, 422);
+      };
+      const actData = await acttable.findOne({nftId:itemData.index});
+      if (actData){
+        return respond("This item  has activity",true,422)
+      }
+      const deleteItem = await nftTable.remove({_id:new ObjectId(id)});
+      return respond(`Item ${id} has been removed`);
+    } catch (e) {
+      return respond(e.message, true, 401);
+    }
+    }
   /**
    * Mounts a generic query to find an item by its collection contract and index.
    * @param collectionId
@@ -448,7 +436,6 @@ export class NFTController extends AbstractEntity {
       index,
     };
   }
-
   /**
    * Mounts a generic query to find an item by its collection contract and index.
    * @param contract
@@ -459,7 +446,6 @@ export class NFTController extends AbstractEntity {
       artURI: art,
     };
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -470,7 +456,6 @@ export class NFTController extends AbstractEntity {
       contract: contract,
     };
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -481,7 +466,6 @@ export class NFTController extends AbstractEntity {
       _id: new ObjectId(id),
     };
   }
-
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param contract

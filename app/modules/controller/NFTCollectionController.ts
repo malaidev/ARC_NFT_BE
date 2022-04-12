@@ -612,6 +612,43 @@ export class NFTCollectionController extends AbstractEntity {
     return respond(collection);
   }
 
+
+   /**
+   * Delete  collection 
+   * @param collectionId collection Id
+   * @returns
+   */
+
+  async deleteCollection(collectionId:string,ownerId:string){
+    const collectionTable = this.mongodb.collection(this.table);
+    const nftTable = this.mongodb.collection(this.nftTable);
+    
+    
+    try{
+    if (!ObjectId.isValid(collectionId)) {
+      return respond("Invalid CollectionId", true, 422);
+    }
+
+    const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
+    if (!collection){
+      return respond("Collection Not found",true,422)
+    }
+    console.log(ObjectId(collection._id))
+    
+    const nftData = await nftTable.findOne({collection:collectionId},{ limit: 1 })
+    
+    if (nftData){
+      return respond("This collection has Items",true,422)
+    }
+    const deleteCollection = await collectionTable.remove(this.findCollectionItem(collectionId));
+    return respond(`Collection ${collectionId} has been removed`);
+
+  } catch (e) {
+    return respond(e.message, true, 401);
+  }
+
+  }
+
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract

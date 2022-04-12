@@ -1,6 +1,7 @@
 import { config } from "../../../config/config";
 import { 
   createItem,
+  deleteItem,
   getAllItems,
   getItemDetail,
   getItemHistory,
@@ -16,7 +17,8 @@ import {
   createCollection, 
   getCollectionDetail, 
   getTopCollections, 
-  getCollectionsItems
+  getCollectionsItems,
+  deleteCollection
 } from "./collection";
 import { 
   createOwner, 
@@ -39,7 +41,8 @@ import {
   cancelListForSale,
   makeCollectionOffer,
   cancelCollectionOffer,
-  signOffer
+  signOffer,
+  deleteActivityId
 } from "./activity";
 
 /**
@@ -60,12 +63,14 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/:collectionId/history",config.routeParamsValidation(), getHistory);
   router.get("/collection/:collectionId/activity",config.routeParamsValidation(),getActivities);
   router.get("/collection/:collectionId",config.routeParamsValidation(),getCollectionDetail);
+  router.delete("/collection/:collectionId",config.route("jwt"),deleteCollection);
   
   
   
   router.post("/collection/create", config.route("jwt"), createCollection);
 
   router.get("/activity", getAllActivites);
+  router.delete("/activity/:id",config.route("jwt"),deleteActivityId );
   router.post("/activity/listForSale", listForSale);
   router.post("/activity/makeOffer", makeOffer);
   router.post("/activity/approveOffer", approveOffer);
@@ -81,6 +86,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(),getItemOffers);
   router.get("/items/:collectionId/:nftId",config.routeParamsValidation(), getItemDetail);
+  router.delete("/items/:id",config.route("jwt"), deleteItem);
   
   
   router.get("/items/trending", getTrendingItems);
