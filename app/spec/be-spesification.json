@@ -958,7 +958,7 @@
     },
     "/nft/collection/{collectionId}": {
       "get": {
-        "description": "Get all activities (bids and transfer) of NFT items in collection",
+        "description": "Get collection base on collectionId",
         "tags": ["Collection"],
 
         "parameters": [
@@ -987,8 +987,34 @@
             }
           }
         }
+      },
+      "delete": {
+        "description": "Delete Collection base on collectionId",
+        "tags": ["Collection"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collectionId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "collection Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activities base on contract"            
+          }
+        }
       }
     },
+    
 
     "/nft/activity": {
       "get": {
@@ -1035,6 +1061,33 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/nft/activity/{id}": {       
+      "delete": {
+        "description": "Delete activity base on Id",
+        "tags": ["Activity"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Activity Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message succes delete"            
           }
         }
       }
@@ -1577,6 +1630,34 @@
         }
       }
     },
+    "/nft/items/{id}": {       
+      "delete": {
+        "description": "Delete NFT Item base on Id",
+        "tags": ["Items"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "NFT Item Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message succes delete"            
+          }
+        }
+      }
+    },
+
     "/nft/items/{nftId}": {
       "put": {
         "description": "Update NFT item",

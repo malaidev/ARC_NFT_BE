@@ -632,8 +632,7 @@ export class NFTCollectionController extends AbstractEntity {
     if (!collection){
       return respond("Collection Not found",true,422)
     }
-    console.log(ObjectId(collection._id))
-    
+        
     const nftData = await nftTable.findOne({collection:collectionId},{ limit: 1 })
     
     if (nftData){
