@@ -521,20 +521,19 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
-        const activityData = await nftTable.findOne({ _id: new ObjectId(activityId) });
-        if (!activityData) {
-          return respond("Activity not found", true, 422);
+
+        const activityData = await activityTable.findOne({_id:new ObjectId(activityId)});
+        
+        if (!activityData){
+          return respond('Activity not found',true,422);
         }
-        if (
-          activityData?.type !== ActivityType.LISTFORSALE ||
-          activityData?.type !== ActivityType.NONE ||
-          activityData?.type !== ActivityType.MINTED
-        ) {
-          return respond("Cannot delete this Activity", true, 422);
-        }
-        const nftData = (await nftTable.findOne(this.findNFTItem(activityData.collection, activityData.nftId))) as INFT;
-        if (!nftData) {
-          return respond("Items not Found", true, 422);
+        if (activityData?.type===ActivityType.OFFER || activityData?.type===ActivityType.OFFERCOLLECTION || activityData?.type===ActivityType.SOLD || activityData?.type===ActivityType.TRANSFER ){
+          return respond('Cannot delete this Activity',true,422);
+        };
+        const nftData= (await nftTable.findOne(this.findNFTItem(activityData.collection, activityData.nftId))) as INFT;
+        if (!nftData){
+          return respond('Items not Found',true,422)
+ 
         }
         const status_date = new Date().getTime();
         nftData.status = "Created";
