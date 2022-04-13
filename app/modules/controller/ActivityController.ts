@@ -207,6 +207,7 @@ export class ActivityController extends AbstractEntity {
         }
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
         // console.log(sortAct);
@@ -228,9 +229,21 @@ export class ActivityController extends AbstractEntity {
             nonce,
           };
           const result = await activityTable.insertOne(offer);
-          return result
-            ? respond(`Successfully created a new offer with id ${result.insertedId}`)
-            : respond("Failed to create a new activity.", true, 501);
+          if (result) {
+            const findData = await activityTable.findOne({
+              _id: new ObjectId(`${result.insertedId}`),
+            });
+            const collectionData = await collTable.findOne({
+              _id: new ObjectId(findData.collection),
+            });
+            findData.collectionId = findData.collection;
+            findData.collection = collectionData.contract;
+            return respond({
+              ...findData,
+            });
+          } else {
+            respond("Failed to create a new activity.", true, 501);
+          }
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -346,11 +359,11 @@ export class ActivityController extends AbstractEntity {
             const findData = await activityTable.findOne({
               _id: new ObjectId(`${result.insertedId}`),
             });
-            const collectionData = await  collTable.findOne({
+            const collectionData = await collTable.findOne({
               _id: new ObjectId(findData.collection),
-            })
+            });
             findData.collectionId = findData.collection;
-            findData.collection=collectionData.contract;
+            findData.collection = collectionData.contract;
             return respond({
               ...findData,
             });
@@ -498,9 +511,8 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async deleteActivity(
-    activityId: string,
-  ) {
+
+  async deleteActivity(activityId: string) {
     try {
       if (!ObjectId.isValid(activityId)) {
         return respond("Invalid activityId ", true, 422);
@@ -509,6 +521,7 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
+
         const activityData = await activityTable.findOne({_id:new ObjectId(activityId)});
         
         if (!activityData){
@@ -520,16 +533,17 @@ export class ActivityController extends AbstractEntity {
         const nftData= (await nftTable.findOne(this.findNFTItem(activityData.collection, activityData.nftId))) as INFT;
         if (!nftData){
           return respond('Items not Found',true,422)
+ 
         }
-          const status_date = new Date().getTime();
-          nftData.status = "Created";
-          nftData.status_date = status_date;
-          //
-          const result = await activityTable.remove({_id:new ObjectId(activityId)});
-          await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
-          return result
-            ? respond(`Activity with  id ${activityId} has been removed`)
-            : respond("Failed to remove  activity.", true, 501);
+        const status_date = new Date().getTime();
+        nftData.status = "Created";
+        nftData.status_date = status_date;
+        //
+        const result = await activityTable.remove({ _id: new ObjectId(activityId) });
+        await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
+        return result
+          ? respond(`Activity with  id ${activityId} has been removed`)
+          : respond("Failed to remove  activity.", true, 501);
       } else {
         throw new Error("Could not connect to the database.");
       }
