@@ -238,7 +238,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getCollection::${this.ownerTable}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -304,7 +303,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getCollection::${this.ownerTable}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -341,7 +339,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getOwners::${this.ownerTable}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -361,14 +358,15 @@ export class NFTCollectionController extends AbstractEntity {
         }
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(collectionId);
-        let aggregation = {} as any;
+        let aggregation = [] as any;
         const result = await this.findOne(query);
-        console.log(result);
+        
         if (filters) {
           aggregation = this.parseFilters(filters);
-          aggregation.push({ $match: { collection: collectionId } });
+
         }
-        const nfts = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
+        // const nfts = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
+        const nfts = await nftTable.find({collection:collectionId}).toArray() as Array<INFT>;
         if (nfts) {
           result.nfts = nfts;
         } else {
@@ -382,7 +380,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItems::${this.nftTable}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -422,7 +419,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getActivity::${this.nftTable}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -459,7 +455,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getHistory::${this.activityTable}`, error);
       return respond(error.message, true, 500);
     }
   }
