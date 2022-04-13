@@ -71,6 +71,7 @@ export class NFTController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const itemTable = this.mongodb.collection(this.table);
         const result = await itemTable.findOne(query);
+
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
@@ -93,6 +94,7 @@ export class NFTController extends AbstractEntity {
           }
           result.collectionId = result.collection;
           result.collection = collectionData.contract;
+          result.creatorEarning=collectionData.creatorEarning;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
           return respond(result);
@@ -150,7 +152,6 @@ export class NFTController extends AbstractEntity {
         const query = this.findNFTItem(collectionId, index);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = (await nftTable.findOne(query)) as INFT;
-        console.log(result);
         if (result) {
           const offersIndividual = await activityTable
             .find({
