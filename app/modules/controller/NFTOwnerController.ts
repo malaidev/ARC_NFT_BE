@@ -406,6 +406,10 @@ export class NFTOwnerController extends AbstractEntity {
           const resActivities = await Promise.all(
             result.map(async (item) => {
               const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
+              const col = await collection.findOne({ _id: new ObjectId(item.collection) });
+
+              item.collectionId = item.collection;
+              item.collection = col.contract;
               item.nft = { artUri: nfts.artURI, name: nfts.name };
               return item;
             })
