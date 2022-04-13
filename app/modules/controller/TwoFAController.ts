@@ -29,6 +29,7 @@ export class TwoFaController extends AbstractEntity{
               );
               const qr = await QRCode.toDataURL(secretCode.otpauth_url);
               return respond({
+                wallet:walletId,
                 otpauthUrl: secretCode.otpauth_url,
                 base32: secretCode.base32,
                 qr
@@ -41,14 +42,16 @@ export class TwoFaController extends AbstractEntity{
         const collection = this.mongodb.collection(this.userTable);
         const findUserQuery={ wallets: {$elemMatch: {address: walletId,}}};
         const userData = await collection.findOne(findUserQuery) as IUser;
-        if (userData && !userData.verified){
-            return respond("Please Verify ", true, 401);
-        }
+
+        // if (userData && !userData.verified){
+        //     return respond("Please Verify ", true, 401);
+        // }
+
         const isCodeValid = await this.verifyTwoFactorAuthenticationCode(
             twoFactorAuthenticationCode, userData
           );
         if (!isCodeValid){
-            return respond("Wrong two factor token ", true, 401);
+            return respond("Wrong  TFA token ", true, 401);
         }
         await collection.updateOne(
             findUserQuery,{$set:{isTwoFactorAuthenticationEnabled:true}}
@@ -58,10 +61,7 @@ export class TwoFaController extends AbstractEntity{
     async twoFactorAuthencticate(walletId:string,twoFactorAuthenticationCode:string):Promise<void|IResponse>{
         const collection = this.mongodb.collection(this.userTable);
         const findUserQuery={ wallets: {$elemMatch: {address: walletId,}}};
-        const userData = await collection.findOne(findUserQuery) as IUser;  
-        if (userData && !userData.verified){
-            return respond("Please Verify ", true, 401);
-        }
+        const userData = await collection.findOne(findUserQuery) as IUser;          
         return  await this.verifyTwoFactorAuthenticationCode(
             twoFactorAuthenticationCode, userData
           );

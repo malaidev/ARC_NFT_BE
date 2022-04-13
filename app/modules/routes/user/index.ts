@@ -42,8 +42,8 @@ export const user = async (router: any, options: any) => {
 
   /** 2fa */
 
-router.post("/2fa/generate",config.route("jwt"),twoFAGenerate)
-router.post("/2fa/activate",config.route("jwt"),turnOn)
+router.post("/tfa/generate",config.route("jwt"),twoFAGenerate)
+router.post("/tfa/activate",config.route("jwt"),turnOn)
 /** */
 
 };
