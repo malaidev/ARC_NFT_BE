@@ -70,30 +70,31 @@ export class NFTCollectionController extends AbstractEntity {
         let SK = keyword.split(" ");
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {
+
+          
           return new RegExp(e, "igm");
         });
         let aggregation = [] as any;
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-        if (keyword) {
-          aggregation.push({
-            $match: {
-              $or: [
-                { name: { $in: searchKeyword } },
-                { description: { $in: searchKeyword } },
-                { blockchain: { $regex: new RegExp(keyword, "igm") } },
-                { category: { $in: searchKeyword } },
+       
+        // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
 
-                { platform: { $in: searchKeyword } },
-                { links: { $in: searchKeyword } },
-                { "properties.name": { $in: searchKeyword } },
-                { "properties.title": { $in: searchKeyword } },
-              ],
-            },
-          });
-        }
-        const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
+        const result = await collectionTable.find({
+          $or: [
+            { name: { $in: searchKeyword } },
+            { description: { $in: searchKeyword } },
+            { blockchain: { $regex: new RegExp(keyword, "igm") } },
+            { category: { $in: searchKeyword } },
+
+            { platform: { $in: searchKeyword } },
+            { links: { $in: searchKeyword } },
+            { "properties.name": { $in: searchKeyword } },
+            { "properties.title": { $in: searchKeyword } },
+          ],
+        }).toArray() as Array<INFTCollection>;
+
         let collections = [];
         if (result) {
           collections = await Promise.all(
@@ -142,25 +143,25 @@ export class NFTCollectionController extends AbstractEntity {
         if (filters) {
           aggregationNft = this.parseFilters(filters);
         }
-        if (keyword) {
-          aggregationNft.push({
-            $match: {
-              $or: [
-                { collection: { $in: searchKeyword } },
-                { index: { $in: searchKeyword } },
-                { owner: { $in: searchKeyword } },
-                { creator: { $in: searchKeyword } },
-                { platform: { $in: searchKeyword } },
-                { name: { $in: searchKeyword } },
-                { description: { $in: searchKeyword } },
-                { tokenType: { $in: searchKeyword } },
-                { "properties.name": { $in: searchKeyword } },
-                { "properties.title": { $in: searchKeyword } },
-              ],
-            },
-          });
-        }
-        const resultNft = (await nftTable.aggregate(aggregationNft).toArray()) as Array<INFTCollection>;
+       
+        // const resultNft = (await nftTable.aggregate(aggregationNft).toArray()) as Array<INFTCollection>;
+
+        const resultNft= await nftTable.find({
+          
+            $or: [
+              { collection: { $in: searchKeyword } },
+              { index: { $in: searchKeyword } },
+              { owner: { $in: searchKeyword } },
+              { creator: { $in: searchKeyword } },
+              { platform: { $in: searchKeyword } },
+              { name: { $in: searchKeyword } },
+              { description: { $in: searchKeyword } },
+              { tokenType: { $in: searchKeyword } },
+              { "properties.name": { $in: searchKeyword } },
+              { "properties.title": { $in: searchKeyword } },
+            ],
+          
+        }).toArray() as Array<INFTCollection>;
         let items = [];
         if (resultNft) {
           items = resultNft;
