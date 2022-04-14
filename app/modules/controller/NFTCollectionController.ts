@@ -69,15 +69,15 @@ export class NFTCollectionController extends AbstractEntity {
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let SK = keyword.split(" ");
         SK.push(keyword);
-        let searchKeyword = SK.map(function (e) {
-
-          
+        let searchKeyword = SK.map(function (e) {          
           return new RegExp(e, "igm");
         });
-        let aggregation = [] as any;
-        if (filters) {
-          aggregation = this.parseFilters(filters);
-        }
+
+
+        // let aggregation = [] as any;
+        // if (filters) {
+        //   aggregation = this.parseFilters(filters);
+        // }
        
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
 
@@ -139,11 +139,7 @@ export class NFTCollectionController extends AbstractEntity {
             })
           );
         }
-        let aggregationNft = [] as any;
-        if (filters) {
-          aggregationNft = this.parseFilters(filters);
-        }
-       
+        
         // const resultNft = (await nftTable.aggregate(aggregationNft).toArray()) as Array<INFTCollection>;
 
         const resultNft= await nftTable.find({
