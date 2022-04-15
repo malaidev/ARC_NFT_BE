@@ -124,7 +124,7 @@ export class NFTController extends AbstractEntity {
           const history = await activityTable
             .find({
               collection: collectionId,
-              index: result.index,
+              nftId: result.index,
               // $or: [{ type: "Sold" }, { type: "Transfer" }],
             })
             .toArray();
