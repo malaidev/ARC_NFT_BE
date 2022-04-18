@@ -192,7 +192,7 @@ export class NFTCollectionController extends AbstractEntity {
               let volume = 0;
               let floorPrice = 0;
               let owners = [];
-              const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
+              const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
               nfts.forEach((nft) => {
                 volume += nft.price;
                 if (floorPrice > nft.price) floorPrice = nft.price;
