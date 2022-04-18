@@ -194,12 +194,19 @@ export class ActivityController extends AbstractEntity {
   async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
     try {
       if (this.mongodb) {
+
+
+
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
         }
+        if (!Number(price)){
+          return respond("Incorrect Price Value", true, 422);
+        };
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
+
         const startDate = new Date().getTime();
         // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
@@ -211,6 +218,8 @@ export class ActivityController extends AbstractEntity {
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
         // console.log(sortAct);
+        console.log(nft.owner);
+        console.log(seller);
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -221,7 +230,7 @@ export class ActivityController extends AbstractEntity {
             collection: collectionId,
             nftId: index,
             type: ActivityType.OFFER,
-            price: price,
+            price:price,
             startDate: new Date().getTime(),
             endDate: endDate,
             from: buyer,
