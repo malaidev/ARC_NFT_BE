@@ -86,7 +86,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::getAllActivites::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -126,7 +125,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::transfer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -187,7 +185,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::approveOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -195,8 +192,9 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
 
-
-
+        let prc:number=0;
+        typeof price =='string'?prc=+price:prc=price; 
+        
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
         }
@@ -208,7 +206,6 @@ export class ActivityController extends AbstractEntity {
         }
 
         const startDate = new Date().getTime();
-        // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -217,9 +214,6 @@ export class ActivityController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
-        // console.log(sortAct);
-        console.log(nft.owner);
-        console.log(seller);
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -230,7 +224,7 @@ export class ActivityController extends AbstractEntity {
             collection: collectionId,
             nftId: index,
             type: ActivityType.OFFER,
-            price:price,
+            price:prc,
             startDate: new Date().getTime(),
             endDate: endDate,
             from: buyer,
@@ -259,7 +253,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::makeOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -273,7 +266,6 @@ export class ActivityController extends AbstractEntity {
           return respond("price cannot be negative or zero", true, 422);
         }
         const startDate = new Date().getTime();
-        // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -281,7 +273,6 @@ export class ActivityController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
-        // console.log(sortAct);
         if (collection) {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
@@ -309,7 +300,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::makeOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -330,7 +320,6 @@ export class ActivityController extends AbstractEntity {
           return respond("price cannot be negative or zero", true, 422);
         }
         const startDate = new Date().getTime();
-        // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -385,7 +374,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::listForSale::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -425,7 +413,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::cancelListForSale::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -463,7 +450,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::cancelOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -497,7 +483,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::cancelOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -516,11 +501,9 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::signOffer::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
-
   async deleteActivity(activityId: string) {
     try {
       if (!ObjectId.isValid(activityId)) {
@@ -557,7 +540,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`ActivityController::deleteActivity::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
