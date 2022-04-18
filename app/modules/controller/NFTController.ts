@@ -80,6 +80,8 @@ export class NFTController extends AbstractEntity {
             { collection: result.collection, nftId: result.index },
             { limit: 1, sort: { startDate: -1 } }
           );
+
+
           let timeDiff = "";
           if (act && act.endDate) {
             timeDiff = dateDiff(new Date().getTime(), act.endDate);
@@ -95,6 +97,8 @@ export class NFTController extends AbstractEntity {
           result.collectionId = result.collection;
           result.collection = collectionData.contract;
           result.creatorEarning=collectionData.creatorEarning;
+          result.startDate= act.startDate;
+          result.endDate= act.endDate;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
           return respond(result);
