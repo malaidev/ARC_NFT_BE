@@ -83,6 +83,7 @@ export class NFTController extends AbstractEntity {
 
 
           let timeDiff = "";
+          
           if (act && act.endDate) {
             timeDiff = dateDiff(new Date().getTime(), act.endDate);
           }
@@ -97,10 +98,17 @@ export class NFTController extends AbstractEntity {
           result.collectionId = result.collection;
           result.collection = collectionData.contract;
           result.creatorEarning=collectionData.creatorEarning;
-          result.startDate= act.startDate;
-          result.endDate= act.endDate;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
+          if (result && result.tokenType=='ERC1155'){
+            let own = [];
+            let ownD =[];
+
+            own.push(result.owner);
+            ownD.push(result.ownerDetail);
+            result.owner=own;
+            result.ownerDetail =ownD;
+          }
           return respond(result);
         }
         return respond("nft not found.", true, 422);

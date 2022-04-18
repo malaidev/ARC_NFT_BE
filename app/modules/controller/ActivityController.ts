@@ -192,8 +192,9 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
 
-
-
+        let prc:number=0;
+        typeof price =='string'?prc=+price:prc=price; 
+        
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
         }
@@ -223,7 +224,7 @@ export class ActivityController extends AbstractEntity {
             collection: collectionId,
             nftId: index,
             type: ActivityType.OFFER,
-            price:price,
+            price:prc,
             startDate: new Date().getTime(),
             endDate: endDate,
             from: buyer,
@@ -503,7 +504,6 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async deleteActivity(activityId: string) {
     try {
       if (!ObjectId.isValid(activityId)) {
