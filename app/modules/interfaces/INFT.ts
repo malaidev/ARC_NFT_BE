@@ -45,6 +45,6 @@ export enum SaleStatus {
   FORSALE = <any>"For Sale",
 }
 export enum MintStatus {
-  LAZYMINTED = <any>"Lazt Minted",
+  LAZYMINTED = <any>"Lazy Minted",
   MINTED = <any>"Minted",
 }
