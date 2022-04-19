@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
-import { ContentType, INFT, TokenType } from "../interfaces/INFT";
+import { ContentType, INFT, MintStatus, SaleStatus, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -395,7 +395,8 @@ export class NFTController extends AbstractEntity {
       externalLink: externalLink ?? "",
       description: description ?? "",
       isExplicit: isExplicit ?? false,
-      status: "Created",
+      saleStatus: SaleStatus.NOTFORSALE,
+      mintStatus: MintStatus.LAZYMINTED,
       status_date: new Date().getTime(),
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
