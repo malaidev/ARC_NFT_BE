@@ -3,6 +3,7 @@ export interface INFT {
   collection: string; // collection contract address
   index: number; // index of nft in collection
   owner: string; // owner
+  owners:any,
   creator: string; // creator
   artURI: string; // URI of art image
   name: string; // nft name
