@@ -16,12 +16,13 @@ export interface IActivity {
 }
 
 export enum ActivityType {
-  OFFER = <any>"Offer",
-  OFFERCOLLECTION = <any>"OfferCollection",
-  SOLD = <any>"Sold",
-  TRANSFER = <any>"Transfer",
-  LISTFORSALE = <any>"List",
-  CANCELED = <any>"Canceled",
   MINTED = <any>"Mint",
+  TRANSFER = <any>"Transfer",
+  SALE = <any>"Sale",
+  LIST = <any>"List",
+  OFFER = <any>"Offer",
+  CANCELLIST = <any>"Cancel list",
+  CANCELOFFER = <any>"Cancel offer",
+  OFFERCOLLECTION = <any>"OfferCollection",
   NONE = <any>"None",
 }
