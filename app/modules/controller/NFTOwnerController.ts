@@ -5,7 +5,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IPerson } from "../interfaces/IPerson";
 import { INFT } from "../interfaces/INFT";
-import { IActivity } from "../interfaces/IActivity";
+import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { S3GetSignedUrl, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { ObjectId } from "mongodb";
@@ -372,8 +372,11 @@ export class NFTOwnerController extends AbstractEntity {
         }
         aggregation.push({
           $match: {
-            $or: [{ from: { $regex: new RegExp(ownerId, "igm") } }, { to: { $regex: new RegExp(ownerId, "igm") } }],
-            type: "Offer",
+            active: true,
+            $and: [
+              { $or: [{ from: { $regex: new RegExp(ownerId, "igm") } }, { to: { $regex: new RegExp(ownerId, "igm") } }] },
+              { $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }] },
+            ]
           },
         });
         const result = await activity.aggregate(aggregation).toArray();

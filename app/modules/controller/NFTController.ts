@@ -169,6 +169,7 @@ export class NFTController extends AbstractEntity {
               collection: collectionId,
               nftId: result.index,
               $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+              active: true,
             })
             .toArray();
           const resultOffersInvidual = await Promise.all(
