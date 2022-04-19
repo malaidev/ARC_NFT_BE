@@ -519,20 +519,15 @@ export class ActivityController extends AbstractEntity {
         if (!activityData){
           return respond('Activity not found',true,422);
         }
-        if (activityData?.type===ActivityType.OFFER || activityData?.type===ActivityType.OFFERCOLLECTION || activityData?.type===ActivityType.SOLD || activityData?.type===ActivityType.TRANSFER ){
-          return respond('Cannot delete this Activity',true,422);
-        };
-        const nftData= (await nftTable.findOne(this.findNFTItem(activityData.collection, activityData.nftId))) as INFT;
-        if (!nftData){
-          return respond('Items not Found',true,422)
- 
-        }
-        const status_date = new Date().getTime();
-        nftData.status = "Created";
-        nftData.status_date = status_date;
+        // if (activityData?.type===ActivityType.OFFER || activityData?.type===ActivityType.OFFERCOLLECTION || activityData?.type===ActivityType.SOLD || activityData?.type===ActivityType.TRANSFER ){
+        //   return respond('Cannot delete this Activity',true,422);
+        // };        
+        // const status_date = new Date().getTime();
+        // nftData.status = "Created";
+        // nftData.status_date = status_date;
         //
         const result = await activityTable.remove({ _id: new ObjectId(activityId) });
-        await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
+        // await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
         return result
           ? respond(`Activity with  id ${activityId} has been removed`)
           : respond("Failed to remove  activity.", true, 501);
