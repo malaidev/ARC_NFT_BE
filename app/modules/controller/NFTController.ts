@@ -100,15 +100,19 @@ export class NFTController extends AbstractEntity {
           result.creatorEarning=collectionData.creatorEarning;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
-          // if (result && result.tokenType=='ERC1155'){
-          //   let own = [];
-          //   let ownD =[];
+          
 
-          //   own.push(result.owner);
-          //   ownD.push(result.ownerDetail);
-          //   result.owner=own;
-          //   result.ownerDetail =ownD;
-          // }
+
+          if (result && result.tokenType=='ERC1155'){
+            
+            let own = result.owners ?? [];
+            let ownD =[];
+            console.log(own.indexOf(owner))
+            if (own.indexOf(owner)==-1) own.push(result.owner)
+            ownD.push(result.ownerDetail);
+            result.owners=own;
+            result.ownersDetail =ownD;
+          }
           return respond(result);
         }
         return respond("nft not found.", true, 422);
@@ -376,11 +380,14 @@ export class NFTController extends AbstractEntity {
     }
     const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
     let newIndex = sortNft ? sortNft.index + 1 : 0;
+    let own = [];
+    own.push(owner)
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collectionId,
       index: newIndex,
       owner: owner,
+      owners:own,
       creator: owner,
       artURI: artIpfs,
       price: 0,
