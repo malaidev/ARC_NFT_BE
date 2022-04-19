@@ -13,6 +13,7 @@ export interface IActivity {
   fee?: number; // fee of list for sale
   nonce?: number; // Nonce
   signature?: object; // signature of activity
+  active?: boolean;
 }
 
 export enum ActivityType {

@@ -73,6 +73,7 @@ export class ActivityController extends AbstractEntity {
             date: status_date,
             from: seller,
             to: buyer,
+            active: true,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
@@ -127,6 +128,7 @@ export class ActivityController extends AbstractEntity {
               date: status_date,
               from: seller,
               to: buyer,
+              active: true,
             };
             const result = await activityTable.insertOne(saleActivity);
             return result
@@ -147,6 +149,7 @@ export class ActivityController extends AbstractEntity {
               date: status_date,
               from: seller,
               to: buyer,
+              active: true,
             });
             return result
               ? respond(`Successfully created a new sold with id ${activityId}`)
@@ -203,6 +206,7 @@ export class ActivityController extends AbstractEntity {
             from: buyer,
             to: seller,
             nonce,
+            active: true,
           };
           const result = await activityTable.insertOne(offer);
           if (result) {
@@ -263,6 +267,7 @@ export class ActivityController extends AbstractEntity {
             from: buyer,
             to: seller,
             nonce,
+            active: true,
           };
           const result = await activityTable.insertOne(offer);
           return result
@@ -326,6 +331,7 @@ export class ActivityController extends AbstractEntity {
             fee: fee,
             nonce,
             signature: { r: "", s: "", v: "" },
+            active: true,
           };
           const result = await activityTable.insertOne(offer);
           if (result) {
@@ -380,6 +386,8 @@ export class ActivityController extends AbstractEntity {
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.status_date = status_date;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+          activity.active = false;
+          await activityTable.replaceOne(this.findActivtyWithId(activityId), activity);
           const result = await activityTable.insertOne({
             collection: activity.collection,
             nftId: activity.nftId,
@@ -425,6 +433,8 @@ export class ActivityController extends AbstractEntity {
           if (activity.from !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
+          activity.active = false;
+          await activityTable.replaceOne(this.findActivtyWithId(activityId), activity);
           const result = await activityTable.insertOne({
             collection: activity.collection,
             nftId: activity.nftId,
