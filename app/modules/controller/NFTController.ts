@@ -107,7 +107,6 @@ export class NFTController extends AbstractEntity {
             
             let own = result.owners ?? [];
             let ownD =[];
-            console.log(own.indexOf(owner))
             if (own.indexOf(owner)==-1) own.push(result.owner)
             ownD.push(result.ownerDetail);
             result.owners=own;
