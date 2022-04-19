@@ -111,9 +111,8 @@ export class ActivityController extends AbstractEntity {
             from: seller,
             to: buyer,
           };
-          // nft.status = "Transfer";
-          nft.saleStatus=SaleStatus.NOTFORSALE,
-          nft.mintStatus=MintStatus.MINTED,
+          nft.saleStatus = SaleStatus.NOTFORSALE;
+          nft.mintStatus = MintStatus.MINTED;
           nft.owner = buyer;
           nft.status_date = status_date;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -152,9 +151,8 @@ export class ActivityController extends AbstractEntity {
           }
           if (offer.type === ActivityType.OFFERCOLLECTION) {
             const status_date = new Date().getTime();
-            // nft.status = "Sold";
-            nft.saleStatus=SaleStatus.NOTFORSALE,
-            nft.mintStatus=MintStatus.MINTED,
+            nft.saleStatus = SaleStatus.NOTFORSALE;
+            nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
             nft.status_date = status_date;
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -172,8 +170,7 @@ export class ActivityController extends AbstractEntity {
               : respond("Failed to create a new activity.", true, 501);
           } else if (offer.type === ActivityType.OFFER) {
             const status_date = new Date().getTime();
-            // nft.status = "Sold";
-            nft.saleStatus=SaleStatus.NOTFORSALE,
+            nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.owner = buyer;
             nft.status_date = status_date;
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -196,16 +193,15 @@ export class ActivityController extends AbstractEntity {
   async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
     try {
       if (this.mongodb) {
+        let prc: number = 0;
+        typeof price == "string" ? (prc = +price) : (prc = price);
 
-        let prc:number=0;
-        typeof price =='string'?prc=+price:prc=price; 
-        
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
         }
-        if (!Number(price)){
+        if (!Number(price)) {
           return respond("Incorrect Price Value", true, 422);
-        };
+        }
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
@@ -229,7 +225,7 @@ export class ActivityController extends AbstractEntity {
             collection: collectionId,
             nftId: index,
             type: ActivityType.OFFER,
-            price:prc,
+            price: prc,
             startDate: new Date().getTime(),
             endDate: endDate,
             from: buyer,
@@ -341,9 +337,7 @@ export class ActivityController extends AbstractEntity {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
           const status_date = new Date().getTime();
-          // nft.status = "For Sale";
-          nft.saleStatus=SaleStatus.FORSALE,
-          
+          nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -408,8 +402,7 @@ export class ActivityController extends AbstractEntity {
             return respond("seller isnt activity's owner.", true, 422);
           }
           const status_date = new Date().getTime();
-          // nft.status = "Minted";
-          nft.saleStatus=SaleStatus.NOTFORSALE,
+          nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.status_date = status_date;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           cancelList.type = ActivityType.CANCELED;
@@ -522,20 +515,13 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
 
-        const activityData = await activityTable.findOne({_id:new ObjectId(activityId)});
-        
-        if (!activityData){
-          return respond('Activity not found',true,422);
+        const activityData = await activityTable.findOne({ _id: new ObjectId(activityId) });
+
+        if (!activityData) {
+          return respond("Activity not found", true, 422);
         }
-        // if (activityData?.type===ActivityType.OFFER || activityData?.type===ActivityType.OFFERCOLLECTION || activityData?.type===ActivityType.SOLD || activityData?.type===ActivityType.TRANSFER ){
-        //   return respond('Cannot delete this Activity',true,422);
-        // };        
-        // const status_date = new Date().getTime();
-        // nftData.status = "Created";
-        // nftData.status_date = status_date;
-        //
+
         const result = await activityTable.remove({ _id: new ObjectId(activityId) });
-        // await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
         return result
           ? respond(`Activity with  id ${activityId} has been removed`)
           : respond("Failed to remove  activity.", true, 501);
