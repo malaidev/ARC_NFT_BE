@@ -210,6 +210,7 @@ export class NFTController extends AbstractEntity {
           aggregation = this.parseFilters(filters);
         }
         const result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
+        
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -245,15 +246,16 @@ export class NFTController extends AbstractEntity {
               return {
                 ...item,
                 collection_details: {
-                  _id: collection._id,
-                  contract: collection.contract,
-                  name: collection.name,
-                  platform: collection.platform,
+                  _id: collection?._id,
+                  contract: collection?.contract,
+                  name: collection?.name,
+                  platform: collection?.platform,
                 },
                 offer_lists: actData,
               };
             })
           );
+
           return respond(resultsNFT);
         }
         return respond("Items not found.", true, 422);
@@ -261,7 +263,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      return respond(error.message, true, 500);
+      return respond(error.message, true, 422);
     }
   }
   /**
@@ -403,12 +405,10 @@ export class NFTController extends AbstractEntity {
             ? ContentType.VIDEO
             : ContentType.IMAGE,
       };
-      console.log("-->>>>>>>>", nft);
       const result = await nftTable.insertOne(nft);
       if (result) nft._id = result.insertedId;
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
     } catch (err) {
-      console.log(err);
     }
   }
   /**
