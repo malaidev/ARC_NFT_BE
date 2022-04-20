@@ -10,6 +10,7 @@ import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
 import { v4 } from "uuid";
+import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 /**
  * This is the NFT controller class.
  * Do all the NFT's functions such as
@@ -350,71 +351,65 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
-
     try {
-    if (!ObjectId.isValid(collectionId)) {
-      return respond("Invalid Collection Id", true, 422);
+      if (!ObjectId.isValid(collectionId)) {
+        return respond("Invalid Collection Id", true, 422);
+      }
+      const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType) : "";
+      let queryArt = this.findNFTItemByArt(artIpfs);
+      const findResult = (await nftTable.findOne(queryArt)) as INFT;
+      if (findResult && findResult._id) {
+        return respond("Current nft has been created already", true, 422);
+      }
+      // let query = this.findNFTItemByArt(artFile);
+      // const findResult = (await nftTable.findOne(query)) as INFT;
+      // if (findResult && findResult._id) {
+      //   return respond("Current nft has been created already", true, 501);
+      // }
+      let query = this.findCollectionById(collectionId);
+      const collection = (await collectionTable.findOne(query)) as INFTCollection;
+      if (!collection) {
+        return respond("collection not found.", true, 422);
+      }
+      const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
+      let newIndex = sortNft ? sortNft.index + 1 : 0;
+      let own = [];
+      own.push(owner);
+      // const url = await uploadImage(artFile);
+      const nft: INFT = {
+        collection: collectionId,
+        index: newIndex,
+        owner: owner,
+        owners: own,
+        creator: owner,
+        artURI: artIpfs,
+        price: 0,
+        name: name ?? "",
+        externalLink: externalLink ?? "",
+        description: description ?? "",
+        isExplicit: isExplicit ?? false,
+        saleStatus: SaleStatus.NOTFORSALE,
+        mintStatus: MintStatus.LAZYMINTED,
+        status_date: new Date().getTime(),
+        properties: properties ? JSON.parse(properties) : {},
+        lockContent: unlockableContent,
+        tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
+        contentType:
+          contentType === "music"
+            ? ContentType.MUSIC
+            : contentType === "image"
+            ? ContentType.IMAGE
+            : contentType === "video"
+            ? ContentType.VIDEO
+            : ContentType.IMAGE,
+      };
+      console.log("-->>>>>>>>", nft);
+      const result = await nftTable.insertOne(nft);
+      if (result) nft._id = result.insertedId;
+      return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
+    } catch (err) {
+      console.log(err);
     }
-
-    
-    // const artIpfs = artFile ? await uploadImageBase64({ name: artName, img: artFile }) : "";
-    const artIpfs = artFile? await uploadImage({name:artName,img:artFile,contentType:mimeType}):"";
-    let queryArt = this.findNFTItemByArt(artIpfs);
-    const findResult = (await nftTable.findOne(queryArt)) as INFT;
-    if (findResult && findResult._id) {
-      return respond("Current nft has been created already", true, 422);
-    }
-    // let query = this.findNFTItemByArt(artFile);
-    // const findResult = (await nftTable.findOne(query)) as INFT;
-    // if (findResult && findResult._id) {
-    //   return respond("Current nft has been created already", true, 501);
-    // }
-    let query = this.findCollectionById(collectionId);
-    const collection = (await collectionTable.findOne(query)) as INFTCollection;
-    if (!collection) {
-      return respond("collection not found.", true, 422);
-    }
-    const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
-    let newIndex = sortNft ? sortNft.index + 1 : 0;
-    let own = [];
-    own.push(owner);
-    // const url = await uploadImage(artFile);
-    const nft: INFT = {
-      collection: collectionId,
-      index: newIndex,
-      owner: owner,
-      owners: own,
-      creator: owner,
-      artURI: artIpfs,
-      price: 0,
-      name: name ?? "",
-      externalLink: externalLink ?? "",
-      description: description ?? "",
-      isExplicit: isExplicit ?? false,
-      saleStatus: SaleStatus.NOTFORSALE,
-      mintStatus: MintStatus.LAZYMINTED,
-      status_date: new Date().getTime(),
-      properties: properties?JSON.parse(properties): {},
-      lockContent: unlockableContent,
-      tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType:
-        contentType === "music"
-          ? ContentType.MUSIC
-          : contentType === "image"
-          ? ContentType.IMAGE
-          : contentType === "video"
-          ? ContentType.VIDEO
-          : ContentType.IMAGE,
-    };
-
-
-    console.log('-->>>>>>>>',nft)
-    const result = await nftTable.insertOne(nft);
-    if (result) nft._id = result.insertedId;
-    return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
-  } catch(err){
-    console.log(err);
-  }
   }
   /**
    * Delete  collection

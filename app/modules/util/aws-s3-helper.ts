@@ -4,18 +4,18 @@ const s3_key=config.aws.s3_key;
 const s3_secret=config.aws.s3_secret;
 const s3_bucket = config.aws.s3_user_bucket;
 const configParams={accessKeyId:s3_key,secretAccessKey: s3_secret,signatureVersion: 'v4'};
-export const S3uploadImageBase64 = async(data,wallet) => {
+export const S3uploadImageBase64 = async(data,fileName,contentType) => {
     const base64Data = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
     const type = data.split(';')[0].split('/')[1];
     AWS.config.update(configParams);
     const s3bucket = new AWS.S3({accessKeyId:s3_key,secretAccessKey:s3_secret});
     const params = {
         Bucket: s3_bucket,
-        Key: `pp_${wallet}.${type}`,
+        Key:  `${fileName}.${type}`,
         Body: base64Data,
         ACL: 'public-read', // change to public
         ContentEncoding: 'base64', // required
-        ContentType: `image/${type}` // required. Notice the back ticks
+        ContentType: contentType??`image/${type}` // required. Notice the back ticks
       }
       let location = '';
       let key = '';
@@ -30,6 +30,8 @@ export const S3uploadImageBase64 = async(data,wallet) => {
       // return location url 
       return location;
 }
+
+
 export const S3GetSignedUrl=async(key)=>{
     AWS.config.update(configParams);
     const s3bucket = new AWS.S3({accessKeyId:s3_key,secretAccessKey:s3_secret});

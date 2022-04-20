@@ -8,6 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
+import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -543,17 +544,10 @@ export class NFTCollectionController extends AbstractEntity {
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
       else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
-      /** Upload contains nft picture into moralis */
-      // const logoIpfs = logoFile ? await uploadImageBase64({ name: logoName, img: `${logoFile}_${Date.now()}` }) : "";
-      const logoIpfs = logoFile ? await uploadImage({ name: logoName, img: logoFile, contentType:logoMimetype}) : "";
-      // const featuredIpfs = featuredImgFile
-      //   ? await uploadImageBase64({ name: featureName, img: `${featuredImgFile}_${Date.now()}` })
-      //   : "";
-      const featuredIpfs = featuredImgFile? await uploadImage({ name: featureName, img: featuredImgFile,contentType:featuredMimetype }): "";
-      // const bannerIpfs = bannerImgFile
-      //   ? await uploadImageBase64({ name: bannerName, img: `${bannerImgFile}_${Date.now()}` })
-      //   : "";
-      const bannerIpfs = bannerImgFile? await uploadImage({ name: bannerName, img:bannerImgFile,contentType:bannerMimetype }): "";
+      const logoIpfs=logoFile? await S3uploadImageBase64(logoFile,`${logoName}_${Date.now()}`,logoMimetype):"";
+      const featuredIpfs= featuredImgFile?await S3uploadImageBase64(featuredImgFile,`${featureName}_${Date.now()}`,featuredMimetype):"";
+      const bannerIpfs = bannerImgFile?await S3uploadImageBase64(bannerImgFile,`${bannerName}_${Date.now()}`,bannerMimetype):"";
+      
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
