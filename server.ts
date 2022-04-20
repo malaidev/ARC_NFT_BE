@@ -47,6 +47,9 @@ async function mount() {
 
   await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
+  // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
+
+
   if (process.env.ENV !== "production") {
     await app.register(SwaggerPlugin, {
       routePrefix: "/doc",
