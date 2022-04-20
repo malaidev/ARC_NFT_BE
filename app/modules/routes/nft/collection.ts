@@ -2,17 +2,14 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
 import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
-
 export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
   const keyword = req.query["keyword"] as string;
   const ctl = new NFTCollectionController();
-
   const result = await ctl.searchCollectionsItems(keyword, filters);
   res.send(result);
 };
-
 export const getCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
@@ -23,7 +20,6 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
   const result = await ctl.getCollections(filters);
   res.send(result);
 };
-
 export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
@@ -34,7 +30,6 @@ export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) 
   const result = await ctl.getTopCollections(filters);
   res.send(result);
 };
-
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
@@ -44,7 +39,6 @@ export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.getItems(collectionId, filters);
   res.send(result);
 };
-
 export const deleteCollection = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
@@ -52,14 +46,12 @@ export const deleteCollection = async (req: FastifyRequest, res: FastifyReply) =
   const result = await ctl.deleteCollection(collectionId, userSession.walletId.toLowerCase());
   res.send(result);
 };
-
 export const getOwners = async (req: FastifyRequest, res: FastifyReply) => {
   const collectionId = req.params["collectionId"] as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getOwners(collectionId);
   res.send(result);
 };
-
 export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const collectionId = req.params["collectionId"] as any;
   const query = req.url.split("?")[1];
@@ -69,7 +61,6 @@ export const getHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.getHistory(collectionId, filters);
   res.send(result);
 };
-
 export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
   const collectionId = req.params["collectionId"] as any;
   const query = req.url.split("?")[1];
@@ -79,54 +70,44 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.getActivity(collectionId, filters);
   res.send(result);
 };
-
 export const createCollection = async (req, res) => {
   if (req.body && !req.body.logoFile) {
     throw new Error("logoUrl is invalid or missing");
   }
-
   let logoBody: any = null;
   let featuredImgBody: any = null;
   let bannerImgBody: any = null;
   let logoMimetype:any=null;
   let featuredMimetype:any=null;
   let bannerMimetype:any=null;
-
-
   if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
-     logoBody=await  req.body.logoFile.toBuffer();
+    //  logoBody=await  req.body.logoFile.toBuffer();
      logoMimetype= req.body.logoFile.mimetype;
-  //   logoBody =
-  //     "data:" +
-  //     req.body.logoFile.mimetype +
-  //     ";base64," +
-  //     Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
+     logoBody =
+      "data:" +
+      req.body.logoFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
   }
-
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
-     featuredImgBody= await req.body.featuredImgFile.toBuffer();
+    //  featuredImgBody= await req.body.featuredImgFile.toBuffer();
      featuredMimetype=req.body.featuredImgFile.mimetype;
-
-    // featuredImgBody =
-    //   "data:" +
-    //   req.body.featuredImgFile.mimetype +
-    //   ";base64," +
-    //   Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
+    featuredImgBody =
+      "data:" +
+      req.body.featuredImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
   }
   if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
-
-    bannerImgBody= await req.body.bannerImgFile.toBuffer();
+    // bannerImgBody= await req.body.bannerImgFile.toBuffer();
     bannerMimetype=req.body.bannerImgFile.mimetype;
-    
-    // bannerImgBody =
-    //   "data:" +
-    //   req.body.bannerImgFile.mimetype +
-    //   ";base64," +
-    //   Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
+    bannerImgBody =
+      "data:" +
+      req.body.bannerImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
   }
-
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
-
   body.logoFile = logoBody;
   body.featuredImgFile = featuredImgBody;
   body.bannerImgFile = bannerImgBody;
@@ -137,7 +118,6 @@ export const createCollection = async (req, res) => {
   body.bannerName = bannerImgBody
     ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
     : "";
-
   const ctl = new NFTCollectionController();
   const result = await ctl.createCollection(
     body.logoFile,
@@ -165,14 +145,12 @@ export const createCollection = async (req, res) => {
   );
   res.send(result);
 };
-
 export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollectionDetail(collectionId);
   res.send(result);
 };
-
 export const getCollectionByUrl = async (req: FastifyRequest, res: FastifyReply) => {
   const { url } = req.params as any;
   const ctl = new NFTCollectionController();

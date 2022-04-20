@@ -152,13 +152,10 @@ export const createItem = async (req, res) => {
   const user = req["session"] as any;
   let artBody: any = null;
   if (req.body && req.body.artFile && req.body.artFile.value !== "") {
-    artBody=await req.body.artFile.toBuffer()
-  //   // const dataImg = Array.from(Buffer.from(req.body.artFile, 'binary'));
-  //   // console.log(dataImg)
-  //   artBody =
-  //     "data:" + req.body.artFile.mimetype +
-  //     ";base64," +
-  //     Buffer.from(await req.body.artFile.toBuffer()).toString("base64"); // access files
+    artBody =
+      "data:" + req.body.artFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.artFile.toBuffer()).toString("base64"); // access files
   }
   let contentType = req.body.artFile.mimetype.substring(0, req.body.artFile.mimetype.lastIndexOf("/"));
   let mimeType = req.body.artFile.mimetype;
