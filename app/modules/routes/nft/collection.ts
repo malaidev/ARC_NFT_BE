@@ -88,28 +88,41 @@ export const createCollection = async (req, res) => {
   let logoBody: any = null;
   let featuredImgBody: any = null;
   let bannerImgBody: any = null;
+  let logoMimetype:any=null;
+  let featuredMimetype:any=null;
+  let bannerMimetype:any=null;
+
 
   if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
-    logoBody =
-      "data:" +
-      req.body.logoFile.mimetype +
-      ";base64," +
-      Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
+     logoBody=await  req.body.logoFile.toBuffer();
+     logoMimetype= req.body.logoFile.mimetype;
+  //   logoBody =
+  //     "data:" +
+  //     req.body.logoFile.mimetype +
+  //     ";base64," +
+  //     Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
   }
 
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
-    featuredImgBody =
-      "data:" +
-      req.body.featuredImgFile.mimetype +
-      ";base64," +
-      Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
+     featuredImgBody= await req.body.featuredImgFile.toBuffer();
+     featuredMimetype=req.body.featuredImgFile.mimetype;
+
+    // featuredImgBody =
+    //   "data:" +
+    //   req.body.featuredImgFile.mimetype +
+    //   ";base64," +
+    //   Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
   }
   if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
-    bannerImgBody =
-      "data:" +
-      req.body.bannerImgFile.mimetype +
-      ";base64," +
-      Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
+
+    bannerImgBody= await req.body.bannerImgFile.toBuffer();
+    bannerMimetype=req.body.bannerImgFile.mimetype;
+    
+    // bannerImgBody =
+    //   "data:" +
+    //   req.body.bannerImgFile.mimetype +
+    //   ";base64," +
+    //   Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
   }
 
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
@@ -145,7 +158,10 @@ export const createCollection = async (req, res) => {
     body.creatorId,
     body.logoName,
     body.featureName,
-    body.bannerName
+    body.bannerName,
+    logoMimetype,
+    featuredMimetype,
+    bannerMimetype
   );
   res.send(result);
 };

@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { uploadImageBase64 } from "../util/morailsHelper";
+import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -67,20 +67,16 @@ export class NFTCollectionController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
-
         let SK = keyword.split(" ");
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {
           return new RegExp(e, "igm");
         });
-
         // let aggregation = [] as any;
         // if (filters) {
         //   aggregation = this.parseFilters(filters);
         // }
-
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
-
         const result = (await collectionTable
           .find({
             $or: [
@@ -88,7 +84,6 @@ export class NFTCollectionController extends AbstractEntity {
               { description: { $in: searchKeyword } },
               { blockchain: { $regex: new RegExp(keyword, "igm") } },
               { category: { $in: searchKeyword } },
-
               { platform: { $in: searchKeyword } },
               { links: { $in: searchKeyword } },
               { "properties.name": { $in: searchKeyword } },
@@ -96,7 +91,6 @@ export class NFTCollectionController extends AbstractEntity {
             ],
           })
           .toArray()) as Array<INFTCollection>;
-
         let collections = [];
         if (result) {
           collections = await Promise.all(
@@ -105,13 +99,11 @@ export class NFTCollectionController extends AbstractEntity {
               let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
-
               nfts.forEach((nft) => {
                 volume += nft.price;
                 if (floorPrice > nft.price) floorPrice = nft.price;
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
-
               const { _24h, todayTrade } = await this.get24HValues(collection.contract);
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
               floorPrice = await this.getFloorPrice(`${collection._id}`);
@@ -144,9 +136,7 @@ export class NFTCollectionController extends AbstractEntity {
             })
           );
         }
-
         // const resultNft = (await nftTable.aggregate(aggregationNft).toArray()) as Array<INFTCollection>;
-
         const resultNft = (await nftTable
           .find({
             $or: [
@@ -178,7 +168,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async getCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -244,7 +233,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async getTopCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -310,7 +298,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get owner list in collection
    *
@@ -346,7 +333,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get item list in collection
    *
@@ -364,7 +350,6 @@ export class NFTCollectionController extends AbstractEntity {
         const query = this.findCollectionItem(collectionId);
         let aggregation = [] as any;
         const result = await this.findOne(query);
-
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
@@ -386,7 +371,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get all activities (bids and transfer) of NFT items in collection
    *
@@ -425,7 +409,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get transfer history of NFT items in collection
    *
@@ -461,7 +444,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Create new collection - save to MongoDB
    * It check collection is in database, then fail
@@ -503,7 +485,10 @@ export class NFTCollectionController extends AbstractEntity {
     creatorId,
     logoName,
     featureName,
-    bannerName
+    bannerName,
+    logoMimetype,
+    featuredMimetype,
+    bannerMimetype
   ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -541,13 +526,16 @@ export class NFTCollectionController extends AbstractEntity {
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
       else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
       /** Upload contains nft picture into moralis */
-      const logoIpfs = logoFile ? await uploadImageBase64({ name: logoName, img: `${logoFile}_${Date.now()}` }) : "";
-      const featuredIpfs = featuredImgFile
-        ? await uploadImageBase64({ name: featureName, img: `${featuredImgFile}_${Date.now()}` })
-        : "";
-      const bannerIpfs = bannerImgFile
-        ? await uploadImageBase64({ name: bannerName, img: `${bannerImgFile}_${Date.now()}` })
-        : "";
+      // const logoIpfs = logoFile ? await uploadImageBase64({ name: logoName, img: `${logoFile}_${Date.now()}` }) : "";
+      const logoIpfs = logoFile ? await uploadImage({ name: logoName, img: logoFile, contentType:logoMimetype}) : "";
+      // const featuredIpfs = featuredImgFile
+      //   ? await uploadImageBase64({ name: featureName, img: `${featuredImgFile}_${Date.now()}` })
+      //   : "";
+      const featuredIpfs = featuredImgFile? await uploadImage({ name: featureName, img: featuredImgFile,contentType:featuredMimetype }): "";
+      // const bannerIpfs = bannerImgFile
+      //   ? await uploadImageBase64({ name: bannerName, img: `${bannerImgFile}_${Date.now()}` })
+      //   : "";
+      const bannerIpfs = bannerImgFile? await uploadImage({ name: bannerName, img:bannerImgFile,contentType:bannerMimetype }): "";
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
@@ -576,7 +564,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(e.message, true, 500);
     }
   }
-
   /**
    * Get collection detail information with items, activity
    * @param collectionId collection Id
@@ -593,7 +580,6 @@ export class NFTCollectionController extends AbstractEntity {
     }
     const activities = await activityTable.find({ collection: collectionId }).toArray();
     collection.activities = activities;
-
     const nfts = await nftTable.find({ collection: collectionId }).toArray();
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
@@ -610,7 +596,6 @@ export class NFTCollectionController extends AbstractEntity {
     collection.creatorDetail = creator;
     return respond(collection);
   }
-
   /**
    * Get collection detail information with items, activity
    * @param collectionId collection Id
@@ -628,7 +613,6 @@ export class NFTCollectionController extends AbstractEntity {
     const activities = await activityTable.find({ collection: `${collection._id}` }).toArray();
     collection.activities = activities;
     const nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
-
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
@@ -644,29 +628,23 @@ export class NFTCollectionController extends AbstractEntity {
     collection.creatorDetail = creator;
     return respond(collection);
   }
-
   /**
    * Delete  collection
    * @param collectionId collection Id
    * @returns
    */
-
   async deleteCollection(collectionId: string, ownerId: string) {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
-
     try {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid CollectionId", true, 422);
       }
-
       const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
       if (!collection) {
         return respond("Collection Not found", true, 422);
       }
-
       const nftData = await nftTable.findOne({ collection: collectionId }, { limit: 1 });
-
       if (nftData) {
         return respond("This collection has Items", true, 422);
       }
@@ -676,7 +654,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(e.message, true, 401);
     }
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -687,7 +664,6 @@ export class NFTCollectionController extends AbstractEntity {
       _id: new ObjectId(collectionId),
     };
   }
-
   /**
    * Mounts a generic query to find a collection by contract address.
    * @param contract
@@ -698,7 +674,6 @@ export class NFTCollectionController extends AbstractEntity {
       name: name,
     };
   }
-
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param address
@@ -709,7 +684,6 @@ export class NFTCollectionController extends AbstractEntity {
       wallet: address,
     };
   }
-
   /**
    * Mounts a generic query to find a person by wallet address.
    * @param contract
@@ -720,7 +694,6 @@ export class NFTCollectionController extends AbstractEntity {
       _id: new ObjectId(id),
     };
   }
-
   private async get24HValues(address: string) {
     const activityTable = this.mongodb.collection(this.activityTable);
     const soldList = (await activityTable.find({ collection: address }).toArray()) as Array<IActivity>;
@@ -741,7 +714,6 @@ export class NFTCollectionController extends AbstractEntity {
     else _24h = (todayTrade / yesterDayTrade) * 100;
     return { _24h, todayTrade };
   }
-
   private async getFloorPrice(collection: string) {
     const actTable = this.mongodb.collection(this.activityTable);
     const fList = (await actTable
