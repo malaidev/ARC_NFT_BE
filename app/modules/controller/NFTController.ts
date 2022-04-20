@@ -301,10 +301,10 @@ export class NFTController extends AbstractEntity {
               return {
                 ...item,
                 collection_details: {
-                  _id: collection._id,
-                  contract: collection.contract,
-                  name: collection.name,
-                  platform: collection.platform,
+                  _id: collection?._id,
+                  contract: collection?.contract,
+                  name: collection?.name,
+                  platform: collection?.platform,
                 },
                 counts: activity.length,
               };
@@ -317,6 +317,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
