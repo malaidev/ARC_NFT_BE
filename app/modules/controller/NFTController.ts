@@ -350,9 +350,13 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
+
+    try {
     if (!ObjectId.isValid(collectionId)) {
       return respond("Invalid Collection Id", true, 422);
     }
+
+    
     // const artIpfs = artFile ? await uploadImageBase64({ name: artName, img: artFile }) : "";
     const artIpfs = artFile? await uploadImage({name:artName,img:artFile,contentType:mimeType}):"";
     let queryArt = this.findNFTItemByArt(artIpfs);
@@ -390,7 +394,7 @@ export class NFTController extends AbstractEntity {
       saleStatus: SaleStatus.NOTFORSALE,
       mintStatus: MintStatus.LAZYMINTED,
       status_date: new Date().getTime(),
-      properties: JSON.parse(properties) ?? {},
+      properties: properties?JSON.parse(properties): {},
       lockContent: unlockableContent,
       tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
       contentType:
@@ -402,9 +406,15 @@ export class NFTController extends AbstractEntity {
           ? ContentType.VIDEO
           : ContentType.IMAGE,
     };
+
+
+    console.log('-->>>>>>>>',nft)
     const result = await nftTable.insertOne(nft);
     if (result) nft._id = result.insertedId;
     return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
+  } catch(err){
+    console.log(err);
+  }
   }
   /**
    * Delete  collection
