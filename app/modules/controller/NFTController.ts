@@ -210,7 +210,7 @@ export class NFTController extends AbstractEntity {
           aggregation = this.parseFilters(filters);
         }
         const result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
-        
+
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -250,6 +250,7 @@ export class NFTController extends AbstractEntity {
                   contract: collection?.contract,
                   name: collection?.name,
                   platform: collection?.platform,
+                  logoURL: collection?.logoUrl,
                 },
                 offer_lists: actData,
               };
@@ -305,6 +306,7 @@ export class NFTController extends AbstractEntity {
                   contract: collection?.contract,
                   name: collection?.name,
                   platform: collection?.platform,
+                  logoURL: collection?.logoUrl,
                 },
                 counts: activity.length,
               };
@@ -409,8 +411,7 @@ export class NFTController extends AbstractEntity {
       const result = await nftTable.insertOne(nft);
       if (result) nft._id = result.insertedId;
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
-    } catch (err) {
-    }
+    } catch (err) {}
   }
   /**
    * Delete  collection
