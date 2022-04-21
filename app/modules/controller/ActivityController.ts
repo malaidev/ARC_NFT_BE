@@ -99,17 +99,17 @@ export class ActivityController extends AbstractEntity {
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         console.log(nft);
         if (nft) {
-          if (nft.owner !== seller) {
+          if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
           const offer = (await activityTable.findOne(this.findActivtyWithId(activityId))) as IActivity;
           if (!offer || offer.collection !== collectionId || offer.nftId !== index) {
             return respond("Offer id is invalid", true, 422);
           }
-          if (offer.to != seller) {
+          if (offer.to.toLowerCase() != seller.toLowerCase()) {
             return respond("seller isnt offer's seller", true, 422);
           }
-          if (offer.from != buyer) {
+          if (offer.from.toLowerCase() != buyer.toLowerCase()) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
           if (offer.type === ActivityType.OFFERCOLLECTION) {
@@ -327,7 +327,7 @@ export class ActivityController extends AbstractEntity {
                 startDate: new Date().getTime(),
                 endDate: endDate,
                 from: buyer,
-                to: seller,
+                to: item.owner,
                 nonce,
                 active: true,
                 offerCollection: collId,
