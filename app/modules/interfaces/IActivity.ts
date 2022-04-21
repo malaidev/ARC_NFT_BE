@@ -14,6 +14,7 @@ export interface IActivity {
   nonce?: number; // Nonce
   signature?: object; // signature of activity
   active?: boolean;
+  offerCollection?:number;
 }
 
 export enum ActivityType {
