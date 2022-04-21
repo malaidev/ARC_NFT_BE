@@ -312,10 +312,8 @@ export class ActivityController extends AbstractEntity {
           };
           let nftUpdate = [];
           nftUpdate = await Promise.all(
-
-            nft.map(async (item) => {
+            nfts.map(async (item) => {
               const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
- 
               const nonce = sortAct ? sortAct.nonce + 1 : 0;
               sortAct.nonce = nonce;
               await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
