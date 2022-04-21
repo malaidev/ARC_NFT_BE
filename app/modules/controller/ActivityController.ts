@@ -3,9 +3,11 @@ import { AbstractEntity } from "../abstract/AbstractEntity";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFT, MintStatus, SaleStatus } from "../interfaces/INFT";
 import { INFTCollection, OfferStatusType } from "../interfaces/INFTCollection";
+
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
+
 export class ActivityController extends AbstractEntity {
   protected data: IActivity;
   protected table: string = "Activity";
@@ -202,14 +204,18 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        const ownTable = this.mongodb.collection(this.ownerTable);
+
+        const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
         
-        const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
 
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          sortAct.nonce = nonce;
+          await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const offer: IActivity = {
             collection: collectionId,
@@ -270,18 +276,22 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
-        
+        const ownTable = this.mongodb.collection(this.ownerTable);
+
         const nft = (await nftTable.find({ collection: collectionId, saleStatus:SaleStatus.FORSALE}).toArray()) as Array<INFT>;
         if (nft && nft.length==0){
           return respond("No Item  For Sale ", true, 501);
         }
-
-        const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+        
+        // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+        const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
         if (collection) {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          sortAct.nonce = nonce;
+          await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
           let collId = Date.now();
           collection.offerStatus = OfferStatusType.OFFERED;
           await collectionTable.replaceOne(this.findCollectionById(collectionId), collection);
@@ -300,8 +310,10 @@ export class ActivityController extends AbstractEntity {
           let nftUpdate = [];
           nftUpdate = await Promise.all(
             nft.map(async (item) => {
-              const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+              const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
               const nonce = sortAct ? sortAct.nonce + 1 : 0;
+              sortAct.nonce = nonce;
+              await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
               await nftTable.replaceOne(this.findNFTItem(collectionId, item.index), item);
               const collOffer: IActivity = {
                 collection: collectionId,
@@ -370,8 +382,13 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
+        const ownTable = this.mongodb.collection(this.ownerTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+        
+        // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+        const sortAct = await ownTable.findOne({wallet:seller.toLowerCase()});
+
+        
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -383,6 +400,8 @@ export class ActivityController extends AbstractEntity {
           nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          sortAct.nonce = nonce;
+          await ownTable.replaceOne({wallet:seller.toLowerCase()},sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const offer: IActivity = {
             collection: collectionId,
