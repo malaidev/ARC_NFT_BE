@@ -97,6 +97,7 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        console.log(nft);
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -105,10 +106,10 @@ export class ActivityController extends AbstractEntity {
           if (!offer || offer.collection !== collectionId || offer.nftId !== index) {
             return respond("Offer id is invalid", true, 422);
           }
-          if (offer.from != seller) {
+          if (offer.to != seller) {
             return respond("seller isnt offer's seller", true, 422);
           }
-          if (offer.to != buyer) {
+          if (offer.from != buyer) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
           if (offer.type === ActivityType.OFFERCOLLECTION) {
@@ -150,7 +151,7 @@ export class ActivityController extends AbstractEntity {
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
             const result = await activityTable.insertOne(saleActivity);
             return result
-              ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
+              ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
               : respond("Failed to create a new activity.", true, 501);
           } else if (offer.type === ActivityType.OFFER) {
             const status_date = new Date().getTime();
@@ -174,7 +175,7 @@ export class ActivityController extends AbstractEntity {
               : respond("Failed to create a new activity.", true, 501);
           }
         }
-        return respond("nft not found.", true, 422);
+        
       } else {
         throw new Error("Could not connect to the database.");
       }
