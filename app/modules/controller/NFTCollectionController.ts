@@ -354,8 +354,12 @@ export class NFTCollectionController extends AbstractEntity {
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
+        if (!result){
+          return respond("collection items not found.", true, 422);
+        }
         // const nfts = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
         const nfts = (await nftTable.find({ collection: collectionId }).toArray()) as Array<INFT>;
+        console.log(nfts);
         if (nfts) {
           result.nfts = nfts;
         } else {
@@ -369,6 +373,7 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
