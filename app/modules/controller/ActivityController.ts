@@ -202,7 +202,9 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -289,8 +291,8 @@ export class ActivityController extends AbstractEntity {
             price: price,
             startDate: new Date().getTime(),
             endDate: endDate,
-            from: seller,
-            to: buyer,
+            from: buyer,
+            to: seller,
             nonce,
             active: true,
             offerCollection: collId,
