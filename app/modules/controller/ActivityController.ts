@@ -213,7 +213,7 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
-          const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -289,7 +289,7 @@ export class ActivityController extends AbstractEntity {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
-          const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
           let collId = Date.now();
@@ -399,7 +399,7 @@ export class ActivityController extends AbstractEntity {
           const status_date = new Date().getTime();
           nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
-          const nonce = sortAct ? sortAct.nonce + 1 : 0;
+          const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:seller.toLowerCase()},sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -506,12 +506,12 @@ export class ActivityController extends AbstractEntity {
           if (
             activity.collection !== collectionId ||
             activity.nftId !== index ||
-            activity.from != seller ||
-            activity.to != buyer
+            activity.to != seller ||
+            activity.from != buyer
           ) {
             return respond("Invalid activity Id", true, 422);
           }
-          if (activity.from !== seller) {
+          if (activity.to !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
           activity.active = false;

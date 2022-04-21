@@ -88,9 +88,9 @@ export const cancelListForSale = async (req: FastifyRequest, res: FastifyReply) 
 export const makeCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, seller, buyer, price, endDate } = req.body as any;
   const ctl = new ActivityController();
-  if (typeof price =='string' ){
-    return res.send(respond('price must be numeric',true,402));
-  }
+  const owner = new NFTOwnerController();
+  const findPerson=await owner.findPerson(buyer);
+
   const result = await ctl.makeCollectionOffer(collectionId, seller, buyer, price, endDate);
   res.send(result);
 };
