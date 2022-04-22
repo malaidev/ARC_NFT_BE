@@ -50,7 +50,7 @@ async function mount() {
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
 
 
-  if (process.env.ENV !== "production") {
+  if (process.env.ENV === "dev") {
     await app.register(SwaggerPlugin, {
       routePrefix: "/doc",
       mode: "static",
@@ -64,15 +64,15 @@ async function mount() {
       },
       swagger: {
         info: {
-          title: "DEPO API",
-          description: "REST API DEPO documentation",
+          title: "ARC API",
+          description: "REST API ARC documentation",
           version: "1.0.0",
         },
         externalDocs: {
           url: "https://swagger.io",
           description: "Find more info here",
         },
-        host: "staging.api.depo.io:443",
+        host: "staging.api.arc.market:443",
         schemes: ["http", "https"],
         consumes: ["application/json"],
         produces: ["application/json"],
