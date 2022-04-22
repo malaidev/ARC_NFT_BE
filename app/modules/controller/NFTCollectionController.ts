@@ -395,21 +395,30 @@ export class NFTCollectionController extends AbstractEntity {
             aggregation.push({ $match: { collection: collectionId } });
           }
           const activities = await activityTable.aggregate(aggregation).toArray();
+          console.log(activities);
+          let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
-              if (activity.type==ActivityType.OFFERCOLLECTION){
-                const nft = await nftTable.find({ collection: activity.collection},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
 
+
+              // if (activity.type==ActivityType.OFFERCOLLECTION && activity.nftId){
+              if (activity && activity.nftId>=0){
+                console.log(activity);
+                // const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
+                const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}) as INFT
                   activity.nftObject =nft
-                  return activity;
-              }else{
-                const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-                activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
-                return activity;
+                  return rstAct.push(activity)
               }
+              // else{
+
+
+              //   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
+              //   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
+              //   return activity;
+              // }
             })
           );
-          return respond(detailedActivity);
+          return respond(rstAct);
         }
         return respond("Activities not found.", true, 422);
       } else {

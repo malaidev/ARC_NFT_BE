@@ -359,7 +359,7 @@ export class ActivityController extends AbstractEntity {
             to: seller,
             nonce,
             active: true,
-            offerCollection: collId,
+            offerCollection: collId
           };
           let nftUpdate = [];
           nftUpdate = await Promise.all(
@@ -386,6 +386,9 @@ export class ActivityController extends AbstractEntity {
               return item;
             })
           );
+
+
+          
           const result = await activityTable.insertOne(offer);
           if (result) {
             const findData = await activityTable.findOne({
