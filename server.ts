@@ -50,7 +50,7 @@ async function mount() {
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
 
 
-  if (process.env.ENV !== "production") {
+  if (process.env.ENV === "dev") {
     await app.register(SwaggerPlugin, {
       routePrefix: "/doc",
       mode: "static",
