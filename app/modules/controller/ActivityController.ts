@@ -50,12 +50,22 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string,price:number) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        const collData = await collTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
+        let prc: number = 0;
+        let vol:number=0;
+        if (collData && collData.volume){
+          typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
+        }
+        if (!price) prc=0;
+        typeof price == "string" ? (prc = +price) : (prc = price);
+
         if (nft) {
           if (nft.owner !== seller) {
             return respond("from wallet isnt nft's owner.", true, 422);
@@ -63,6 +73,7 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner == buyer) {
             return respond("destination wallet is nft's owner", true, 422);
           }
+
           const status_date = new Date().getTime();
           const transfer: IActivity = {
             collection: collectionId,
@@ -70,12 +81,15 @@ export class ActivityController extends AbstractEntity {
             type: ActivityType.TRANSFER,
             date: status_date,
             from: seller,
+            price:prc,
             to: buyer,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
           nft.owner = buyer;
           nft.status_date = status_date;
+          collData.volume=vol+prc;
+          await collTable.replaceOne(this.findCollectionById(collectionId),collData);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           await activityTable.updateMany(
             {
@@ -83,6 +97,7 @@ export class ActivityController extends AbstractEntity {
               active: true,
               from: seller,
               to: buyer,
+              price:prc,
               $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
             },
             { $set: { active: false } }
@@ -105,8 +120,14 @@ export class ActivityController extends AbstractEntity {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        const collTable = this.mongodb.collection(this.collectionTable);
+        const collData = await collTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        console.log(nft);
+        let prc:number=0;
+        let vol:number=0;
+        if (collData && collData.volume){
+          typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
+        }
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -121,6 +142,7 @@ export class ActivityController extends AbstractEntity {
           if (offer.from.toLowerCase() != buyer.toLowerCase()) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
+          typeof offer.price=="string"?(prc=+offer.price):(prc=offer.price);
           if (offer.type === ActivityType.OFFERCOLLECTION) {
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
@@ -141,17 +163,30 @@ export class ActivityController extends AbstractEntity {
               .toArray();
             const actUpdate = await Promise.all(
               actData.map(async (item) => {
-                if (item._id !== offer._id) {
+                if (item._id == offer._id) {
+                  await activityTable.insertOne({
+                    collection: item.collection,
+                    nftId: item.nftId,
+                    type: ActivityType.SALE,
+                    price: prc,
+                    date: new Date().getTime(),
+                    from: item.from,
+                    to: item.to,
+                  });
+                  collData.volume=vol+prc;
+                  await collTable.replaceOne(this.findCollectionById(collectionId),collData);
+                }else{
                   item.active = false;
                   await activityTable.replaceOne(this.findActivtyWithId(item._id), item);
                   await activityTable.insertOne({
                     collection: item.collection,
                     nftId: item.nftId,
                     type: ActivityType.CANCELOFFER,
-                    price: item.price,
+                    price: prc,
                     date: new Date().getTime(),
                     from: item.from,
                     to: item.to,
+                    
                   });
                 }
                 return item;
@@ -163,10 +198,13 @@ export class ActivityController extends AbstractEntity {
               ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
               : respond("Failed to create a new activity.", true, 501);
           } else if (offer.type === ActivityType.OFFER) {
+            
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.owner = buyer;
             nft.status_date = status_date;
+            collData.volume=vol+prc;
+            await collTable.replaceOne(this.findCollectionById(collectionId),collData);
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
             offer.type = ActivityType.SALE;
             offer.date = status_date;
@@ -177,12 +215,15 @@ export class ActivityController extends AbstractEntity {
               date: status_date,
               from: seller,
               to: buyer,
+              price:prc,
               active: true,
             });
             return result
               ? respond(`Successfully created a new sold with id ${activityId}`)
               : respond("Failed to create a new activity.", true, 501);
           }
+        }else{
+          return respond("Item not found", true, 501);
         }
         
       } else {
