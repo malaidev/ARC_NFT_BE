@@ -71,13 +71,22 @@ export class ActivityController extends AbstractEntity {
             date: status_date,
             from: seller,
             to: buyer,
-            active: true,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
           nft.owner = buyer;
           nft.status_date = status_date;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+          await activityTable.updateMany(
+            {
+              collection: collectionId,
+              active: true,
+              from: seller,
+              to: buyer,
+              $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+            },
+            { $set: { active: false } }
+          );
           const result = await activityTable.insertOne(transfer);
           return result
             ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
