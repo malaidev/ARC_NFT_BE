@@ -62,7 +62,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/url/:url", getCollectionByUrl);
   router.get("/collection/:collectionId/items", config.routeParamsValidation(), getItems);
   router.get("/collection/:collectionId/owners", config.routeParamsValidation(), getOwners);
-  router.get("/collection/:collectionId/history", config.routeParamsValidation(), getHistory);
+  router.get("/collection/:collectionId/history", config.routeParamsValidation(), getActivities);
   router.get("/collection/:collectionId/activity", config.routeParamsValidation(), getActivities);
   router.get("/collection/:collectionId", config.routeParamsValidation(), getCollectionDetail);
   router.delete("/collection/:collectionId", config.route("jwt"), deleteCollection);
