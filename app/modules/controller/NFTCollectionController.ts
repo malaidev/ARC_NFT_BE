@@ -495,7 +495,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param creatorId
    * @returns result of creation
    */
-  async createCollection(
+  async   createCollection(
     logoFile,
     featuredImgFile,
     bannerImgFile,
