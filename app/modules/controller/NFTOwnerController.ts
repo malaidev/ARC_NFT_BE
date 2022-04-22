@@ -15,6 +15,7 @@ export class NFTOwnerController extends AbstractEntity {
   protected nftTable = "NFT" as string;
   protected historyTable = "Activity" as string;
   protected collectionTable = "NFTCollection" as string;
+  
   constructor(user?: IPerson) {
     super();
     this.data = user;
@@ -235,6 +236,7 @@ export class NFTOwnerController extends AbstractEntity {
         const activity = this.mongodb.collection(this.historyTable);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collection = this.mongodb.collection(this.collectionTable);
+
         let aggregation = [] as any;
         let result;
         const query = this.findOwnerHistory(ownerId);
@@ -298,7 +300,7 @@ export class NFTOwnerController extends AbstractEntity {
             result.map(async (collection) => {
               let volume = 0;
               let _24h = 0;
-              let floorPrice = Number.MAX_VALUE;
+              let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
               const personInfo = (await person.findOne({ wallet: collection.creator })) as IPerson;
@@ -308,6 +310,21 @@ export class NFTOwnerController extends AbstractEntity {
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
               const soldList = (await activityTable.find({ collection: `${collection._id}` }).toArray()) as Array<IActivity>;
+              
+              const actTable = this.mongodb.collection(this.historyTable);
+              
+              const fList = (await actTable
+                .find(
+                  { collection: collection, type: { $in: [ActivityType.LIST, ActivityType.SALE] } },
+                  { limit: 1, sort: { price: 1 } }
+                )
+                .toArray()) as Array<IActivity>;
+              if (fList && fList.length > 0) {
+                floorPrice= fList[0].price;
+              } else {
+                floorPrice=0;
+              }
+              
               let yesterDayTrade = 0;
               let todayTrade = 0;
               const todayDate = new Date();
