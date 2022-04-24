@@ -392,24 +392,31 @@ export class NFTOwnerController extends AbstractEntity {
             active: true,
             $and: [
               { $or: [{ from: { $regex: new RegExp(ownerId, "igm") } }, { to: { $regex: new RegExp(ownerId, "igm") } }] },
-              { $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }] },
+              { $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER },{ type: ActivityType.OFFERCOLLECTION }] },
             ]
           },
         });
         const result = await activity.aggregate(aggregation).toArray();
+        let rst = [];
         if (result) {
           const resActivities = await Promise.all(
             result.map(async (item) => {
-              const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
+              if (item && item.nftId){
+                const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
               const col = await collection.findOne({ _id: new ObjectId(item.collection) });
 
               item.collectionId = item.collection;
               item.collection = col.contract;
+
               item.nft = { artUri: nfts.artURI, name: nfts.name };
+              rst.push(item)
+              }
+              
+            
               return item;
             })
           );
-          return respond(resActivities);
+          return respond(rst);
         }
         return respond("Activities not found.", true, 422);
       } else {

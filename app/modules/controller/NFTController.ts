@@ -161,33 +161,39 @@ export class NFTController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
+          let rst = [];
           const offersIndividual = await activityTable
             .find({
               collection: collectionId,
               nftId: result.index,
-              $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+              $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER },{ type: ActivityType.OFFERCOLLECTION }],
               active: true,
             })
             .toArray();
           const resultOffersInvidual = await Promise.all(
             offersIndividual.map(async (item) => {
-              const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
+              if (item && item.nftId){
+                const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
               const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
               item.collectionId = item.collection;
               item.collection = col.contract;
               item.nft = { artUri: nfts.artURI, name: nfts.name };
+              rst.push(item)
+              }
+              
               return item;
             })
           );
-          const offersCollection = await activityTable
-            .find({
-              collection: collectionId,
-              type: ActivityType.OFFERCOLLECTION,
-            })
-            .toArray();
+          // const offersCollection = await activityTable
+          //   .find({
+          //     collection: collectionId,
+          //     type: ActivityType.OFFERCOLLECTION,
+          //   })
+          //   .toArray();
 
             
-          return respond(resultOffersInvidual.concat(offersCollection));
+          // return respond(resultOffersInvidual.concat(offersCollection));
+          return respond(rst);
         }
         return respond("nft not found.", true, 422);
       } else {
