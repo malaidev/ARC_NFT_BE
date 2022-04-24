@@ -650,12 +650,16 @@ export class ActivityController extends AbstractEntity {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const actData = (await activityTable.findOne(this.findActivtyWithId(id))) as IActivity;
-        if (actData) {
+
+        if (actData && actData.type==ActivityType.OFFERCOLLECTION && !actData.nftId) {
+
+          const result = await activityTable.updateMany({offerCollection:actData.offerCollection},{$set:{'signature':{r,s,v}}})
+          return result ? respond("Sign offer update") : respond("Failed to update activity.", true, 501);
+        }else{
           actData.signature = { r, s, v };
           const result = await activityTable.replaceOne(this.findActivtyWithId(id), actData);
-          return result ? respond("Sing offer update") : respond("Failed to update activity.", true, 501);
+          return result ? respond("Sign offer update") : respond("Failed to update activity.", true, 501);
         }
-        return respond("activity not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
