@@ -370,7 +370,7 @@ export class NFTController extends AbstractEntity {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid Collection Id", true, 422);
       }
-      const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType) : "";
+      const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType,'item') : "";
       let queryArt = this.findNFTItemByArt(artIpfs);
       const findResult = (await nftTable.findOne(queryArt)) as INFT;
       if (findResult && findResult._id) {
