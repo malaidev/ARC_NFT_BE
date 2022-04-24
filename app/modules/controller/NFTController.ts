@@ -172,9 +172,11 @@ export class NFTController extends AbstractEntity {
           const resultOffersInvidual = await Promise.all(
             offersIndividual.map(async (item) => {
               const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
+              const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
               item.collectionId = item.collection;
               item.collection = col.contract;
-              return { ...item };
+              item.nft = { artUri: nfts.artURI, name: nfts.name };
+              return item;
             })
           );
           const offersCollection = await activityTable
@@ -183,6 +185,8 @@ export class NFTController extends AbstractEntity {
               type: ActivityType.OFFERCOLLECTION,
             })
             .toArray();
+
+            
           return respond(resultOffersInvidual.concat(offersCollection));
         }
         return respond("nft not found.", true, 422);
