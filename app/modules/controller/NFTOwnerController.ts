@@ -178,7 +178,7 @@ export class NFTOwnerController extends AbstractEntity {
         if (!findOwner) {
           return respond("Current user not exists", true, 422);
         }
-        const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,null);
+        const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,null,'profile');
         const result = await person.updateOne({ wallet }, { $set: { photoUrl: img } });
         if (result) {
           return this.findPerson(wallet);
