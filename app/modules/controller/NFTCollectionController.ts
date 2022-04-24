@@ -394,8 +394,9 @@ export class NFTCollectionController extends AbstractEntity {
             aggregation = this.parseFilters(filters);
             aggregation.push({ $match: { collection: collectionId } });
           }
-          const activities = await activityTable.aggregate(aggregation).toArray();
-          console.log(activities);
+          
+          const activities = await activityTable.find({collection:collectionId}).toArray();
+          
           let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
