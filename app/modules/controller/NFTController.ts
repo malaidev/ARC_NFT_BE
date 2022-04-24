@@ -11,6 +11,7 @@ import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
 import { v4 } from "uuid";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import { IGlobal } from "../interfaces/IGlobal";
 /**
  * This is the NFT controller class.
  * Do all the NFT's functions such as
@@ -49,6 +50,7 @@ export class NFTController extends AbstractEntity {
   private personTable: string = "Person";
   private activityTable: string = "Activity";
   private nftCollectionTable: string = "NFTCollection";
+  private globaltable:string="Global";
   /**
    * Constructor of class
    * @param nft NFT item data
@@ -366,6 +368,7 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
+    const globalTable = this.mongodb.collection(this.globaltable);
     try {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid Collection Id", true, 422);
@@ -386,8 +389,17 @@ export class NFTController extends AbstractEntity {
       if (!collection) {
         return respond("collection not found.", true, 422);
       }
-      const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
-      let newIndex = sortNft ? sortNft.index + 1 : 0;
+      const nftVar = await globalTable.findOne({globalId:'nft'},{limit:1}) as IGlobal;
+      // const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
+      let newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
+      if (nftVar){
+        await globalTable.replaceOne({globalId:'nft'},{globalId:'nft',nftIndex:newIndex});
+      }else{
+        await globalTable.insertOne({
+          globalId:'nft',
+          nftIndex:newIndex
+        });
+      };
       let own = [];
       own.push(owner);
       // const url = await uploadImage(artFile);
