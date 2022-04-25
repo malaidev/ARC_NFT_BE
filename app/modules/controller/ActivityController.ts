@@ -659,7 +659,7 @@ export class ActivityController extends AbstractEntity {
               item.signature={
                 r,
                 s,
-                v:item.nonce
+                v
               }
               await activityTable.replaceOne({_id: new ObjectId(item._id)}, item);
               return result;
