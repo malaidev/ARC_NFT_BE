@@ -372,6 +372,15 @@ export class NFTController extends AbstractEntity {
     try {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid Collection Id", true, 422);
+
+      }
+      let query = this.findCollectionById(collectionId);
+      const collection = (await collectionTable.findOne(query)) as INFTCollection;
+      if (!collection) {
+        return respond("collection not found.", true, 422);
+      }
+      if (collection && collection.blockchain != tokenType){
+          return respond(`Token Type Should be ${collection.blockchain}`,true,422);
       }
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType,'item') : "";
       let queryArt = this.findNFTItemByArt(artIpfs);
@@ -384,11 +393,7 @@ export class NFTController extends AbstractEntity {
       // if (findResult && findResult._id) {
       //   return respond("Current nft has been created already", true, 501);
       // }
-      let query = this.findCollectionById(collectionId);
-      const collection = (await collectionTable.findOne(query)) as INFTCollection;
-      if (!collection) {
-        return respond("collection not found.", true, 422);
-      }
+      
       const nftVar = await globalTable.findOne({globalId:'nft'},{limit:1}) as IGlobal;
       // const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
       let newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
