@@ -344,14 +344,16 @@ export class ActivityController extends AbstractEntity {
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
           let collId = Date.now();
+          let offerTime = new Date().getTime();
           collection.offerStatus = OfferStatusType.OFFERED;
+
 
           await collectionTable.replaceOne(this.findCollectionById(collectionId), collection);
           const offer: IActivity = {
             collection: collectionId,
             type: ActivityType.OFFERCOLLECTION,
             price: price,
-            startDate: new Date().getTime(),
+            startDate: offerTime,
             endDate: endDate,
             from: buyer,
             to: seller,
@@ -372,7 +374,7 @@ export class ActivityController extends AbstractEntity {
                 nftId: item.index,
                 type: ActivityType.OFFERCOLLECTION,
                 price: prc,
-                startDate: new Date().getTime(),
+                startDate: offerTime,
                 endDate: endDate,
                 from: buyer,
                 to: item.owner,
