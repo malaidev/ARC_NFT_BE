@@ -280,7 +280,6 @@ export class NFTController extends AbstractEntity {
             data:resultsNFT
           };
           return rst;
-          // return respond(resultsNFT);
         }
         return respond("Items not found.", true, 422);
       } else {
