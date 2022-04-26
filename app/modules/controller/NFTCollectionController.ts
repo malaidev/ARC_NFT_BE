@@ -96,7 +96,6 @@ export class NFTCollectionController extends AbstractEntity {
         if (result) {
           collections = await Promise.all(
             result.map(async (collection) => {
-              
               let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
@@ -174,11 +173,19 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let aggregation = {} as any;
-        // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
-        if (filters) {
-          aggregation = this.parseFilters(filters);
+        aggregation = this.parseFiltersFind(filters);
+        let result = [] as any;
+        let count ;
+        if (aggregation && aggregation.filter){
+          count = await collectionTable.find({$or:aggregation.filter}).count();
+          result=aggregation.sort? await collectionTable.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await collectionTable.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
+        }else{
+          count = await collectionTable.find().count();
+          result=aggregation.sort?await collectionTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray():await collectionTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
         }
-        const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
+
+        
+        // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(
             result.map(async (collection) => {
@@ -222,7 +229,19 @@ export class NFTCollectionController extends AbstractEntity {
               };
             })
           );
-          return respond(collections);
+          let rst = {
+            success:true,
+            status:"ok",
+            code:200,
+            count:count,
+            currentPage:aggregation.page,
+            data:collections
+          };
+
+
+          return rst;
+
+          
         }
         return respond("collection not found.", true, 422);
       } else {
@@ -247,13 +266,10 @@ export class NFTCollectionController extends AbstractEntity {
         if (result) {
           const collections = await Promise.all(
             result.map(async (collection) => {
-              
               let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
               nfts.forEach((nft) => {
-              
-              
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
               const { _24h, todayTrade } = await this.get24HValues(collection.contract);
@@ -370,7 +386,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -394,25 +409,18 @@ export class NFTCollectionController extends AbstractEntity {
             aggregation = this.parseFilters(filters);
             aggregation.push({ $match: { collection: collectionId } });
           }
-          
           const activities = await activityTable.find({collection:collectionId}).toArray();
-          
           let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
-
-
               // if (activity.type==ActivityType.OFFERCOLLECTION && activity.nftId){
               if (activity && activity.nftId>=0){
-                console.log(activity);
                 // const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
                 const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}) as INFT
                   activity.nftObject =nft
                   return rstAct.push(activity)
               }
               // else{
-
-
               //   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
               //   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
               //   return activity;
@@ -448,8 +456,6 @@ export class NFTCollectionController extends AbstractEntity {
             // .find({ collection: collectionId, $or: [{ type: "Sold" }, { type: "Transfer" }] })
             .find({ collection: collectionId})
             .toArray();
-          
-          
           const detailedActivity = await Promise.all( 
             history.map(async (activity) => {
               // if (activity.type==ActivityType.OFFERCOLLECTION){
@@ -460,14 +466,11 @@ export class NFTCollectionController extends AbstractEntity {
                 if (activity && activity.nftId){
                   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
                   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
-                  
                 }else{
                   activity.isCollection=true;
                 }
                 return activity;
-                
               // }
-              
             })
           );
           return respond(detailedActivity);
@@ -564,7 +567,6 @@ export class NFTCollectionController extends AbstractEntity {
       const logoIpfs=logoFile? await S3uploadImageBase64(logoFile,`${logoName}_${Date.now()}`,logoMimetype,'collection'):"";
       const featuredIpfs= featuredImgFile?await S3uploadImageBase64(featuredImgFile,`${featureName}_${Date.now()}`,featuredMimetype,'collection'):"";
       const bannerIpfs = bannerImgFile?await S3uploadImageBase64(bannerImgFile,`${bannerName}_${Date.now()}`,bannerMimetype,'collection'):"";
-      
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,

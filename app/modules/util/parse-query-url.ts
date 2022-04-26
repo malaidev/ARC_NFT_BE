@@ -24,7 +24,6 @@ export function parseQueryUrl(queryUrl: string): IQueryFilters {
      * @var {Array<IFiltering>} filterArray array of filters
      */
     const filterArray = [] as Array<IFiltering>;
-
     for (let item in q) {
         // Identifiy array items to apply the `IFiltering` interface as predefined
         if (item === 'fieldName' || item === 'query' && Array.isArray(q[item])) {
@@ -42,10 +41,14 @@ export function parseQueryUrl(queryUrl: string): IQueryFilters {
         } else {
             if (item in filters && typeof q[item] === typeof filters[item]) {
                 filters[item] = q[item]
+            }else{
+                filters[item]=q[item];
             }
         }
 
     }
+
+    
     filters.filters = filterArray;
 
     return filters;
