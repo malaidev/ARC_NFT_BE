@@ -22,6 +22,7 @@ import {
   getTopCollections,
   getCollectionsItems,
   deleteCollection,
+  getCollectionOffer,
 } from "./collection";
 import {
   createOwner,
@@ -64,10 +65,11 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/:collectionId/owners", config.routeParamsValidation(), getOwners);
   router.get("/collection/:collectionId/history", config.routeParamsValidation(), getActivities);
   router.get("/collection/:collectionId/activity", config.routeParamsValidation(), getActivities);
+  router.get("/collection/:collectionId/offer", config.routeParamsValidation(), getCollectionOffer);
+
   router.get("/collection/:collectionId", config.routeParamsValidation(), getCollectionDetail);
   router.delete("/collection/:collectionId", config.route("jwt"), deleteCollection);
   router.post("/collection/create", config.route("jwt"), createCollection);
-
   router.get("/activity", getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
   router.post("/activity/listForSale", listForSale);

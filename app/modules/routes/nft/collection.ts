@@ -20,6 +20,16 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
   const result = await ctl.getCollections(filters);
   res.send(result);
 };
+
+
+export const getCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
+  const collectionId = req.params["collectionId"] as any;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getCollectionOffer(collectionId);
+  res.send(result);
+};
+
+
 export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
