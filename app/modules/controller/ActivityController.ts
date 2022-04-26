@@ -588,16 +588,14 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string) {
+  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string,buyer : string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         if (collection) {
-          if (collection.creator !== seller) {
-            return respond("seller isnt nft's creator.", true, 422);
-          }
+           
           const cancelList = (await activityTable.findOne({
             _id: new ObjectId(activityId),
             collection: collectionId,
@@ -605,8 +603,8 @@ export class ActivityController extends AbstractEntity {
           if (!cancelList) {
             return respond("activity not found.", true, 422);
           }
-          if (cancelList.from !== seller) {
-            return respond("seller isnt activity's owner.", true, 422);
+          if (cancelList.from !== buyer) {
+            return respond("Buyer isnt activity's owner.", true, 422);
           }
           collection.offerStatus = OfferStatusType.CANCELED;
           await collectionTable.replaceOne(this.findCollectionById(collection._id), collection);
