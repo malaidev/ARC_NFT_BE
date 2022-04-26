@@ -63,6 +63,9 @@ export class ActivityController extends AbstractEntity {
         if (collData && collData.volume){
           typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
         }
+        if (buyer.toLowerCase() == seller.toLowerCase()){
+          return respond("Seller and buyer cannot be same address", true, 422);
+        }
         if (!price) prc=0;
         typeof price == "string" ? (prc = +price) : (prc = price);
 
@@ -127,6 +130,9 @@ export class ActivityController extends AbstractEntity {
         let vol:number=0;
         if (collData && collData.volume){
           typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
+        }
+        if (buyer.toLowerCase() == seller.toLowerCase()){
+          return respond("Seller and buyer cannot be same address", true, 422);
         }
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
@@ -247,6 +253,9 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
+        if (buyer.toLowerCase() == seller.toLowerCase()){
+          return respond("Seller and buyer cannot be same address", true, 422);
+        }
         const startDate = new Date().getTime();
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
@@ -320,6 +329,9 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
+        if (buyer.toLowerCase() == seller.toLowerCase()){
+          return respond("Seller and buyer cannot be same address", true, 422);
+        }
         const startDate = new Date().getTime();
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
@@ -340,6 +352,7 @@ export class ActivityController extends AbstractEntity {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
+          
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
@@ -553,6 +566,9 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        if (buyer.toLowerCase() == seller.toLowerCase()){
+          return respond("Seller and buyer cannot be same address", true, 422);
+        }
         if (nft) {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
