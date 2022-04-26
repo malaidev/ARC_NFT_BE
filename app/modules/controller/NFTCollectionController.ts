@@ -215,7 +215,7 @@ export class NFTCollectionController extends AbstractEntity {
                 links: collection.links,
                 name: collection.name,
                 blockchain: collection.blockchain,
-                volume: collection.volume||0,
+                volume: collection.volume,
                 _24h: todayTrade,
                 _24hPercent: _24h,
                 floorPrice: floorPrice,
@@ -251,6 +251,78 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+  /**
+   * Get collection offers
+   * @param filters 
+   * @returns 
+   */
+   async getCollectionOffer(collectionId: string): Promise<void | IResponse> {
+    try {
+      if (this.mongodb) {
+        const collectionTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
+        const actTable = this.mongodb.collection(this.activityTable)
+        const result = await actTable.find({collection: collectionId,nftId:null}).toArray();
+        
+        if (result) {
+
+          const collections = await Promise.all(
+            result.map(async (collection) => {
+              let floorPrice = 0;
+              let owners = [];
+              const nfts = (await actTable.find({ collection: collectionId,offerCollection:collection.offerCollection, nftId:{$ne:null} }).toArray());
+              const collData = await collection.findOne({_id:ObjectId(collectionId)})
+              
+              const { _24h, todayTrade } = await this.get24HValues(collData.contract);
+              floorPrice = await this.getFloorPrice(`${collection._id}`);
+              const creator = (await ownerTable.findOne(this.findPerson(collData.creator))) as IPerson;
+              
+              return {
+                _id: collData._id,
+                logoUrl: collData.logoUrl,
+                featuredUrl: collData.featuredUrl,
+                bannerUrl: collData.bannerUrl,
+                contract: collData.contract,
+                creator: collData.creator,
+                creatorDetail: creator,
+                url: collData.url,
+                description: collData.description,
+                category: collData.category,
+                links: collData.links,
+                name: collData.name,
+                blockchain: collData.blockchain,
+                volume: collData.volume,
+                _24h: todayTrade,
+                _24hPercent: _24h,
+                floorPrice: floorPrice,
+                
+                
+                isVerified: collData.isVerified,
+                isExplicit: collData.isExplicit,
+                properties: collData.properties,
+                platform: collData.platform,
+                offerStatus: collData.offerStatus,
+                buyer:collection.from, 
+                seller:collection.to,
+                nfts:nfts
+              };
+            })
+          )               
+          return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
+           
+        }
+        return respond("collection not found / not offering yet.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+
+   }
+
+
   async getTopCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -616,6 +688,7 @@ export class NFTCollectionController extends AbstractEntity {
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
     const f = await this.getFloorPrice(`${collection._id}`);
+    console.log(f);
     collection.floorPrice = f;
     collection.owners = owners.length;
     collection.items = nfts.length;
@@ -624,6 +697,9 @@ export class NFTCollectionController extends AbstractEntity {
     collection._24hPercent = _24h;
     const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
     collection.creatorDetail = creator;
+    collection.volume??0;
+
+    console.log(collection);
     return respond(collection);
   }
   /**
@@ -747,9 +823,9 @@ export class NFTCollectionController extends AbstractEntity {
     const actTable = this.mongodb.collection(this.activityTable);
     const fList = (await actTable
       .find(
-        { collection: collection, type: { $in: [ActivityType.LIST, ActivityType.SALE] } },
-        { limit: 1, sort: { price: 1 } }
-      )
+        { collection: collection,price:{$ne:null}},
+      
+      ).sort({price:1}).limit(1)
       .toArray()) as Array<IActivity>;
     if (fList && fList.length > 0) {
       return fList[0].price;
