@@ -272,7 +272,7 @@ export class NFTCollectionController extends AbstractEntity {
               let floorPrice = 0;
               let owners = [];
               const nfts = (await actTable.find({ collection: collectionId,offerCollection:collection.offerCollection, nftId:{$ne:null} }).toArray());
-              const collData = await collection.findOne({_id:ObjectId(collectionId)})
+              const collData = await collectionTable.findOne({_id:ObjectId(collectionId)})
               
               const { _24h, todayTrade } = await this.get24HValues(collData.contract);
               floorPrice = await this.getFloorPrice(`${collection._id}`);
@@ -317,6 +317,7 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
 
