@@ -96,9 +96,9 @@ export const makeCollectionOffer = async (req: FastifyRequest, res: FastifyReply
 };
 
 export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
-  const {activityId, collectionId, seller } = req.body as any;
+  const {activityId, collectionId, seller , buyer} = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.cancelCollectionOffer(activityId,collectionId, seller);
+  const result = await ctl.cancelCollectionOffer(activityId,collectionId, seller,buyer);
   res.send(result);
 };
 
