@@ -259,60 +259,74 @@ export class NFTCollectionController extends AbstractEntity {
    async getCollectionOffer(collectionId: string): Promise<void | IResponse> {
     try {
       if (this.mongodb) {
-        const collectionTable = this.mongodb.collection(this.table);
-        const nftTable = this.mongodb.collection(this.nftTable);
-        const ownerTable = this.mongodb.collection(this.ownerTable);
-        const actTable = this.mongodb.collection(this.activityTable)
-        const result = await actTable.find({collection: collectionId,nftId:null}).toArray();
+        const nftTable = this.mongodb.collection(this.table);
         
-        if (result) {
+        
+          const activityTable = this.mongodb.collection(this.activityTable);
 
-          const collections = await Promise.all(
-            result.map(async (collection) => {
-              let floorPrice = 0;
-              let owners = [];
-              const nfts = (await actTable.find({ collection: collectionId,offerCollection:collection.offerCollection, nftId:{$ne:null} }).toArray());
-              const collData = await collectionTable.findOne({_id:ObjectId(collectionId)})
+          const history = await activityTable
+            .find({
+              collection: collectionId,
+              nftId:null,
               
-              const { _24h, todayTrade } = await this.get24HValues(collData.contract);
-              floorPrice = await this.getFloorPrice(`${collection._id}`);
-              const creator = (await ownerTable.findOne(this.findPerson(collData.creator))) as IPerson;
-              
-              return {
-                _id: collData._id,
-                logoUrl: collData.logoUrl,
-                featuredUrl: collData.featuredUrl,
-                bannerUrl: collData.bannerUrl,
-                contract: collData.contract,
-                creator: collData.creator,
-                creatorDetail: creator,
-                url: collData.url,
-                description: collData.description,
-                category: collData.category,
-                links: collData.links,
-                name: collData.name,
-                blockchain: collData.blockchain,
-                volume: collData.volume,
-                _24h: todayTrade,
-                _24hPercent: _24h,
-                floorPrice: floorPrice,
-                
-                
-                isVerified: collData.isVerified,
-                isExplicit: collData.isExplicit,
-                properties: collData.properties,
-                platform: collData.platform,
-                offerStatus: collData.offerStatus,
-                buyer:collection.from, 
-                seller:collection.to,
-                nfts:nfts
-              };
             })
-          )               
-          return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
+            .toArray();
+          return respond(history);
+        
+        // const collectionTable = this.mongodb.collection(this.table);
+        // const nftTable = this.mongodb.collection(this.nftTable);
+        // const ownerTable = this.mongodb.collection(this.ownerTable);
+        // const actTable = this.mongodb.collection(this.activityTable)
+        // const result = await actTable.find({collection: collectionId,nftId:null}).toArray();
+        
+        // if (result) {
+
+        //   const collections = await Promise.all(
+        //     result.map(async (collection) => {
+        //       let floorPrice = 0;
+        //       let owners = [];
+        //       const nfts = (await actTable.find({ collection: collectionId,offerCollection:collection.offerCollection, nftId:{$ne:null} }).toArray());
+        //       const collData = await collectionTable.findOne({_id:ObjectId(collectionId)})
+              
+        //       const { _24h, todayTrade } = await this.get24HValues(collData.contract);
+        //       floorPrice = await this.getFloorPrice(`${collection._id}`);
+        //       const creator = (await ownerTable.findOne(this.findPerson(collData.creator))) as IPerson;
+              
+        //       return {
+        //         _id: collData._id,
+        //         logoUrl: collData.logoUrl,
+        //         featuredUrl: collData.featuredUrl,
+        //         bannerUrl: collData.bannerUrl,
+        //         contract: collData.contract,
+        //         creator: collData.creator,
+        //         creatorDetail: creator,
+        //         url: collData.url,
+        //         description: collData.description,
+        //         category: collData.category,
+        //         links: collData.links,
+        //         name: collData.name,
+        //         blockchain: collData.blockchain,
+        //         volume: collData.volume,
+        //         _24h: todayTrade,
+        //         _24hPercent: _24h,
+        //         floorPrice: floorPrice,
+                
+                
+        //         isVerified: collData.isVerified,
+        //         isExplicit: collData.isExplicit,
+        //         properties: collData.properties,
+        //         platform: collData.platform,
+        //         offerStatus: collData.offerStatus,
+        //         buyer:collection.from, 
+        //         seller:collection.to,
+        //         nfts:nfts
+        //       };
+        //     })
+        //   )               
+        //   return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
            
-        }
-        return respond("collection not found / not offering yet.", true, 422);
+        // }
+        // return respond("collection not found / not offering yet.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
