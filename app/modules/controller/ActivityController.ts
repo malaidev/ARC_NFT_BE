@@ -36,7 +36,7 @@ export class ActivityController extends AbstractEntity {
                 index: activity.nftId,
               })) as INFT;
               // activity.nftObject = {artUri: nft.artURI, name: nft.name};
-              activity.nft = { artUri: nft?.artURI, name: nft?.name };
+              activity.nft = { artURI: nft?.artURI, name: nft?.name };
               return activity;
             })
           );
