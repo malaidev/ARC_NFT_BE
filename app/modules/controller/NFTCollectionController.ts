@@ -262,14 +262,13 @@ export class NFTCollectionController extends AbstractEntity {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         
-        
           const activityTable = this.mongodb.collection(this.activityTable);
-
           const history = await activityTable
             .find({
               collection: collectionId,
               nftId:null,
               
+            
             })
             .toArray();
           return respond(history);
