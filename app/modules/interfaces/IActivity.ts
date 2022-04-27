@@ -23,8 +23,8 @@ export enum ActivityType {
   SALE = <any>"Sale",
   LIST = <any>"List",
   OFFER = <any>"Offer",
-  CANCELLIST = <any>"Cancel list",
-  CANCELOFFER = <any>"Cancel offer",
+  CANCELLIST = <any>"Unlisted items",
+  CANCELOFFER = <any>"Canceled offers",
   OFFERCOLLECTION = <any>"OfferCollection",
   NONE = <any>"None",
 }

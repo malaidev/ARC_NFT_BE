@@ -151,6 +151,7 @@ export class ActivityController extends AbstractEntity {
             nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
             nft.status_date = status_date;
+            collData.offerStatus=OfferStatusType.NONE;
             const saleActivity: IActivity = {
               collection: collectionId,
               nftId: index,
@@ -260,7 +261,7 @@ export class ActivityController extends AbstractEntity {
         const ownTable = this.mongodb.collection(this.ownerTable);
         const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
         if (nft) {
-          if (nft.owner !== seller) {
+          if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
@@ -449,6 +450,7 @@ export class ActivityController extends AbstractEntity {
           const status_date = new Date().getTime();
           nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
+          nft.price=price;
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({wallet:seller.toLowerCase()},sortAct);

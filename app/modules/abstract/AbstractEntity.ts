@@ -71,7 +71,6 @@ import {
      * @returns
      */
     async create(): Promise<any | IResponse> {
-      console.log(
         `AbstractEntity::create::${this.table}::Trying to create an instance of ${this.table}`
       );
       if (this.data) {
@@ -98,14 +97,12 @@ import {
             throw new Error("Could not connect to the database.");
           }
         } catch (error) {
-          console.log(
             `Couldn't create instance of ${this.table}. Reason: `,
             error
           );
           return respond(error.message, true, 500);
         }
       } else {
-        console.log("Can't create an instance of item without item data.");
         return respond(
           "Can't create an instance of item without item data.",
           true,
@@ -123,7 +120,6 @@ import {
       query: FilterQuery<any>,
       opts?: FindOneOptions<any>
     ): Promise<any> {
-      console.log(`findOne::Trying to find an instance of ${this.table}`);
       try {
         if (this.mongodb) {
           const collection = this.mongodb.collection(this.table);
@@ -153,7 +149,6 @@ import {
           throw Error("Could not connect to the database.");
         }
       } catch (error) {
-        console.log(`AbstractEntity::findOne::${this.table}`, error);
         return respond(error.message, true, 500);
       }
     }
@@ -171,7 +166,6 @@ import {
       callback?: MongoCallback<AggregationCursor<any>>
     ) {
       try {
-        console.log(`findAll::Trying to find instances of ${this.table}`);
         if (this.mongodb) {
           const collection = this.mongodb.collection(this.table);
           let aggregation = {} as any;
@@ -188,7 +182,6 @@ import {
           throw new Error("Could not connect to the database.");
         }
       } catch (error) {
-        console.log(`AbstractEntity::findAll::${this.table}`, error);
         return respond(error.message, true, 500);
       }
     }
@@ -293,7 +286,6 @@ import {
 
        protected parseFiltersFind(filters: IQueryFilters): Array<any> {
         const aggregation = {} as any;
-        console.log(filters);
         if (filters && filters.orderBy)        
           aggregation.sort={
             [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
@@ -303,7 +295,7 @@ import {
           aggregation.filter={}
           filters.filters.forEach((item) => {
               matches.push({
-                [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),
+                [item.fieldName]: item.query==='true'?true:item.query==='false'?false: Number(item.query)?+item.query: new RegExp(item.query, "igm"),
   
               });
           });
@@ -315,7 +307,6 @@ import {
         aggregation.limit=filters && filters.limit?filters.limit:10;
 
         if ( filters && filters.page){
-          console.log(filters.page);
           filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
         }else{
           aggregation.skip=0;
