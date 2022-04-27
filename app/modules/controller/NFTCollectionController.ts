@@ -331,7 +331,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
 
@@ -703,7 +702,6 @@ export class NFTCollectionController extends AbstractEntity {
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
     const f = await this.getFloorPrice(`${collection._id}`);
-    console.log(f);
     collection.floorPrice = f;
     collection.owners = owners.length;
     collection.items = nfts.length;
@@ -714,7 +712,6 @@ export class NFTCollectionController extends AbstractEntity {
     collection.creatorDetail = creator;
     collection.volume??0;
 
-    console.log(collection);
     return respond(collection);
   }
   /**
