@@ -22,10 +22,17 @@ export class ActivityController extends AbstractEntity {
         const table = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         let aggregation = {} as any;
-        if (filters) {
-          aggregation = this.parseFilters(filters);
+        aggregation = this.parseFiltersFind(filters);
+        let result = [] as any;
+        let count ;
+        // const result = await table.aggregate(aggregation).toArray();
+        if (aggregation && aggregation.filter){
+          count = await table.find({$or:aggregation.filter}).count();
+          result=aggregation.sort? await table.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await table.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
+        }else{
+          count = await table.find().count();
+          result=aggregation.sort?await table.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray():await table.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
         }
-        const result = await table.aggregate(aggregation).toArray();
         if (result) {
           const activities = await Promise.all(
             result.map(async (activity) => {
