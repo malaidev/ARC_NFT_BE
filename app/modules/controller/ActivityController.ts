@@ -212,8 +212,11 @@ export class ActivityController extends AbstractEntity {
             nft.owner = buyer;
             nft.status_date = status_date;
             collData.volume=vol+prc;
+            offer.active=false;
             await collTable.replaceOne(this.findCollectionById(collectionId),collData);
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+            await activityTable.replaceOne(this.findActivtyWithId(offer._id), offer);
+            
             offer.type = ActivityType.SALE;
             offer.date = status_date;
             const result = await activityTable.insertOne({
