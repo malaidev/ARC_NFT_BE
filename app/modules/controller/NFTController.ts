@@ -218,7 +218,6 @@ export class NFTController extends AbstractEntity {
         let result = [] as any;
         let count ;
 
-        console.log(aggregation);
         if (aggregation && aggregation.filter){
           count = await nftTable.find({$or:aggregation.filter}).count();
           result=aggregation.sort? await nftTable.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await nftTable.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
@@ -342,7 +341,6 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
