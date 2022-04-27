@@ -168,9 +168,7 @@ export class ActivityController extends AbstractEntity {
               to: buyer,
               active: true,
             };
-            const actData = await activityTable
-              .find({ collection: collectionId, offerCollection: offer.offerCollection })
-              .toArray();
+            const actData = await activityTable.find({ collection: collectionId, offerCollection: offer.offerCollection }).toArray();
             const actUpdate = await Promise.all(
               actData.map(async (item) => {
                 if ( item._id.toString() ===offer._id.toString()) {
@@ -202,6 +200,17 @@ export class ActivityController extends AbstractEntity {
               })
             );
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+            await activityTable.updateMany(
+              {
+                collection: collectionId,
+                active: true,
+                from: seller,
+                to: buyer,
+                price:prc,
+                $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFERCOLLECTION }],
+              },
+              { $set: { active: false } }
+            );
             const result = await activityTable.insertOne(saleActivity);
             return result
               ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
@@ -209,6 +218,7 @@ export class ActivityController extends AbstractEntity {
           } else if (offer.type === ActivityType.OFFER) {
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
+            nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
             nft.status_date = status_date;
             collData.volume=vol+prc;
@@ -216,7 +226,17 @@ export class ActivityController extends AbstractEntity {
             await collTable.replaceOne(this.findCollectionById(collectionId),collData);
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
             await activityTable.replaceOne(this.findActivtyWithId(offer._id), offer);
-            
+            await activityTable.updateMany(
+              {
+                collection: collectionId,
+                active: true,
+                from: seller,
+                to: buyer,
+                price:prc,
+                $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+              },
+              { $set: { active: false } }
+            );
             offer.type = ActivityType.SALE;
             offer.date = status_date;
             const result = await activityTable.insertOne({
