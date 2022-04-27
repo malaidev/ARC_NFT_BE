@@ -215,9 +215,10 @@ export class NFTController extends AbstractEntity {
         const acttable = this.mongodb.collection(this.activityTable);
         let aggregation ={} as any
         aggregation = this.parseFiltersFind(filters);
-        console.log(aggregation);
         let result = [] as any;
         let count ;
+
+        console.log(aggregation);
         if (aggregation && aggregation.filter){
           count = await nftTable.find({$or:aggregation.filter}).count();
           result=aggregation.sort? await nftTable.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await nftTable.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
@@ -256,7 +257,7 @@ export class NFTController extends AbstractEntity {
               item.timeLeft = timeDiff;
               const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
               const actData = await acttable
-                .find({ collection: item.collection, nftId: item.index, type: { $in: [ActivityType.OFFER] } })
+                .find({ collection: item.collection, nftId: item.index, type: { $in: [ActivityType.OFFER,ActivityType.OFFERCOLLECTION] } })
                 .toArray();
               return {
                 ...item,
