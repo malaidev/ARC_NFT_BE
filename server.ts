@@ -14,6 +14,9 @@ import { router } from "./app/modules/routes";
 import { LogController } from "./app/modules/controller/LogController";
 import { FastifyReply } from "fastify";
 import * as SwaggerPlugin from "fastify-swagger";
+import fastifyCron from 'fastify-cron'
+import { rewardHelper } from "./app/modules/util/reward-handler";
+
 
 process.setMaxListeners(15);
 
@@ -48,7 +51,21 @@ async function mount() {
   await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
-
+  await app.register(fastifyCron,{
+    jobs:[
+      {
+        cronTime: '0 0 * * *', // Everyday at midnight UTC
+        // cronTime:'* * * * *',
+        onTick: async server => {
+          console.log('run');
+          const x = new rewardHelper();
+          const y = await x.calculateReward();
+          console.log(y)
+        },
+        
+      }
+    ]
+  })
 
   if (process.env.ENV === "dev") {
     await app.register(SwaggerPlugin, {
@@ -139,6 +156,7 @@ config.mongodb
           }
           process.exit(1);
         }
+        app.cron.startAllJobs();
       });
     });
   })

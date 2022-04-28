@@ -10,9 +10,10 @@ import { NFTRewardController } from "../../controller/NFTRewardController";
 
 
 export const getReward = async (req: FastifyRequest, res: FastifyReply) => {
-    const { ownerId } = req.params as any;
+    const { walletId } = req.params as any;
     
+    console.log('rewards')
     const ctl = new NFTRewardController();
-    const result = await ctl.getReward(ownerId);
+    const result = await ctl.getReward(walletId.toLowerCase());
     res.send(result);
 }
