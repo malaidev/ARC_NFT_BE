@@ -31,8 +31,11 @@ export class NFTRewardController extends AbstractEntity {
         const owner = this.mongodb.collection(this.ownerTable);
         const rwd = this.mongodb.collection(this.rewardTable);
         const x = new rewardHelper();
-        const rst = await x.calculateReward();
-        return rst;
+
+        const rst = await rwd.findOne({wallet});
+
+        // const rst = await x.calculateReward();
+        return  respond(rst);
       }else {
         throw new Error("Could not connect to the database.");
       }

@@ -119,7 +119,7 @@ export class rewardHelper extends AbstractEntity {
           let duration=1;
           let price =0;
           let totalItems = 0;
-          let rateScoreARC=1
+          let rateScoreARC=0.3;
          wallet = wallet.toLowerCase();
          const rstNft= await nft.find().count();
          const rstListing=await act.find({from:wallet}).count();
@@ -143,7 +143,7 @@ export class rewardHelper extends AbstractEntity {
          console.log('--->>>>>>> PNFT ',PNFT);
          console.log('--->>>>>>> LISTINGSCORE ',LISTINGSCORE);
          console.log('--->>>>>>> LISTINGREWARD ',LISTINGREWARD);
-         
+
          const insertData={
              wallet,
              scoreCollection:SCORECOLLECTION,
