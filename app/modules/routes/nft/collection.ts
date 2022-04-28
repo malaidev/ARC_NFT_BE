@@ -140,7 +140,7 @@ export const createCollection = async (req, res) => {
     body.siteUrl,
     body.discordUrl,
     body.instagramUrl,
-    body.mediumUrl,
+    body.twitterUrl,
     body.telegramUrl,
     body.creatorEarning,
     body.blockchain,
