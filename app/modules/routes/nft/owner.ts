@@ -80,7 +80,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   /**remove Auth */
   // const user = req['session'].walletId as any;
   const { ownerId } = req.params as any;
-  const user = ownerId;
+  const user = ownerId.toLowerCase();
   try {
     const userSession = req["session"] as any;
     if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
