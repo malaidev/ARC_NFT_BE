@@ -127,7 +127,8 @@ export class NFTOwnerController extends AbstractEntity {
     wallet: string,
     bio: string,
     username: string,
-    social: string
+    social: string,
+    email: string
   ): Promise<IPerson | IResponse> {
     const collection = this.mongodb.collection(this.table);
     const findOwner = (await collection.findOne(this.findUserQuery(wallet))) as IPerson;
@@ -140,6 +141,8 @@ export class NFTOwnerController extends AbstractEntity {
       social,
       bio,
       username: username,
+      email:email,
+
       // nfts: [],
       // collections: []
       // created: [],
@@ -159,10 +162,12 @@ export class NFTOwnerController extends AbstractEntity {
    */
   async updateOwner(wallet: string, bodyData: any): Promise<IPerson | IResponse> {
     try {
+      
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.table);
-        const result = await collection.updateOne({ wallet }, { $set: { ...bodyData } });
-        return respond(result);
+        const person = this.mongodb.collection(this.table);
+        await person.updateOne({ wallet }, { $set: { ...bodyData } });
+        const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
+        return respond(findOwner);
       } else {
         throw new Error("Could not connect to the database.");
       }
