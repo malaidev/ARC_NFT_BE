@@ -100,4 +100,5 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
+  
 };
