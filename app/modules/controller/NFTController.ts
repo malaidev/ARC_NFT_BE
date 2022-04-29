@@ -380,7 +380,7 @@ export class NFTController extends AbstractEntity {
       status: "Created",
       status_date: new Date().getTime(),
       properties: JSON.parse(properties) ?? {},
-      lockContent: unlockableContent,
+      lockContent: unlockableContent ?? false,
       tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
       contentType:
         contentType === "music"
