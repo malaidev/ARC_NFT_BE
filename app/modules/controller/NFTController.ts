@@ -374,7 +374,7 @@ export class NFTController extends AbstractEntity {
         mintStatus: MintStatus.LAZYMINTED,
         status_date: new Date().getTime(),
         properties: properties ? JSON.parse(properties) : {},
-        lockContent: unlockableContent,
+        lockContent: unlockableContent ?? false,
         tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
         contentType:
           contentType === "music"
