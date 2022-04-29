@@ -1,75 +1,36 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
-import { ContentType, INFT, TokenType } from "../interfaces/INFT";
+import { ContentType, INFT, MintStatus, SaleStatus, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
-import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
-import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
-import { v4 } from "uuid";
-/**
- * This is the NFT controller class.
- * Do all the NFT's functions such as
- * get item detail, history, create and transfer.
- *
- * @param {INFT} data INFT data
- *
- * @property {data}
- * @property {table}
- * @property {personTable}
- * @property {historyTable}
- * @property {nftCollectionTable}
- *
- * @method getItemDetail
- * @method getItemHistory
- * @method getItems
- * @method createNFT
- * @method findNFTItem
- * @method findCollection
- * @method findPerson
- *
- * @author Tadashi <tadashi@depo.io>
- * @version 0.0.1
- *
- * ----
- * Example Usage
- *
- * const ctl = new NFTController();
- *
- * await ctl.getItemDetail('0xbb6a549b1cf4b2d033df831f72df8d7af4412a82', 3)
- *
- */
+import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import { IGlobal } from "../interfaces/IGlobal";
+
 export class NFTController extends AbstractEntity {
   protected data: INFT;
   protected table: string = "NFT";
   private personTable: string = "Person";
   private activityTable: string = "Activity";
   private nftCollectionTable: string = "NFTCollection";
-  /**
-   * Constructor of class
-   * @param nft NFT item data
-   */
+  private globaltable: string = "Global";
+
   constructor(nft?: INFT) {
     super();
     this.data = nft;
   }
-  /**
-   * Get NFT item detail information
-   *
-   * @param collectionId Collection Contract Address
-   * @param index NFT item index
-   * @returns INFT object including NFT item information
-   */
+
   async getItemDetail(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collectionId, index);
         const acttable = this.mongodb.collection(this.activityTable);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
-        const result = await this.findOne(query);
+        const itemTable = this.mongodb.collection(this.table);
+        const result = await itemTable.findOne(query);
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
@@ -90,13 +51,19 @@ export class NFTController extends AbstractEntity {
             if (collectionAct && collectionAct.endDate)
               timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
-
-
           result.collectionId = result.collection;
           result.collection = collectionData.contract;
-
+          result.creatorEarning = collectionData.creatorEarning;
           result.timeLeft = timeDiff;
           result.ownerDetail = owner;
+          if (result && result.tokenType == "ERC1155") {
+            let own = result.owners ?? [];
+            let ownD = [];
+            if (own.indexOf(owner) == -1) own.push(result.owner);
+            ownD.push(result.ownerDetail);
+            result.owners = own;
+            result.ownersDetail = ownD;
+          }
           return respond(result);
         }
         return respond("nft not found.", true, 422);
@@ -107,12 +74,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  /**
-   * Get NFT item history
-   * @param collectionId Collection Contract Address
-   * @param nftId NFT item index in collection
-   * @returns Array<IActivity>
-   */
+
   async getItemHistory(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -124,8 +86,9 @@ export class NFTController extends AbstractEntity {
           const history = await activityTable
             .find({
               collection: collectionId,
-              index: result.index,
-              // $or: [{ type: "Sold" }, { type: "Transfer" }],
+              nftId: result.index,
+              // active:true,
+              $or: [{ type: { $ne: ActivityType.OFFERCOLLECTION } }, { type: { $ne: ActivityType.CANCELOFFER } }],
             })
             .toArray();
           return respond(history);
@@ -138,12 +101,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  /**
-   * Get NFT item Offers
-   * @param collection Collection Contract Address
-   * @param index NFT item index in collection
-   * @returns Array<IActivity>
-   */
+
   async getItemOffers(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -152,33 +110,37 @@ export class NFTController extends AbstractEntity {
         const query = this.findNFTItem(collectionId, index);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const result = (await nftTable.findOne(query)) as INFT;
-        console.log(result);
         if (result) {
+          let rst = [];
           const offersIndividual = await activityTable
             .find({
               collection: collectionId,
               nftId: result.index,
-              $or: [{ type: ActivityType.LISTFORSALE }, { type: ActivityType.OFFER }],
+              $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }, { type: ActivityType.OFFERCOLLECTION }],
+              active: true,
             })
             .toArray();
           const resultOffersInvidual = await Promise.all(
- 
             offersIndividual.map(async (item) => {
-              const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
-
-              item.collectionId = item.collection;
-              item.collection = col.contract;
-              return { ...item };
+              if (item && item.nftId) {
+                const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
+                const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
+                item.collectionId = item.collection;
+                item.collection = col.contract;
+                item.nft = { artUri: nfts.artURI, name: nfts.name };
+                rst.push(item);
+              }
+              return item;
             })
- 
           );
-          const offersCollection = await activityTable
-            .find({
-              collection: collectionId,
-              type: ActivityType.OFFERCOLLECTION,
-            })
-            .toArray();
-          return respond(resultOffersInvidual.concat(offersCollection));
+          // const offersCollection = await activityTable
+          //   .find({
+          //     collection: collectionId,
+          //     type: ActivityType.OFFERCOLLECTION,
+          //   })
+          //   .toArray();
+          // return respond(resultOffersInvidual.concat(offersCollection));
+          return respond(rst);
         }
         return respond("nft not found.", true, 422);
       } else {
@@ -188,23 +150,39 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  /**
-   * Get all NFTs in collection
-   * @param filters filter
-   * @returns Array<INFT>
-   */
+
   async getItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const acttable = this.mongodb.collection(this.activityTable);
-        // const result = await nftTable.find().toArray();
         let aggregation = {} as any;
-        if (filters) {
-          aggregation = this.parseFilters(filters);
+        aggregation = this.parseFiltersFind(filters);
+        let result = [] as any;
+        let count;
+
+        if (aggregation && aggregation.filter) {
+          count = await nftTable.find({ $or: aggregation.filter }).count();
+          result = aggregation.sort
+            ? ((await nftTable
+                .find({ $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>)
+            : ((await nftTable
+                .find({ $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
+        } else {
+          count = await nftTable.find().count();
+          result = aggregation.sort
+            ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
+            : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
-        const result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
+        //  result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -234,35 +212,45 @@ export class NFTController extends AbstractEntity {
               }
               item.timeLeft = timeDiff;
               const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
-              const actData = await acttable.find({collection:item.collection,nftId:item.index,type:{$in:[ActivityType.OFFER]}}).toArray();
+              const actData = await acttable
+                .find({
+                  collection: item.collection,
+                  nftId: item.index,
+                  type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
+                })
+                .toArray();
               return {
                 ...item,
-                
                 collection_details: {
-                  _id: collection._id,
-                  contract: collection.contract,
-                  name: collection.name,
-                  platform: collection.platform,
+                  _id: collection?._id,
+                  contract: collection?.contract,
+                  name: collection?.name,
+                  platform: collection?.platform,
+                  logoURL: collection?.logoUrl,
                 },
-                offer_lists:actData
+                offer_lists: actData,
               };
             })
           );
-          return respond(resultsNFT);
+          let rst = {
+            success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: resultsNFT,
+          };
+          return rst;
         }
         return respond("Items not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      return respond(error.message, true, 500);
+      return respond(error.message, true, 422);
     }
   }
-  /**
-   * Get all trending NFTs in collection
-   * @param filters filter
-   * @returns Array<INFT>
-   */
+
   async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
@@ -293,10 +281,11 @@ export class NFTController extends AbstractEntity {
               return {
                 ...item,
                 collection_details: {
-                  _id: collection._id,
-                  contract: collection.contract,
-                  name: collection.name,
-                  platform: collection.platform,
+                  _id: collection?._id,
+                  contract: collection?.contract,
+                  name: collection?.name,
+                  platform: collection?.platform,
+                  logoURL: collection?.logoUrl,
                 },
                 counts: activity.length,
               };
@@ -312,21 +301,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  /**
-   * Create NFT item - save to NFT table in db
-   * It check collection, owner and creator.
-   * After that it create new INFT object and insert it to collection
-   * Also it adds this nft to the owner's nft and creator's created
-   * Then it adds nft item to the collection
-   *
-   * @param contract
-   * @param nftId
-   * @param artURI
-   * @param price
-   * @param ownerAddr
-   * @param creatorAddr
-   * @returns
-   */
+
   async createNFT(
     artFile,
     name,
@@ -339,93 +314,157 @@ export class NFTController extends AbstractEntity {
     tokenType,
     artName,
     contentType,
+    mimeType,
     owner
   ): Promise<IResponse> {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
-    if (!ObjectId.isValid(collectionId)) {
-      return respond("Invalid Collection Id", true, 422);
-    }
-    const artIpfs = artFile ? await uploadImageBase64({ name: artName, img: artFile }) : "";
-    let queryArt = this.findNFTItemByArt(artIpfs);
-    const findResult = (await nftTable.findOne(queryArt)) as INFT;
-    if (findResult && findResult._id) {
-      return respond("Current nft has been created already", true, 422);
-    }
-    // let query = this.findNFTItemByArt(artFile);
-    // const findResult = (await nftTable.findOne(query)) as INFT;
-    // if (findResult && findResult._id) {
-    //   return respond("Current nft has been created already", true, 501);
-    // }
-    let query = this.findCollectionById(collectionId);
-    const collection = (await collectionTable.findOne(query)) as INFTCollection;
-    if (!collection) {
-      return respond("collection not found.", true, 422);
-    }
-    const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
-    let newIndex = sortNft ? sortNft.index + 1 : 0;
-    // const url = await uploadImage(artFile);
-    const nft: INFT = {
-      collection: collectionId,
-      index: newIndex,
-      owner: owner,
-      creator: owner,
-      artURI: artIpfs,
-      price: 0,
-      name: name ?? "",
-      externalLink: externalLink ?? "",
-      description: description ?? "",
-      isExplicit: isExplicit ?? false,
-      status: "Created",
-      status_date: new Date().getTime(),
-      properties: JSON.parse(properties) ?? {},
-      lockContent: unlockableContent ?? false,
-      tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
-      contentType:
-        contentType === "music"
-          ? ContentType.MUSIC
-          : contentType === "image"
-          ? ContentType.IMAGE
-          : contentType === "video"
-          ? ContentType.VIDEO
-          : ContentType.IMAGE,
-    };
-    const result = await nftTable.insertOne(nft);
-    if (result) nft._id = result.insertedId;
-    return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
+    const globalTable = this.mongodb.collection(this.globaltable);
+    try {
+      if (!ObjectId.isValid(collectionId)) {
+        return respond("Invalid Collection Id", true, 422);
+      }
+      let query = this.findCollectionById(collectionId);
+      const collection = (await collectionTable.findOne(query)) as INFTCollection;
+      if (!collection) {
+        return respond("collection not found.", true, 422);
+      }
+      if (collection && collection.blockchain != tokenType) {
+        return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
+      }
+      const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
+      let queryArt = this.findNFTItemByArt(artIpfs);
+      const findResult = (await nftTable.findOne(queryArt)) as INFT;
+      if (findResult && findResult._id) {
+        return respond("Current nft has been created already", true, 422);
+      }
+      // let query = this.findNFTItemByArt(artFile);
+      // const findResult = (await nftTable.findOne(query)) as INFT;
+      // if (findResult && findResult._id) {
+      //   return respond("Current nft has been created already", true, 501);
+      // }
+      const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
+      // const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
+      let newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
+      if (nftVar) {
+        await globalTable.replaceOne({ globalId: "nft" }, { globalId: "nft", nftIndex: newIndex });
+      } else {
+        await globalTable.insertOne({
+          globalId: "nft",
+          nftIndex: newIndex,
+        });
+      }
+      let own = [];
+      own.push(owner);
+      // const url = await uploadImage(artFile);
+      const nft: INFT = {
+        collection: collectionId,
+        index: newIndex,
+        owner: owner,
+        owners: own,
+        creator: owner,
+        artURI: artIpfs,
+        price: 0,
+        name: name ?? "",
+        externalLink: externalLink ?? "",
+        description: description ?? "",
+        isExplicit: isExplicit ?? false,
+        saleStatus: SaleStatus.NOTFORSALE,
+        mintStatus: MintStatus.LAZYMINTED,
+        status_date: new Date().getTime(),
+        properties: properties ? JSON.parse(properties) : {},
+        lockContent: unlockableContent ?? false,
+        tokenType: tokenType == "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
+        contentType:
+          contentType === "music"
+            ? ContentType.MUSIC
+            : contentType === "image"
+            ? ContentType.IMAGE
+            : contentType === "video"
+            ? ContentType.VIDEO
+            : ContentType.IMAGE,
+      };
+      const result = await nftTable.insertOne(nft);
+      if (result) nft._id = result.insertedId;
+      return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
+    } catch (err) {}
   }
 
-   /**
-   * Delete  collection 
-   * @param collectionId collection Id
-   * @returns
-   */
-    async deleteItem(id:string,ownerId:string){
-      try{
+  async bulkUpload(collectionUrl: string, owner: string, records: any[]) {
+    const globalTable = this.mongodb.collection(this.globaltable);
+    const collectionTable = this.mongodb.collection(this.nftCollectionTable);
+    const nftTable = this.mongodb.collection(this.table);
+
+    try {
+      const collection: INFTCollection = await collectionTable.findOne({ url: collectionUrl });
+      if (!collection) return respond("Collection is not exsiting. Please check URL");
+
+      for (const record of records) {
+        const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
+        const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
+        const contentType = record["Content Type"];
+        const nft: INFT = {
+          collection: collection._id,
+          index: newIndex,
+          owner: owner,
+          owners: [owner],
+          creator: owner,
+          artURI: record["Artwork"],
+          price: 0,
+          name: record["NFT Name"],
+          externalLink: record["External Link"],
+          description: record["Description"],
+          isExplicit: record["Explicit & Sensitive Content"] !== "No",
+          explicitContent:
+            record["Explicit & Sensitive Content"] === "No" ? "" : record["Explicit & Sensitive Content"],
+          saleStatus: SaleStatus.NOTFORSALE,
+          mintStatus: MintStatus.LAZYMINTED,
+          status_date: new Date().getTime(),
+          properties: {},
+          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content"],
+          tokenType: record["Blockchain"] === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
+          contentType:
+            contentType === "music"
+              ? ContentType.MUSIC
+              : contentType === "image"
+              ? ContentType.IMAGE
+              : contentType === "video"
+              ? ContentType.VIDEO
+              : ContentType.IMAGE,
+        };
+        const result = await nftTable.insertOne(nft);
+      }
+      return respond({ status: "success", items: records.length });
+    } catch (err) {
+      return respond(err);
+    }
+  }
+
+  async deleteItem(id: string, ownerId: string) {
+    try {
       if (!ObjectId.isValid(id)) {
         return respond("Invalid itemId ", true, 422);
       }
       const acttable = this.mongodb.collection(this.activityTable);
       const nftTable = this.mongodb.collection(this.table);
-      const itemData = await nftTable.findOne({_id:new ObjectId(id)});
-      if (!itemData){
-        return respond("Items not Found",true,422);
+      const itemData = await nftTable.findOne({ _id: new ObjectId(id) });
+      if (!itemData) {
+        return respond("Items not Found", true, 422);
       }
       if (itemData?.owner.toLowerCase() !== ownerId) {
         return respond("this item not belong to this user", true, 422);
-      };
-      const actData = await acttable.findOne({nftId:itemData.index});
-      if (actData){
-        return respond("This item  has activity",true,422)
       }
-      const deleteItem = await nftTable.remove({_id:new ObjectId(id)});
+      const actData = await acttable.findOne({ nftId: itemData.index });
+      if (actData) {
+        return respond("This item  has activity", true, 422);
+      }
+      const deleteItem = await nftTable.remove({ _id: new ObjectId(id) });
       return respond(`Item ${id} has been removed`);
     } catch (e) {
       return respond(e.message, true, 401);
     }
-    }
-
+  }
 
   async updateNFT(id: string, nft: any) {
     try {
@@ -441,53 +480,31 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-
-  /**
-   * Mounts a generic query to find an item by its collection contract and index.
-   * @param collectionId
-   * @returns
-   */
   private findNFTItem(collectionId: string, index: number): Object {
     return {
       collection: collectionId,
       index,
     };
   }
-  /**
-   * Mounts a generic query to find an item by its collection contract and index.
-   * @param contract
-   * @returns
-   */
+
   private findNFTItemByArt(art: string): Object {
     return {
       artURI: art,
     };
   }
-  /**
-   * Mounts a generic query to find a collection by contract address.
-   * @param contract
-   * @returns
-   */
+
   private findCollection(contract: string): Object {
     return {
       contract: contract,
     };
   }
-  /**
-   * Mounts a generic query to find a collection by contract address.
-   * @param contract
-   * @returns
-   */
+
   private findCollectionById(id: string): Object {
     return {
       _id: new ObjectId(id),
     };
   }
-  /**
-   * Mounts a generic query to find a person by wallet address.
-   * @param contract
-   * @returns
-   */
+
   private findPerson(address: string): Object {
     return {
       wallet: address,

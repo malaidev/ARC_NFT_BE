@@ -105,7 +105,7 @@
         "instagramUrl": {
           "type": "string"
         },
-        "mediumUrl": {
+        "twitterUrl": {
           "type": "string"
         },
         "telegramUrl": {

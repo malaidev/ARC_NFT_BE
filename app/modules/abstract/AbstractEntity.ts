@@ -283,6 +283,49 @@ import {
   
       return aggregation;
     }
+
+
+      /**
+     * Parses the filters attribute in order to obtain a valid MongoDB query object
+     * @param filters
+     * @returns
+     */
+
+       protected parseFiltersFind(filters: IQueryFilters): Array<any> {
+        const aggregation = {} as any;
+        console.log(filters);
+        if (filters && filters.orderBy)        
+          aggregation.sort={
+            [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
+          };  
+        if (filters &&  filters.filters.length) {
+          const matches = [];
+          aggregation.filter={}
+          filters.filters.forEach((item) => {
+              matches.push({
+                [item.fieldName]: item.query==='true'?true:item.query==='false'?false: Number(item.query)?+item.query: new RegExp(item.query, "igm"),
+  
+              });
+          });
+          aggregation.filter=matches
+        }
+        
+        
+        
+        aggregation.limit=filters && filters.limit?filters.limit:10;
+
+        if ( filters && filters.page){
+          console.log(filters.page);
+          filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
+        }else{
+          aggregation.skip=0;
+        }
+
+    
+        return aggregation;
+      }
+
+
   
     /**
      * Returns the contents of `{CurrentController}::data`

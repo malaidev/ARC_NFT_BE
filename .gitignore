@@ -8,6 +8,7 @@ dbaconfig.ts*
 **/.ssh/*
 yarn.lock
 **/reports
+**/tmp
 venv
 cdk.out
 __pycache__

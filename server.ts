@@ -3,7 +3,7 @@ const fastify = require("fastify");
 const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
-const multiPart=require('fastify-multipart');
+const multiPart = require("fastify-multipart");
 
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
@@ -13,8 +13,7 @@ import { config } from "./app/config/config";
 import { router } from "./app/modules/routes";
 import { LogController } from "./app/modules/controller/LogController";
 import { FastifyReply } from "fastify";
-import * as SwaggerPlugin from 'fastify-swagger'
-
+import * as SwaggerPlugin from "fastify-swagger";
 
 process.setMaxListeners(15);
 
@@ -46,67 +45,64 @@ async function mount() {
     secret: config.jwt,
   });
 
-  await app.register(multiPart, { attachFieldsToBody: true })
-  
- 
-  if (process.env.ENV !== 'production') {
-    await app.register( SwaggerPlugin, {
-      routePrefix: '/doc',
-      mode: 'static',
+  await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
+
+  // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
+
+
+  if (process.env.ENV === "dev") {
+    await app.register(SwaggerPlugin, {
+      routePrefix: "/doc",
+      mode: "static",
       exposeRoute: true,
       specification: {
-        path: './app/spec/be-spesification.json',
-        postProcessor: function(swaggerObject) {
-          return swaggerObject
-        } , 
-        baseDir: '/app/spec',
+        path: "./app/spec/be-spesification.json",
+        postProcessor: function (swaggerObject) {
+          return swaggerObject;
+        },
+        baseDir: "/app/spec",
       },
       swagger: {
         info: {
-          title: 'DEPO API',
-          description: 'REST API DEPO documentation',
-          version: '1.0.0'
+          title: "ARC API",
+          description: "REST API ARC documentation",
+          version: "1.0.0",
         },
         externalDocs: {
-          url: 'https://swagger.io',
-          description: 'Find more info here'
+          url: "https://swagger.io",
+          description: "Find more info here",
         },
-        host: 'staging.api.depo.io:443',
-        schemes: [
-          'http',      
-          'https'
-        ],
-        consumes: ['application/json'],
-        produces: ['application/json'] ,
+        host: "staging.api.arc.market:443",
+        schemes: ["http", "https"],
+        consumes: ["application/json"],
+        produces: ["application/json"],
         securityDefinitions: {
           ApiToken: {
             description: 'Authorization header token, sample: "Bearer #TOKEN#"',
-            type: 'apiKey',
-            name: 'Authorization',
-            in: 'header'
-          } 
-        }
-      }
-      });
+            type: "apiKey",
+            name: "Authorization",
+            in: "header",
+          },
+        },
+      },
+    });
   }
-    
-/**
- * This hooks acts as middlewares performing
-* actions on each one of these calls
-* Logs route actions
-*/
- 
+
+  /**
+   * This hooks acts as middlewares performing
+   * actions on each one of these calls
+   * Logs route actions
+   */
+
   /** Checks if session is valid */
   app.addHook("onRequest", async (req, res) => {
     await SessionChecker(req, res, app);
   });
 
   if (config.logging) {
-    if (["any", "action-only"].includes(config.logLevel))
-      app.addHook("onRequest", ActionLogger);
+    if (["any", "action-only"].includes(config.logLevel)) app.addHook("onRequest", ActionLogger);
 
-    if (["any", "error-only"].includes(config.logLevel))
-      app.addHook("onError", ErrorLogger);
+    if (["any", "error-only"].includes(config.logLevel)) app.addHook("onError", ErrorLogger);
 
     app.addHook("onResponse", async (req, res: FastifyReply) => {
       if (res.statusCode >= 400) {
@@ -130,7 +126,6 @@ async function mount() {
 
   return app;
 }
-
 
 config.mongodb
   .createInstance()

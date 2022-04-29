@@ -45,9 +45,9 @@ export const uploadOwnerPhoto = async (req, res) => {
  *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  const { photoUrl, bio, username, social } = req.body as any;
+  const { photoUrl, bio, username, social, email } = req.body as any;
   const { ownerId } = req.params as any;
-  const userSession = req["session"] as any;
+  const userSession = req["session"] as any; 
 
   const user = { walletId: ownerId };
   if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
@@ -55,7 +55,7 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
   }
   const ctl = new NFTOwnerController();
  
-  const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social);
+  const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social, email);
  
   res.send(result);
 };
@@ -80,7 +80,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   /**remove Auth */
   // const user = req['session'].walletId as any;
   const { ownerId } = req.params as any;
-  const user = ownerId;
+  const user = ownerId.toLowerCase();
   try {
     const userSession = req["session"] as any;
     if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
@@ -91,6 +91,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     if (hasOwner.success === false) {
       res.code(400).send(hasOwner);
     } else {
+     
       const result = await ctl.updateOwner(user, { ...Owner });
       res.send(result);
     }
