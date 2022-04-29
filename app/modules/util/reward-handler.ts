@@ -1,9 +1,11 @@
+
 import { config } from "../../config/config";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFTReward } from "../interfaces/INFTReward";
 import { IResponse } from "../interfaces/IResponse";
 import { respond } from "./respond";
+
 export class rewardHelper extends AbstractEntity {
     protected data: INFTReward;
     protected rewardTable: string = "Reward";
@@ -93,6 +95,7 @@ export class rewardHelper extends AbstractEntity {
           return 0;
         }
       }
+
     private async CollectReward(wallet:string,marketVolume:number){
         const nft= this.mongodb.collection(this.nftTable);
         const act = this.mongodb.collection(this.activityTable);
@@ -131,18 +134,23 @@ export class rewardHelper extends AbstractEntity {
          listingARC=1;
          totalItems=rstNft;
          listingARC=rstListing;
-         let SCORECOLLECTION    = (listingARC/totalItems)*( ( (1+volumeArc)* VolumeOS*SalesOS)/(totalMarketVolume)  );
-         let PNFT               = await this.getpnft(wallet,SCORECOLLECTION,totalItems) //SCORECOLLECTION * (1 /(totalItems*(1+price-floorPriceCollection)*duration) )
-         let LISTINGSCORE       =  await this.getListingScore(wallet,PNFT,multiplier)  //Math.max(lastPriceNFT,floorPriceCollection) * PNFT * multiplier;
-         let LISTINGREWARD      = LISTINGSCORE * rateScoreARC;
+
+         const openos=await this.getOpenSea();
+
+         VolumeOS=openos.volume;
+         SalesOS=openos.sales;
+         let SCORECOLLECTION    =   (listingARC/totalItems)*( ( (1+volumeArc)* VolumeOS*SalesOS)/(totalMarketVolume)  );
+         let PNFT               =   await this.getpnft(wallet,SCORECOLLECTION,totalItems) //SCORECOLLECTION * (1 /(totalItems*(1+price-floorPriceCollection)*duration) )
+         let LISTINGSCORE       =   await this.getListingScore(wallet,PNFT,multiplier)  //Math.max(lastPriceNFT,floorPriceCollection) * PNFT * multiplier;
+         let LISTINGREWARD      =   LISTINGSCORE * rateScoreARC;
          
          
-         console.log('result nft --->>>> ',rstNft);
-         console.log('result nft listing --->>>> ',rstListing);
-         console.log('--->>>>>>> SCORE COLLECTION',SCORECOLLECTION);
-         console.log('--->>>>>>> PNFT ',PNFT);
-         console.log('--->>>>>>> LISTINGSCORE ',LISTINGSCORE);
-         console.log('--->>>>>>> LISTINGREWARD ',LISTINGREWARD);
+        //  console.log('result nft --->>>> ',rstNft);
+        //  console.log('result nft listing --->>>> ',rstListing);
+        //  console.log('--->>>>>>> SCORE COLLECTION',SCORECOLLECTION);
+        //  console.log('--->>>>>>> PNFT ',PNFT);
+        //  console.log('--->>>>>>> LISTINGSCORE ',LISTINGSCORE);
+        //  console.log('--->>>>>>> LISTINGREWARD ',LISTINGREWARD);
 
          const insertData={
              wallet,
@@ -153,10 +161,46 @@ export class rewardHelper extends AbstractEntity {
          };
          const findReward = await reward.findOne({wallet});
          if (findReward){
-             await await reward.updateOne({ wallet }, { $set: insertData });
+             await  reward.updateOne({ wallet }, { $set: insertData });
          }else{
             await reward.insertOne(insertData);
          };
          return;
+      }
+
+
+    private async getOpenSea(){
+        const axios = require("axios").default;
+        const openSeaUrl=config.opensea.api_addr;
+        const openSeaKey=config.opensea.api_key;
+        const assetContract = '0x8113901EEd7d41Db3c9D327484be1870605e4144';
+
+
+        const options = {
+            method: 'GET',
+            url: `${openSeaUrl}events?only_opensea=false&asset_contract_address=${assetContract}&event_type=successful`,
+            headers: {Accept: 'application/json', 'X-API-KEY': `${openSeaKey}`}
+        };
+        let sales=0;
+        let volume=0;
+        const result = await axios.request(options);
+
+        if (result && result.length>0){
+             sales = result.reduce((acc, obj) => {
+                return acc + (+obj.total_price);
+              }, 0);
+              return {sales,volume};
+        }else{
+            return {sales,volume};
+        }
+        // axios.request(options).then(function (response) {
+        //     console.log(response.data);
+
+
+        //   }).catch(function (error) {
+        //     throw new Error(`${error}`);
+        //   });
+
+
       }
 }
