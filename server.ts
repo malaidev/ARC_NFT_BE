@@ -54,8 +54,8 @@ async function mount() {
   await app.register(fastifyCron,{
     jobs:[
       {
-        cronTime: '0 0 * * *', // Everyday at midnight UTC
-        // cronTime:'* * * * *',
+        
+        cronTime: process.env.ENV=='staging'?'* * * * *':'0 0 * * *', // Everyday at midnight UTC
         onTick: async server => {
           console.log('run');
           const x = new rewardHelper();
