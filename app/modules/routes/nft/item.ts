@@ -74,7 +74,7 @@ export const createItem = async (req, res) => {
     body.description,
     body.collectionId,
     body.properties,
-    body.unlockableContent,
+    body.lockContent,
     body.isExplicit,
     body.tokenType,
     body.artName,
