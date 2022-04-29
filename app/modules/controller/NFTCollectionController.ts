@@ -592,7 +592,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param siteUrl
    * @param discordUrl
    * @param instagramUrl
-   * @param mediumUrl
+   * @param twitterUrl
    * @param telegramUrl
    * @param creatorEarning
    * @param blockchain
@@ -611,7 +611,7 @@ export class NFTCollectionController extends AbstractEntity {
     siteUrl,
     discordUrl,
     instagramUrl,
-    mediumUrl,
+    twitterUrl,
     telegramUrl,
     creatorEarning,
     blockchain,
@@ -676,7 +676,7 @@ export class NFTCollectionController extends AbstractEntity {
         bannerUrl: bannerIpfs,
         description: description ?? "",
         category: category ?? "",
-        links: [siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", mediumUrl ?? "", telegramUrl ?? ""],
+        links: [siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", twitterUrl ?? "", telegramUrl ?? ""],
         platform: "ARC",
         properties: {},
         offerStatus: OfferStatusType.NONE,
