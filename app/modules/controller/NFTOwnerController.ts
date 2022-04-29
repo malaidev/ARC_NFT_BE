@@ -88,6 +88,7 @@ export class NFTOwnerController extends AbstractEntity {
         username: result.username,
         bio: result.bio,
         social: result.social,
+        email: result.email,
         nfts: ntfs,
         collections: colls,
       });
@@ -107,6 +108,7 @@ export class NFTOwnerController extends AbstractEntity {
         username: result.username,
         bio: result.bio,
         social: result.social,
+        email: result.email,
         nfts: 0,
         collections: 0,
       });
