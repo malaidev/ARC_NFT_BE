@@ -6,5 +6,6 @@ export interface IPerson {
   username?: string;                    // username
   bio?: string;                         // bio of user
   social?: string;                      // social link of user
-  nonce?:number
+  nonce?:number;
+  email?:string;
 }
