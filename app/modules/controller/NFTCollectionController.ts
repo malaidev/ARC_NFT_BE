@@ -179,10 +179,10 @@ export class NFTCollectionController extends AbstractEntity {
         let count ;
         if (aggregation && aggregation.filter){
           count = await collectionTable.find({$or:aggregation.filter}).count();
-          result=aggregation.sort? await collectionTable.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await collectionTable.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
+          result=aggregation.sort? await collectionTable.find({$or:aggregation.filter}).sort(aggregation.sort).toArray() as Array<INFT>:await collectionTable.find({$or:aggregation.filter}).toArray() as Array<INFT>;
         }else{
           count = await collectionTable.find().count();
-          result=aggregation.sort?await collectionTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray():await collectionTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
+          result=aggregation.sort?await collectionTable.find({}).sort(aggregation.sort).toArray():await collectionTable.find({}).toArray() as Array<INFT>;
         }
 
         
