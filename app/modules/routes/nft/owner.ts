@@ -45,7 +45,7 @@ export const uploadOwnerPhoto = async (req, res) => {
  *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
-  const { photoUrl, bio, username, social, email } = req.body as any;
+  const { photoUrl, bio, username, social, email , optIn} = req.body as any;
   const { ownerId } = req.params as any;
   const userSession = req["session"] as any; 
 
@@ -91,7 +91,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     if (hasOwner.success === false) {
       res.code(400).send(hasOwner);
     } else {
-     
+       
       const result = await ctl.updateOwner(user, { ...Owner });
       res.send(result);
     }

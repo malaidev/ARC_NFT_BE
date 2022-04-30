@@ -193,6 +193,18 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "moralis", "key": "moralis_masterkey"}
                                         },
                                     },
+                                    {
+                                        "name": "OPENSEA_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "OPENSEA_ADDR",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_addr"}
+                                        },
+                                    },
                                 ],
                             }
                         ]
