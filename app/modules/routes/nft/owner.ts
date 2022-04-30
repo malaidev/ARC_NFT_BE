@@ -55,7 +55,7 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
   }
   const ctl = new NFTOwnerController();
  
-  const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social, email);
+  const result = await ctl.createOwner( photoUrl, user.walletId.toLowerCase(), bio, username,social, email, optIn);
  
   res.send(result);
 };
