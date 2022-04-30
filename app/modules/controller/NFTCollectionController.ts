@@ -560,7 +560,7 @@ export class NFTCollectionController extends AbstractEntity {
               // }else{
                 if (activity && activity.nftId){
                   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-                  activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
+                  activity.nftObject = { artURI: nft?.artURI, name: nft?.name };
                 }else{
                   activity.isCollection=true;
                 }
