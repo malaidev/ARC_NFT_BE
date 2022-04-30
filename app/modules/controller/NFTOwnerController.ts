@@ -263,7 +263,7 @@ export class NFTOwnerController extends AbstractEntity {
               const coll = (await collection.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
               return {
                 ...item,
-                nft: { artUri: nfts?.artURI, name: nfts?.name },
+                nft: { artURI: nfts?.artURI, name: nfts?.name },
                 collection: { ...coll },
               };
             })
@@ -416,7 +416,7 @@ export class NFTOwnerController extends AbstractEntity {
               item.collectionId = item.collection;
               item.collection = col.contract;
 
-              item.nft = { artUri: nfts.artURI, name: nfts.name };
+              item.nft = { artURI: nfts.artURI, name: nfts.name };
               rst.push(item)
               }
               

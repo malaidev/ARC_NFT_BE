@@ -42,6 +42,18 @@ const getPriceFromUniswap = async (address: string) => {
   return 0;
 };
 
+const getPoolTokenPriceUniswap = async (address: string) => {
+  if (!address) {
+    return 0;
+  }
+  const { data: v2Data } = await Axios.post(UniswapV2API, {
+    query: `{pair(id: "${address}") { totalSupply, reserveUSD } }`,
+  });
+  return (
+    Number(v2Data.data.pair.reserveUSD) / Number(v2Data.data.pair.totalSupply)
+  );
+};
+
 export const getTokenUsdtPrice = async (
   req: FastifyRequest,
   res: FastifyReply
@@ -53,10 +65,15 @@ export const getTokenUsdtPrice = async (
       price: 1,
     });
   }
-  
+
   const formattedSymbol = `${symbol}/USDT`;
+  let price;
   try {
-    const price = await binanceService.getPrice(`${symbol}usdt`);
+    if (symbol.includes("-")) {
+      price = await getPoolTokenPriceUniswap(address);
+    } else {
+      price = await binanceService.getPrice(`${symbol}usdt`);
+    }
     return res.send({
       symbol: formattedSymbol,
       price: price,
