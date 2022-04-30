@@ -55,12 +55,12 @@ async function mount() {
     jobs:[
       {
         
-        cronTime: process.env.ENV=='staging'?'* * * * *':'0 0 * * *', // Everyday at midnight UTC
+        cronTime: process.env.ENV=='0 0 * * *',
         onTick: async server => {
           console.log('run');
           const x = new rewardHelper();
           const y = await x.calculateReward();
-          console.log(y)
+          // console.log(y)
         },
         
       }

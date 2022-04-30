@@ -33,9 +33,10 @@ export class NFTRewardController extends AbstractEntity {
         const x = new rewardHelper();
 
         const rst = await rwd.findOne({wallet});
-
-        // const rst = await x.calculateReward();
-        return  respond(rst);
+        return  respond({
+          wallet:rst.wallet,
+          reward:rst.listingReward
+        });
       }else {
         throw new Error("Could not connect to the database.");
       }
