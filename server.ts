@@ -55,7 +55,7 @@ async function mount() {
     jobs:[
       {
         
-        cronTime: process.env.ENV=='0 0 * * *',
+        cronTime:'0 0 * * *',
         onTick: async server => {
           console.log('run');
           const x = new rewardHelper();
