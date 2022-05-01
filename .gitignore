@@ -12,4 +12,4 @@ yarn.lock
 venv
 cdk.out
 __pycache__
-thunder-tests
+thunder-tests.DS_Store
