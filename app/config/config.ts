@@ -92,6 +92,10 @@ const config = {
     appid: process.env["MORALIS_APPID"],
     master_key: process.env["MORALIS_MASTER_KEY"],
   },
+  opensea:{
+    api_key:process.env["OPENSEA_KEY"]||"c9881567f3eb42749934d3743642e5dd",
+    api_addr:process.env["OPENSEA_ADDR"]||"https://api.opensea.io/api/v1/"
+  }
 };
 
 export { config };
