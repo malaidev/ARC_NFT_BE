@@ -49,16 +49,6 @@ async function mount() {
     secret: config.jwt,
   });
 
-<<<<<<< HEAD
-  await app.register(multiPart, { attachFieldsToBody: true })
-  
-  // await app.register(helmet, { global: false })
-  
-  if (process.env.ENV !== 'production') {
-    await app.register( SwaggerPlugin, {
-      routePrefix: '/doc',
-      mode: 'static',
-=======
   await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
@@ -82,7 +72,6 @@ async function mount() {
     await app.register(SwaggerPlugin, {
       routePrefix: "/doc",
       mode: "static",
->>>>>>> staging
       exposeRoute: true,
       specification: {
         path: "./app/spec/be-spesification.json",
