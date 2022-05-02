@@ -33,10 +33,15 @@ export class NFTRewardController extends AbstractEntity {
         const x = new rewardHelper();
 
         const rst = await rwd.findOne({wallet});
-        return  respond({
-          wallet:rst.wallet,
-          reward:rst.listingReward
-        });
+        if (rst){
+          return  respond({
+            wallet:rst.wallet,
+            reward:rst.listingReward
+          });
+        }else{
+         return respond(`Reward ${wallet} not available`,true,403) 
+        }
+        
       }else {
         throw new Error("Could not connect to the database.");
       }
