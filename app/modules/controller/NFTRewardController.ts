@@ -39,7 +39,12 @@ export class NFTRewardController extends AbstractEntity {
             reward:rst.listingReward
           });
         }else{
-         return respond(`Reward ${wallet} not available`,true,403) 
+          
+         return respond({
+           wallet:wallet,
+           reward:0,
+           note:`Reward ${wallet} not available yet`
+         }) 
         }
         
       }else {
