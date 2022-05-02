@@ -23,7 +23,7 @@ export const uploadOwnerPhoto = async (req, res) => {
     ";base64," +
     Buffer.from(await req.body.photoFile.toBuffer()).toString("base64"); // access files
   const ctl = new NFTOwnerController();
-  const result = await ctl.updateOwnerPhoto(ownerId, photoBody);
+  const result = await ctl.updateOwnerPhoto(ownerId.toLowerCase(), photoBody);
   res.send(result);
 };
 
