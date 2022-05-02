@@ -1,6 +1,6 @@
 {
   "name": "webservice-wsrv01",
-  "version": "0.7.14",
+  "version": "0.7.13",
   "main": "./server.ts",
   "scripts": {
     "start": "nodemon -r esm server.ts ",
@@ -41,6 +41,7 @@
     "mongodb": "^3.6.6",
     "mongoose": "^6.2.4",
     "moralis": "^1.5.5",
+    "node-mailer": "^0.1.1",
     "nodemailer": "^6.7.4",
     "nodemon": "^2.0.12",
     "pino-pretty": "^4.7.1",
