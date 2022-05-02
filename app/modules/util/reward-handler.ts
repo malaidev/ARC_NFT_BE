@@ -18,7 +18,7 @@ export class rewardHelper extends AbstractEntity {
     async calculateReward():Promise<void|IResponse>{
         try {
             if (this.mongodb) {
-                console.log('calculate reward')
+                
                 const person= this.mongodb.collection(this.ownerTable);
                 const colltable=this.mongodb.collection(this.collectiontable);
                 const result = await person.find({}).toArray();
