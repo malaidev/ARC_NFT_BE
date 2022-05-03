@@ -761,9 +761,6 @@ export class NFTCollectionController extends AbstractEntity {
       if (!findResult && findResult._id) {
         return respond("This collection id not found", true, 422);
       }
-      if (!url) {
-        return respond("Collection url empty", true, 422);
-      }
       
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
@@ -791,11 +788,7 @@ export class NFTCollectionController extends AbstractEntity {
       if (category){findResult.category=category}
       
       findResult.links=[siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", twitterUrl ?? "", telegramUrl ?? ""];
-
-       
-       const result=await collection.replaceOne({_id:new ObjectId(collectionId)},findResult);
-
-      
+      const result=await collection.replaceOne({_id:new ObjectId(collectionId)},findResult);
       return result
         ? respond({ ...findResult})
         : respond("Failed to update a new collection.", true, 500);
