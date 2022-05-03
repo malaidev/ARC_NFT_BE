@@ -690,6 +690,120 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(e.message, true, 500);
     }
   }
+
+
+
+  /**
+   * update  collection - save to MongoDB
+   * It check collection is in database, then fail
+   * Otherwise add new collection
+   * @param logoFile
+   * @param featuredImgFile
+   * @param bannerImgFile
+   * @param name
+   * @param url
+   * @param description
+   * @param category
+   * @param siteUrl
+   * @param discordUrl
+   * @param instagramUrl
+   * @param twitterUrl
+   * @param telegramUrl
+   * @param creatorEarning
+   * @param blockchain
+   * @param isExplicit
+   * @param creatorId
+   * @returns result of creation
+   */
+   async   updateCollection(
+    collectionId,
+    logoFile,
+    featuredImgFile,
+    bannerImgFile,
+    name,
+    url,
+    description,
+    category,
+    siteUrl,
+    discordUrl,
+    instagramUrl,
+    twitterUrl,
+    telegramUrl,
+    creatorEarning,
+    blockchain,
+    isExplicit,
+    creatorId,
+    logoName,
+    featureName,
+    bannerName,
+    logoMimetype,
+    featuredMimetype,
+    bannerMimetype
+  ): Promise<IResponse> {
+    const collection = this.mongodb.collection(this.table);
+    const ownerTable = this.mongodb.collection(this.ownerTable);
+    try {
+
+      
+      
+      if (creatorId){
+        if ( !ObjectId.isValid(creatorId)) {
+          return respond("Invalid creatorID", true, 422);
+        }
+        const creator = (await ownerTable.findOne(this.findPersonById(creatorId))) as IPerson;
+        if (!creator) {
+          return respond("creator address is invalid or missing", true, 422);
+        }
+      }
+      
+      const findResult = (await collection.findOne({_id:new ObjectId(collectionId)})) as INFTCollection;
+      
+      if (!findResult && findResult._id) {
+        return respond("This collection id not found", true, 422);
+      }
+      if (!url) {
+        return respond("Collection url empty", true, 422);
+      }
+      
+      let contract = "";
+      /** Default contract for ERC721 and ERC1155 */
+      if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
+      else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
+      const logoIpfs=logoFile? await S3uploadImageBase64(logoFile,`${logoName}_${Date.now()}`,logoMimetype,'collection'):"";
+      const featuredIpfs= featuredImgFile?await S3uploadImageBase64(featuredImgFile,`${featureName}_${Date.now()}`,featuredMimetype,'collection'):"";
+      const bannerIpfs = bannerImgFile?await S3uploadImageBase64(bannerImgFile,`${bannerName}_${Date.now()}`,bannerMimetype,'collection'):"";
+
+      if (logoFile) {findResult.logoUrl=logoIpfs}
+      if (featuredImgFile) {findResult.featuredUrl=featuredIpfs}
+      if (bannerImgFile) {findResult.bannerUrl=bannerIpfs}
+      if (name){findResult.name=name}
+
+      if (url){
+        const findUrl = await collection.findOne({ url });
+        if (findUrl && findUrl._id) {
+          return respond("Same collection url detected", true, 422);
+        }
+        findResult.url=url;
+      }
+      if (creatorEarning){findResult.creatorEarning=creatorEarning}
+      if (isExplicit){findResult.isExplicit= isExplicit && isExplicit.toLowerCase()==='true'?true:false}
+      if (description){findResult.description=description}
+      if (category){findResult.category=category}
+      
+      findResult.links=[siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", twitterUrl ?? "", telegramUrl ?? ""];
+
+       
+       const result=await collection.replaceOne({_id:new ObjectId(collectionId)},findResult);
+
+      
+      return result
+        ? respond({ ...findResult})
+        : respond("Failed to update a new collection.", true, 500);
+    } catch (e) {
+      return respond(e.message, true, 500);
+    }
+  }
+
   /**
    * Get collection detail information with items, activity
    * @param collectionId collection Id
