@@ -4,6 +4,7 @@ const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
 const multiPart = require("fastify-multipart");
+// const helmet = require('fastify-helmet');
 
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";

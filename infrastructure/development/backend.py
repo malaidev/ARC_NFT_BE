@@ -30,7 +30,7 @@ class Stack(core.Stack):
             zone_name="api.arc.market",
         )
 
-        domain = "staging.api.arc.market"
+        domain = "development.api.arc.market"
 
         # ACM
         certificate = cm.Certificate(

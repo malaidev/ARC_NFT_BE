@@ -5,12 +5,13 @@
     "version": "1.0.0",
     "title": "swagger specification",
     "contact": {
-      "email": "mujoko@depo.io"
+      "email": "mujoko@arc.market"
     }
   },
   "servers": [
     {
-      "url": "https://staging.api.arc.market/ws/v2/"
+      
+      "url": "https://development.api.arc.market/ws/v2/"
     },
     {
       "url": "http://localhost:3001/ws/v2/",
