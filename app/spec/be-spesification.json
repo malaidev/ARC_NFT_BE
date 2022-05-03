@@ -10,7 +10,8 @@
   },
   "servers": [
     {
-      "url": "https://staging.api.arc.market/ws/v2/"
+      
+      "url": "https://development.api.arc.market/ws/v2/"
     },
     {
       "url": "http://localhost:3001/ws/v2/",

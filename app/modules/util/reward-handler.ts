@@ -189,7 +189,7 @@ export class rewardHelper extends AbstractEntity {
             findReward.pnft=PNFT;
             findReward.listingScore=LISTINGSCORE;
             findReward.listingReward=LISTINGREWARD;
-            await rewardD.replaceOne({_id:ObjectID(findReward._id.toString())},findReward)
+            await rewardD.replaceOne({_id:new ObjectID(findReward._id.toString())},findReward)
          }else{
              insertData['date']=startDate;
              await rewardD.insertOne(insertData);
