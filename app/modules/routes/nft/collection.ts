@@ -80,6 +80,92 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
   const result = await ctl.getActivity(collectionId, filters);
   res.send(result);
 };
+
+
+export const updateCollection = async (req,res)=>{
+  
+  let logoBody: any = null;
+  let featuredImgBody: any = null;
+  let bannerImgBody: any = null;
+  let logoMimetype:any=null;
+  let featuredMimetype:any=null;
+  let bannerMimetype:any=null;
+  const { collectionId } = req.params as any;
+
+  const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
+
+  if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
+    //  logoBody=await  req.body.logoFile.toBuffer();
+     logoMimetype= req.body.logoFile.mimetype;
+     logoBody =
+      "data:" +
+      req.body.logoFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
+      body.logoFile = logoBody;
+      body.logoName = logoBody ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")) : "";
+  }
+  if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
+    //  featuredImgBody= await req.body.featuredImgFile.toBuffer();
+     featuredMimetype=req.body.featuredImgFile.mimetype;
+    featuredImgBody =
+      "data:" +
+      req.body.featuredImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
+      body.featuredImgFile = featuredImgBody;
+      body.featureName = featuredImgBody
+    ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf("."))
+    : "";
+  }
+  if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
+    // bannerImgBody= await req.body.bannerImgFile.toBuffer();
+    bannerMimetype=req.body.bannerImgFile.mimetype;
+    bannerImgBody =
+      "data:" +
+      req.body.bannerImgFile.mimetype +
+      ";base64," +
+      Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
+      body.bannerImgFile = bannerImgBody;
+      body.bannerName = bannerImgBody
+    ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
+    : "";
+  }
+  
+  
+  
+  
+  
+  
+  
+  const ctl = new NFTCollectionController();
+  const result = await ctl.updateCollection(
+    collectionId,
+    body.logoFile||null,
+    body.featuredImgFile||null,
+    body.bannerImgFile||null,
+    body.name,
+    body.url,
+    body.description,
+    body.category,
+    body.siteUrl,
+    body.discordUrl,
+    body.instagramUrl,
+    body.twitterUrl,
+    body.telegramUrl,
+    body.creatorEarning,
+    body.blockchain,
+    body.isExplicit,
+    body.creatorId,
+    body.logoName,
+    body.featureName,
+    body.bannerName,
+    logoMimetype,
+    featuredMimetype,
+    bannerMimetype
+  );
+  res.send(result);
+}
 export const createCollection = async (req, res) => {
   if (req.body && !req.body.logoFile) {
     throw new Error("logoUrl is invalid or missing");
