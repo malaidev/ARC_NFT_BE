@@ -6,6 +6,7 @@ import { INFTReward } from "../../interfaces/INFTReward";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { respond } from "../../util/respond";
 import { NFTRewardController } from "../../controller/NFTRewardController";
+import { rewardHelper } from "../../util/reward-handler";
 
 
 
@@ -17,4 +18,25 @@ export const getReward = async (req: FastifyRequest, res: FastifyReply) => {
     const ctl = new NFTRewardController();
     const result = await ctl.getReward(walletId.toLowerCase());
     res.send(result);
+}
+
+export const claimReward= async (req: FastifyRequest, res: FastifyReply) => {
+    const { walletId,claim } = req.body as any;
+    const ctl = new NFTRewardController();
+    const result = await ctl.claimReward(walletId.toLowerCase(),claim);
+    res.send(result);
+}
+
+
+export const getTest = async (req: FastifyRequest, res: FastifyReply) => {
+    const { walletId } = req.params as any;
+    
+    console.log('rewards')
+
+    const ctl = new NFTRewardController();
+    const x = new rewardHelper()
+    x.calculateReward();
+    res.send('ok');
+    // const result = await ctl.getReward(walletId.toLowerCase());
+    // res.send(result);
 }

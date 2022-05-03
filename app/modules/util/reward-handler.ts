@@ -24,21 +24,17 @@ export class rewardHelper extends AbstractEntity {
                 const result = await person.find({}).toArray();
                 let x = new Date()
                 let today = new Date(x.getFullYear(),x.getMonth()+1,x.getDate(),0,0,0);
-                
+                let dailyCode=`${x.getFullYear()}${x.getMonth()+1}${x.getDate()}`;
                 let yesterdayDate= new Date();
-                
+
                 yesterdayDate.setDate(today.getDate() -1);
 
-                console.log(yesterdayDate)
-                console.log(yesterdayDate.getTime())
-                console.log(today.getTime())
                 let marketVolume=1;
                 const collData= await colltable.aggregate([{ $group: { _id : null, sum : { $sum: "$volume" } } }]).toArray();
-                console.log(collData);
                 collData && collData.length>0?marketVolume= collData[0].sum:marketVolume=1;
                 await Promise.all(
                     result.map(async(p)=>{
-                        await this.CollectReward(p.wallet.toLowerCase(),marketVolume,yesterdayDate.getTime(),today.getTime());
+                        await this.CollectReward(p.wallet.toLowerCase(),marketVolume,yesterdayDate.getTime(),today.getTime(),dailyCode);
                     })
                 )
                 return respond('Calculate ok');
@@ -46,7 +42,6 @@ export class rewardHelper extends AbstractEntity {
                 throw new Error("Could not connect to the database.");
             }
         } catch (error) {
-            console.log(error);
           }
     }
     private async getpnft(wallet:string,scoreCollection:number,totalItems:number,startDate:number,endDate:number){
@@ -67,7 +62,7 @@ export class rewardHelper extends AbstractEntity {
         return xPnft?xPnft:0;
     };
     private async getListingScore(wallet:string,PNFT:number,multiplier:number,startDate:number,endDate:number){
-        let xList=0;
+        let xList:number=0;
         const act= this.mongodb.collection(this.activityTable);
         const coll = this.mongodb.collection(this.collectiontable);
         const collData = await coll.find({creator:wallet}).toArray();
@@ -81,9 +76,12 @@ export class rewardHelper extends AbstractEntity {
                     ).sort({endDate:-1}).limit(1)
                     .toArray()) as Array<IActivity>;
                     let f= await this.getFloorPrice(c._id.toString());
-                let lstPrice = fList && fList.length>0?fList[0].price:0;        
-                let lScore = Math.max(lstPrice,f) * PNFT * multiplier;
+                let lstPrice:number = fList && fList.length>0?fList[0].price:0;        
+                let lScore:number =Math.max(lstPrice,f) * PNFT * multiplier;
+                
                 xList+=lScore;
+
+                
 
             })
         )
@@ -106,7 +104,7 @@ export class rewardHelper extends AbstractEntity {
         }
       }
 
-    private async CollectReward(wallet:string,marketVolume:number,startDate:number,endDate:number){
+    private async CollectReward(wallet:string,marketVolume:number,startDate:number,endDate:number,dailyCode:string){
         const nft= this.mongodb.collection(this.nftTable);
         const act = this.mongodb.collection(this.activityTable);
         const reward= this.mongodb.collection(this.rewardTable);
@@ -135,8 +133,6 @@ export class rewardHelper extends AbstractEntity {
           let totalItems = 0;
           let rateScoreARC=0.3;
          wallet = wallet.toLowerCase();
-
-
          const rstNft= await nft.find().count();
          const rstListing=await act.find({from:wallet,type:'List',startDate:{$gte:startDate,$lte:endDate}}).count();
          const collData= await coll.aggregate([{$match:{creator:wallet}},{ $group: { _id : null, sum : { $sum: "$volume" } } }]).toArray();
@@ -148,52 +144,57 @@ export class rewardHelper extends AbstractEntity {
 
          VolumeOS=openos.volume;
          SalesOS=openos.sales;
-         let SCORECOLLECTION    =   (listingARC/totalItems)*( ( (1+volumeArc)* VolumeOS*SalesOS)/(totalMarketVolume)  );
-         let PNFT               =   await this.getpnft(wallet,SCORECOLLECTION,totalItems,startDate,endDate) //SCORECOLLECTION * (1 /(totalItems*(1+price-floorPriceCollection)*duration) )
-         let LISTINGSCORE       =   await this.getListingScore(wallet,PNFT,multiplier,startDate,endDate)  //Math.max(lastPriceNFT,floorPriceCollection) * PNFT * multiplier;
-         let LISTINGREWARD      =   LISTINGSCORE * rateScoreARC;
+         let SCORECOLLECTION    = (listingARC/totalItems)*( ( (1+volumeArc)* VolumeOS*SalesOS)/(totalMarketVolume)  );
+         let PNFT               = (await this.getpnft(wallet,SCORECOLLECTION,totalItems,startDate,endDate)) //SCORECOLLECTION * (1 /(totalItems*(1+price-floorPriceCollection)*duration) )
+         let LISTINGSCORE       = (await this.getListingScore(wallet,PNFT,multiplier,startDate,endDate))  //Math.max(lastPriceNFT,floorPriceCollection) * PNFT * multiplier;
+         let LISTINGREWARD      = (LISTINGSCORE * rateScoreARC);
          
          
-        //  console.log('result nft --->>>> ',rstNft);
-        //  console.log('result nft listing --->>>> ',rstListing);
-        //  console.log('--->>>>>>> SCORE COLLECTION',SCORECOLLECTION);
-        //  console.log('--->>>>>>> PNFT ',PNFT);
-        //  console.log('--->>>>>>> LISTINGSCORE ',LISTINGSCORE);
-        //  console.log('--->>>>>>> LISTINGREWARD ',LISTINGREWARD);
 
 
 
          const insertData={
              wallet,
-             scoreCollection:SCORECOLLECTION,
+             scoreCollection: SCORECOLLECTION,
+             reward:0,
+             claim:0,
              pnft:PNFT,
              listingScore:LISTINGSCORE,
-             listingReward:LISTINGREWARD
-         };
-         const findReward = await reward.findOne({wallet});
-         const findRewardDaily= await rewardD.findOne({wallet,startDate:{$gte:startDate,$lte:endDate}})
-         if (findReward){
-             
-
-             findReward.scoreCollection =findReward.scoreCollection+SCORECOLLECTION;
-             findReward.pnft=findReward.pnft+PNFT;
-             findReward.listingScore=findReward.listingScore+LISTINGSCORE;
-             findReward.listingReward=findReward.listingReward+LISTINGREWARD;
-             await reward.replaceOne({wallet},findReward);
-         }else{
-            await reward.insertOne(insertData);
+             listingReward: LISTINGREWARD
          };
 
-         if (findRewardDaily){
-            findReward.scoreCollection =SCORECOLLECTION;
-            findReward.pnft=PNFT;
-            findReward.listingScore=LISTINGSCORE;
-            findReward.listingReward=LISTINGREWARD;
-            await rewardD.replaceOne({_id:new ObjectID(findReward._id.toString())},findReward)
-         }else{
-             insertData['date']=startDate;
-             await rewardD.insertOne(insertData);
+
+
+         const findReward = await reward.findOne({wallet}); 
+         const findRewardDaily= await rewardD.findOne({wallet,dailyCode,type:'REWARD'})
+
+         if (!findRewardDaily){
+            
+            await rewardD.insertOne({...insertData,date:startDate,dailyCode:dailyCode,type:'REWARD'});
+            if (findReward){
+                findReward.scoreCollection =findReward.scoreCollection+SCORECOLLECTION;
+                findReward.pnft=findReward.pnft+PNFT;
+                findReward.listingScore=findReward.listingScore+LISTINGSCORE;
+                findReward.listingReward=findReward.listingReward+LISTINGREWARD;
+                await reward.replaceOne({wallet},findReward);
+            }else{
+                await reward.insertOne(insertData);
+            }
          }
+
+        
+        //  if (findReward){
+           
+        //  }else{
+          
+        //  };
+
+        //  if (findRewardDaily){
+            
+        //     await rewardD.replaceOne({_id:new ObjectID(findReward._id.toString())},findReward)
+        //  }else{
+
+        //  }
          return;
       }
 
@@ -232,7 +233,6 @@ export class rewardHelper extends AbstractEntity {
             return {sales,volume};
         }
         // axios.request(options).then(function (response) {
-        //     console.log(response.data);
 
 
         //   }).catch(function (error) {
@@ -240,5 +240,23 @@ export class rewardHelper extends AbstractEntity {
         //   });
 
 
+      }
+
+      private toFixed(x){
+        if (Math.abs(x) < 1.0) {
+            var e = parseInt(x.toString().split('e-')[1]);
+            if (e) {
+                x *= Math.pow(10,e-1);
+                x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
+            }
+          } else {
+            var e = parseInt(x.toString().split('+')[1]);
+            if (e > 20) {
+                e -= 20;
+                x /= Math.pow(10,e);
+                x += (new Array(e+1)).join('0');
+            }
+          }
+          return x;
       }
 }
