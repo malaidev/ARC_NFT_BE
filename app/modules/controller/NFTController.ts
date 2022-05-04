@@ -36,7 +36,7 @@ export class NFTController extends AbstractEntity {
           const owner = await personTable.findOne({ wallet: result.owner });
           const collectionData = await collTable.findOne({ _id: new ObjectId(result.collection) });
           const act = await acttable.findOne(
-            { collection: result.collection, nftId: result.index },
+            { collection: result.collection, nftId: result.index, active: true },
             { limit: 1, sort: { startDate: -1 } }
           );
           let timeDiff = "";
@@ -87,7 +87,7 @@ export class NFTController extends AbstractEntity {
             .find({
               collection: collectionId,
               nftId: result.index,
-              // active:true,
+              active:true,
               $or: [{ type: { $ne: ActivityType.OFFERCOLLECTION } }, { type: { $ne: ActivityType.CANCELOFFER } }],
             })
             .toArray();
@@ -120,6 +120,7 @@ export class NFTController extends AbstractEntity {
               active: true,
             })
             .toArray();
+
           const resultOffersInvidual = await Promise.all(
             offersIndividual.map(async (item) => {
               if (item && item.nftId) {
@@ -166,16 +167,16 @@ export class NFTController extends AbstractEntity {
           count = await nftTable.find({ $or: aggregation.filter }).count();
           result = aggregation.sort
             ? ((await nftTable
-                .find({ $or: aggregation.filter })
-                .sort(aggregation.sort)
-                .skip(aggregation.skip)
-                .limit(aggregation.limit)
-                .toArray()) as Array<INFT>)
+              .find({ $or: aggregation.filter })
+              .sort(aggregation.sort)
+              .skip(aggregation.skip)
+              .limit(aggregation.limit)
+              .toArray()) as Array<INFT>)
             : ((await nftTable
-                .find({ $or: aggregation.filter })
-                .skip(aggregation.skip)
-                .limit(aggregation.limit)
-                .toArray()) as Array<INFT>);
+              .find({ $or: aggregation.filter })
+              .skip(aggregation.skip)
+              .limit(aggregation.limit)
+              .toArray()) as Array<INFT>);
         } else {
           count = await nftTable.find().count();
           result = aggregation.sort
@@ -190,6 +191,7 @@ export class NFTController extends AbstractEntity {
                 {
                   collection: item.collection,
                   nftId: item.index,
+                  active: true
                 },
                 {
                   limit: 1,
@@ -206,6 +208,7 @@ export class NFTController extends AbstractEntity {
                 const collectionAct = (await acttable.findOne({
                   collection: item.collection,
                   type: ActivityType.OFFERCOLLECTION,
+                  active:true,
                 })) as IActivity;
                 if (collectionAct && collectionAct.endDate)
                   timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
@@ -216,6 +219,7 @@ export class NFTController extends AbstractEntity {
                 .find({
                   collection: item.collection,
                   nftId: item.index,
+                  active: true,
                   type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
                 })
                 .toArray();
@@ -271,12 +275,15 @@ export class NFTController extends AbstractEntity {
                   collection: item.collection,
                   nftId: item.index,
                   type: ActivityType.OFFER,
+                  active: true
                 })
                 .toArray()) as Array<IActivity>;
               const collectionAct = (await activityTable.findOne({
                 collection: item.collection,
                 type: ActivityType.OFFERCOLLECTION,
+                active:true,
               })) as IActivity;
+
               activity.push(collectionAct);
               return {
                 ...item,
@@ -380,15 +387,15 @@ export class NFTController extends AbstractEntity {
           contentType === "music"
             ? ContentType.MUSIC
             : contentType === "image"
-            ? ContentType.IMAGE
-            : contentType === "video"
-            ? ContentType.VIDEO
-            : ContentType.IMAGE,
+              ? ContentType.IMAGE
+              : contentType === "video"
+                ? ContentType.VIDEO
+                : ContentType.IMAGE,
       };
       const result = await nftTable.insertOne(nft);
       if (result) nft._id = result.insertedId;
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
-    } catch (err) {}
+    } catch (err) { }
   }
 
   async bulkUpload(collectionUrl: string, owner: string, records: any[]) {
@@ -428,10 +435,10 @@ export class NFTController extends AbstractEntity {
             contentType === "music"
               ? ContentType.MUSIC
               : contentType === "image"
-              ? ContentType.IMAGE
-              : contentType === "video"
-              ? ContentType.VIDEO
-              : ContentType.IMAGE,
+                ? ContentType.IMAGE
+                : contentType === "video"
+                  ? ContentType.VIDEO
+                  : ContentType.IMAGE,
         };
         const result = await nftTable.insertOne(nft);
       }
