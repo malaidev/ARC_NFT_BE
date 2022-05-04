@@ -527,11 +527,7 @@ export class NFTCollectionController extends AbstractEntity {
           let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
-              // if (activity.type==ActivityType.OFFERCOLLECTION && activity.nftId){
-                
-                 
               if (activity && activity.nftId>=0){
-                // const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
                 const nft = await nftTable.findOne({ collection: activity.collection,index:activity.nftId},{projection:{'artURI':1,'_id':0,'name':1}}) as INFT
                   activity.nftObject =nft
                   return rstAct.push(activity)
