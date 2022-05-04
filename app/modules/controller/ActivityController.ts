@@ -66,7 +66,6 @@ export class ActivityController extends AbstractEntity {
         const personTable = this.mongodb.collection(this.ownerTable)
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const collData = await collTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
-        
         let prc: number = 0;
         let vol:number=0;
         if (collData && collData.volume){
@@ -113,14 +112,12 @@ export class ActivityController extends AbstractEntity {
             { $set: { active: false } }
           );
           const result = await activityTable.insertOne(transfer);
-
           /** SEND EMAIL */
           const ownerData = await personTable.findOne({wallet:seller.toLowerCase()}) as IPerson;
           if (ownerData && ownerData.email){
               const email = new mailHelper();
               email.BuyNow(transfer,ownerData);
           }
-
           return result
             ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
             : respond("Failed to create a new activity.", true, 501);
@@ -225,6 +222,10 @@ export class ActivityController extends AbstractEntity {
               { $set: { active: false } }
             );
             const result = await activityTable.insertOne(saleActivity);
+
+            const email = new mailHelper();
+            email.AcceptOfferEmail(saleActivity);
+
             return result
               ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
               : respond("Failed to create a new activity.", true, 501);
@@ -263,6 +264,19 @@ export class ActivityController extends AbstractEntity {
               price:prc,
               active: true,
             });
+
+            const email = new mailHelper();
+            email.AcceptOfferEmail({
+              collection: offer.collection,
+              nftId: offer.nftId,
+              type: ActivityType.SALE,
+              date: status_date,
+              from: seller,
+              to: buyer,
+              price:prc,
+              active: true,
+            });
+
             return result
               ? respond(`Successfully created a new sold with id ${activityId}`)
               : respond("Failed to create a new activity.", true, 501);
@@ -334,6 +348,9 @@ export class ActivityController extends AbstractEntity {
             });
             findData.collectionId = findData.collection;
             findData.collection = collectionData.contract;
+
+            const email = new mailHelper();
+            email.MakeOfferEmail(offer);
             return respond({
               ...findData,
             });
@@ -442,10 +459,7 @@ export class ActivityController extends AbstractEntity {
               .toArray();
             findData.collection = collectionData;
             findData.nfts = nftData;
-
-
             //** send email  */
-            
             if (sortAct && sortAct.email){
                 const email = new mailHelper();
                 email.CollectionOffer(offer,sortAct);
@@ -633,6 +647,8 @@ export class ActivityController extends AbstractEntity {
             from: activity.from,
             to: activity.to,
           });
+          const email = new mailHelper();
+          email.CancelOfferEmail(activity);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
         }
         return respond("nft not found.", true, 422);
@@ -650,7 +666,6 @@ export class ActivityController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         if (collection) {
-           
           const cancelList = (await activityTable.findOne({
             _id: new ObjectId(activityId),
             collection: collectionId,

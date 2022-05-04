@@ -34,6 +34,7 @@ export class NFTRewardController extends AbstractEntity {
         const x = new rewardHelper();
 
         const rst = await rwd.findOne({wallet});
+        console.log(rst);
         if (rst){
           return  respond({
             wallet:rst.wallet,
