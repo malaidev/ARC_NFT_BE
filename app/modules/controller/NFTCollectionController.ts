@@ -976,7 +976,7 @@ export class NFTCollectionController extends AbstractEntity {
     const actTable = this.mongodb.collection(this.activityTable);
     const fList = (await actTable
       .find(
-        { collection: collection,price:{$ne:null}},
+        { collection: collection,price:{$ne:null},active:true,type:'List'},
       
       ).sort({price:1}).limit(1)
       .toArray()) as Array<IActivity>;
