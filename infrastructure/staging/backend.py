@@ -110,6 +110,12 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
+                                        "name": "MONGODB_SCHEMA",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mongo-creds", "key": "schema"}
+                                        },
+                                    },
+                                    {
                                         "name": "JWT_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "auth", "key": "jwt_secret"}
