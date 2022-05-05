@@ -91,8 +91,8 @@ export const findOrCreateUser = async (
       // If everything is ok, generate a JWT
       const jwt = await res.jwtSign({
         uid: walletId,
-        exp: moment.utc().add(1, "day").unix(),
-      });
+        exp: moment.utc().add(15, "minutes").unix(),
+      } );
       // And if it does, just sent back user's info
       res.send({ user, jwt });
     }    
