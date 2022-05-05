@@ -486,7 +486,8 @@ export class ActivityController extends AbstractEntity {
     seller: string,
     price: number,
     endDate: number,
-    fee: number
+    fee: number,
+    loginUser: string
   ): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -505,15 +506,18 @@ export class ActivityController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.collectionTable);
         const ownTable = this.mongodb.collection(this.ownerTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
-        const sortAct = await ownTable.findOne({wallet:seller.toLowerCase()});
-        if (nft) {
+        if (nft) {          
+          if (nft.owner.toLowerCase() !== loginUser.toLowerCase()) {
+            return respond("login user isnt nft's owner.", true, 422);
+          }
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
           if (nft.saleStatus === SaleStatus.FORSALE) {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
+          // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+          const sortAct = await ownTable.findOne({wallet:seller.toLowerCase()});        
           const status_date = new Date().getTime();
           nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
@@ -560,13 +564,16 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async cancelListForSale(collectionId: string, index: number, seller: string, activityId: string) {
+  async cancelListForSale(collectionId: string, index: number, seller: string, activityId: string, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (nft) {
+          if (nft.owner.toLowerCase() !== loginUser.toLowerCase()) {
+            return respond("login user isnt nft's owner.", true, 422);
+          }
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
