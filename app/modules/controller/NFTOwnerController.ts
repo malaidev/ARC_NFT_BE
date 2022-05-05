@@ -138,6 +138,15 @@ export class NFTOwnerController extends AbstractEntity {
     if (findOwner && findOwner._id) {
       return respond("Current user has been created", true, 501);
     }
+    if (username){
+      
+      const findUser=await collection.findOne({username:{'$regex' : username, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
+      if (findUser && findUser._id) {
+        return respond("Username or Nickname already exists", true, 501);
+      }
+    }
+    
+    
     const person: IPerson = {
       photoUrl,
       wallet:wallet,
@@ -168,6 +177,16 @@ export class NFTOwnerController extends AbstractEntity {
       
       if (this.mongodb) {
         const person = this.mongodb.collection(this.table);
+        if (bodyData && bodyData.username){
+          
+          const findUser=await person.findOne({username:{'$regex' : bodyData.username, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
+          console.log(findUser);
+          if (findUser && findUser._id) {
+            return respond("Username or Nickname already exists", true, 501);
+          }
+        }
+        
+
         await person.updateOne({ wallet }, { $set: { ...bodyData } });
         const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
         return respond(findOwner);

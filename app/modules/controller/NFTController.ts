@@ -87,7 +87,7 @@ export class NFTController extends AbstractEntity {
             .find({
               collection: collectionId,
               nftId: result.index,
-              active:true,
+              
               $or: [{ type: { $ne: ActivityType.OFFERCOLLECTION } }, { type: { $ne: ActivityType.CANCELOFFER } }],
             })
             .toArray();
