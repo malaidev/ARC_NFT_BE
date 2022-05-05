@@ -405,19 +405,24 @@ export class NFTOwnerController extends AbstractEntity {
           },
         });
         const result = await activity.aggregate(aggregation).toArray();
+        // console.log(result);
         let rst = [];
         if (result) {
+
+          
           const resActivities = await Promise.all(
             result.map(async (item) => {
               if (item && item.nftId){
                 const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
-              const col = await collection.findOne({ _id: new ObjectId(item.collection) });
+                const col = await collection.findOne({ _id: new ObjectId(item.collection) }) as INFTCollection;
+                // console.log(col.contract);
+                // console.log(col);
 
-              item.collectionId = item.collection;
-              item.collection = col.contract;
+                item.collectionId = item.collection;
+                item.collection = col && col.contract?col.contract:null;
 
-              item.nft = { artURI: nfts.artURI, name: nfts.name };
-              rst.push(item)
+                item.nft = { artURI: nfts?.artURI, name: nfts?.name };
+                rst.push(item)
               }
               
             
@@ -428,9 +433,11 @@ export class NFTOwnerController extends AbstractEntity {
         }
         return respond("Activities not found.", true, 422);
       } else {
+        
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
