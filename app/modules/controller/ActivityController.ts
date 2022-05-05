@@ -192,7 +192,9 @@ export class ActivityController extends AbstractEntity {
                     to: item.to,
                   });
                   collData.volume=vol+prc;
-                }else{
+                  await collTable.replaceOne(this.findCollectionById(collectionId),collData);
+                }else{                  
+                  
                   await activityTable.insertOne({
                     collection: item.collection,
                     nftId: item.nftId,
