@@ -11,7 +11,7 @@ export const S3uploadImageBase64 = async(data,fileName,contentType,folder) => {
     AWS.config.update(configParams);
 
     const s3bucket = new AWS.S3({accessKeyId:s3_key,secretAccessKey:s3_secret});
-    let nameFile = `${fileName.replace(/[^a-zA-Z ]/g, "")}`;
+    let nameFile =  new Date().getTime(); //`${fileName.replace(/[^a-zA-Z ]/g, "")}`;
     const params = {
         Bucket: s3_bucket,
         Key:  `${folder}/${nameFile}.${type}`,
