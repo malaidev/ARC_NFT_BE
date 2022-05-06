@@ -18,7 +18,7 @@ export class ActivityController extends AbstractEntity {
     super();
     this.data = activity;
   }
-  async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {
+  async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {  
     try {
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
@@ -97,7 +97,8 @@ export class ActivityController extends AbstractEntity {
           nft.mintStatus = MintStatus.MINTED;
           nft.owner = buyer;
           nft.status_date = status_date;
-          nft.price=prc;
+          // nft.price=prc;
+          nft.price=0;
           collData.volume=vol+prc;
           await collTable.replaceOne(this.findCollectionById(collectionId),collData);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -236,7 +237,8 @@ export class ActivityController extends AbstractEntity {
             nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
             nft.status_date = status_date;
-            nft.price=prc;
+            // nft.price=prc;
+            nft.price=0;
             collData.volume=vol+prc;
             offer.active=false;
             await collTable.replaceOne(this.findCollectionById(collectionId),collData);
