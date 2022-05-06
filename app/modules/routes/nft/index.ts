@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
 import {
   createItem,
-  bulkUpload,
+  batchUpload,
   deleteItem,
   getAllItems,
   getItemDetail,
@@ -91,7 +91,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/items", getAllItems);
   router.get("/items/trending", getTrendingItems);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.post("/items/bulk-upload",config.route("jwt"), bulkUpload);
+  router.post("/items/batch-upload",config.route("jwt"), batchUpload);
   router.get("/items/:collectionId/:nftId/history", config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
   router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
