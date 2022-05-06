@@ -48,9 +48,9 @@ async function mount() {
   await app.register(cookie, {
     secret: config.jwt,
   });
-
-  await app.register(helmet, { global: true });
-
+  if (process.env.ENV !== "dev") {
+    await app.register(helmet, { global: true, enableCSPNonces: true });
+  }
     await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
