@@ -57,7 +57,7 @@ export const findOrCreateUser = async (
        verified: false,
      };
      const ctl = new DepoUserController(user);
-     // Tries to find an user which has the given wallet
+     
      const hasUser = (await ctl.findUser(walletId)) as IUser;
      // Verify if has no "code" in hasUser, indicating an error
      if (!hasUser.code) {
@@ -73,8 +73,18 @@ export const findOrCreateUser = async (
          res.code(result.code).send(result);
          return;
        }
-     }
-    const verified = await signer.verifySignature(signature);
+     };
+     if (user && !user.verified) {
+      if (!signature) {
+        return res.code(400).send(respond("Please verify your wallet  ", true, 400));
+      };
+
+      const verified = await signer.verifySignature(signature);
+      if (verified && verified["code"]) {
+        return res.code(400).send(verified);
+      }
+    }
+
     if (user.isTwoFactorAuthenticationEnabled) {
       const twoFa = new TwoFaController();
       if (user && user.isTwoFactorAuthenticationEnabled){
@@ -87,15 +97,16 @@ export const findOrCreateUser = async (
         }
       }
     }
-    if (verified) {
-      // If everything is ok, generate a JWT
-      const jwt = await res.jwtSign({
-        uid: walletId,
-        exp: moment.utc().add(15, "minutes").unix(),
-      } );
-      // And if it does, just sent back user's info
-      res.send({ user, jwt });
-    }    
+
+    const jwt = await res.jwtSign({
+      uid: walletId,
+      exp: moment.utc().add(15, "minutes").unix(),
+    });
+    // And if it does, just sent back user's info
+    delete user.sig;
+    delete user.uuid;
+    res.send({ user, jwt });
+ 
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
   }
@@ -171,8 +182,9 @@ export const getSingingMessage = async (
   res: FastifyReply
 ) => {
   const { walletId } = req.params as any;
+
   try {
-    const ctl = new SignerController(walletId);
+    const ctl = new SignerController(walletId.toLocaleLowerCase());
     const result = await ctl.createSingingHash();
     if (!result?.code) {
       res.send(result);
