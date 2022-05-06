@@ -21,14 +21,12 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
   res.send(result);
 };
 
-
 export const getCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const collectionId = req.params["collectionId"] as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollectionOffer(collectionId);
   res.send(result);
 };
-
 
 export const getTopCollections = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
@@ -93,69 +91,63 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
   res.send(result);
 };
 
-
-export const updateCollection = async (req,res)=>{
-  
+export const updateCollection = async (req, res) => {
   let logoBody: any = null;
   let featuredImgBody: any = null;
   let bannerImgBody: any = null;
-  let logoMimetype:any=null;
-  let featuredMimetype:any=null;
-  let bannerMimetype:any=null;
+  let logoMimetype: any = null;
+  let featuredMimetype: any = null;
+  let bannerMimetype: any = null;
   const { collectionId } = req.params as any;
 
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
 
   if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
     //  logoBody=await  req.body.logoFile.toBuffer();
-     logoMimetype= req.body.logoFile.mimetype;
-     logoBody =
+    logoMimetype = req.body.logoFile.mimetype;
+    logoBody =
       "data:" +
       req.body.logoFile.mimetype +
       ";base64," +
       Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
-      body.logoFile = logoBody;
-      body.logoName = logoBody ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")) : "";
+    body.logoFile = logoBody;
+    body.logoName = logoBody
+      ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf("."))
+      : "";
   }
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
     //  featuredImgBody= await req.body.featuredImgFile.toBuffer();
-     featuredMimetype=req.body.featuredImgFile.mimetype;
+    featuredMimetype = req.body.featuredImgFile.mimetype;
     featuredImgBody =
       "data:" +
       req.body.featuredImgFile.mimetype +
       ";base64," +
       Buffer.from(await req.body.featuredImgFile.toBuffer()).toString("base64"); // access files
-      body.featuredImgFile = featuredImgBody;
-      body.featureName = featuredImgBody
-    ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf("."))
-    : "";
+    body.featuredImgFile = featuredImgBody;
+    body.featureName = featuredImgBody
+      ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf("."))
+      : "";
   }
   if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
     // bannerImgBody= await req.body.bannerImgFile.toBuffer();
-    bannerMimetype=req.body.bannerImgFile.mimetype;
+    bannerMimetype = req.body.bannerImgFile.mimetype;
     bannerImgBody =
       "data:" +
       req.body.bannerImgFile.mimetype +
       ";base64," +
       Buffer.from(await req.body.bannerImgFile.toBuffer()).toString("base64"); // access files
-      body.bannerImgFile = bannerImgBody;
-      body.bannerName = bannerImgBody
-    ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
-    : "";
+    body.bannerImgFile = bannerImgBody;
+    body.bannerName = bannerImgBody
+      ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
+      : "";
   }
-  
-  
-  
-  
-  
-  
-  
+
   const ctl = new NFTCollectionController();
   const result = await ctl.updateCollection(
     collectionId,
-    body.logoFile||null,
-    body.featuredImgFile||null,
-    body.bannerImgFile||null,
+    body.logoFile || null,
+    body.featuredImgFile || null,
+    body.bannerImgFile || null,
     body.name,
     body.url,
     body.description,
@@ -163,6 +155,7 @@ export const updateCollection = async (req,res)=>{
     body.siteUrl,
     body.discordUrl,
     body.instagramUrl,
+    body.mediumUrl,
     body.twitterUrl,
     body.telegramUrl,
     body.creatorEarning,
@@ -177,7 +170,7 @@ export const updateCollection = async (req,res)=>{
     bannerMimetype
   );
   res.send(result);
-}
+};
 export const createCollection = async (req, res) => {
   if (req.body && !req.body.logoFile) {
     throw new Error("logoUrl is invalid or missing");
@@ -185,13 +178,13 @@ export const createCollection = async (req, res) => {
   let logoBody: any = null;
   let featuredImgBody: any = null;
   let bannerImgBody: any = null;
-  let logoMimetype:any=null;
-  let featuredMimetype:any=null;
-  let bannerMimetype:any=null;
+  let logoMimetype: any = null;
+  let featuredMimetype: any = null;
+  let bannerMimetype: any = null;
   if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
     //  logoBody=await  req.body.logoFile.toBuffer();
-     logoMimetype= req.body.logoFile.mimetype;
-     logoBody =
+    logoMimetype = req.body.logoFile.mimetype;
+    logoBody =
       "data:" +
       req.body.logoFile.mimetype +
       ";base64," +
@@ -199,7 +192,7 @@ export const createCollection = async (req, res) => {
   }
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
     //  featuredImgBody= await req.body.featuredImgFile.toBuffer();
-     featuredMimetype=req.body.featuredImgFile.mimetype;
+    featuredMimetype = req.body.featuredImgFile.mimetype;
     featuredImgBody =
       "data:" +
       req.body.featuredImgFile.mimetype +
@@ -208,7 +201,7 @@ export const createCollection = async (req, res) => {
   }
   if (req.body && req.body.bannerImgFile && req.body.bannerImgFile.value !== "") {
     // bannerImgBody= await req.body.bannerImgFile.toBuffer();
-    bannerMimetype=req.body.bannerImgFile.mimetype;
+    bannerMimetype = req.body.bannerImgFile.mimetype;
     bannerImgBody =
       "data:" +
       req.body.bannerImgFile.mimetype +
@@ -238,6 +231,7 @@ export const createCollection = async (req, res) => {
     body.siteUrl,
     body.discordUrl,
     body.instagramUrl,
+    body.mediumUrl,
     body.twitterUrl,
     body.telegramUrl,
     body.creatorEarning,

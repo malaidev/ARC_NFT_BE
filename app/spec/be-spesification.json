@@ -106,6 +106,9 @@
         "instagramUrl": {
           "type": "string"
         },
+        "mediumUrl": {
+          "type": "string"
+        },
         "twitterUrl": {
           "type": "string"
         },

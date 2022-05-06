@@ -16,7 +16,7 @@ const config = {
   logLevel: process.env.LOG_LEVEL || ("error-only" as "error-only" | "action-only" | "any"),
   mongodb: {
     host: process.env["MONGODB_HOST"],
-    database: "ArcMarketDB",
+    database: process.env["MONGODB_SCHEMA"],
     username: process.env["MONGODB_USER"],
     password: process.env["MONGODB_PASSWORD"],
     port: process.env["MONGODB_PORT"],

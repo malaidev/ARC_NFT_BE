@@ -10,6 +10,7 @@
     "@aws-sdk/client-s3": "^3.56.0",
     "@aws-sdk/s3-request-presigner": "^3.56.0",
     "@ethersproject/abi": "^5.5.0",
+    "@fastify/helmet": "^8.0.0",
     "@uniswap/sdk": "^3.0.3",
     "@walletconnect/web3-provider": "^1.7.1",
     "@wert-io/widget-sc-signer": "^0.0.2",

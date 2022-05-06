@@ -111,6 +111,12 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
+                                        "name": "MONGODB_SCHEMA",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mongo-creds", "key": "schema"}
+                                        },
+                                    },
+                                    {
                                         "name": "JWT_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "auth", "key": "jwt_secret"}
@@ -156,6 +162,54 @@ class Stack(core.Stack):
                                         "name": "CONTRACT_PK_ID",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "contracts", "key": "pk_id"}
+                                        },
+                                    },
+                                                                        {
+                                        "name": "AWS_S3_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "AWS_S3_SECRET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_secret"}
+                                        },
+                                    },
+                                    {
+                                        "name": "AWS_S3_USER_BUCKET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_bucket"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MORALIS_URL",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_url"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MORALIS_APPID",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_appid"}
+                                        },
+                                    },                                    
+                                    {
+                                        "name": "MORALIS_MASTER_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "moralis", "key": "moralis_masterkey"}
+                                        },
+                                    },
+                                    {
+                                        "name": "OPENSEA_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "OPENSEA_ADDR",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_addr"}
                                         },
                                     },
                                 ],

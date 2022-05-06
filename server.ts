@@ -4,7 +4,7 @@ const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
 const multiPart = require("fastify-multipart");
-// const helmet = require('fastify-helmet');
+
 
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
@@ -17,7 +17,7 @@ import { FastifyReply } from "fastify";
 import * as SwaggerPlugin from "fastify-swagger";
 import fastifyCron from 'fastify-cron'
 import { rewardHelper } from "./app/modules/util/reward-handler";
-
+import * as helmet from '@fastify/helmet'
 
 process.setMaxListeners(15);
 
@@ -49,7 +49,9 @@ async function mount() {
     secret: config.jwt,
   });
 
-  await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
+  await app.register(helmet, { global: true });
+
+    await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
   // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
   await app.register(fastifyCron,{
