@@ -167,6 +167,9 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+
+
   async getCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -344,6 +347,92 @@ export class NFTCollectionController extends AbstractEntity {
 
         // }
         // return respond("collection not found / not offering yet.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+  }
+
+async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
+    try {
+      if (this.mongodb) {
+        const collectionTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
+        let aggregation = {} as any;
+        aggregation = this.parseFiltersFind(filters);
+        let result = [] as any;
+        let count ;
+        if (aggregation && aggregation.filter){
+          count = await collectionTable.find( {tagCollection:{'$regex' : 'HOT', '$options' : 'i'}, $or:aggregation.filter}).count();
+          result=aggregation.sort? await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'},$or:aggregation.filter}).sort(aggregation.sort).toArray() as Array<INFT>:await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'},$or:aggregation.filter}).toArray() as Array<INFT>;
+        }else{
+          count = await collectionTable.find().count();
+          result=aggregation.sort?await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).sort(aggregation.sort).toArray():await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).toArray() as Array<INFT>;
+        }
+
+        
+        // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
+        if (result) {
+          const collections = await Promise.all(
+            result.map(async (collection) => {
+              // let volume = 0;
+              let floorPrice = 0;
+              let owners = [];
+              const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
+              nfts.forEach((nft) => {
+                // volume += nft.price;
+                // if (floorPrice > nft.price) floorPrice = nft.price;
+                if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
+              });
+              const { _24h, todayTrade } = await this.get24HValues(collection._id.toString());
+              const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
+              floorPrice = await this.getFloorPrice(`${collection._id}`);
+              return {
+                _id: collection._id,
+                logoUrl: collection.logoUrl,
+                featuredUrl: collection.featuredUrl,
+                bannerUrl: collection.bannerUrl,
+                contract: collection.contract,
+                creator: collection.creator,
+                creatorDetail: creator,
+                url: collection.url,
+                description: collection.description,
+                category: collection.category,
+                links: collection.links,
+                name: collection.name,
+                blockchain: collection.blockchain,
+                volume: collection.volume,
+                _24h: todayTrade,
+                _24hPercent: _24h,
+                floorPrice: floorPrice,
+                owners: owners.length,
+                items: nfts.length,
+                isVerified: collection.isVerified,
+                isExplicit: collection.isExplicit,
+                properties: collection.properties,
+                platform: collection.platform,
+                offerStatus: collection.offerStatus,
+              };
+            })
+          );
+          let rst = {
+            success:true,
+            status:"ok",
+            code:200,
+            count:count,
+            currentPage:aggregation.page,
+            data:collections
+          };
+
+
+          return rst;
+
+          
+        }
+        return respond("collection not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }

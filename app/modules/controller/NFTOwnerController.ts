@@ -185,8 +185,6 @@ export class NFTOwnerController extends AbstractEntity {
             return respond("Username or Nickname already exists", true, 501);
           }
         }
-        
-
         await person.updateOne({ wallet }, { $set: { ...bodyData } });
         const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
         return respond(findOwner);
