@@ -415,6 +415,7 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
                 properties: collection.properties,
                 platform: collection.platform,
                 offerStatus: collection.offerStatus,
+                tagCollection:collection.tagCollection
               };
             })
           );
