@@ -373,7 +373,7 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
           result=aggregation.sort?await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).sort(aggregation.sort).toArray():await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).toArray() as Array<INFT>;
         }
 
-        
+        console.log(count);
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(

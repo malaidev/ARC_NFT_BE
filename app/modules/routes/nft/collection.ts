@@ -46,7 +46,7 @@ export const getHotCollections = async (req: FastifyRequest, res: FastifyReply) 
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getTopCollections(filters);
+  const result = await ctl.getHotCollections(filters);
   res.send(result);
 };
 
