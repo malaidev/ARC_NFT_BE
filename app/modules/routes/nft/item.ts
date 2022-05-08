@@ -98,7 +98,12 @@ export const batchUpload = async (req, res) => {
     const user = req["session"] as any;
     const owner = user.walletId.toLowerCase();
     const ctl = new NFTController();
-    const uploadRes = await ctl.batchUpload({ collectionId, tokenType, owner, records });
+    const uploadRes = await ctl.batchUpload({
+      collectionId: collectionId.value,
+      tokenType: tokenType.value,
+      owner,
+      records,
+    });
     return res.send(uploadRes);
   });
 };
