@@ -86,7 +86,7 @@ export const createItem = async (req, res) => {
 };
 
 export const batchUpload = async (req, res) => {
-  const { csvFile, collectionId, tokenType } = req;
+  const { csvFile, collectionId, tokenType } = req.body;
   if (!csvFile) {
     throw new Error("CSV is missing");
   }

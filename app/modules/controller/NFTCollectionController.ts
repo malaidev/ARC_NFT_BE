@@ -88,8 +88,6 @@ export class NFTCollectionController extends AbstractEntity {
               { category: { $in: searchKeyword } },
               { platform: { $in: searchKeyword } },
               { links: { $in: searchKeyword } },
-              { "properties.name": { $in: searchKeyword } },
-              { "properties.title": { $in: searchKeyword } },
             ],
           })
           .toArray()) as Array<INFTCollection>;
@@ -147,8 +145,6 @@ export class NFTCollectionController extends AbstractEntity {
               { name: { $in: searchKeyword } },
               { description: { $in: searchKeyword } },
               { tokenType: { $in: searchKeyword } },
-              { "properties.name": { $in: searchKeyword } },
-              { "properties.title": { $in: searchKeyword } },
             ],
           })
           .toArray()) as Array<INFTCollection>;
@@ -167,8 +163,6 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
-
 
   async getCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
@@ -355,7 +349,7 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
+  async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
@@ -364,13 +358,29 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
-        let count ;
-        if (aggregation && aggregation.filter){
-          count = await collectionTable.find( {tagCollection:{'$regex' : 'HOT', '$options' : 'i'}, $or:aggregation.filter}).count();
-          result=aggregation.sort? await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'},$or:aggregation.filter}).sort(aggregation.sort).toArray() as Array<INFT>:await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'},$or:aggregation.filter}).toArray() as Array<INFT>;
-        }else{
+        let count;
+        if (aggregation && aggregation.filter) {
+          count = await collectionTable
+            .find({ tagCollection: { $regex: "HOT", $options: "i" }, $or: aggregation.filter })
+            .count();
+          result = aggregation.sort
+            ? ((await collectionTable
+                .find({ tagCollection: { $regex: "HOT", $options: "i" }, $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .toArray()) as Array<INFT>)
+            : ((await collectionTable
+                .find({ tagCollection: { $regex: "HOT", $options: "i" }, $or: aggregation.filter })
+                .toArray()) as Array<INFT>);
+        } else {
           count = await collectionTable.find().count();
-          result=aggregation.sort?await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).sort(aggregation.sort).toArray():await collectionTable.find({tagCollection:{'$regex' : 'HOT', '$options' : 'i'}}).toArray() as Array<INFT>;
+          result = aggregation.sort
+            ? await collectionTable
+                .find({ tagCollection: { $regex: "HOT", $options: "i" } })
+                .sort(aggregation.sort)
+                .toArray()
+            : ((await collectionTable
+                .find({ tagCollection: { $regex: "HOT", $options: "i" } })
+                .toArray()) as Array<INFT>);
         }
 
         console.log(count);
@@ -415,23 +425,20 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
                 properties: collection.properties,
                 platform: collection.platform,
                 offerStatus: collection.offerStatus,
-                tagCollection:collection.tagCollection
+                tagCollection: collection.tagCollection,
               };
             })
           );
           let rst = {
-            success:true,
-            status:"ok",
-            code:200,
-            count:count,
-            currentPage:aggregation.page,
-            data:collections
+            success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: collections,
           };
 
-
           return rst;
-
-          
         }
         return respond("collection not found.", true, 422);
       } else {
@@ -734,7 +741,7 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
    * @param creatorId
    * @returns result of creation
    */
-  async createCollection(
+  async createCollection({
     logoFile,
     featuredImgFile,
     bannerImgFile,
@@ -757,8 +764,9 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
     bannerName,
     logoMimetype,
     featuredMimetype,
-    bannerMimetype
-  ): Promise<IResponse> {
+    bannerMimetype,
+    properties,
+  }: any): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
@@ -826,7 +834,7 @@ async getHotCollections(filters?: IQueryFilters): Promise<IResponse> {
           telegramUrl ?? "",
         ],
         platform: "ARC",
-        properties: {},
+        properties: JSON.parse(properties),
         offerStatus: OfferStatusType.NONE,
       };
       const result = await collection.insertOne(nftCollection);
