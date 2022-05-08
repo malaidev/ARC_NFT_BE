@@ -412,6 +412,7 @@ export class NFTController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.table);
 
     try {
+      const nfts: INFT[] = [];
       for (const record of records) {
         const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
         const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
@@ -445,8 +446,9 @@ export class NFTController extends AbstractEntity {
               ? ContentType.VIDEO
               : ContentType.IMAGE,
         };
-        await nftTable.insertOne(nft);
+        nfts.push(nft);
       }
+      await nftTable.insertMany(nfts);
       return respond({ status: "success", items: records.length });
     } catch (err) {
       return respond(err);
