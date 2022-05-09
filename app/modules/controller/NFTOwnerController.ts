@@ -145,6 +145,15 @@ export class NFTOwnerController extends AbstractEntity {
         return respond("Username or Nickname already exists", true, 501);
       }
     }
+
+    if (email ){
+          
+      const findUser=await collection.findOne({email:{'$regex' : email, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
+      console.log(findUser);
+      if (findUser && findUser._id) {
+        return respond("Email already exists", true, 501);
+      }
+    }
     
     
     const person: IPerson = {
@@ -185,6 +194,16 @@ export class NFTOwnerController extends AbstractEntity {
             return respond("Username or Nickname already exists", true, 501);
           }
         }
+
+        if (bodyData && bodyData.email){
+          
+          const findUser=await person.findOne({email:{'$regex' : bodyData.email, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
+          console.log(findUser);
+          if (findUser && findUser._id) {
+            return respond("Email already exists", true, 501);
+          }
+        }
+
         await person.updateOne({ wallet }, { $set: { ...bodyData } });
         const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
         return respond(findOwner);
