@@ -37,6 +37,22 @@ export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
   res.send(result);
 };
 
+
+export const getTagItems = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+
+  const { tag } = req.params as any;
+
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
+  const ctl = new NFTController();
+  const result = await ctl.getTagItems(tag,filters);
+  res.send(result);
+};
+
+
 export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;

@@ -255,6 +255,112 @@ export class NFTController extends AbstractEntity {
     }
   }
 
+
+  async getTagItems(type:string,filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+    try {
+      if (this.mongodb) {
+        const nftTable = this.mongodb.collection(this.table);
+        const collTable = this.mongodb.collection(this.nftCollectionTable);
+        const acttable = this.mongodb.collection(this.activityTable);
+        let aggregation = {} as any;
+        aggregation = this.parseFiltersFind(filters);
+        let result = [] as any;
+        let count;
+
+        if (aggregation && aggregation.filter) {
+          count = await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter }).count();
+          result = aggregation.sort
+            ? ((await nftTable
+              .find({  tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter })
+              .sort(aggregation.sort)
+              .skip(aggregation.skip)
+              .limit(aggregation.limit)
+              .toArray()) as Array<INFT>)
+            : ((await nftTable
+              .find({  tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter })
+              .skip(aggregation.skip)
+              .limit(aggregation.limit)
+              .toArray()) as Array<INFT>);
+        } else {
+          count = await nftTable.find().count();
+          result = aggregation.sort
+            ? await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'}}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
+            : ((await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'}}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
+        }
+        //  result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
+        if (result) {
+          const resultsNFT = await Promise.all(
+            result.map(async (item) => {
+              const act = await acttable.findOne(
+                {
+                  collection: item.collection,
+                  nftId: item.index,
+                  active: true
+                },
+                {
+                  limit: 1,
+                  sort: {
+                    startDate: -1,
+                  },
+                }
+              );
+              let timeDiff = "";
+              if (act && act.endDate) {
+                timeDiff = dateDiff(new Date().getTime(), act.endDate);
+              }
+              if (!act) {
+                const collectionAct = (await acttable.findOne({
+                  collection: item.collection,
+                  type: ActivityType.OFFERCOLLECTION,
+                  active:true,
+                })) as IActivity;
+                if (collectionAct && collectionAct.endDate)
+                  timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+              }
+              item.timeLeft = timeDiff;
+              const collection = (await collTable.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
+              const actData = await acttable
+                .find({
+                  collection: item.collection,
+                  nftId: item.index,
+                  active: true,
+                  type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
+                })
+                .toArray();
+              return {
+                ...item,
+                collection_details: {
+                  _id: collection?._id,
+                  contract: collection?.contract,
+                  name: collection?.name,
+                  platform: collection?.platform,
+                  logoURL: collection?.logoUrl,
+                },
+                offer_lists: actData,
+              };
+            })
+          );
+          let rst = {
+            success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: resultsNFT,
+          };
+          return rst;
+        }
+        return respond("Items not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 422);
+    }
+  }
+
+
+
   async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {

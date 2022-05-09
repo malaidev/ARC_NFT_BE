@@ -9,6 +9,7 @@ import {
   getItemOffers,
   getTrendingItems,
   updateItem,
+  getTagItems,
 } from "./item";
 
 import {
@@ -92,6 +93,7 @@ export const nft = async (router: any, options: any) => {
 
   router.get("/items", getAllItems);
   router.get("/items/trending", getTrendingItems);
+  router.get("/items/tag/:tag", getTagItems);
   router.post("/items/create", config.route("jwt"), createItem);
   router.post("/items/bulk-upload",config.route("jwt"), bulkUpload);
   router.get("/items/:collectionId/:nftId/history", config.routeParamsValidation(), getItemHistory);

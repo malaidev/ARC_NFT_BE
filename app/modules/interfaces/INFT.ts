@@ -21,6 +21,7 @@ export interface INFT {
   tokenType: TokenType; // eq ERC721 or ERC 1155
   contentType: ContentType;
   timeLeft?: string;
+  tag?:Array<string>;
 }
 
 export enum ContentType {
