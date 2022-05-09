@@ -449,7 +449,7 @@ export class NFTCollectionController extends AbstractEntity {
     }
   }
 
-  async getTagCollections(type:string,filters?: IQueryFilters): Promise<IResponse> {
+  async getTagCollections(type: string, filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
@@ -458,13 +458,29 @@ export class NFTCollectionController extends AbstractEntity {
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
-        let count ;
-        if (aggregation && aggregation.filter){
-          count = await collectionTable.find( {tagCollection:{'$regex' : type, '$options' : 'i'}, $or:aggregation.filter}).count();
-          result=aggregation.sort? await collectionTable.find({tagCollection:{'$regex' : type, '$options' : 'i'},$or:aggregation.filter}).sort(aggregation.sort).toArray() as Array<INFT>:await collectionTable.find({tagCollection:{'$regex' : type, '$options' : 'i'},$or:aggregation.filter}).toArray() as Array<INFT>;
-        }else{
+        let count;
+        if (aggregation && aggregation.filter) {
+          count = await collectionTable
+            .find({ tagCollection: { $regex: type, $options: "i" }, $or: aggregation.filter })
+            .count();
+          result = aggregation.sort
+            ? ((await collectionTable
+                .find({ tagCollection: { $regex: type, $options: "i" }, $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .toArray()) as Array<INFT>)
+            : ((await collectionTable
+                .find({ tagCollection: { $regex: type, $options: "i" }, $or: aggregation.filter })
+                .toArray()) as Array<INFT>);
+        } else {
           count = await collectionTable.find().count();
-          result=aggregation.sort?await collectionTable.find({tagCollection:{'$regex' :type, '$options' : 'i'}}).sort(aggregation.sort).toArray():await collectionTable.find({tagCollection:{'$regex' :type, '$options' : 'i'}}).toArray() as Array<INFT>;
+          result = aggregation.sort
+            ? await collectionTable
+                .find({ tagCollection: { $regex: type, $options: "i" } })
+                .sort(aggregation.sort)
+                .toArray()
+            : ((await collectionTable
+                .find({ tagCollection: { $regex: type, $options: "i" } })
+                .toArray()) as Array<INFT>);
         }
 
         console.log(count);
@@ -509,23 +525,20 @@ export class NFTCollectionController extends AbstractEntity {
                 properties: collection.properties,
                 platform: collection.platform,
                 offerStatus: collection.offerStatus,
-                tagCollection:collection.tagCollection
+                tagCollection: collection.tagCollection,
               };
             })
           );
           let rst = {
-            success:true,
-            status:"ok",
-            code:200,
-            count:count,
-            currentPage:aggregation.page,
-            data:collections
+            success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: collections,
           };
 
-
           return rst;
-
-          
         }
         return respond("collection not found.", true, 422);
       } else {
@@ -537,7 +550,6 @@ export class NFTCollectionController extends AbstractEntity {
   }
 
   async getTopCollections(filters?: IQueryFilters): Promise<IResponse> {
-
     try {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
@@ -899,6 +911,11 @@ export class NFTCollectionController extends AbstractEntity {
       const bannerIpfs = bannerImgFile
         ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
         : "";
+      const initialProperties: any = {};
+      const propertyNames: string[] = JSON.parse(properties);
+      propertyNames.forEach((propertyName) => {
+        initialProperties[propertyName] = [];
+      });
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
@@ -922,7 +939,7 @@ export class NFTCollectionController extends AbstractEntity {
           telegramUrl ?? "",
         ],
         platform: "ARC",
-        properties: JSON.parse(properties),
+        properties: initialProperties,
         offerStatus: OfferStatusType.NONE,
       };
       const result = await collection.insertOne(nftCollection);

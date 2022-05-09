@@ -254,8 +254,7 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-
-  async getTagItems(type:string,filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  async getTagItems(type: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
@@ -267,24 +266,33 @@ export class NFTController extends AbstractEntity {
         let count;
 
         if (aggregation && aggregation.filter) {
-          count = await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter }).count();
+          count = await nftTable.find({ tag: { $regex: type, $options: "i" }, $or: aggregation.filter }).count();
           result = aggregation.sort
             ? ((await nftTable
-              .find({  tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter })
-              .sort(aggregation.sort)
-              .skip(aggregation.skip)
-              .limit(aggregation.limit)
-              .toArray()) as Array<INFT>)
+                .find({ tag: { $regex: type, $options: "i" }, $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>)
             : ((await nftTable
-              .find({  tag:{'$regex' : type, '$options' : 'i'},$or: aggregation.filter })
-              .skip(aggregation.skip)
-              .limit(aggregation.limit)
-              .toArray()) as Array<INFT>);
+                .find({ tag: { $regex: type, $options: "i" }, $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
         } else {
           count = await nftTable.find().count();
           result = aggregation.sort
-            ? await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'}}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
-            : ((await nftTable.find({ tag:{'$regex' : type, '$options' : 'i'}}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
+            ? await nftTable
+                .find({ tag: { $regex: type, $options: "i" } })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()
+            : ((await nftTable
+                .find({ tag: { $regex: type, $options: "i" } })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
         }
         //  result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
         if (result) {
@@ -294,7 +302,7 @@ export class NFTController extends AbstractEntity {
                 {
                   collection: item.collection,
                   nftId: item.index,
-                  active: true
+                  active: true,
                 },
                 {
                   limit: 1,
@@ -311,7 +319,7 @@ export class NFTController extends AbstractEntity {
                 const collectionAct = (await acttable.findOne({
                   collection: item.collection,
                   type: ActivityType.OFFERCOLLECTION,
-                  active:true,
+                  active: true,
                 })) as IActivity;
                 if (collectionAct && collectionAct.endDate)
                   timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
@@ -357,8 +365,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 422);
     }
   }
-
-
 
   async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
@@ -498,7 +504,17 @@ export class NFTController extends AbstractEntity {
             : ContentType.IMAGE,
       };
       const result = await nftTable.insertOne(nft);
-      if (result) nft._id = result.insertedId;
+      if (result) {
+        nft._id = result.insertedId;
+
+        Object.keys(nft.properties).forEach((propertyName) => {
+          if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
+            collection.properties[propertyName].push(nft.properties[propertyName]);
+          }
+        });
+
+        await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
+      }
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
     } catch (err) {}
   }
@@ -589,8 +605,19 @@ export class NFTController extends AbstractEntity {
   async updateNFT(id: string, nft: any) {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.table);
-        const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
+        const nftTable = this.mongodb.collection(this.table);
+        const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
+
+        if (nft.properties) {
+          const collectionTable = this.mongodb.collection(this.nftCollectionTable);
+          const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
+          Object.keys(nft.properties).forEach((propertyName) => {
+            if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
+              collection.properties[propertyName].push(nft.properties[propertyName]);
+            }
+          });
+          await collectionTable.replaceOne({ _id: new ObjectId(nft.collection) }, collection);
+        }
         return respond(result);
       } else {
         throw new Error("Could not connect to the database.");
