@@ -61,6 +61,20 @@ export class NFTRewardController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
+  async getRewardAirDrop(wallet: string): Promise<void | IResponse> {
+    try {
+      const x = new rewardHelper()
+      const y = await x.airDropRewards(wallet)
+      console.log(y)
+      return respond(y) 
+
+    } catch (error) {
+      console.log(error);
+      return respond(error.message, true, 500);
+    }
+  }
+
    
 
   async claimReward(wallet: string,claim:number): Promise<void | IResponse> {
