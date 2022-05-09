@@ -44,6 +44,38 @@ export class rewardHelper extends AbstractEntity {
         } catch (error) {
           }
     }
+    async airDropRewards(wallet:string):Promise<any>{
+        const axios = require("axios").default;
+        const openSeaUrl=config.opensea.api_addr;
+        const openSeaKey=config.opensea.api_key;
+        const asset_owner=wallet;
+
+        
+        
+        const options = {
+            method: 'GET',
+            url: `${openSeaUrl}collections?asset_owner=${asset_owner}&offset=0&limit=300`,
+            headers: {Accept: 'application/json', 'X-API-KEY': `${openSeaKey}`}
+        };
+        
+        const result = await axios.request(options);
+        
+        let sales=0;
+        let volume=0
+        if (result && result.data.length>0){
+             sales = result.data.reduce((acc, obj) => {
+                return acc + (+obj.stats.total_sales);
+              }, 0);
+              volume = result.data.reduce((acc, obj) => {
+                return acc + (+obj.stats.total_volume);
+              }, 0);
+              
+
+              return {rewards:volume};
+        }else{
+            return {rewards:0};
+        }
+    }
     private async getpnft(wallet:string,scoreCollection:number,totalItems:number,startDate:number,endDate:number){
         let xPnft = 0;
         const act= this.mongodb.collection(this.activityTable);
@@ -199,6 +231,7 @@ export class rewardHelper extends AbstractEntity {
       }
 
 
+    
     private async getOpenSea(startDate:number,endDate:number){
         const axios = require("axios").default;
         const openSeaUrl=config.opensea.api_addr;
@@ -219,15 +252,16 @@ export class rewardHelper extends AbstractEntity {
         let volume=1;
         const result = await axios.request(options);
 
-        if (result && result.length>0){
-             sales = result.reduce((acc, obj) => {
+        if (result && result.data.length>0){
+             sales = result.data.reduce((acc, obj) => {
                 return acc + (+obj.total_price);
               }, 0);
-              volume = result.reduce((acc, obj) => {
+              volume = result.data.reduce((acc, obj) => {
                 return acc + (+obj.total_price);
               }, 0);
               sales=sales>0?sales:1;
               volume=volume>0?sales:1;
+
               return {sales,volume};
         }else{
             return {sales,volume};
