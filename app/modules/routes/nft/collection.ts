@@ -225,8 +225,11 @@ export const createCollection = async (req, res) => {
   }
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
   body.logoFile = logoBody;
+  body.logoMimetype = logoMimetype;
   body.featuredImgFile = featuredImgBody;
+  body.featuredMimetype = featuredMimetype;
   body.bannerImgFile = bannerImgBody;
+  body.bannerMimetype = bannerMimetype;
   body.logoName = logoBody ? req.body.logoFile.filename.substring(0, req.body.logoFile.filename.lastIndexOf(".")) : "";
   body.featureName = featuredImgBody
     ? req.body.featuredImgFile.filename.substring(0, req.body.featuredImgFile.filename.lastIndexOf("."))
@@ -235,31 +238,7 @@ export const createCollection = async (req, res) => {
     ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
     : "";
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(
-    body.logoFile,
-    body.featuredImgFile,
-    body.bannerImgFile,
-    body.name,
-    body.url,
-    body.description,
-    body.category,
-    body.siteUrl,
-    body.discordUrl,
-    body.instagramUrl,
-    body.mediumUrl,
-    body.twitterUrl,
-    body.telegramUrl,
-    body.creatorEarning,
-    body.blockchain,
-    body.isExplicit,
-    body.creatorId,
-    body.logoName,
-    body.featureName,
-    body.bannerName,
-    logoMimetype,
-    featuredMimetype,
-    bannerMimetype
-  );
+  const result = await ctl.createCollection(body);
   res.send(result);
 };
 export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply) => {
