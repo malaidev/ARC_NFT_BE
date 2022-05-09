@@ -50,6 +50,21 @@ export const getHotCollections = async (req: FastifyRequest, res: FastifyReply) 
   res.send(result);
 };
 
+export const getTagCollections = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+
+  const { tag } = req.params as any;
+
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
+  const ctl = new NFTCollectionController();
+  const result = await ctl.getTagCollections(tag,filters);
+  res.send(result);
+};
+
+
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);

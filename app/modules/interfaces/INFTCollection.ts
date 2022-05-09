@@ -19,7 +19,7 @@ export interface INFTCollection {
   properties: Array<string>;
   offerStatus: OfferStatusType;
   volume?:number
-  tagCollection?:string
+  tagCollection?:Array<string>;
 }
 
 export enum OfferStatusType {
