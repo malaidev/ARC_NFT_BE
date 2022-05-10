@@ -10,6 +10,8 @@ import { dateDiff } from "../util/datediff-helper";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { IGlobal } from "../interfaces/IGlobal";
 
+import { ActivityController } from "./ActivityController";
+
 export class NFTController extends AbstractEntity {
   protected data: INFT;
   protected table: string = "NFT";
@@ -519,7 +521,7 @@ export class NFTController extends AbstractEntity {
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
     } catch (err) {
       console.log(err);
-      return respond(err.message,true,403);
+      return respond(err.message, true, 403);
     }
   }
 
@@ -539,6 +541,7 @@ export class NFTController extends AbstractEntity {
 
     try {
       const nfts: INFT[] = [];
+      const listing_nfts: INFT[] = [];
       for (const record of records) {
         const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
         const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
@@ -555,13 +558,18 @@ export class NFTController extends AbstractEntity {
           externalLink: record["External Link"],
           description: record["Description"],
           isExplicit: record["Explicit & Sensitive Content"] !== "No",
-          explicitContent:
-            record["Explicit & Sensitive Content"] === "No" ? "" : record["Explicit & Sensitive Content"],
+          explicitContent: "",
           saleStatus: SaleStatus.NOTFORSALE,
           mintStatus: MintStatus.LAZYMINTED,
           status_date: new Date().getTime(),
-          properties: [],
-          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content"],
+          properties: record["Properties"].split(",").map((x) => {
+            const [title, name] = x
+              .trim()
+              .split(":")
+              .map((y) => y.trim());
+            return { title, name };
+          }),
+          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content Details"],
           tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
           contentType:
             contentType === "music"
@@ -573,9 +581,30 @@ export class NFTController extends AbstractEntity {
               : ContentType.IMAGE,
         };
         nfts.push(nft);
+        if (record["List For Buy Now"] === "Yes") {
+          listing_nfts.push({ ...nft, price: +record["List Price (ETH)"] });
+        }
       }
-      await nftTable.insertMany(nfts);
-      return respond({ status: "success", items: records.length });
+      if (nfts.length > 0) {
+        await nftTable.insertMany(nfts);
+      }
+      const listing_results = [];
+      if (listing_nfts.length > 0) {
+        const activityController = new ActivityController();
+        for (const listing_nft of listing_nfts) {
+          const result = await activityController.listForSale(
+            collectionId,
+            listing_nft.index,
+            owner,
+            listing_nft.price,
+            Date.now() + 30 * 24 * 3600 * 1000,
+            0,
+            owner
+          );
+          listing_results.push(result);
+        }
+      }
+      return respond({ status: "success", items: records.length, listings: listing_results });
     } catch (err) {
       return respond(err);
     }
