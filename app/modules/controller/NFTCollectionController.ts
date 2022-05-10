@@ -997,6 +997,7 @@ export class NFTCollectionController extends AbstractEntity {
     logoName,
     featureName,
     bannerName,
+    properties,
     logoMimetype,
     featuredMimetype,
     bannerMimetype
@@ -1075,6 +1076,7 @@ export class NFTCollectionController extends AbstractEntity {
         twitterUrl ?? "",
         telegramUrl ?? "",
       ];
+      findResult.properties = properties;
       const result = await collection.replaceOne({ _id: new ObjectId(collectionId) }, findResult);
       return result ? respond({ ...findResult }) : respond("Failed to update a new collection.", true, 500);
     } catch (e) {
