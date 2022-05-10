@@ -508,15 +508,26 @@ export class NFTController extends AbstractEntity {
         nft._id = result.insertedId;
 
         Object.keys(nft.properties).forEach((propertyName) => {
-          if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
+
+          if (collection.properties && collection.properties[propertyName]){
+            if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
+              collection.properties[propertyName].push(nft.properties[propertyName]);
+            }
+          }else{
+
+            collection.properties[propertyName]=[];
             collection.properties[propertyName].push(nft.properties[propertyName]);
           }
+          
         });
 
         await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
       }
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+      return respond(err.message,true,403);
+    }
   }
 
   async batchUpload({
