@@ -509,7 +509,7 @@ export class NFTController extends AbstractEntity {
 
         if (Array.isArray(nft.properties)) {
           for (const property of nft.properties) {
-            if (!collection.properties[property.title].includes(property.title)) {
+            if (!collection.properties[property.title].includes(property.name)) {
               collection.properties[property.title].push(property.name);
             }
           }
@@ -560,7 +560,7 @@ export class NFTController extends AbstractEntity {
           saleStatus: SaleStatus.NOTFORSALE,
           mintStatus: MintStatus.LAZYMINTED,
           status_date: new Date().getTime(),
-          properties: {},
+          properties: [],
           lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content"],
           tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
           contentType:
@@ -589,11 +589,7 @@ export class NFTController extends AbstractEntity {
       const acttable = this.mongodb.collection(this.activityTable);
       const nftTable = this.mongodb.collection(this.table);
       const itemData = await nftTable.findOne({ _id: new ObjectId(id) });
-      if (!itemData) {erties[property.title].includes(property.title)) {
-              collection.properties[property.title].push(property.name);
-            }
-          }
-          await collectionTable.replaceOne({ _id: new Objec
+      if (!itemData) {
         return respond("Items not Found", true, 422);
       }
       if (itemData?.owner.toLowerCase() !== ownerId) {
@@ -622,9 +618,13 @@ export class NFTController extends AbstractEntity {
         if (Array.isArray(nft.properties)) {
           const collectionTable = this.mongodb.collection(this.nftCollectionTable);
           const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
-          
+
           for (const property of nft.properties) {
-            if (!collection.proptId(nft.collection) }, collection);
+            if (!collection.properties[property.title].includes(property.name)) {
+              collection.properties[property.title].push(property.name);
+            }
+          }
+          await collectionTable.replaceOne({ _id: new ObjectId(nft.collection) }, collection);
         }
         return respond(result);
       } else {
