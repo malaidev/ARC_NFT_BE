@@ -13,13 +13,22 @@ import { rewardHelper } from "../../util/reward-handler";
 export const getReward = async (req: FastifyRequest, res: FastifyReply) => {
     const { walletId } = req.params as any;
     
-    console.log('rewards')
-        
     const ctl = new NFTRewardController();
     const result = await ctl.getReward(walletId.toLowerCase());
     res.send(result);
 }
 
+
+export const getRewardAirDrop = async (req: FastifyRequest, res: FastifyReply) => {
+    const { walletId } = req.params as any;
+    
+
+        
+    const ctl = new NFTRewardController();
+    const result = await ctl.getRewardAirDrop(walletId.toLowerCase());
+
+    res.send(result);
+}
 export const claimReward= async (req: FastifyRequest, res: FastifyReply) => {
     const { walletId,claim } = req.body as any;
     const ctl = new NFTRewardController();

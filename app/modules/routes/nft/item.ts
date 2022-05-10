@@ -37,6 +37,22 @@ export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
   res.send(result);
 };
 
+
+export const getTagItems = async (req: FastifyRequest, res: FastifyReply) => {
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+
+  const { tag } = req.params as any;
+
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
+  const ctl = new NFTController();
+  const result = await ctl.getTagItems(tag,filters);
+  res.send(result);
+};
+
+
 export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
@@ -85,20 +101,25 @@ export const createItem = async (req, res) => {
   res.send(result);
 };
 
-export const bulkUpload = async (req, res) => {
-  if (req.body && !req.body.csvFile) {
+export const batchUpload = async (req, res) => {
+  const { csvFile, collectionId, tokenType } = req.body;
+  if (!csvFile) {
     throw new Error("CSV is missing");
   }
-  const buffer = await req.body.csvFile.toBuffer();
+  const buffer = await csvFile.toBuffer();
   parse(buffer, { columns: true }, async function (err, records) {
     if (err) {
       return res.send(err);
     }
-    const collectionUrl = records[0]["Collection"].replace("/", "");
     const user = req["session"] as any;
-    const walletAddress = user.walletId.toLowerCase();
+    const owner = user.walletId.toLowerCase();
     const ctl = new NFTController();
-    const uploadRes = await ctl.bulkUpload(collectionUrl, walletAddress, records);
+    const uploadRes = await ctl.batchUpload({
+      collectionId: collectionId.value,
+      tokenType: tokenType.value,
+      owner,
+      records,
+    });
     return res.send(uploadRes);
   });
 };

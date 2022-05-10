@@ -1,7 +1,7 @@
 import { config } from "../../../config/config";
 import {
   createItem,
-  bulkUpload,
+  batchUpload,
   deleteItem,
   getAllItems,
   getItemDetail,
@@ -9,6 +9,7 @@ import {
   getItemOffers,
   getTrendingItems,
   updateItem,
+  getTagItems,
 } from "./item";
 
 import {
@@ -25,6 +26,8 @@ import {
   deleteCollection,
   getCollectionOffer,
   updateCollection,
+  getHotCollections,
+  getTagCollections,
 } from "./collection";
 import {
   createOwner,
@@ -50,7 +53,7 @@ import {
   signOffer,
   deleteActivityId,
 } from "./activity";
-import { claimReward, getReward, getTest } from "./reward";
+import { claimReward, getReward, getRewardAirDrop, getTest } from "./reward";
 
 /**
  * Exports the nft collection actions routes.
@@ -63,6 +66,7 @@ export const nft = async (router: any, options: any) => {
    */
   router.get("/collection", getCollections);
   router.get("/collection/top", getTopCollections);
+  router.get("/collection/hot", getHotCollections);
   router.get("/collection/url/:url", getCollectionByUrl);
   router.get("/collection/:collectionId/items", config.routeParamsValidation(), getItems);
   router.get("/collection/:collectionId/owners", config.routeParamsValidation(), getOwners);
@@ -71,25 +75,27 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/:collectionId/offer", config.routeParamsValidation(), getCollectionOffer);
 
   router.get("/collection/:collectionId", config.routeParamsValidation(), getCollectionDetail);
+  router.get("/collection/tag/:tag", config.routeParamsValidation(), getTagCollections);
   router.delete("/collection/:collectionId", config.route("jwt"), deleteCollection);
   router.put("/collection/:collectionId", config.route("jwt"), updateCollection);
   router.post("/collection/create", config.route("jwt"), createCollection);
   router.get("/activity", getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
-  router.post("/activity/listForSale", config.route("jwt"),listForSale);
-  router.post("/activity/makeOffer",config.route("jwt"), makeOffer);
-  router.post("/activity/approveOffer", config.route("jwt"),approveOffer);
-  router.post("/activity/transfer", config.route("jwt"),transfer);
-  router.post("/activity/cancelOffer", config.route("jwt"),cancelOffer);
-  router.post("/activity/cancelListForSale",config.route("jwt"), cancelListForSale);
-  router.post("/activity/makeCollectionOffer", config.route("jwt"),makeCollectionOffer);
-  router.post("/activity/cancelCollectionOffer",config.route("jwt"), cancelCollectionOffer);
-  router.post("/activity/signOffer",config.route("jwt"), signOffer);
+  router.post("/activity/listForSale", config.route("jwt"), listForSale);
+  router.post("/activity/makeOffer", config.route("jwt"), makeOffer);
+  router.post("/activity/approveOffer", config.route("jwt"), approveOffer);
+  router.post("/activity/transfer", config.route("jwt"), transfer);
+  router.post("/activity/cancelOffer", config.route("jwt"), cancelOffer);
+  router.post("/activity/cancelListForSale", config.route("jwt"), cancelListForSale);
+  router.post("/activity/makeCollectionOffer", config.route("jwt"), makeCollectionOffer);
+  router.post("/activity/cancelCollectionOffer", config.route("jwt"), cancelCollectionOffer);
+  router.post("/activity/signOffer", config.route("jwt"), signOffer);
 
   router.get("/items", getAllItems);
   router.get("/items/trending", getTrendingItems);
+  router.get("/items/tag/:tag", getTagItems);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.post("/items/bulk-upload",config.route("jwt"), bulkUpload);
+  router.post("/items/batch-upload", config.route("jwt"), batchUpload);
   router.get("/items/:collectionId/:nftId/history", config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
   router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
@@ -108,7 +114,7 @@ export const nft = async (router: any, options: any) => {
 
   router.get("/search", getCollectionsItems);
   router.get("/rewards/:walletId", getReward);
+  router.get("/rewards/airdrop/:walletId", getRewardAirDrop);
   router.post("/rewardsClaim",config.route("jwt"), claimReward);
   router.get("/rewards/test", getTest);
-  
 };
