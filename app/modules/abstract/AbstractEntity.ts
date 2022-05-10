@@ -315,7 +315,6 @@ import {
         aggregation.limit=filters && filters.limit?filters.limit:10;
 
         if ( filters && filters.page){
-          console.log(filters.page);
           filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
         }else{
           aggregation.skip=0;

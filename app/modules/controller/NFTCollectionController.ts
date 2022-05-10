@@ -70,6 +70,7 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let SK = keyword.split(" ");
+        
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {
           return new RegExp(e, "igm");
@@ -79,17 +80,17 @@ export class NFTCollectionController extends AbstractEntity {
         //   aggregation = this.parseFilters(filters);
         // }
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
+        console.log(searchKeyword);
         const result = (await collectionTable
           .find({
             $or: [
               { name: { $in: searchKeyword } },
               { description: { $in: searchKeyword } },
-              { blockchain: { $regex: new RegExp(keyword, "igm") } },
               { category: { $in: searchKeyword } },
               { platform: { $in: searchKeyword } },
               { links: { $in: searchKeyword } },
             ],
-          })
+          }).sort({volume:-1})
           .toArray()) as Array<INFTCollection>;
         let collections = [];
         if (result) {
@@ -160,6 +161,7 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
