@@ -914,13 +914,26 @@ export class NFTCollectionController extends AbstractEntity {
         ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
         : "";
       let initialProperties: any = {};
-      if (properties){
-        const propertyNames: string[] = JSON.parse(properties);
-        propertyNames.forEach((propertyName) => {
-        initialProperties[propertyName] = [];
-        });
-      }
+
       
+      if (properties){
+
+        console.log(properties);
+        const propertyNames: any = JSON.parse(properties);
+        
+        if (typeof propertyNames === 'object'){
+          for (let key in propertyNames) {
+            
+            initialProperties[key] = [];
+            
+        }
+        }else if(Array.isArray(propertyNames)){
+          propertyNames.forEach((propertyName) => {
+            initialProperties[propertyName] = [];
+            });
+        }
+        
+      }
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
