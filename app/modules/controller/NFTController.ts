@@ -517,7 +517,10 @@ export class NFTController extends AbstractEntity {
         await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
       }
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+      return respond(err.message,true,403);
+    }
   }
 
   async batchUpload({
@@ -586,7 +589,11 @@ export class NFTController extends AbstractEntity {
       const acttable = this.mongodb.collection(this.activityTable);
       const nftTable = this.mongodb.collection(this.table);
       const itemData = await nftTable.findOne({ _id: new ObjectId(id) });
-      if (!itemData) {
+      if (!itemData) {erties[property.title].includes(property.title)) {
+              collection.properties[property.title].push(property.name);
+            }
+          }
+          await collectionTable.replaceOne({ _id: new Objec
         return respond("Items not Found", true, 422);
       }
       if (itemData?.owner.toLowerCase() !== ownerId) {
@@ -617,11 +624,7 @@ export class NFTController extends AbstractEntity {
           const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
           
           for (const property of nft.properties) {
-            if (!collection.properties[property.title].includes(property.title)) {
-              collection.properties[property.title].push(property.name);
-            }
-          }
-          await collectionTable.replaceOne({ _id: new ObjectId(nft.collection) }, collection);
+            if (!collection.proptId(nft.collection) }, collection);
         }
         return respond(result);
       } else {
