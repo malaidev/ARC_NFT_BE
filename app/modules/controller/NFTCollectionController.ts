@@ -917,14 +917,23 @@ export class NFTCollectionController extends AbstractEntity {
 
       
       if (properties){
-        const propertyNames: string[] = JSON.parse(properties);
-        if (Object.keys(propertyNames).length>0 || propertyNames.length==0){
+
+        console.log(properties);
+        const propertyNames: any = JSON.parse(properties);
+        
+        if (typeof propertyNames === 'object'){
+          for (let key in propertyNames) {
+            
+            initialProperties[key] = [];
+            
+        }
+        }else if(Array.isArray(propertyNames)){
           propertyNames.forEach((propertyName) => {
             initialProperties[propertyName] = [];
             });
         }
+        
       }
-      
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
