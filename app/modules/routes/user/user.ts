@@ -100,7 +100,7 @@ export const findOrCreateUser = async (
 
     const jwt = await res.jwtSign({
       uid: walletId,
-      exp: moment.utc().add(15, "minutes").unix(),
+      exp: moment.utc().add(45, "minutes").unix(),
     });
     // And if it does, just sent back user's info
     delete user.sig;
