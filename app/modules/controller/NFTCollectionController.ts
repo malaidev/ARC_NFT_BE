@@ -913,11 +913,14 @@ export class NFTCollectionController extends AbstractEntity {
       const bannerIpfs = bannerImgFile
         ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
         : "";
-      const initialProperties: any = {};
-      const propertyNames: string[] = JSON.parse(properties);
-      propertyNames.forEach((propertyName) => {
+      let initialProperties: any = {};
+      if (properties){
+        const propertyNames: string[] = JSON.parse(properties);
+        propertyNames.forEach((propertyName) => {
         initialProperties[propertyName] = [];
-      });
+        });
+      }
+      
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
@@ -950,6 +953,7 @@ export class NFTCollectionController extends AbstractEntity {
         ? respond({ ...nftCollection, creator: creator })
         : respond("Failed to create a new collection.", true, 500);
     } catch (e) {
+      console.log(e);
       return respond(e.message, true, 500);
     }
   }
