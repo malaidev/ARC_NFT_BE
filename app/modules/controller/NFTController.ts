@@ -545,6 +545,14 @@ export class NFTController extends AbstractEntity {
       for (const record of records) {
         const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
         const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
+        if (nftVar) {
+          await globalTable.replaceOne({ globalId: "nft" }, { globalId: "nft", nftIndex: newIndex });
+        } else {
+          await globalTable.insertOne({
+            globalId: "nft",
+            nftIndex: newIndex,
+          });
+        }
         const contentType = record["Content Type"];
         const nft: INFT = {
           collection: collectionId,
