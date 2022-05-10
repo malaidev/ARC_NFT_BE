@@ -1100,8 +1100,8 @@ export class NFTCollectionController extends AbstractEntity {
     if (!collection) {
       return respond("collection not found", true, 501);
     }
-    const activities = await activityTable.find({ collection: collectionId }).toArray();
-    collection.activities = activities;
+    // const activities = await activityTable.find({ collection: collectionId }).toArray();
+    // collection.activities = activities;
     const nfts = await nftTable.find({ collection: collectionId }).toArray();
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
@@ -1116,6 +1116,16 @@ export class NFTCollectionController extends AbstractEntity {
     const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
     collection.creatorDetail = creator;
     collection.volume ?? 0;
+
+    const actData = await activityTable
+                .find({
+                  collection: collectionId,
+                  active: true,
+                  type: { $in: [ActivityType.OFFERCOLLECTION] },
+                })
+                .toArray();
+
+    collection.offer_lists=actData;
 
     return respond(collection);
   }
