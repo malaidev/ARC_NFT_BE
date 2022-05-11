@@ -10,6 +10,8 @@ import { dateDiff } from "../util/datediff-helper";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { IGlobal } from "../interfaces/IGlobal";
 
+import { ActivityController } from "./ActivityController";
+
 export class NFTController extends AbstractEntity {
   protected data: INFT;
   protected table: string = "NFT";
@@ -507,19 +509,15 @@ export class NFTController extends AbstractEntity {
       if (result) {
         nft._id = result.insertedId;
 
-        if (Array.isArray(nft.properties)) {
-          for (const property of nft.properties) {
-            if (!collection.properties[property.title].includes(property.name)) {
-              collection.properties[property.title].push(property.name);
-            }
-          }
-        }
-        await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
+        await collectionTable.replaceOne(
+          { _id: new ObjectId(collectionId) },
+          this._updateCollectionProperties(collection, nft)
+        );
       }
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
     } catch (err) {
       console.log(err);
-      return respond(err.message,true,403);
+      return respond(err.message, true, 403);
     }
   }
 
@@ -535,13 +533,23 @@ export class NFTController extends AbstractEntity {
     records: any[];
   }) {
     const globalTable = this.mongodb.collection(this.globaltable);
+    const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const nftTable = this.mongodb.collection(this.table);
 
     try {
       const nfts: INFT[] = [];
+      const listing_nfts: INFT[] = [];
       for (const record of records) {
         const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
         const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
+        if (nftVar) {
+          await globalTable.replaceOne({ globalId: "nft" }, { globalId: "nft", nftIndex: newIndex });
+        } else {
+          await globalTable.insertOne({
+            globalId: "nft",
+            nftIndex: newIndex,
+          });
+        }
         const contentType = record["Content Type"];
         const nft: INFT = {
           collection: collectionId,
@@ -555,13 +563,18 @@ export class NFTController extends AbstractEntity {
           externalLink: record["External Link"],
           description: record["Description"],
           isExplicit: record["Explicit & Sensitive Content"] !== "No",
-          explicitContent:
-            record["Explicit & Sensitive Content"] === "No" ? "" : record["Explicit & Sensitive Content"],
+          explicitContent: "",
           saleStatus: SaleStatus.NOTFORSALE,
           mintStatus: MintStatus.LAZYMINTED,
           status_date: new Date().getTime(),
-          properties: [],
-          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content"],
+          properties: record["Properties"].split(",").map((x) => {
+            const [title, name] = x
+              .trim()
+              .split(":")
+              .map((y) => y.trim());
+            return { title, name };
+          }),
+          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content Details"],
           tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
           contentType:
             contentType === "music"
@@ -573,9 +586,35 @@ export class NFTController extends AbstractEntity {
               : ContentType.IMAGE,
         };
         nfts.push(nft);
+        if (record["List For Buy Now"] === "Yes") {
+          listing_nfts.push({ ...nft, price: +record["List Price (ETH)"] });
+        }
       }
-      await nftTable.insertMany(nfts);
-      return respond({ status: "success", items: records.length });
+      if (nfts.length > 0) {
+        await nftTable.insertMany(nfts);
+        let collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
+        for (const nft of nfts) {
+          collection = this._updateCollectionProperties(collection, nft);
+        }
+        await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
+      }
+      const listing_results = [];
+      if (listing_nfts.length > 0) {
+        const activityController = new ActivityController();
+        for (const listing_nft of listing_nfts) {
+          const result = await activityController.listForSale(
+            collectionId,
+            listing_nft.index,
+            owner,
+            listing_nft.price,
+            Date.now() + 30 * 24 * 3600 * 1000,
+            0,
+            owner
+          );
+          listing_results.push(result);
+        }
+      }
+      return respond({ status: "success", items: records.length, listings: listing_results });
     } catch (err) {
       return respond(err);
     }
@@ -615,17 +654,12 @@ export class NFTController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.table);
         const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
 
-        if (Array.isArray(nft.properties)) {
-          const collectionTable = this.mongodb.collection(this.nftCollectionTable);
-          const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
-
-          for (const property of nft.properties) {
-            if (!collection.properties[property.title].includes(property.name)) {
-              collection.properties[property.title].push(property.name);
-            }
-          }
-          await collectionTable.replaceOne({ _id: new ObjectId(nft.collection) }, collection);
-        }
+        const collectionTable = this.mongodb.collection(this.nftCollectionTable);
+        const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
+        await collectionTable.replaceOne(
+          { _id: new ObjectId(nft.collection) },
+          this._updateCollectionProperties(collection, nft)
+        );
         return respond(result);
       } else {
         throw new Error("Could not connect to the database.");
@@ -633,6 +667,23 @@ export class NFTController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
+  }
+
+  private _updateCollectionProperties(collection: INFTCollection, nft: INFT): INFTCollection {
+    const _collection = { ...collection };
+    if (Array.isArray(nft.properties)) {
+      for (const property of nft.properties) {
+        const { title, name } = property;
+        if (!Array.isArray(_collection.properties[title])) {
+          _collection.properties[title] = [name];
+        } else {
+          if (!_collection.properties[title].includes(name)) {
+            _collection.properties[title].push(name);
+          }
+        }
+      }
+    }
+    return _collection;
   }
 
   private findNFTItem(collectionId: string, index: number): Object {

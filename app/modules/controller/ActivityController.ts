@@ -18,7 +18,7 @@ export class ActivityController extends AbstractEntity {
     super();
     this.data = activity;
   }
-  async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {  
+  async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
@@ -26,14 +26,27 @@ export class ActivityController extends AbstractEntity {
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
-        let count ;
+        let count;
         // const result = await table.aggregate(aggregation).toArray();
-        if (aggregation && aggregation.filter){
-          count = await table.find({$or:aggregation.filter}).count();
-          result=aggregation.sort? await table.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await table.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
-        }else{
+        if (aggregation && aggregation.filter) {
+          count = await table.find({ $or: aggregation.filter }).count();
+          result = aggregation.sort
+            ? ((await table
+                .find({ $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>)
+            : ((await table
+                .find({ $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
+        } else {
           count = await table.find().count();
-          result=aggregation.sort?await table.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray():await table.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
+          result = aggregation.sort
+            ? await table.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
+            : ((await table.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
         if (result) {
           const activities = await Promise.all(
@@ -57,24 +70,24 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string,price:number) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
-        const personTable = this.mongodb.collection(this.ownerTable)
+        const personTable = this.mongodb.collection(this.ownerTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        const collData = await collTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
+        const collData = (await collTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         let prc: number = 0;
-        let vol:number=0;
-        if (collData && collData.volume){
-          typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
+        let vol: number = 0;
+        if (collData && collData.volume) {
+          typeof collData.volume == "string" ? (vol = +collData.volume) : (vol = collData.volume);
         }
-        if (buyer.toLowerCase() == seller.toLowerCase()){
+        if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
-        if (!price) prc=0;
+        if (!price) prc = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
           if (nft.owner !== seller) {
@@ -90,7 +103,7 @@ export class ActivityController extends AbstractEntity {
             type: ActivityType.TRANSFER,
             date: status_date,
             from: seller,
-            price:prc,
+            price: prc,
             to: buyer,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
@@ -98,26 +111,27 @@ export class ActivityController extends AbstractEntity {
           nft.owner = buyer;
           nft.status_date = status_date;
           // nft.price=prc;
-          nft.price=0;
-          collData.volume=vol+prc;
-          await collTable.replaceOne(this.findCollectionById(collectionId),collData);
+          nft.price = 0;
+          collData.volume = vol + prc;
+          await collTable.replaceOne(this.findCollectionById(collectionId), collData);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
-          await activityTable.updateMany({
+          await activityTable.updateMany(
+            {
               collection: collectionId,
               active: true,
               from: seller,
               to: buyer,
-              price:prc,
+              price: prc,
               $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
             },
             { $set: { active: false } }
           );
           const result = await activityTable.insertOne(transfer);
           /** SEND EMAIL */
-          const ownerData = await personTable.findOne({wallet:seller.toLowerCase()}) as IPerson;
-          if (ownerData && ownerData.email){
-              const email = new mailHelper();
-              email.BuyNow(transfer,ownerData);
+          const ownerData = (await personTable.findOne({ wallet: seller.toLowerCase() })) as IPerson;
+          if (ownerData && ownerData.email) {
+            const email = new mailHelper();
+            email.BuyNow(transfer, ownerData);
           }
           return result
             ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
@@ -137,14 +151,14 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
-        const collData = await collTable.findOne(this.findCollectionById(collectionId)) as INFTCollection;
+        const collData = (await collTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        let prc:number=0;
-        let vol:number=0;
-        if (collData && collData.volume){
-          typeof collData.volume=="string"?(vol=+collData.volume):(vol=collData.volume);
+        let prc: number = 0;
+        let vol: number = 0;
+        if (collData && collData.volume) {
+          typeof collData.volume == "string" ? (vol = +collData.volume) : (vol = collData.volume);
         }
-        if (buyer.toLowerCase() == seller.toLowerCase()){
+        if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
         if (nft) {
@@ -161,15 +175,15 @@ export class ActivityController extends AbstractEntity {
           if (offer.from.toLowerCase() != buyer.toLowerCase()) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
-          typeof offer.price=="string"?(prc=+offer.price):(prc=offer.price);
+          typeof offer.price == "string" ? (prc = +offer.price) : (prc = offer.price);
           if (offer.type === ActivityType.OFFERCOLLECTION) {
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
-            nft.price=prc;
+            nft.price = prc;
             nft.status_date = status_date;
-            collData.offerStatus=OfferStatusType.NONE;
+            collData.offerStatus = OfferStatusType.NONE;
             const saleActivity: IActivity = {
               collection: collectionId,
               nftId: index,
@@ -179,10 +193,12 @@ export class ActivityController extends AbstractEntity {
               to: buyer,
               active: true,
             };
-            const actData = await activityTable.find({ collection: collectionId, offerCollection: offer.offerCollection }).toArray();
+            const actData = await activityTable
+              .find({ collection: collectionId, offerCollection: offer.offerCollection })
+              .toArray();
             const actUpdate = await Promise.all(
               actData.map(async (item) => {
-                if ( item._id.toString() ===offer._id.toString()) {
+                if (item._id.toString() === offer._id.toString()) {
                   await activityTable.insertOne({
                     collection: item.collection,
                     nftId: item.nftId,
@@ -192,10 +208,9 @@ export class ActivityController extends AbstractEntity {
                     from: item.from,
                     to: item.to,
                   });
-                  collData.volume=vol+prc;
-                  await collTable.replaceOne(this.findCollectionById(collectionId),collData);
-                }else{                  
-                  
+                  collData.volume = vol + prc;
+                  await collTable.replaceOne(this.findCollectionById(collectionId), collData);
+                } else {
                   await activityTable.insertOne({
                     collection: item.collection,
                     nftId: item.nftId,
@@ -218,7 +233,7 @@ export class ActivityController extends AbstractEntity {
                 active: true,
                 from: seller,
                 to: buyer,
-                price:prc,
+                price: prc,
                 $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFERCOLLECTION }],
               },
               { $set: { active: false } }
@@ -238,10 +253,10 @@ export class ActivityController extends AbstractEntity {
             nft.owner = buyer;
             nft.status_date = status_date;
             // nft.price=prc;
-            nft.price=0;
-            collData.volume=vol+prc;
-            offer.active=false;
-            await collTable.replaceOne(this.findCollectionById(collectionId),collData);
+            nft.price = 0;
+            collData.volume = vol + prc;
+            offer.active = false;
+            await collTable.replaceOne(this.findCollectionById(collectionId), collData);
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
             await activityTable.replaceOne(this.findActivtyWithId(offer._id), offer);
             await activityTable.updateMany(
@@ -250,7 +265,7 @@ export class ActivityController extends AbstractEntity {
                 active: true,
                 from: seller,
                 to: buyer,
-                price:prc,
+                price: prc,
                 $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
               },
               { $set: { active: false } }
@@ -264,7 +279,7 @@ export class ActivityController extends AbstractEntity {
               date: status_date,
               from: seller,
               to: buyer,
-              price:prc,
+              price: prc,
               active: true,
             });
 
@@ -276,7 +291,7 @@ export class ActivityController extends AbstractEntity {
               date: status_date,
               from: seller,
               to: buyer,
-              price:prc,
+              price: prc,
               active: true,
             });
 
@@ -284,7 +299,7 @@ export class ActivityController extends AbstractEntity {
               ? respond(`Successfully created a new sold with id ${activityId}`)
               : respond("Failed to create a new activity.", true, 501);
           }
-        }else{
+        } else {
           return respond("Item not found", true, 501);
         }
       } else {
@@ -308,7 +323,7 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
-        if (buyer.toLowerCase() == seller.toLowerCase()){
+        if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
         const startDate = new Date().getTime();
@@ -320,14 +335,14 @@ export class ActivityController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const ownTable = this.mongodb.collection(this.ownerTable);
-        const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
+        const sortAct = await ownTable.findOne({ wallet: buyer.toLowerCase() });
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
-          await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
+          await ownTable.replaceOne({ wallet: buyer.toLowerCase() }, sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const offer: IActivity = {
             collection: collectionId,
@@ -383,7 +398,7 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
-        if (buyer.toLowerCase() == seller.toLowerCase()){
+        if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
         const startDate = new Date().getTime();
@@ -400,14 +415,14 @@ export class ActivityController extends AbstractEntity {
           return respond("No Items", true, 501);
         }
         // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
-        const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
+        const sortAct = await ownTable.findOne({ wallet: buyer.toLowerCase() });
         if (collection) {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
-          await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
+          await ownTable.replaceOne({ wallet: buyer.toLowerCase() }, sortAct);
           let collId = Date.now();
           let offerTime = new Date().getTime();
           collection.offerStatus = OfferStatusType.OFFERED;
@@ -422,7 +437,7 @@ export class ActivityController extends AbstractEntity {
             to: seller,
             nonce,
             active: true,
-            offerCollection: collId
+            offerCollection: collId,
           };
           let nftUpdate = [];
           nftUpdate = await Promise.all(
@@ -457,15 +472,13 @@ export class ActivityController extends AbstractEntity {
             const collectionData = await collectionTable.findOne({
               _id: new ObjectId(findData.collection),
             });
-            const nftData = await nftTable
-              .find({ collection: findData.collection})
-              .toArray();
+            const nftData = await nftTable.find({ collection: findData.collection }).toArray();
             findData.collection = collectionData;
             findData.nfts = nftData;
             //** send email  */
-            if (sortAct && sortAct.email){
-                const email = new mailHelper();
-                email.CollectionOffer(offer,sortAct);
+            if (sortAct && sortAct.email) {
+              const email = new mailHelper();
+              email.CollectionOffer(offer, sortAct);
             }
             /** end of send email */
             return respond({
@@ -509,7 +522,7 @@ export class ActivityController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.collectionTable);
         const ownTable = this.mongodb.collection(this.ownerTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        if (nft) {          
+        if (nft) {
           if (nft.owner.toLowerCase() !== loginUser.toLowerCase()) {
             return respond("login user isnt nft's owner.", true, 422);
           }
@@ -520,14 +533,14 @@ export class ActivityController extends AbstractEntity {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
           // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
-          const sortAct = await ownTable.findOne({wallet:seller.toLowerCase()});        
+          const sortAct = await ownTable.findOne({ wallet: seller.toLowerCase() });
           const status_date = new Date().getTime();
           nft.saleStatus = SaleStatus.FORSALE;
           nft.status_date = status_date;
-          nft.price=price;
+          nft.price = price;
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
-          await ownTable.replaceOne({wallet:seller.toLowerCase()},sortAct);
+          await ownTable.replaceOne({ wallet: seller.toLowerCase() }, sortAct);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           const offer: IActivity = {
             collection: collectionId,
@@ -624,7 +637,7 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
-        if (buyer.toLowerCase() == seller.toLowerCase()){
+        if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
         if (nft) {
@@ -669,7 +682,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string,buyer : string) {
+  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string, buyer: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -722,22 +735,22 @@ export class ActivityController extends AbstractEntity {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const actData = (await activityTable.findOne(this.findActivtyWithId(id))) as IActivity;
-        if (actData && actData.type==ActivityType.OFFERCOLLECTION && !actData.nftId) {
-          const actDataDetail = await activityTable.find({offerCollection:actData.offerCollection}).toArray();
-          const result=await Promise.all(
+        if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {
+          const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
+          const result = await Promise.all(
             actDataDetail.map(async (item) => {
-              item.signature={
+              item.signature = {
                 r,
                 s,
-                v
-              }
-              await activityTable.replaceOne({_id: new ObjectId(item._id)}, item);
+                v,
+              };
+              await activityTable.replaceOne({ _id: new ObjectId(item._id) }, item);
               return result;
             })
-          )
+          );
           // const result = await activityTable.updateMany({offerCollection:actData.offerCollection},{$set:{'signature':{r,s,v}}})
           return result ? respond("Signature updated") : respond("Failed to update activity.", true, 501);
-        }else{
+        } else {
           actData.signature = { r, s, v };
           const result = await activityTable.replaceOne(this.findActivtyWithId(id), actData);
           return result ? respond("Signature updated") : respond("Failed to update activity.", true, 501);
