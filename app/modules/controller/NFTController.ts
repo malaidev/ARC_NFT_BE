@@ -537,6 +537,7 @@ export class NFTController extends AbstractEntity {
     records: any[];
   }) {
     const globalTable = this.mongodb.collection(this.globaltable);
+    const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const nftTable = this.mongodb.collection(this.table);
 
     try {
@@ -595,6 +596,17 @@ export class NFTController extends AbstractEntity {
       }
       if (nfts.length > 0) {
         await nftTable.insertMany(nfts);
+        const collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
+        for (const nft of nfts) {
+          if (Array.isArray(nft.properties)) {
+            for (const property of nft.properties) {
+              if (!collection.properties[property.title].includes(property.name)) {
+                collection.properties[property.title].push(property.name);
+              }
+            }
+          }
+        }
+        await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
       }
       const listing_results = [];
       if (listing_nfts.length > 0) {
