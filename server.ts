@@ -18,6 +18,7 @@ import * as SwaggerPlugin from "fastify-swagger";
 import fastifyCron from 'fastify-cron'
 import { rewardHelper } from "./app/modules/util/reward-handler";
 import * as helmet from '@fastify/helmet'
+import { walletHandler } from "./app/modules/util/wallet-handler";
 
 process.setMaxListeners(15);
 
@@ -57,16 +58,28 @@ async function mount() {
   await app.register(fastifyCron,{
     jobs:[
       {
-        
+
         cronTime:'0 0 * * *',
-        
+
         onTick: async server => {
-          console.log('run');
+          console.log('Run -->>> Reward')
           const x = new rewardHelper();
           const y = await x.calculateReward();
           // console.log(y)
         },
-        
+
+      },
+      {
+
+        cronTime:'0 0 * * *',
+
+        onTick: async server => {
+          console.log('Run -->>> verify ownership')
+          const x = new walletHandler();
+          const y = await x.verifyOwnership()
+          // console.log(y)
+        },
+
       }
     ]
   })
