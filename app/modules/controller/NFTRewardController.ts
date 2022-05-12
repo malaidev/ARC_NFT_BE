@@ -38,8 +38,8 @@ export class NFTRewardController extends AbstractEntity {
         if (rst){
           return  respond({
             wallet:rst.wallet,
-            listingReward:rst.listingReward+rst.reward,
-            collectedToDate:rst.reward,
+            listingReward:rst.listingReward + rst.reward?rst.reward:0,
+            collectedToDate:rst.reward?rst.reward:0,
             collected:rst.claim,
           });
         }else{
