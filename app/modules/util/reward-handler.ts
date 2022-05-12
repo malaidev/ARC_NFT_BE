@@ -18,7 +18,7 @@ export class rewardHelper extends AbstractEntity {
     async calculateReward():Promise<void|IResponse>{
         try {
             if (this.mongodb) {
-                
+
                 const person= this.mongodb.collection(this.ownerTable);
                 const colltable=this.mongodb.collection(this.collectiontable);
                 const result = await person.find({}).toArray();
@@ -42,6 +42,7 @@ export class rewardHelper extends AbstractEntity {
                 throw new Error("Could not connect to the database.");
             }
         } catch (error) {
+            return respond(error.message,true,403)
           }
     }
     async airDropRewards(wallet:string):Promise<any>{
@@ -50,16 +51,16 @@ export class rewardHelper extends AbstractEntity {
         const openSeaKey=config.opensea.api_key;
         const asset_owner=wallet;
 
-        
-        
+
+
         const options = {
             method: 'GET',
             url: `${openSeaUrl}collections?asset_owner=${asset_owner}&offset=0&limit=300`,
             headers: {Accept: 'application/json', 'X-API-KEY': `${openSeaKey}`}
         };
-        
+
         const result = await axios.request(options);
-        
+
         let sales=0;
         let volume=0
         if (result && result.data.length>0){
@@ -69,7 +70,7 @@ export class rewardHelper extends AbstractEntity {
               volume = result.data.reduce((acc, obj) => {
                 return acc + (+obj.stats.total_volume);
               }, 0);
-              
+
 
               return {rewards:volume};
         }else{
@@ -104,21 +105,21 @@ export class rewardHelper extends AbstractEntity {
                 const fList = (await act
                     .find(
                       { collection: c._id.toString(), type:ActivityType.LIST,startDate:{$gte:startDate,$lte:endDate}},
-                    
+
                     ).sort({endDate:-1}).limit(1)
                     .toArray()) as Array<IActivity>;
                     let f= await this.getFloorPrice(c._id.toString());
-                let lstPrice:number = fList && fList.length>0?fList[0].price:0;        
+                let lstPrice:number = fList && fList.length>0?fList[0].price:0;
                 let lScore:number =Math.max(lstPrice,f) * PNFT * multiplier;
-                
+
                 xList+=lScore;
 
-                
+
 
             })
         )
         return xList;
-        
+
 
     }
     private async getFloorPrice(collection: string) {
@@ -126,7 +127,7 @@ export class rewardHelper extends AbstractEntity {
         const fList = (await actTable
           .find(
             { collection: collection,price:{$ne:null}},
-          
+
           ).sort({price:1}).limit(1)
           .toArray()) as Array<IActivity>;
         if (fList && fList.length > 0) {
@@ -143,8 +144,8 @@ export class rewardHelper extends AbstractEntity {
         const rewardD= this.mongodb.collection(this.rewardDTable);
         const coll=this.mongodb.collection(this.collectiontable);
         /** Formula
-         * 
-         *listingReward = listingScoreNFT * Ratearc 
+         *
+         *listingReward = listingScoreNFT * Ratearc
          *listringScoreNFT = max(lastPrice,floorPrice) * Pnft x multiplier
          * Pnft= ScoreCollection/(totalItems*(1+Price-floor)*duration)
          * scoreCollection=(listingArc/totalItems)* (((1+volumeArc)*VolumeOS*salesOs) / totalMarketVolume)
@@ -180,8 +181,8 @@ export class rewardHelper extends AbstractEntity {
          let PNFT               = (await this.getpnft(wallet,SCORECOLLECTION,totalItems,startDate,endDate)) //SCORECOLLECTION * (1 /(totalItems*(1+price-floorPriceCollection)*duration) )
          let LISTINGSCORE       = (await this.getListingScore(wallet,PNFT,multiplier,startDate,endDate))  //Math.max(lastPriceNFT,floorPriceCollection) * PNFT * multiplier;
          let LISTINGREWARD      = (LISTINGSCORE * rateScoreARC);
-         
-         
+
+
 
 
 
@@ -197,11 +198,11 @@ export class rewardHelper extends AbstractEntity {
 
 
 
-         const findReward = await reward.findOne({wallet}); 
+         const findReward = await reward.findOne({wallet});
          const findRewardDaily= await rewardD.findOne({wallet,dailyCode,type:'REWARD'})
 
          if (!findRewardDaily){
-            
+
             await rewardD.insertOne({...insertData,date:startDate,dailyCode:dailyCode,type:'REWARD'});
             if (findReward){
                 findReward.scoreCollection =findReward.scoreCollection+SCORECOLLECTION;
@@ -214,15 +215,15 @@ export class rewardHelper extends AbstractEntity {
             }
          }
 
-        
+
         //  if (findReward){
-           
+
         //  }else{
-          
+
         //  };
 
         //  if (findRewardDaily){
-            
+
         //     await rewardD.replaceOne({_id:new ObjectID(findReward._id.toString())},findReward)
         //  }else{
 
@@ -231,18 +232,18 @@ export class rewardHelper extends AbstractEntity {
       }
 
 
-    
+
     private async getOpenSea(startDate:number,endDate:number){
         const axios = require("axios").default;
         const openSeaUrl=config.opensea.api_addr;
         const openSeaKey=config.opensea.api_key;
-        const assetContract = '0x8113901EEd7d41Db3c9D327484be1870605e4144';
+        const assetContract = '0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26';
 
         let date1=  new Date(startDate)
         let date2=new Date(startDate)
         let sDate = `${date1.getFullYear()}-${date1.getMonth()+1}-${date1.getDate()} 0:0:0`
         let eDate = `${date2.getFullYear()}-${date2.getMonth()+1}-${date2.getDate()} 0:0:0`
-        
+
         const options = {
             method: 'GET',
             url: `${openSeaUrl}events?only_opensea=true&asset_contract_address=${assetContract}&event_type=successful&occurred_before=${sDate}&occurred_after=${eDate}`,

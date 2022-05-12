@@ -62,15 +62,13 @@ export class SignerController extends AbstractEntity {
         }
       );
 
-
+      // console.log('verifiy',hasSignature);
       if (!hasSignature.code) {
         this.message.split(":")[1] = hasSignature.uuid;
         const recovered = sigUtil.recoverPersonalSignature({
           data:`${this.message}${hasSignature.uuid}`,
           sig: signature,
         });
-
-        console.log(recovered);
         if (Web3Utils.toChecksumAddress(recovered) === Web3Utils.toChecksumAddress(this.walletId)) {
           await this.updateSignatureStatus(hasSignature,signature);
           return true;
@@ -78,7 +76,7 @@ export class SignerController extends AbstractEntity {
       }
       return respond("Invalid signature.", true, 400);
       } catch (error) {
-        return respond("Something bad happened.", true, 500);
+        return respond("Something bad happened/invalid signature", true, 500);
       }
   }
 
