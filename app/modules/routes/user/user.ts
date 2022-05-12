@@ -74,16 +74,15 @@ export const findOrCreateUser = async (
          return;
        }
      };
-     if (user && !user.verified) {
-      if (!signature) {
-        return res.code(400).send(respond("Please verify your wallet  ", true, 400));
-      };
-
+    //  if (user && !user.verified) {
+    //   if (!signature) {
+    //     return res.code(400).send(respond("Please verify your wallet  ", true, 400));
+    //   };
       const verified = await signer.verifySignature(signature);
       if (verified && verified["code"]) {
         return res.code(400).send(verified);
       }
-    }
+    // }
 
     if (user.isTwoFactorAuthenticationEnabled) {
       const twoFa = new TwoFaController();
