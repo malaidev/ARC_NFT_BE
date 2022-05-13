@@ -18,6 +18,9 @@ export interface INFTCollection {
   properties: object;
   offerStatus: OfferStatusType;
   volume?: number;
+  floorPrice?:number;
+  _24h?:number,
+  _24hPercent?:number,
   tagCollection?: Array<string>;
 }
 

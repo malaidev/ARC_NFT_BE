@@ -9,13 +9,13 @@ import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { S3GetSignedUrl, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { ObjectId } from "mongodb";
+import { NFTCollectionController } from "./NFTCollectionController";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
   protected table = "Person" as string;
   protected nftTable = "NFT" as string;
   protected historyTable = "Activity" as string;
   protected collectionTable = "NFTCollection" as string;
-  
   constructor(user?: IPerson) {
     super();
     this.data = user;
@@ -127,23 +127,18 @@ export class NFTOwnerController extends AbstractEntity {
       return respond("Current user has been created", true, 501);
     }
     if (username){
-      
       const findUser=await collection.findOne({username:{'$regex' : username, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
       if (findUser && findUser._id) {
         return respond("Username or Nickname already exists", true, 501);
       }
     }
-
     if (email ){
-          
       const findUser=await collection.findOne({email:{'$regex' : email, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
       console.log(findUser);
       if (findUser && findUser._id) {
         return respond("Email already exists", true, 501);
       }
     }
-    
-    
     const person: IPerson = {
       photoUrl,
       wallet:wallet,
@@ -171,27 +166,22 @@ export class NFTOwnerController extends AbstractEntity {
    */
   async updateOwner(wallet: string, bodyData: any): Promise<IPerson | IResponse> {
     try {
-      
       if (this.mongodb) {
         const person = this.mongodb.collection(this.table);
         if (bodyData && bodyData.username){
-          
           const findUser=await person.findOne({username:{'$regex' : bodyData.username, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
           console.log(findUser);
           if (findUser && findUser._id) {
             return respond("Username or Nickname already exists", true, 501);
           }
         }
-
         if (bodyData && bodyData.email){
-          
           const findUser=await person.findOne({email:{'$regex' : bodyData.email, '$options' : 'i'} ,wallet:{$ne:wallet}}) as IPerson;
           console.log(findUser);
           if (findUser && findUser._id) {
             return respond("Email already exists", true, 501);
           }
         }
-
         await person.updateOne({ wallet }, { $set: { ...bodyData } });
         const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
         return respond(findOwner);
@@ -268,23 +258,24 @@ export class NFTOwnerController extends AbstractEntity {
         const activity = this.mongodb.collection(this.historyTable);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collection = this.mongodb.collection(this.collectionTable);
-
         let aggregation = [] as any;
         let result;
         const query = this.findOwnerHistory(ownerId);
-        if (filters && filters?.filters.length>0) {
-          aggregation = this.parseFilters(filters);
-          aggregation.push({ $match: { ...query } });
-          result = (await activity.aggregate(aggregation).toArray()) as Array<IActivity>;
-        } else {
-          result = (await activity.find(query).toArray()) as Array<INFT>;
-        }
-        
+        result = (await activity.find(query).toArray()) as Array<INFT>;
+        const colCtrl= new NFTCollectionController();
         if (result) {
           const resActivities = await Promise.all(
             result.map(async (item) => {
               const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
-              const coll = (await collection.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
+              let coll = (await collection.findOne({ _id: new ObjectId(item.collection) }));
+              // console.log('-->>>.f',f);
+              if (coll){
+                  const f = await colCtrl.getFloorPrice(`${item.collection}`);
+                  const { _24h, todayTrade } = await colCtrl.get24HValues(item.collection);
+                  coll.floorPrice=f?f:0;
+                  coll._24h = todayTrade;
+                  coll._24hPercent = _24h;
+              }
               return {
                 ...item,
                 nft: { artURI: nfts?.artURI, name: nfts?.name },
@@ -299,7 +290,8 @@ export class NFTOwnerController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      return respond(error.message, true, 500);
+      console.log(error)
+      return respond(error.message, true, 422);
     }
   }
   /**
@@ -326,51 +318,21 @@ export class NFTOwnerController extends AbstractEntity {
           // aggregation.push({ $match: { ...query } });
           result = (await collection.find(query).toArray()) as Array<INFTCollection>;
         }
-        
+        const colCtrl = new NFTCollectionController();
         if (result) {
           const collections = await Promise.all(
             result.map(async (collection) => {
               let volume = 0;
-              let _24h = 0;
               let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
               const personInfo = (await person.findOne({ wallet: collection.creator })) as IPerson;
               nfts.forEach((nft) => {
-                volume += nft.price;
-                if (floorPrice > nft.price) floorPrice = nft.price;
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
-              const soldList = (await activityTable.find({ collection: `${collection._id}` }).toArray()) as Array<IActivity>;
+              const { _24h, todayTrade } = await colCtrl.get24HValues(collection._id);
+              floorPrice = await colCtrl.getFloorPrice(`${collection._id}`);
               
-              const actTable = this.mongodb.collection(this.historyTable);
-              
-              const fList = (await actTable
-                .find(
-                  { collection: collection, type: { $in: [ActivityType.LIST, ActivityType.SALE] } },
-                  { limit: 1, sort: { price: 1 } }
-                )
-                .toArray()) as Array<IActivity>;
-              if (fList && fList.length > 0) {
-                floorPrice= fList[0].price;
-              } else {
-                floorPrice=0;
-              }
-              
-              let yesterDayTrade = 0;
-              let todayTrade = 0;
-              const todayDate = new Date();
-              const yesterdayDate = new Date(todayDate.getTime());
-              yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-              const dayBeforeDate = new Date(todayDate.getTime());
-              dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
-              soldList.forEach((sold) => {
-                if (sold.date > yesterdayDate.getTime() / 1000) todayTrade += sold.price;
-                else if (sold.date > dayBeforeDate.getTime() / 1000) yesterDayTrade += sold.price;
-              });
-              if (todayTrade == 0) _24h = 0;
-              else if (yesterDayTrade == 0) _24h = 100;
-              else _24h = (todayTrade / yesterDayTrade) * 100;
               return {
                 ...collection,
                 volume: volume,
@@ -432,8 +394,6 @@ export class NFTOwnerController extends AbstractEntity {
         // console.log(result);
         let rst = [];
         if (result) {
-
-          
           const resActivities = await Promise.all(
             result.map(async (item) => {
               if (item && item.nftId){
@@ -441,15 +401,11 @@ export class NFTOwnerController extends AbstractEntity {
                 const col = await collection.findOne({ _id: new ObjectId(item.collection) }) as INFTCollection;
                 // console.log(col.contract);
                 // console.log(col);
-
                 item.collectionId = item.collection;
                 item.collection = col && col.contract?col.contract:null;
-
                 item.nft = { artURI: nfts?.artURI, name: nfts?.name };
                 rst.push(item)
               }
-              
-            
               return item;
             })
           );
@@ -457,7 +413,6 @@ export class NFTOwnerController extends AbstractEntity {
         }
         return respond("Activities not found.", true, 422);
       } else {
-        
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
