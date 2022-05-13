@@ -67,6 +67,7 @@ const config = {
       },
     };
   },
+  
   routeParamsValidation: () => {
     return {
       schema: {
