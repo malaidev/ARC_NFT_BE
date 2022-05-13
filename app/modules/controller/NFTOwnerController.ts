@@ -82,13 +82,7 @@ export class NFTOwnerController extends AbstractEntity {
     const colls = await collection.find({ creator: personId }).count();
     if (result) {
       return respond({
-        id: result._id,
-        photoUrl: result.photoUrl,
-        wallet: result.wallet,
-        username: result.username,
-        bio: result.bio,
-        social: result.social,
-        email: result.email,
+        ...result,
         nfts: ntfs,
         collections: colls,
       });
@@ -102,13 +96,7 @@ export class NFTOwnerController extends AbstractEntity {
       });
       const result = await personTable.findOne(query);
       return respond({
-        id: result._id,
-        photoUrl: result.photoUrl,
-        wallet: result.wallet,
-        username: result.username,
-        bio: result.bio,
-        social: result.social,
-        email: result.email,
+        ...result,
         nfts: 0,
         collections: 0,
       });
