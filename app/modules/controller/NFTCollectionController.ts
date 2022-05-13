@@ -1242,7 +1242,7 @@ export class NFTCollectionController extends AbstractEntity {
       _id: new ObjectId(id),
     };
   }
-  private async get24HValues(address: string) {
+   async get24HValues(address: string) {
     const activityTable = this.mongodb.collection(this.activityTable);
     const soldList = (await activityTable
       .find({ collection: address, type: { $in: [ActivityType.TRANSFER, ActivityType.SALE] } })
@@ -1256,10 +1256,10 @@ export class NFTCollectionController extends AbstractEntity {
     dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
     soldList.forEach((sold) => {
       if (sold.date > yesterdayDate.getTime() / 1000) {
-        console.log("test", Number(sold.price));
+        // console.log("test", Number(sold.price));
         todayTrade += Number(sold.price) ? sold.price : 0;
       } else if (sold.date > dayBeforeDate.getTime() / 1000) {
-        console.log("yes");
+        // console.log("yes");
         yesterDayTrade += Number(sold.price) ? sold.price : 0;
       }
     });
@@ -1273,7 +1273,7 @@ export class NFTCollectionController extends AbstractEntity {
     // else _24h = (todayTrade / yesterDayTrade) * 100;
     return { _24h, todayTrade };
   }
-  private async getFloorPrice(collection: string) {
+   async getFloorPrice(collection: string) {
     const actTable = this.mongodb.collection(this.activityTable);
     const fList = (await actTable
       .find({ collection: collection, price: { $ne: null }, active: true, type: "List" })
