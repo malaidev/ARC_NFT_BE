@@ -164,6 +164,12 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
+                                        "name": "CONTRACT_NFT_PURCHASE_MODULE_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "nft_payment_address"}
+                                        },
+                                    },
+                                    {
                                         "name": "AWS_S3_KEY",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_key"}
