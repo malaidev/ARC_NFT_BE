@@ -10,7 +10,7 @@ export interface INFT {
   price: number; // price of nft
   externalLink?: string; // external link
   description?: string; // description of nft
-  properties: Object; // traits of nft item
+  properties: Array<any>; // traits of nft item
   lockContent?: string; // content
   isExplicit: boolean; // explicit flag
   explicitContent?: string; // explicit content

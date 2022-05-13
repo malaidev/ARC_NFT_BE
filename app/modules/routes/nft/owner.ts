@@ -125,14 +125,14 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   }
  * 
  */
-export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
-  const query = req.url.split("?")[1];
-  const filters = parseQueryUrl(query);
-  const ctl = new NFTOwnerController();
-  filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
-  const result = await ctl.findAllOwners(filters);
-  res.send(result);
-};
+// export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
+//   const query = req.url.split("?")[1];
+//   const filters = parseQueryUrl(query);
+//   const ctl = new NFTOwnerController();
+//   filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
+//   const result = await ctl.findAllOwners(filters);
+//   res.send(result);
+// };
 /**
  * @param {*} req
  *  *    onwerId : wallet address
@@ -157,7 +157,9 @@ export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params["ownerId"] as string;
   const ctl = new NFTOwnerController();
- 
+  
+
+
   const result = await ctl.findPerson(walletId.toLowerCase())
  
   res.send(result);
@@ -237,12 +239,8 @@ export const getOwnerOffers = async (req: FastifyRequest, res: FastifyReply) => 
  
   res.send(result);
 };
-/**
- * @param {*} req
- *  *    onwerId : wallet address
- * 
- * 
- * 
+
+
 /**
  * @param {*} req
  *  *    onwerId : wallet address

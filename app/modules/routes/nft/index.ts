@@ -31,7 +31,6 @@ import {
 } from "./collection";
 import {
   createOwner,
-  getAllOwners,
   getOwner,
   getOwnerCollection,
   getOwnerHistory,
@@ -102,7 +101,7 @@ export const nft = async (router: any, options: any) => {
   router.put("/items/:nftId", config.route("jwt"), updateItem);
   router.delete("/items/:id", config.route("jwt"), deleteItem);
 
-  router.get("/owners", getAllOwners);
+  // router.get("/owners", getAllOwners);
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
   router.post("/owners/:ownerId/upload-profile", config.route("jwt"), uploadOwnerPhoto);
   router.put("/owners/:ownerId", config.route("jwt"), updateOwner);
@@ -112,9 +111,11 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/collection", config.routeParamsValidation(), getOwnerCollection);
   router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
 
+
   router.get("/search", getCollectionsItems);
   router.get("/rewards/:walletId", getReward);
   router.get("/rewards/airdrop/:walletId", getRewardAirDrop);
   router.post("/rewardsClaim",config.route("jwt"), claimReward);
   router.get("/rewards/test", getTest);
+
 };

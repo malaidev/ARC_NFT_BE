@@ -70,7 +70,7 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let SK = keyword.split(" ");
-        
+
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {
           return new RegExp(e, "igm");
@@ -747,11 +747,14 @@ export class NFTCollectionController extends AbstractEntity {
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
               if (activity && activity.nftId >= 0) {
+                const coll = (await collTable.findOne({ _id: new ObjectId(activity.collection) })) as INFTCollection;
+
                 const nft = (await nftTable.findOne(
                   { collection: activity.collection, index: activity.nftId },
                   { projection: { artURI: 1, _id: 0, name: 1 } }
                 )) as INFT;
                 activity.nftObject = nft;
+                activity.collection={ ...coll };
                 return rstAct.push(activity);
               }
               // else{
@@ -902,8 +905,8 @@ export class NFTCollectionController extends AbstractEntity {
       }
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
-      if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
-      else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
+      if (blockchain == "ERC721") contract = "0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26";
+      else if (blockchain == "ERC1155") contract = "0x05c54832d62b8250a858B523151984282aC7f8BD";
       const logoIpfs = logoFile
         ? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection")
         : "";
@@ -915,16 +918,16 @@ export class NFTCollectionController extends AbstractEntity {
         : "";
       let initialProperties: any = {};
 
-      
+
       if (properties){
         console.log(properties);
         const propertyNames: any = JSON.parse(properties);
-        
+
         if (typeof propertyNames === 'object'){
-          for (let key in propertyNames) {            
-            initialProperties[key] = [];            
+          for (let key in propertyNames) {
+            initialProperties[key] = [];
           }
-        } else if(Array.isArray(propertyNames)){          
+        } else if(Array.isArray(propertyNames)){
           propertyNames.forEach((propertyName) => {
             initialProperties[propertyName] = [];
             });
