@@ -293,7 +293,7 @@ import {
 
        protected parseFiltersFind(filters: IQueryFilters): Array<any> {
         const aggregation = {} as any;
-        console.log(filters);
+        
         if (filters && filters.orderBy)        
           aggregation.sort={
             [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
