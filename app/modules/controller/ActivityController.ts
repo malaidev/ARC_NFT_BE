@@ -609,8 +609,10 @@ export class ActivityController extends AbstractEntity {
           const status_date = new Date().getTime();
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.status_date = status_date;
+          nft.price=0;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           activity.active = false;
+
           await activityTable.replaceOne(this.findActivtyWithId(activityId), activity);
           const result = await activityTable.insertOne({
             collection: activity.collection,
