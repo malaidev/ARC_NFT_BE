@@ -295,9 +295,19 @@ import {
         const aggregation = {} as any;
         
         if (filters && filters.orderBy)        
-          aggregation.sort={
-            [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
-          };  
+          if (filters.orderBy=='price'){
+            aggregation.sort={
+              saleStatus: 1,
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              
+            };  
+          }else{
+            aggregation.sort={
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
+            };  
+          }
+          
+          
         if (filters &&  filters.filters.length) {
           const matches = [];
           aggregation.filter={}

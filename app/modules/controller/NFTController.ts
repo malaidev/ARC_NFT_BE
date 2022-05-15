@@ -185,14 +185,6 @@ export class NFTController extends AbstractEntity {
             ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
-        if (filters && filters.orderBy=='price'){
-          if (filters.direction=='ASC'){
-             result.sort((a,b) => (a.price ===0||a.saleStatus==='Not For Sale') ? 1 : ((b.price===0 ||b.saleStatus=='Not For Sale') ? -1 : 0))
-          } else if (aggregation.filter.direction=='DESC'){
-           result.sort((a,b) => (a.saleStatus==='Not For Sale') ? 1 : ((b.saleStatus=='Not For Sale') ? -1 : 0))
-          }
-       }      
-        //  result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
