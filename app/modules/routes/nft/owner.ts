@@ -156,12 +156,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
  */
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params["ownerId"] as string;
-  const userSession = req["session"] as any;
-    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
-      return res.code(400).send("Wallet Id not equal to the Login Session");
-    }
-
-
+  
   const ctl = new NFTOwnerController();
   
 
