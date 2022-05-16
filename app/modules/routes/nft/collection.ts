@@ -157,7 +157,7 @@ export const updateCollection = async (req, res) => {
       : "";
   }
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const ctl = new NFTCollectionController();
   const result = await ctl.updateCollection(
     collectionId,
@@ -242,7 +242,7 @@ export const createCollection = async (req, res) => {
     : "";
 
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const ctl = new NFTCollectionController();
   const result = await ctl.createCollection(body, loginUser);
   res.send(result);
