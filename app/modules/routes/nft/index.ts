@@ -78,7 +78,7 @@ export const nft = async (router: any, options: any) => {
   router.delete("/collection/:collectionId", config.route("jwt"), deleteCollection);
   router.put("/collection/:collectionId", config.route("jwt"), updateCollection);
   router.post("/collection/create", config.route("jwt"), createCollection);
-  router.get("/activity", getAllActivites);
+  router.get("/activity",config.route("jwt"), getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
   router.post("/activity/listForSale", config.route("jwt"), listForSale);
   router.post("/activity/makeOffer", config.route("jwt"), makeOffer);
@@ -105,15 +105,15 @@ export const nft = async (router: any, options: any) => {
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
   router.post("/owners/:ownerId/upload-profile", config.route("jwt"), uploadOwnerPhoto);
   router.put("/owners/:ownerId", config.route("jwt"), updateOwner);
-  router.get("/owners/:ownerId", config.routeParamsValidation(), getOwner);
-  router.get("/owners/:ownerId/nfts", config.routeParamsValidation(), getOwnerNtfs);
-  router.get("/owners/:ownerId/history", config.routeParamsValidation(), getOwnerHistory);
-  router.get("/owners/:ownerId/collection", config.routeParamsValidation(), getOwnerCollection);
-  router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
+  router.get("/owners/:ownerId", config.route("jwt"), getOwner);
+  router.get("/owners/:ownerId/nfts", config.route("jwt"), getOwnerNtfs);
+  router.get("/owners/:ownerId/history", config.route("jwt"), getOwnerHistory);
+  router.get("/owners/:ownerId/collection",config.route("jwt"), getOwnerCollection);
+  router.get("/owners/:ownerId/offers", config.route("jwt"), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
-  router.get("/rewards/:walletId", getReward);
-  router.get("/rewards/airdrop/:walletId", getRewardAirDrop);
+  router.get("/rewards/:walletId", config.route("jwt"), getReward);
+  router.get("/rewards/airdrop/:walletId",config.route("jwt"), getRewardAirDrop);
   router.post("/rewardsClaim", config.route("jwt"), claimReward);
   // router.get("/rewards/test", getTest);
 };

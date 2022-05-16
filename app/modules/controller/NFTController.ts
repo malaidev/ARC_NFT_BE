@@ -163,9 +163,11 @@ export class NFTController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
-
+        
+        
         if (aggregation && aggregation.filter) {
           count = await nftTable.find({ $or: aggregation.filter }).count();
+          
           result = aggregation.sort
             ? ((await nftTable
                 .find({ $or: aggregation.filter })
@@ -181,10 +183,14 @@ export class NFTController extends AbstractEntity {
           
         } else {
           count = await nftTable.find().count();
+          console.log(aggregation);
           result = aggregation.sort
             ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
+
+
+        
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {

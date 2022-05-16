@@ -44,6 +44,12 @@ async function mount() {
     origin: "*",
   });
 
+
+  await app.register(require('@fastify/rate-limit'), {
+    max: 20,
+    timeWindow: '1 minute'
+  })
+
   await jwt(app);
 
   await app.register(cookie, {
