@@ -156,7 +156,8 @@ export const updateCollection = async (req, res) => {
       ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
       : "";
   }
-
+  const userSession = req["session"] as any;
+  const loginUser =  userSession?.walletId.toLowerCase;
   const ctl = new NFTCollectionController();
   const result = await ctl.updateCollection(
     collectionId,
@@ -183,7 +184,8 @@ export const updateCollection = async (req, res) => {
     body.properties,
     logoMimetype,
     featuredMimetype,
-    bannerMimetype
+    bannerMimetype,
+    loginUser
   );
   res.send(result);
 };
@@ -238,16 +240,21 @@ export const createCollection = async (req, res) => {
   body.bannerName = bannerImgBody
     ? req.body.bannerImgFile.filename.substring(0, req.body.bannerImgFile.filename.lastIndexOf("."))
     : "";
+
+  const userSession = req["session"] as any;
+  const loginUser =  userSession?.walletId.toLowerCase;
   const ctl = new NFTCollectionController();
-  const result = await ctl.createCollection(body);
+  const result = await ctl.createCollection(body, loginUser);
   res.send(result);
 };
+
 export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId } = req.params as any;
   const ctl = new NFTCollectionController();
   const result = await ctl.getCollectionDetail(collectionId);
   res.send(result);
 };
+
 export const getCollectionByUrl = async (req: FastifyRequest, res: FastifyReply) => {
   const { url } = req.params as any;
   const ctl = new NFTCollectionController();
