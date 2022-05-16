@@ -90,7 +90,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelCollectionOffer", config.route("jwt"), cancelCollectionOffer);
   router.post("/activity/signOffer", config.route("jwt"), signOffer);
 
-  router.get("/items", getAllItems);
+  router.get("/items",  getAllItems);
   router.get("/items/trending", getTrendingItems);
   router.get("/items/tag/:tag", getTagItems);
   router.post("/items/create", config.route("jwt"), createItem);
@@ -111,11 +111,9 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/collection", config.routeParamsValidation(), getOwnerCollection);
   router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
 
-
   router.get("/search", getCollectionsItems);
   router.get("/rewards/:walletId", getReward);
   router.get("/rewards/airdrop/:walletId", getRewardAirDrop);
-  router.post("/rewardsClaim",config.route("jwt"), claimReward);
-  router.get("/rewards/test", getTest);
-
+  router.post("/rewardsClaim", config.route("jwt"), claimReward);
+  // router.get("/rewards/test", getTest);
 };
