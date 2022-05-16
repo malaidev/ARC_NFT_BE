@@ -436,7 +436,7 @@ export class NFTController extends AbstractEntity {
     artName,
     contentType,
     mimeType,
-    owner
+    owner, 
   ): Promise<IResponse> {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
@@ -450,6 +450,9 @@ export class NFTController extends AbstractEntity {
       const collection = (await collectionTable.findOne(query)) as INFTCollection;
       if (!collection) {
         return respond("collection not found.", true, 422);
+      }
+      if (collection.creator!== owner) {
+        return respond("collection not the same as login user.", true, 422);
       }
       if (collection && collection.blockchain != tokenType) {
         return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
@@ -646,13 +649,17 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-  async updateNFT(id: string, nft: any) {
+  async updateNFT(id: string, nft: any, ownerId: string) {
     try {
       if (this.mongodb) {
         if (nft.properties && !Array.isArray(nft.properties)) {
           nft.properties = JSON.parse(nft.properties);
         }
         const nftTable = this.mongodb.collection(this.table);
+        const itemData = await nftTable.findOne({ _id: new ObjectId(id) });
+        if (itemData?.owner.toLowerCase() !== ownerId) {
+          return respond("this item not belong to this user", true, 422);
+        }
         const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
 
         const collectionTable = this.mongodb.collection(this.nftCollectionTable);

@@ -70,7 +70,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -90,6 +90,10 @@ export class ActivityController extends AbstractEntity {
         if (!price) prc = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
+          if (seller.toLowerCase() !== loginUser) {
+            return respond("  ", true, 422);
+          }	
+
           if (nft.owner !== seller) {
             return respond("from wallet isnt nft's owner.", true, 422);
           }
@@ -145,7 +149,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
+  async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -158,6 +162,9 @@ export class ActivityController extends AbstractEntity {
         if (collData && collData.volume) {
           typeof collData.volume == "string" ? (vol = +collData.volume) : (vol = collData.volume);
         }
+        if (seller.toLowerCase() !== loginUser) {
+          return respond("Only onwer login user can approve its own NFT item", true, 422);
+        }	
         if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
@@ -309,7 +316,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
+  async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number, loginUser: string) {
     try {
       if (this.mongodb) {
         let prc: number = 0;
@@ -330,13 +337,19 @@ export class ActivityController extends AbstractEntity {
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
-        const activityTable = this.mongodb.collection(this.table);
+
+        if (buyer?.toLowerCase() !== loginUser) {
+          return respond("this activity not belong to the login user", true, 422);
+        }        
+        const activityTable = this.mongodb.collection(this.table);        
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const ownTable = this.mongodb.collection(this.ownerTable);
         const sortAct = await ownTable.findOne({ wallet: buyer.toLowerCase() });
         if (nft) {
+
+
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
@@ -384,7 +397,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number) {
+  async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number, loginUser: string) {
     try {
       if (this.mongodb) {
         let prc: number = 0;
@@ -405,6 +418,9 @@ export class ActivityController extends AbstractEntity {
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
+        if (buyer.toLowerCase() !== loginUser) {
+          return respond("Login user should be the same as buyer", true, 422);
+        }	
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collectionTable = this.mongodb.collection(this.collectionTable);
@@ -633,12 +649,16 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async cancelOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
+  
+  async cancelOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
+        if (buyer.toLowerCase() !== loginUser) {
+          return respond("Logi user is not the one who create initial offer", true, 422);
+        }	
         if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
         }
@@ -684,7 +704,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string, buyer: string) {
+  async cancelCollectionOffer(activityId: string, collectionId: string, seller: string, buyer: string, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -698,8 +718,11 @@ export class ActivityController extends AbstractEntity {
           if (!cancelList) {
             return respond("activity not found.", true, 422);
           }
+          if (buyer.toLowerCase() !== loginUser) {
+            return respond("Login user should be the same as buyer", true, 422);
+          }
           if (cancelList.from !== buyer) {
-            return respond("Buyer isnt activity's owner.", true, 422);
+            return respond("Buyer isn't activity's owner.", true, 422);
           }
           collection.offerStatus = OfferStatusType.CANCELED;
           await collectionTable.replaceOne(this.findCollectionById(collection._id), collection);
@@ -732,12 +755,12 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async signOffer(id: string, r: string, s: string, v: string) {
+  async signOffer(id: string, r: string, s: string, v: string, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const actData = (await activityTable.findOne(this.findActivtyWithId(id))) as IActivity;
-        if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {
+        if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {          
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
           const result = await Promise.all(
             actDataDetail.map(async (item) => {
@@ -764,7 +787,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async deleteActivity(activityId: string) {
+  async deleteActivity(activityId: string, ownerId: String) {
     try {
       if (!ObjectId.isValid(activityId)) {
         return respond("Invalid activityId ", true, 422);
@@ -776,6 +799,10 @@ export class ActivityController extends AbstractEntity {
         const activityData = await activityTable.findOne({ _id: new ObjectId(activityId) });
         if (!activityData) {
           return respond("Activity not found", true, 422);
+        }
+         
+        if (activityData?.from.toLowerCase() !== ownerId) {
+          return respond("this activity not belong to the login user", true, 422);
         }
         const result = await activityTable.remove({ _id: new ObjectId(activityId) });
         return result
