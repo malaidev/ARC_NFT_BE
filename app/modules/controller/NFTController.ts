@@ -458,7 +458,8 @@ export class NFTController extends AbstractEntity {
         return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
       }
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
-      let queryArt = this.findNFTItemByArt(artIpfs);
+      let queryArt = this.findNFTItemByArt(artIpfs['location']);
+      artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
       const findResult = (await nftTable.findOne(queryArt)) as INFT;
       if (findResult && findResult._id) {
         return respond("Current nft has been created already", true, 422);
@@ -488,7 +489,7 @@ export class NFTController extends AbstractEntity {
         owner: owner,
         owners: own,
         creator: owner,
-        artURI: artIpfs,
+        artURI: artIpfs['location'],
         price: 0,
         name: name ?? "",
         externalLink: externalLink ?? "",

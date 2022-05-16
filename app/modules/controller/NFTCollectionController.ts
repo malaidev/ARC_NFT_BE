@@ -75,12 +75,6 @@ export class NFTCollectionController extends AbstractEntity {
         let searchKeyword = SK.map(function (e) {
           return new RegExp(e, "igm");
         });
-        // let aggregation = [] as any;
-        // if (filters) {
-        //   aggregation = this.parseFilters(filters);
-        // }
-        // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
-        console.log(searchKeyword);
         const result = (await collectionTable
           .find({
             $or: [
@@ -485,7 +479,7 @@ export class NFTCollectionController extends AbstractEntity {
                 .toArray()) as Array<INFT>);
         }
 
-        console.log(count);
+        
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(
@@ -882,6 +876,7 @@ export class NFTCollectionController extends AbstractEntity {
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
       }
+  
       if (creator.wallet.toLowerCase() !== loginUser) {
         return respond("Collection owner should be created by the login user", true, 422);
       }	
@@ -910,20 +905,21 @@ export class NFTCollectionController extends AbstractEntity {
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26";
       else if (blockchain == "ERC1155") contract = "0x05c54832d62b8250a858B523151984282aC7f8BD";
-      const logoIpfs = logoFile
-        ? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection")
-        : "";
-      const featuredIpfs = featuredImgFile
-        ? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection")
-        : "";
-      const bannerIpfs = bannerImgFile
-        ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
-        : "";
+      const logoIpfs = logoFile? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection"): "";
+      const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
+      const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
       let initialProperties: any = {};
 
+      // console.log('---loogoogo',logoIpfs);
 
+      // if (isExplicit.toLowerCase() === "true"){
+        logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
+        featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
+        bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
+      // }
+      
       if (properties){
-        console.log(properties);
+        // console.log(properties);
         const propertyNames: any = JSON.parse(properties);
 
         if (typeof propertyNames === 'object'){
@@ -935,7 +931,8 @@ export class NFTCollectionController extends AbstractEntity {
             initialProperties[propertyName] = [];
             });
         }
-      }
+      };
+
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
@@ -944,10 +941,10 @@ export class NFTCollectionController extends AbstractEntity {
         creatorEarning: creatorEarning,
         blockchain: blockchain,
         isVerified: false,
-        isExplicit: isExplicit && isExplicit.toLowerCase() === "true" ? true : false,
-        logoUrl: logoIpfs,
-        featuredUrl: featuredIpfs,
-        bannerUrl: bannerIpfs,
+        isExplicit: isExplicit,
+        logoUrl: logoIpfs['location'],
+        featuredUrl: featuredIpfs['location'],
+        bannerUrl: bannerIpfs['location'],
         description: description ?? "",
         category: category ?? "",
         links: [
@@ -1050,24 +1047,20 @@ export class NFTCollectionController extends AbstractEntity {
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
       else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
-      const logoIpfs = logoFile
-        ? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection")
-        : "";
-      const featuredIpfs = featuredImgFile
-        ? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection")
-        : "";
-      const bannerIpfs = bannerImgFile
-        ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
-        : "";
-
+      const logoIpfs = logoFile? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection"): "";
+      const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
+      const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
+      logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
+      featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
+      bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
       if (logoFile) {
-        findResult.logoUrl = logoIpfs;
+        findResult.logoUrl = logoIpfs['location'];
       }
       if (featuredImgFile) {
-        findResult.featuredUrl = featuredIpfs;
+        findResult.featuredUrl = featuredIpfs['location'];
       }
       if (bannerImgFile) {
-        findResult.bannerUrl = bannerIpfs;
+        findResult.bannerUrl = bannerIpfs['location'];
       }
       if (name) {
         findResult.name = name;
@@ -1084,7 +1077,7 @@ export class NFTCollectionController extends AbstractEntity {
         findResult.creatorEarning = creatorEarning;
       }
       if (isExplicit) {
-        findResult.isExplicit = isExplicit && isExplicit.toLowerCase() === "true" ? true : false;
+        findResult.isExplicit = isExplicit;  //&& isExplicit.toLowerCase() === "true" ? true : false;
       }
       if (description) {
         findResult.description = description;

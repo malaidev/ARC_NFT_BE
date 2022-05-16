@@ -7,7 +7,7 @@ import { IPerson } from "../interfaces/IPerson";
 import { INFT } from "../interfaces/INFT";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFTCollection } from "../interfaces/INFTCollection";
-import { S3GetSignedUrl, S3uploadImageBase64 } from "../util/aws-s3-helper";
+import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { ObjectId } from "mongodb";
 import { NFTCollectionController } from "./NFTCollectionController";
 export class NFTOwnerController extends AbstractEntity {
@@ -201,7 +201,7 @@ export class NFTOwnerController extends AbstractEntity {
           return respond("Current user not exists", true, 422);
         }
         const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,null,'profile');
-        const result = await person.updateOne({ wallet }, { $set: { photoUrl: img } });
+        const result = await person.updateOne({ wallet }, { $set: { photoUrl: img['location'] } });
         if (result) {
           return this.findPerson(wallet);
         }
