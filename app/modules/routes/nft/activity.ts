@@ -116,7 +116,7 @@ export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyRep
   const {activityId, collectionId, seller , buyer} = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.loginUser?? "";
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.cancelCollectionOffer(activityId,collectionId, seller,buyer, loginUser?? "");
   res.send(result);
 };
