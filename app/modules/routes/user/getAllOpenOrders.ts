@@ -113,7 +113,16 @@ export const getUserAllOpenOrders = async (
   res: FastifyReply
 ) => {
   const { walletId } = req.params as any;
-
+  const userSession = req["session"] as any;
+  if (userSession?.walletId.toLowerCase()!==walletId.toLowerCase()){
+      return res.send({
+        success:false,
+        status:'Session user not same with wallet address',
+        code:422
+        
+      })
+  };
+  
   const userController = new DepoUserController();
   const userExchanges: any = await userController.getUserApiKeys(walletId);
 

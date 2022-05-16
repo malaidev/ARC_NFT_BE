@@ -1,3 +1,4 @@
+import { config } from "../../../config/config";
 import {
   loadMarketOverview,
   loadSymbolOverview,
@@ -9,12 +10,10 @@ import {
 } from './getFuture';
 
 export const marketOverview = async (router: any, options: any) => {
+
   router.get('/spot/:exchangeName/:quote', loadMarketOverview);
   router.get('/future/:exchangeName/:quote', loadMarketOverviewFuture);
 
   router.get('/overview/:type/:symbol', loadSymbolOverview);
-  router.get(
-    '/candlesticks/gateio/:currency_pair',
-    fetchGateioMarketCandlesticks
-  );
+  router.get('/candlesticks/gateio/:currency_pair',fetchGateioMarketCandlesticks);
 };

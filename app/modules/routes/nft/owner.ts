@@ -51,7 +51,7 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
 
   const user = { walletId: ownerId };
   if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
-    return res.code(400).send("Wallet Id not equal with Wallet Login Session");
+    return res.code(400).send("Wallet Id not equal to the Login Session");
   }
   const ctl = new NFTOwnerController();
  
@@ -84,7 +84,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const userSession = req["session"] as any;
     if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
-      return res.code(400).send("Wallet Id not equal with Wallet Login Session");
+      return res.code(400).send("Wallet Id not equal to the Login Session");
     }
 
     const hasOwner = (await ctl.findPerson(user)) as IUser;
@@ -156,6 +156,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
  */
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params["ownerId"] as string;
+  
   const ctl = new NFTOwnerController();
   
 
@@ -191,6 +192,12 @@ export const getOwnerNtfs = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
+  const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
+
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerNtfs(walletId.toLowerCase(), filters);
   res.send(result);
@@ -219,6 +226,11 @@ export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) =>
   const query = req.url.split("?")[1];
   const filters = parseQueryUrl(query);
   filters.filters.length == 0 && req.query["filters"] ? (filters.filters = JSON.parse(req.query["filters"])) : null;
+  const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
   const ctl = new NFTOwnerController();
  
   const result = await ctl.getOwnerHistory(walletId.toLowerCase(),filters);
@@ -233,6 +245,11 @@ export const getOwnerOffers = async (req: FastifyRequest, res: FastifyReply) => 
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
+    const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
   const ctl = new NFTOwnerController();
  
   const result = await ctl.getOwnerOffers(walletId.toLowerCase(),filters);
@@ -268,6 +285,11 @@ export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply)
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
+    const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
   const ctl = new NFTOwnerController();
   const result = await ctl.getOwnerCollection(walletId.toLowerCase(), filters);
   res.send(result);

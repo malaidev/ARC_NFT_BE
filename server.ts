@@ -44,6 +44,12 @@ async function mount() {
     origin: "*",
   });
 
+
+  await app.register(require('@fastify/rate-limit'), {
+    max: 20,
+    timeWindow: '1 minute'
+  })
+
   await jwt(app);
 
   await app.register(cookie, {
@@ -54,35 +60,34 @@ async function mount() {
   }
     await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
 
-  // await app.register(multiPart, { limits: { fileSize: 1024 * 1024 * 1024 } });
-  await app.register(fastifyCron,{
-    jobs:[
-      {
+  // await app.register(fastifyCron,{
+  //   jobs:[
+  //     {
 
-        cronTime:'0 0 * * *',
+  //       cronTime:'0 0 * * *',
 
-        onTick: async server => {
-          console.log('Run -->>> Reward')
-          const x = new rewardHelper();
-          const y = await x.calculateReward();
-          // console.log(y)
-        },
+  //       onTick: async server => {
+  //         console.log('Run -->>> Reward')
+  //         const x = new rewardHelper();
+  //         const y = await x.calculateReward();
+  //         // console.log(y)
+  //       },
 
-      },
-      {
+  //     },
+  //     {
 
-        cronTime:'0 0 * * *',
+  //       cronTime:'0 0 * * *',
 
-        onTick: async server => {
-          console.log('Run -->>> verify ownership')
-          const x = new walletHandler();
-          const y = await x.verifyOwnership()
-          // console.log(y)
-        },
+  //       onTick: async server => {
+  //         console.log('Run -->>> verify ownership')
+  //         const x = new walletHandler();
+  //         const y = await x.verifyOwnership()
+  //         // console.log(y)
+  //       },
 
-      }
-    ]
-  })
+  //     }
+  //   ]
+  // })
 
   if (process.env.ENV === "dev") {
     await app.register(SwaggerPlugin, {
@@ -173,7 +178,7 @@ config.mongodb
           }
           process.exit(1);
         }
-        app.cron.startAllJobs();
+        // app.cron.startAllJobs();
       });
     });
   })

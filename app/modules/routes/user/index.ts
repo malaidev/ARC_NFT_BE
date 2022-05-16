@@ -29,16 +29,8 @@ export const user = async (router: any, options: any) => {
   router.delete("/:walletId/:exchangeId/:apiKey",config.route("jwt"),removeApiKey);
 
   // get cex user balance
-  router.get(
-    "/cexBalance/:walletId/:marketType",
-    config.route("jwt"),
-    getUserCexBalance
-  );
-  router.get(
-    "/cexOpenOrders/:walletId",
-    config.route("jwt"),
-    getUserAllOpenOrders
-  );
+  router.get("/cexBalance/:walletId/:marketType",config.route("jwt"),getUserCexBalance);
+  router.get("/cexOpenOrders/:walletId",config.route("jwt"),getUserAllOpenOrders);
 
   /** 2fa */
 

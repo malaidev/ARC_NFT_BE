@@ -163,9 +163,11 @@ export class NFTController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
-
+        
+        
         if (aggregation && aggregation.filter) {
           count = await nftTable.find({ $or: aggregation.filter }).count();
+          
           result = aggregation.sort
             ? ((await nftTable
                 .find({ $or: aggregation.filter })
@@ -178,13 +180,17 @@ export class NFTController extends AbstractEntity {
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
+          
         } else {
           count = await nftTable.find().count();
+          console.log(aggregation);
           result = aggregation.sort
             ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
-        //  result = (await nftTable.aggregate(aggregation).toArray()) as Array<INFT>;
+
+
+        
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -224,6 +230,7 @@ export class NFTController extends AbstractEntity {
                   type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
                 })
                 .toArray();
+              
               return {
                 ...item,
                 collection_details: {
@@ -435,7 +442,7 @@ export class NFTController extends AbstractEntity {
     artName,
     contentType,
     mimeType,
-    owner
+    owner, 
   ): Promise<IResponse> {
     const nftTable = this.mongodb.collection(this.table);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
@@ -450,11 +457,15 @@ export class NFTController extends AbstractEntity {
       if (!collection) {
         return respond("collection not found.", true, 422);
       }
+      if (collection.creator!== owner) {
+        return respond("collection not the same as login user.", true, 422);
+      }
       if (collection && collection.blockchain != tokenType) {
         return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
       }
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
-      let queryArt = this.findNFTItemByArt(artIpfs);
+      let queryArt = this.findNFTItemByArt(artIpfs['location']);
+      artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
       const findResult = (await nftTable.findOne(queryArt)) as INFT;
       if (findResult && findResult._id) {
         return respond("Current nft has been created already", true, 422);
@@ -484,7 +495,7 @@ export class NFTController extends AbstractEntity {
         owner: owner,
         owners: own,
         creator: owner,
-        artURI: artIpfs,
+        artURI: artIpfs['location'],
         price: 0,
         name: name ?? "",
         externalLink: externalLink ?? "",
@@ -645,13 +656,17 @@ export class NFTController extends AbstractEntity {
     }
   }
 
-  async updateNFT(id: string, nft: any) {
+  async updateNFT(id: string, nft: any, ownerId: string) {
     try {
       if (this.mongodb) {
         if (nft.properties && !Array.isArray(nft.properties)) {
           nft.properties = JSON.parse(nft.properties);
         }
         const nftTable = this.mongodb.collection(this.table);
+        const itemData = await nftTable.findOne({ _id: new ObjectId(id) });
+        if (itemData?.owner.toLowerCase() !== ownerId) {
+          return respond("this item not belong to this user", true, 422);
+        }
         const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
 
         const collectionTable = this.mongodb.collection(this.nftCollectionTable);

@@ -12,7 +12,11 @@ import { rewardHelper } from "../../util/reward-handler";
 
 export const getReward = async (req: FastifyRequest, res: FastifyReply) => {
     const { walletId } = req.params as any;
-    
+    const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
     const ctl = new NFTRewardController();
     const result = await ctl.getReward(walletId.toLowerCase());
     res.send(result);
@@ -31,6 +35,11 @@ export const getRewardAirDrop = async (req: FastifyRequest, res: FastifyReply) =
 }
 export const claimReward= async (req: FastifyRequest, res: FastifyReply) => {
     const { walletId,claim } = req.body as any;
+    const userSession = req["session"] as any;
+    if (userSession.walletId.toLowerCase() !== walletId.toLowerCase()) {
+      return res.code(400).send("Wallet Id not equal to the Login Session");
+    }
+
     const ctl = new NFTRewardController();
     const result = await ctl.claimReward(walletId.toLowerCase(),claim);
     res.send(result);

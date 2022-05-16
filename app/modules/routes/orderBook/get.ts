@@ -245,6 +245,7 @@ export const loadUserOrders = async (
 ) => {
   try {
     const { walletId, marketType, symbol } = req.params as any;
+    const userSession = req["session"] as any;
     const formatedSymbol = symbol.replace("-", "/");
     const userController = new DepoUserController();
     const userExchanges: any = await userController.getUserApiKeys(walletId);
@@ -252,6 +253,15 @@ export const loadUserOrders = async (
       openOrders: [],
       closedOrders: [],
     };
+
+    if (userSession?.walletId.toLowerCase()!==walletId.toLowerCase()){
+      return res.send({
+        success:false,
+        status:'Session user not same with wallet address',
+        code:422
+        
+      })
+  };
 
     if (!userExchanges) return res.send({});
 
