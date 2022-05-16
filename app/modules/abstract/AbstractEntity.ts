@@ -296,9 +296,9 @@ import {
         if (filters && filters.orderBy)        
           if (filters.orderBy=='price'){
             aggregation.sort={
-              
-              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
               saleStatus: 1,
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              
               _id:filters.direction === "DESC" ? -1 : 1,
               
             };  
