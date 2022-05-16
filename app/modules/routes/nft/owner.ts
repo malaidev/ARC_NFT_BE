@@ -51,7 +51,7 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
 
   const user = { walletId: ownerId };
   if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
-    return res.code(400).send("Wallet Id not equal with Wallet Login Session");
+    return res.code(400).send("Wallet Id not equal to the Login Session");
   }
   const ctl = new NFTOwnerController();
  
@@ -84,7 +84,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const userSession = req["session"] as any;
     if (userSession.walletId.toLowerCase() !== ownerId.toLowerCase()) {
-      return res.code(400).send("Wallet Id not equal with Wallet Login Session");
+      return res.code(400).send("Wallet Id not equal to the Login Session");
     }
 
     const hasOwner = (await ctl.findPerson(user)) as IUser;

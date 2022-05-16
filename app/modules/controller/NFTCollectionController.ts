@@ -871,7 +871,7 @@ export class NFTCollectionController extends AbstractEntity {
     featuredMimetype,
     bannerMimetype,
     properties,
-  }: any): Promise<IResponse> {
+  }: any,  loginUser: string): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
@@ -882,6 +882,9 @@ export class NFTCollectionController extends AbstractEntity {
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
       }
+      if (creator.wallet.toLowerCase() !== loginUser) {
+        return respond("Collection owner should be created by the login user", true, 422);
+      }	
       if (name == "" || !name) {
         return respond("name is invalid or missing", true, 422);
       }
@@ -1018,7 +1021,8 @@ export class NFTCollectionController extends AbstractEntity {
     properties,
     logoMimetype,
     featuredMimetype,
-    bannerMimetype
+    bannerMimetype, 
+    loginUser: string
   ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -1028,6 +1032,9 @@ export class NFTCollectionController extends AbstractEntity {
           return respond("Invalid creatorID", true, 422);
         }
         const creator = (await ownerTable.findOne(this.findPersonById(creatorId))) as IPerson;
+        if (creator.wallet.toLowerCase() !== loginUser) {
+          return respond("Collection owner should be created by the login user", true, 422);
+        }
         if (!creator) {
           return respond("creator address is invalid or missing", true, 422);
         }
@@ -1187,7 +1194,7 @@ export class NFTCollectionController extends AbstractEntity {
     try {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid CollectionId", true, 422);
-      }
+      }      
       const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
       if (!collection) {
         return respond("Collection Not found", true, 422);

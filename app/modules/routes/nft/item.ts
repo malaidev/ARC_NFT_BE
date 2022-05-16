@@ -82,7 +82,7 @@ export const createItem = async (req, res) => {
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
   body.artFile = artBody;
   body.artName = req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
-  const ctl = new NFTController();
+  const ctl = new NFTController();  
   const result = await ctl.createNFT(
     body.artFile,
     body.name,
@@ -96,7 +96,7 @@ export const createItem = async (req, res) => {
     body.artName,
     contentType,
     mimeType,
-    user?.walletId.toLowerCase()
+    user?.walletId.toLowerCase(),     
   );
   res.send(result);
 };
@@ -135,8 +135,10 @@ export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
 export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new NFTController();
   const { nftId } = req.params as any;
+  const userSession = req["session"] as any;
+  const loginUser =  userSession?.walletId.toLowerCase;
   try {
-    const result = await ctl.updateNFT(nftId, req.body);
+    const result = await ctl.updateNFT(nftId, req.body, loginUser);
     res.send(result);
   } catch (error) {
     res.code(400).send(error);
