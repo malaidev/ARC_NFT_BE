@@ -14,12 +14,15 @@ import { respond } from "../../util/respond";
  */
 export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
+  const userSession = req["session"] as any;
+  const loginUser =  userSession.walletId.toLowerCase();
   const filters = query ? parseQueryUrl(query) : null;
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
+
   const ctl = new ActivityController();
-  const result = await ctl.getAllActivites(filters);
+  const result = await ctl.getAllActivites(filters,loginUser);
 
   res.send(result);
 };

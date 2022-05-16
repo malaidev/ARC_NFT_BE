@@ -1,5 +1,5 @@
 import { sendOrder, sendCancelOrder } from './get';
-
+import { config } from "../../../config/config";
 /**
  * Exports the orders actions routes.
  * @param {*} router 

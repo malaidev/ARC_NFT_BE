@@ -18,7 +18,7 @@ export class ActivityController extends AbstractEntity {
     super();
     this.data = activity;
   }
-  async getAllActivites(filters?: IQueryFilters): Promise<IResponse> {
+  async getAllActivites(filters?: IQueryFilters,loginUser?:string): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
@@ -27,8 +27,11 @@ export class ActivityController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
+
         // const result = await table.aggregate(aggregation).toArray();
         if (aggregation && aggregation.filter) {
+          aggregation.filter.push({from:loginUser})
+          aggregation.filter.push({to:loginUser})
           count = await table.find({ $or: aggregation.filter }).count();
           result = aggregation.sort
             ? ((await table
@@ -43,7 +46,7 @@ export class ActivityController extends AbstractEntity {
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         } else {
-          count = await table.find().count();
+          count = await table.find({$or:[{from:loginUser},{to:loginUser}]}).count();
           result = aggregation.sort
             ? await table.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await table.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
@@ -91,7 +94,7 @@ export class ActivityController extends AbstractEntity {
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
           if (seller.toLowerCase() !== loginUser) {
-            return respond("  ", true, 422);
+            return respond("You are not current user of this activity ", true, 422);
           }	
 
           if (nft.owner !== seller) {
@@ -657,7 +660,7 @@ export class ActivityController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         if (buyer.toLowerCase() !== loginUser) {
-          return respond("Logi user is not the one who create initial offer", true, 422);
+          return respond("You are not current user of this activity ", true, 422);
         }	
         if (buyer.toLowerCase() == seller.toLowerCase()) {
           return respond("Seller and buyer cannot be same address", true, 422);
@@ -760,6 +763,9 @@ export class ActivityController extends AbstractEntity {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
         const actData = (await activityTable.findOne(this.findActivtyWithId(id))) as IActivity;
+        // if (actData && actData.from.toLowerCase()!==loginUser ){
+        //   return respond("You are not current user of this activity ", true, 422);
+        // }
         if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {          
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
           const result = await Promise.all(

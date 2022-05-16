@@ -118,6 +118,15 @@ export const findOrCreateUser = async (
 export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const user: IUser = req.body;
   const { walletId } = req.params as any;
+  const userSession = req["session"] as any;
+  if (userSession?.walletId.toLowerCase()!==walletId.toLowerCase()){
+      return res.send({
+        success:false,
+        status:'Session user not same with wallet address',
+        code:422
+      })
+  }
+
   const ctl = new DepoUserController(user);
   try {
     if (Array.isArray(user.exchanges)) await isAPIKeyValid(user.exchanges[0]);
@@ -167,6 +176,15 @@ export const removeApiKey = async (req: FastifyRequest, res: FastifyReply) => {
     id: exchangeId,
     apiKey,
   };
+  const userSession = req["session"] as any;
+  if (userSession?.walletId.toLowerCase()!==walletId.toLowerCase()){
+      return res.send({
+        success:false,
+        status:'Session user not same with wallet address',
+        code:422
+      })
+  }
+  
   const ctl = new DepoUserController();
   const result = await ctl.removeExchange(walletId, exchange);
   const resultUser = await ctl.findUser(walletId);

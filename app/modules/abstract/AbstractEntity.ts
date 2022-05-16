@@ -262,7 +262,7 @@ import {
   
         aggregation.push({
           $match: {
-            $or: matches,
+            $or: matches, 
           },
         });
       }
@@ -278,7 +278,7 @@ import {
       }
   
       aggregation.push({
-        $limit: filters.amount || 20,
+        $limit: filters.limit || 20,
       });
   
       return aggregation;
@@ -293,17 +293,20 @@ import {
 
        protected parseFiltersFind(filters: IQueryFilters): Array<any> {
         const aggregation = {} as any;
-        
         if (filters && filters.orderBy)        
           if (filters.orderBy=='price'){
             aggregation.sort={
-              saleStatus: 1,
+              
               [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              saleStatus: 1,
+              _id:filters.direction === "DESC" ? -1 : 1,
               
             };  
           }else{
             aggregation.sort={
-              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1
+              
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              _id:filters.direction === "DESC" ? -1 : 1,
             };  
           }
           
@@ -325,6 +328,7 @@ import {
         aggregation.limit=filters && filters.limit?filters.limit:10;
 
         if ( filters && filters.page){
+          
           filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
         }else{
           aggregation.skip=0;
