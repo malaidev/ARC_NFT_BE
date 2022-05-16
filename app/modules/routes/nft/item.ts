@@ -136,7 +136,7 @@ export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new NFTController();
   const { nftId } = req.params as any;
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   try {
     const result = await ctl.updateNFT(nftId, req.body, loginUser);
     res.send(result);

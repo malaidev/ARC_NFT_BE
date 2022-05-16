@@ -54,7 +54,7 @@ export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
 export const makeOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer, price, endDate } = req.body as any;
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const ctl = new ActivityController();
   const owner = new NFTOwnerController();
   const findPerson=await owner.findPerson(buyer);
@@ -66,7 +66,7 @@ export const approveOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer, activityId } = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.approveOffer(collectionId, nftId, seller, buyer, activityId, loginUser?? "");
   res.send(result);
 };
@@ -75,7 +75,7 @@ export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer,price } = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.transfer(collectionId, nftId, seller, buyer, price,loginUser?? "");
   res.send(result);
   res.send(result);
@@ -85,7 +85,7 @@ export const cancelOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer, activityId } = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.cancelOffer(collectionId, nftId, seller, buyer, activityId, loginUser?? "");
   res.send(result);
 };
@@ -105,7 +105,7 @@ export const makeCollectionOffer = async (req: FastifyRequest, res: FastifyReply
   const ctl = new ActivityController();
   const owner = new NFTOwnerController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   // const findPerson=await owner.findPerson(buyer);
 
   const result = await ctl.makeCollectionOffer(collectionId, seller, buyer, price, endDate, loginUser?? "");
@@ -116,7 +116,7 @@ export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyRep
   const {activityId, collectionId, seller , buyer} = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.loginUser?? "";
   const result = await ctl.cancelCollectionOffer(activityId,collectionId, seller,buyer, loginUser?? "");
   res.send(result);
 };
@@ -125,7 +125,7 @@ export const signOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { id, r, s, v } = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
-  const loginUser =  userSession?.walletId.toLowerCase;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.signOffer(id, r, s, v, loginUser?? "");
   res.send(result);
 };
