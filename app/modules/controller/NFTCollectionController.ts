@@ -672,7 +672,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  }
+  };
   /**
    * Get item list in collection
    *
@@ -713,7 +713,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  }
+  };
   /**
    * Get all activities (bids and transfer) of NFT items in collection
    *
