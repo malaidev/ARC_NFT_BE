@@ -53,6 +53,7 @@ import {
   deleteActivityId,
 } from "./activity";
 import { claimReward, getReward, getRewardAirDrop, getTest } from "./reward";
+import { sign } from "./sign";
 
 /**
  * Exports the nft collection actions routes.
@@ -119,4 +120,6 @@ export const nft = async (router: any, options: any) => {
   router.get("/rewards/airdrop/:walletId",config.route("jwt"), getRewardAirDrop);
   router.post("/rewardsClaim", config.route("jwt"), claimReward);
   // router.get("/rewards/test", getTest);
+
+  router.post("/sign", config.route("jwt"), sign);
 };
