@@ -63,6 +63,14 @@ const config = {
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
       schema: {
+        params: {
+          type: "object",
+          properties: {
+            ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            nftId: { type: "number" },
+          },
+        },
         properties: {
           protected: {
             method,

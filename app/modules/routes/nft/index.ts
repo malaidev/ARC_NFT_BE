@@ -99,9 +99,9 @@ export const nft = async (router: any, options: any) => {
 
   router.post("/items/create", config.route("jwt"), createItem);
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
-  router.get("/items/:collectionId/:nftId/history", getItemHistory);
-  router.get("/items/:collectionId/:nftId/offers",  getItemOffers);
-  router.get("/items/:collectionId/:nftId", getItemDetail);
+  router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
+  router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
+  router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
   router.put("/items/:nftId", config.route("jwt"), updateItem);
   router.delete("/items/:id", config.route("jwt"), deleteItem);
 
