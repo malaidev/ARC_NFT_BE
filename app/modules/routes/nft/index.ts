@@ -63,18 +63,20 @@ export const nft = async (router: any, options: any) => {
   /**
    * remove auth
    */
-  router.get("/collection", getCollections);
-  router.get("/collection/top", getTopCollections);
-  router.get("/collection/hot", getHotCollections);
-  router.get("/collection/url/:url", getCollectionByUrl);
-  router.get("/collection/:collectionId/items", config.routeParamsValidation(), getItems);
-  router.get("/collection/:collectionId/owners", config.routeParamsValidation(), getOwners);
-  router.get("/collection/:collectionId/history", config.routeParamsValidation(), getActivities);
-  router.get("/collection/:collectionId/activity", config.routeParamsValidation(), getActivities);
-  router.get("/collection/:collectionId/offer", config.routeParamsValidation(), getCollectionOffer);
+  router.get("/collection", config.route("jwt"),getCollections);
+  router.get("/collection/top", config.route("jwt"),getTopCollections);
+  router.get("/collection/hot",config.route("jwt"), getHotCollections);
+  router.get("/collection/url/:url", config.route("jwt"), getCollectionByUrl);
+  router.get("/collection/:collectionId/items", config.route("jwt"), getItems);
+  router.get("/collection/:collectionId/owners", config.route("jwt"), getOwners);
+  router.get("/collection/:collectionId/history",config.route("jwt"), getActivities);
+  router.get("/collection/:collectionId/activity",config.route("jwt"), getActivities);
+  router.get("/collection/:collectionId/offer", config.route("jwt"), getCollectionOffer);
 
-  router.get("/collection/:collectionId", config.routeParamsValidation(), getCollectionDetail);
-  router.get("/collection/tag/:tag", config.routeParamsValidation(), getTagCollections);
+  router.get("/collection/:collectionId", config.route("jwt"), getCollectionDetail);
+  router.get("/collection/tag/:tag", config.route("jwt"), getTagCollections);
+
+
   router.delete("/collection/:collectionId", config.route("jwt"), deleteCollection);
   router.put("/collection/:collectionId", config.route("jwt"), updateCollection);
   router.post("/collection/create", config.route("jwt"), createCollection);
@@ -90,9 +92,10 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelCollectionOffer", config.route("jwt"), cancelCollectionOffer);
   router.post("/activity/signOffer", config.route("jwt"), signOffer);
 
-  router.get("/items",  getAllItems);
-  router.get("/items/trending", getTrendingItems);
-  router.get("/items/tag/:tag", getTagItems);
+  router.get("/items", config.route("jwt"), getAllItems);
+  router.get("/items/trending",config.route("jwt"), getTrendingItems);
+  router.get("/items/tag/:tag",config.route("jwt"), getTagItems);
+
   router.post("/items/create", config.route("jwt"), createItem);
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
   router.get("/items/:collectionId/:nftId/history", config.routeParamsValidation(), getItemHistory);
