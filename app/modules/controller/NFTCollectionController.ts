@@ -1094,7 +1094,23 @@ export class NFTCollectionController extends AbstractEntity {
         twitterUrl ?? "",
         telegramUrl ?? "",
       ];
-      findResult.properties = properties;
+      let initialProperties: any = {};
+      if (properties){
+        console.log(properties);
+        const propertyNames: any = JSON.parse(properties);
+
+        if (typeof propertyNames === 'object'){
+          for (let key in propertyNames) {
+            initialProperties[key] = [];
+          }
+        } else if(Array.isArray(propertyNames)){
+          propertyNames.forEach((propertyName) => {
+            initialProperties[propertyName] = [];
+            });
+        }
+      };
+
+      findResult.properties = initialProperties;
       const result = await collection.replaceOne({ _id: new ObjectId(collectionId) }, findResult);
       return result ? respond({ ...findResult }) : respond("Failed to update a new collection.", true, 500);
     } catch (e) {
