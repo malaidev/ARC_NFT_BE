@@ -9,7 +9,7 @@ import { respond } from "../util/respond";
 import { dateDiff } from "../util/datediff-helper";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { IGlobal } from "../interfaces/IGlobal";
-
+import TextHelper from "../util/TextHelper";
 import { ActivityController } from "./ActivityController";
 
 export class NFTController extends AbstractEntity {
@@ -463,6 +463,11 @@ export class NFTController extends AbstractEntity {
       if (collection && collection.blockchain != tokenType) {
         return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
       }
+
+      if (externalLink && !TextHelper.checkUrl(externalLink)){
+        return respond(`${externalLink} is not valid url`, true, 422);
+      }
+
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
       let queryArt = this.findNFTItemByArt(artIpfs['location']);
       artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
