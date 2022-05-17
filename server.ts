@@ -46,7 +46,7 @@ async function mount() {
 
 
   await app.register(require('@fastify/rate-limit'), {
-    max: 20,
+    max: 200,
     timeWindow: '1 minute'
   })
 
