@@ -48,20 +48,14 @@ export const S3uploadImageBase64 = async(data,fileName,contentType,folder) => {
       let key = '';
       let url =''
 
+      
       try {
         const { Location,Key}= await s3bucket.upload(params).promise();
-        location = `${cloudfront}/${Key}`;
-         
-        const isEx = await checkModeration(params, {
-         "Bucket": s3_bucket,
-         "Name": `${Key}` ,
-      })
-
-         console.log(isEx);
-        
+        location = `${cloudfront}/${Key}`;   
+        const isEx = await checkModeration(params, {"Bucket": s3_bucket,"Name": `${Key}` ,})
          return {
-            location,
-            moderateData:isEx['ModerationLabels'],
+            location:Location,
+            moderateData:isEx && isEx['ModerationLabels'] ? isEx['ModerationLabels']:null,
             explicit:isEx && isEx['ModerationLabels'].length>1?true:false
          }
 
