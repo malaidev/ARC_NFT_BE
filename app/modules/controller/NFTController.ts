@@ -183,7 +183,7 @@ export class NFTController extends AbstractEntity {
           
         } else {
           count = await nftTable.find().count();
-          console.log(aggregation);
+          
           result = aggregation.sort
             ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
