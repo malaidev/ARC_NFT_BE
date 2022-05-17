@@ -9,6 +9,8 @@ import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import TextHelper from "../util/TextHelper";
+
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -898,9 +900,32 @@ export class NFTCollectionController extends AbstractEntity {
         return respond("Collection url empty", true, 422);
       }
       const findUrl = await collection.findOne({ url });
+
       if (findUrl && findUrl._id) {
         return respond("Same collection url detected", true, 422);
       }
+
+
+      if (siteUrl && !TextHelper.checkUrl(siteUrl)){
+        return respond(`${siteUrl} is not valid url`, true, 422);
+      }
+      if (discordUrl && !TextHelper.checkUrl(discordUrl)){
+        return respond(`${discordUrl} is not valid url`, true, 422);
+      }
+      if (instagramUrl && !TextHelper.checkUrl(instagramUrl)){
+        return respond(`${instagramUrl} is not valid url`, true, 422);
+      }
+      if (mediumUrl && !TextHelper.checkUrl(mediumUrl)){
+        return respond(`${mediumUrl} is not valid url`, true, 422);
+      }
+      if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
+        return respond(`${twitterUrl} is not valid url`, true, 422);
+      }
+
+      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+        return respond(`${telegramUrl} is not valid url`, true, 422);
+      }
+
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26";
@@ -1034,6 +1059,26 @@ export class NFTCollectionController extends AbstractEntity {
         return respond("This collection id not found", true, 422);
       }
 
+      if (siteUrl && !TextHelper.checkUrl(siteUrl)){
+        return respond(`${siteUrl} is not valid url`, true, 422);
+      }
+      if (discordUrl && !TextHelper.checkUrl(discordUrl)){
+        return respond(`${discordUrl} is not valid url`, true, 422);
+      }
+      if (instagramUrl && !TextHelper.checkUrl(instagramUrl)){
+        return respond(`${instagramUrl} is not valid url`, true, 422);
+      }
+      if (mediumUrl && !TextHelper.checkUrl(mediumUrl)){
+        return respond(`${mediumUrl} is not valid url`, true, 422);
+      }
+      if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
+        return respond(`${twitterUrl} is not valid url`, true, 422);
+      }
+
+      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+        return respond(`${telegramUrl} is not valid url`, true, 422);
+      }
+      
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
