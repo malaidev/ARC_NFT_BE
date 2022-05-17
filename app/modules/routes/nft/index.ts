@@ -118,5 +118,5 @@ export const nft = async (router: any, options: any) => {
   router.post("/rewardsClaim", config.route("jwt"), claimReward);
   // router.get("/rewards/test", getTest);
 
-  router.post("/nft/sign", config.route("jwt"), sign);
+  router.post("/sign", config.route("jwt"), sign);
 };
