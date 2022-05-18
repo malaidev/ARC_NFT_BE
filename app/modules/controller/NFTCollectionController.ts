@@ -1217,7 +1217,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param collectionId collection Id
    * @returns
    */
-  async getCollectionByUrl(url: string): Promise<IResponse> {
+  async getCollectionByUrl(url: string,filters?: IQueryFilters): Promise<IResponse> {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
@@ -1228,7 +1228,22 @@ export class NFTCollectionController extends AbstractEntity {
     }
     const activities = await activityTable.find({ collection: `${collection._id}` }).toArray();
     collection.activities = activities;
-    const nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
+    let aggregation = {} as any;
+    let nfts =[] as any;
+    const  findItems = { collection: `${collection._id}` };
+    aggregation = this.parseFiltersFind(filters);
+    console.log(aggregation);
+    if (aggregation && aggregation.filter){
+
+      nfts=aggregation.sort?await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+
+  }else{
+    
+     nfts=aggregation.sort? await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+  }
+
+    //  nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
+
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
