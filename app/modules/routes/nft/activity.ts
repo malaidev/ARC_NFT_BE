@@ -45,12 +45,13 @@ export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) =>
 export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
   const userSession = req["session"] as any;
   const loginUser =  userSession.walletId.toLowerCase();
-  const { collectionId, nftId, seller, price, startDate, endDate, fee } = req.body as any;
+  const { collectionId, nftId, seller, price, startDate, endDate,r,s,v } = req.body as any;
+
   const ctl = new ActivityController();
   const owner = new NFTOwnerController();
   const findPerson=await owner.findPerson(seller);
 
-  const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, startDate?? 0,endDate ?? 0, fee ?? 0, loginUser?? "");
+  const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, startDate ?? 0,endDate ?? 0,r ?? "" ,s ?? "" ,v ??"", loginUser?? "");
   res.send(result);
 };
 

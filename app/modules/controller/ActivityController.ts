@@ -522,10 +522,14 @@ export class ActivityController extends AbstractEntity {
     price: number,
     startDate:number,
     endDate: number,
-    fee: number,
+    
+    r:string,
+    s:string,
+    v:string,
     loginUser: string
   ): Promise<IResponse> {
     try {
+
       if (this.mongodb) {
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
@@ -570,9 +574,9 @@ export class ActivityController extends AbstractEntity {
             startDate: startDate,
             endDate: endDate,
             from: seller,
-            fee: fee,
+            fee: 0,
             nonce,
-            signature: { r: "", s: "", v: "" },
+            signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
           };
           const result = await activityTable.insertOne(offer);
