@@ -624,7 +624,7 @@ export class NFTController extends AbstractEntity {
             listing_nft.index,
             owner,
             listing_nft.price,
-            Date.now() + 30 * 24 * 3600 * 1000,
+            Date.now(),
             Date.now() + 30 * 24 * 3600 * 1000,
             0,
             owner
