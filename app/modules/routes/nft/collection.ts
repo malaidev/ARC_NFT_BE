@@ -209,7 +209,7 @@ export const createCollection = async (req, res) => {
       Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
   }
 
-  console.log(req.body.logoFile.mimetype)
+  
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
     //  featuredImgBody= await req.body.featuredImgFile.toBuffer();
     featuredMimetype = req.body.featuredImgFile.mimetype;

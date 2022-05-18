@@ -93,7 +93,7 @@ export class ActivityController extends AbstractEntity {
         if (!price) prc = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
-          if (seller.toLowerCase() !== loginUser) {
+          if (buyer.toLowerCase() !== loginUser) {
             return respond("You are not current user of this activity ", true, 422);
           }	
 
@@ -520,11 +520,15 @@ export class ActivityController extends AbstractEntity {
     index: number,
     seller: string,
     price: number,
+    startDate:number,
     endDate: number,
-    fee: number,
+    r:string,
+    s:string,
+    v:string,
     loginUser: string
   ): Promise<IResponse> {
     try {
+
       if (this.mongodb) {
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
@@ -532,7 +536,7 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
-        const startDate = new Date().getTime();
+        // const startDate = new Date().getTime();
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -566,12 +570,12 @@ export class ActivityController extends AbstractEntity {
             nftId: index,
             type: ActivityType.LIST,
             price: price,
-            startDate: status_date,
+            startDate: startDate,
             endDate: endDate,
             from: seller,
-            fee: fee,
+            fee: 0,
             nonce,
-            signature: { r: "", s: "", v: "" },
+            signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
           };
           const result = await activityTable.insertOne(offer);

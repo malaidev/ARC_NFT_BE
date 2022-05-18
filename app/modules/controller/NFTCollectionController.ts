@@ -963,7 +963,7 @@ export class NFTCollectionController extends AbstractEntity {
         creatorEarning: creatorEarning,
         blockchain: blockchain,
         isVerified: false,
-        isExplicit: isExplicit,
+        isExplicit: isExplicit && typeof isExplicit==='string'?isExplicit && isExplicit.toLowerCase() === "true" ? true : false:isExplicit,
         logoUrl:logoIpfs && logoIpfs.location ? logoIpfs['location']:null,
         featuredUrl: featuredIpfs && featuredIpfs.location ? featuredIpfs['location']:null,
         bannerUrl: bannerIpfs && bannerIpfs.location?bannerIpfs['location']:null,
