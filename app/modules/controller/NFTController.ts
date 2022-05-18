@@ -11,6 +11,7 @@ import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { IGlobal } from "../interfaces/IGlobal";
 import TextHelper from "../util/TextHelper";
 import { ActivityController } from "./ActivityController";
+import { IPerson } from "../interfaces/IPerson";
 
 export class NFTController extends AbstractEntity {
   protected data: INFT;
@@ -551,12 +552,36 @@ export class NFTController extends AbstractEntity {
   }) {
     const globalTable = this.mongodb.collection(this.globaltable);
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
+    const ownerTable = this.mongodb.collection(this.personTable);
     const nftTable = this.mongodb.collection(this.table);
 
     try {
+
+      const collData = await collectionTable.findOne({  _id: new ObjectId(collectionId)}) as INFTCollection;
+      
+      
+      if (!collData){
+        return respond('Collection Id Doesn exist',true,422);
+      }
+      if (owner.toLowerCase() !== collData.creator.toLowerCase()) {
+        return respond("Collection owner should be created by the login user", true, 422);
+      }	
       const nfts: INFT[] = [];
       const listing_nfts: INFT[] = [];
+      const ntfs_error:INFT[]=[];
       for (const record of records) {
+
+        if (record["External Link"] && !TextHelper.checkUrl(record["External Link"])){
+            ntfs_error.push(record);
+        };
+        if (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"])){
+          ntfs_error.push(record);
+      };
+
+        
+
+        
+
         const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
         const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
         if (nftVar) {
@@ -607,7 +632,10 @@ export class NFTController extends AbstractEntity {
           listing_nfts.push({ ...nft, price: +record["List Price (ETH)"] });
         }
       }
-      if (nfts.length > 0) {
+      if (ntfs_error.length>0){
+        return respond(ntfs_error,true,422);
+      }
+      if (nfts.length > 0){
         await nftTable.insertMany(nfts);
         let collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
         for (const nft of nfts) {
@@ -620,19 +648,19 @@ export class NFTController extends AbstractEntity {
         const activityController = new ActivityController();
         for (const listing_nft of listing_nfts) {
           const result = await activityController.listForSale(
-            collectionId,
+             collectionId,
             listing_nft.index,
             owner,
             listing_nft.price,
-            Date.now(),
+            new Date().getTime(),
             Date.now() + 30 * 24 * 3600 * 1000,
-            0,
+            "","","",
             owner
           );
-          listing_results.push(result);
+          listing_results.push(result.data);
         }
       }
-      return respond({ status: "success", items: records.length, listings: listing_results });
+      return { status: "success", items: records.length, listings: listing_results,code:200 };
     } catch (err) {
       return respond(err);
     }
