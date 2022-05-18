@@ -93,7 +93,7 @@ export class ActivityController extends AbstractEntity {
         if (!price) prc = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
-          if (seller.toLowerCase() !== loginUser) {
+          if (buyer.toLowerCase() !== loginUser) {
             return respond("You are not current user of this activity ", true, 422);
           }	
 
@@ -522,7 +522,6 @@ export class ActivityController extends AbstractEntity {
     price: number,
     startDate:number,
     endDate: number,
-    
     r:string,
     s:string,
     v:string,
