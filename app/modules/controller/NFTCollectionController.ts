@@ -9,6 +9,8 @@ import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import TextHelper from "../util/TextHelper";
+
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -672,7 +674,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  }
+  };
   /**
    * Get item list in collection
    *
@@ -713,7 +715,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  }
+  };
   /**
    * Get all activities (bids and transfer) of NFT items in collection
    *
@@ -898,9 +900,32 @@ export class NFTCollectionController extends AbstractEntity {
         return respond("Collection url empty", true, 422);
       }
       const findUrl = await collection.findOne({ url });
+
       if (findUrl && findUrl._id) {
         return respond("Same collection url detected", true, 422);
       }
+
+
+      if (siteUrl && !TextHelper.checkUrl(siteUrl)){
+        return respond(`${siteUrl} is not valid url`, true, 422);
+      }
+      if (discordUrl && !TextHelper.checkUrl(discordUrl)){
+        return respond(`${discordUrl} is not valid url`, true, 422);
+      }
+      if (instagramUrl && !TextHelper.checkUrl(instagramUrl)){
+        return respond(`${instagramUrl} is not valid url`, true, 422);
+      }
+      if (mediumUrl && !TextHelper.checkUrl(mediumUrl)){
+        return respond(`${mediumUrl} is not valid url`, true, 422);
+      }
+      if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
+        return respond(`${twitterUrl} is not valid url`, true, 422);
+      }
+
+      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+        return respond(`${telegramUrl} is not valid url`, true, 422);
+      }
+
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26";
@@ -909,9 +934,6 @@ export class NFTCollectionController extends AbstractEntity {
       const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
       const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
       let initialProperties: any = {};
-
-      // console.log('---loogoogo',logoIpfs);
-
       // if (isExplicit.toLowerCase() === "true"){
         logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
         featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
@@ -942,9 +964,9 @@ export class NFTCollectionController extends AbstractEntity {
         blockchain: blockchain,
         isVerified: false,
         isExplicit: isExplicit,
-        logoUrl: logoIpfs['location'],
-        featuredUrl: featuredIpfs['location'],
-        bannerUrl: bannerIpfs['location'],
+        logoUrl:logoIpfs && logoIpfs.location ? logoIpfs['location']:null,
+        featuredUrl: featuredIpfs && featuredIpfs.location ? featuredIpfs['location']:null,
+        bannerUrl: bannerIpfs && bannerIpfs.location?bannerIpfs['location']:null,
         description: description ?? "",
         category: category ?? "",
         links: [
@@ -1037,6 +1059,26 @@ export class NFTCollectionController extends AbstractEntity {
         return respond("This collection id not found", true, 422);
       }
 
+      if (siteUrl && !TextHelper.checkUrl(siteUrl)){
+        return respond(`${siteUrl} is not valid url`, true, 422);
+      }
+      if (discordUrl && !TextHelper.checkUrl(discordUrl)){
+        return respond(`${discordUrl} is not valid url`, true, 422);
+      }
+      if (instagramUrl && !TextHelper.checkUrl(instagramUrl)){
+        return respond(`${instagramUrl} is not valid url`, true, 422);
+      }
+      if (mediumUrl && !TextHelper.checkUrl(mediumUrl)){
+        return respond(`${mediumUrl} is not valid url`, true, 422);
+      }
+      if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
+        return respond(`${twitterUrl} is not valid url`, true, 422);
+      }
+
+      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+        return respond(`${telegramUrl} is not valid url`, true, 422);
+      }
+      
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
@@ -1047,6 +1089,7 @@ export class NFTCollectionController extends AbstractEntity {
       logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
       featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
       bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
+
       if (logoFile) {
         findResult.logoUrl = logoIpfs['location'];
       }
@@ -1117,7 +1160,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param collectionId collection Id
    * @returns
    */
-  async getCollectionDetail(collectionId: string): Promise<IResponse> {
+  async getCollectionDetail(collectionId: string,filters?: IQueryFilters): Promise<IResponse> {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
@@ -1128,7 +1171,21 @@ export class NFTCollectionController extends AbstractEntity {
     }
     // const activities = await activityTable.find({ collection: collectionId }).toArray();
     // collection.activities = activities;
-    const nfts = await nftTable.find({ collection: collectionId }).toArray();
+    
+    let aggregation = {} as any;
+    let nfts =[] as any;
+    let findItems={collection:collectionId};
+    aggregation = this.parseFiltersFind(filters);
+    if (aggregation && aggregation.filter){
+        findItems['$or']=aggregation.filter;
+        nfts=aggregation.sort?await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+
+    }else{
+       nfts=aggregation.sort? await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+    }
+    // const nfts = await nftTable.find({ collection: collectionId }).toArray();
+
+
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);

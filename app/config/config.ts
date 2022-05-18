@@ -55,9 +55,22 @@ const config = {
     paymentModuleAddress: process.env["CONTRACT_PAYMENT_MODULE_ADDRESS"],
     pkId: process.env["CONTRACT_PK_ID"],
   },
+  nft: {
+    privateKey: process.env["NFT_PRIVATE_KEY"],
+    nftPurchaseModuleAddress: process.env["NFT_PURCHASE_MODULE_ADDRESS"],
+    pkId: process.env["NFT_PK_ID"],
+  },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
       schema: {
+        params: {
+          type: "object",
+          properties: {
+            ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            nftId: { type: "number" },
+          },
+        },
         properties: {
           protected: {
             method,

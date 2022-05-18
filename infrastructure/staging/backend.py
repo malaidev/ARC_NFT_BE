@@ -164,9 +164,21 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
-                                        "name": "CONTRACT_NFT_PURCHASE_MODULE_ADDRESS",
+                                        "name": "NFT_PRIVATE_KEY",
                                         "valueFrom": {
-                                            "secretKeyRef": {"name": "contracts", "key": "nft_payment_address"}
+                                            "secretKeyRef": {"name": "contracts", "key": "nft_private_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "NFT_PURCHASE_MODULE_ADDRESS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "nft_purchase_address"}
+                                        },
+                                    },
+                                    {
+                                        "name": "NFT_PK_ID",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "contracts", "key": "nft_pkid"}
                                         },
                                     },
                                     {
