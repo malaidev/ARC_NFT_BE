@@ -520,6 +520,7 @@ export class ActivityController extends AbstractEntity {
     index: number,
     seller: string,
     price: number,
+    startDate:number,
     endDate: number,
     fee: number,
     loginUser: string
@@ -532,7 +533,7 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
-        const startDate = new Date().getTime();
+        // const startDate = new Date().getTime();
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
@@ -566,7 +567,7 @@ export class ActivityController extends AbstractEntity {
             nftId: index,
             type: ActivityType.LIST,
             price: price,
-            startDate: status_date,
+            startDate: startDate,
             endDate: endDate,
             from: seller,
             fee: fee,
