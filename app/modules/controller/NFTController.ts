@@ -12,7 +12,6 @@ import { IGlobal } from "../interfaces/IGlobal";
 import TextHelper from "../util/TextHelper";
 import { ActivityController } from "./ActivityController";
 import { IPerson } from "../interfaces/IPerson";
-
 export class NFTController extends AbstractEntity {
   protected data: INFT;
   protected table: string = "NFT";
@@ -20,12 +19,10 @@ export class NFTController extends AbstractEntity {
   private activityTable: string = "Activity";
   private nftCollectionTable: string = "NFTCollection";
   private globaltable: string = "Global";
-
   constructor(nft?: INFT) {
     super();
     this.data = nft;
   }
-
   async getItemDetail(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -34,7 +31,6 @@ export class NFTController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const itemTable = this.mongodb.collection(this.table);
         const result = await itemTable.findOne(query);
-        
         if (result) {
           const personTable = this.mongodb.collection(this.personTable);
           const owner = await personTable.findOne({ wallet: result.owner });
@@ -78,7 +74,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async getItemHistory(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -104,7 +99,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async getItemOffers(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -123,7 +117,6 @@ export class NFTController extends AbstractEntity {
               active: true,
             })
             .toArray();
-
           const resultOffersInvidual = await Promise.all(
             offersIndividual.map(async (item) => {
               if (item && item.nftId) {
@@ -154,7 +147,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async getItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
@@ -165,11 +157,8 @@ export class NFTController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
-        
-        
         if (aggregation && aggregation.filter) {
           count = await nftTable.find({ $or: aggregation.filter }).count();
-          
           result = aggregation.sort
             ? ((await nftTable
                 .find({ $or: aggregation.filter })
@@ -182,17 +171,12 @@ export class NFTController extends AbstractEntity {
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
-          
         } else {
           count = await nftTable.find().count();
-          
           result = aggregation.sort
             ? await nftTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
             : ((await nftTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
-
-
-        
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
@@ -232,7 +216,6 @@ export class NFTController extends AbstractEntity {
                   type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
                 })
                 .toArray();
-              
               return {
                 ...item,
                 collection_details: {
@@ -264,7 +247,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 422);
     }
   }
-
   async getTagItems(type: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
@@ -275,7 +257,6 @@ export class NFTController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
-
         if (aggregation && aggregation.filter) {
           count = await nftTable.find({ tag: { $regex: type, $options: "i" }, $or: aggregation.filter }).count();
           result = aggregation.sort
@@ -376,7 +357,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 422);
     }
   }
-
   async getTrendingItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
@@ -405,7 +385,6 @@ export class NFTController extends AbstractEntity {
                 type: ActivityType.OFFERCOLLECTION,
                 active: true,
               })) as IActivity;
-
               activity.push(collectionAct);
               return {
                 ...item,
@@ -430,7 +409,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   async createNFT(
     artFile,
     name,
@@ -465,11 +443,9 @@ export class NFTController extends AbstractEntity {
       if (collection && collection.blockchain != tokenType) {
         return respond(`Token Type Should be ${collection.blockchain}`, true, 422);
       }
-
       if (externalLink && !TextHelper.checkUrl(externalLink)){
         return respond(`${externalLink} is not valid url`, true, 422);
       }
-
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
       let queryArt = this.findNFTItemByArt(artIpfs['location']);
       artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
@@ -483,7 +459,7 @@ export class NFTController extends AbstractEntity {
       //   return respond("Current nft has been created already", true, 501);
       // }
       const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
-      // const sortNft = await nftTable.findOne({}, { limit: 1, sort: { index: -1 } });
+      // const nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
       let newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
       if (nftVar) {
         await globalTable.replaceOne({ globalId: "nft" }, { globalId: "nft", nftIndex: newIndex });
@@ -526,7 +502,6 @@ export class NFTController extends AbstractEntity {
       const result = await nftTable.insertOne(nft);
       if (result) {
         nft._id = result.insertedId;
-
         await collectionTable.replaceOne(
           { _id: new ObjectId(collectionId) },
           this._updateCollectionProperties(collection, nft)
@@ -538,7 +513,6 @@ export class NFTController extends AbstractEntity {
       return respond(err.message, true, 403);
     }
   }
-
   async batchUpload({
     collectionId,
     tokenType,
@@ -554,87 +528,88 @@ export class NFTController extends AbstractEntity {
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
     const nftTable = this.mongodb.collection(this.table);
-
     try {
-
       const collData = await collectionTable.findOne({  _id: new ObjectId(collectionId)}) as INFTCollection;
-      
-      
       if (!collData){
         return respond('Collection Id Doesn exist',true,422);
       }
       if (owner.toLowerCase() !== collData.creator.toLowerCase()) {
         return respond("Collection owner should be created by the login user", true, 422);
       }	
-      const nfts: INFT[] = [];
-      const listing_nfts: INFT[] = [];
-      const ntfs_error:INFT[]=[];
-      for (const record of records) {
-
-        if (record["External Link"] && !TextHelper.checkUrl(record["External Link"])){
-            ntfs_error.push(record);
-        };
-        if (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"])){
-          ntfs_error.push(record);
+      if (collData && collData.blockchain != tokenType) {
+        return respond(`Token Type Should be ${collData.blockchain}`, true, 422);
       };
-
-        
-
-        
-
-        const nftVar = (await globalTable.findOne({ globalId: "nft" }, { limit: 1 })) as IGlobal;
-        const newIndex = nftVar && nftVar.nftIndex ? nftVar.nftIndex + 1 : 0;
-        if (nftVar) {
-          await globalTable.replaceOne({ globalId: "nft" }, { globalId: "nft", nftIndex: newIndex });
-        } else {
-          await globalTable.insertOne({
-            globalId: "nft",
-            nftIndex: newIndex,
-          });
-        }
-        const contentType = record["Content Type"];
-        const nft: INFT = {
-          collection: collectionId,
-          index: newIndex,
-          owner: owner,
-          owners: [owner],
-          creator: owner,
-          artURI: record["Artwork"],
-          price: 0,
-          name: record["NFT Name"],
-          externalLink: record["External Link"],
-          description: record["Description"],
-          isExplicit: record["Explicit & Sensitive Content"] !== "No",
-          explicitContent: "",
-          saleStatus: SaleStatus.NOTFORSALE,
-          mintStatus: MintStatus.LAZYMINTED,
-          status_date: new Date().getTime(),
-          properties: record["Properties"].split(",").map((x) => {
-            const [title, name] = x
-              .trim()
-              .split(":")
-              .map((y) => y.trim());
-            return { title, name };
-          }),
-          lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content Details"],
-          tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
-          contentType:
-            contentType === "music"
-              ? ContentType.MUSIC
-              : contentType === "image"
-              ? ContentType.IMAGE
-              : contentType === "video"
-              ? ContentType.VIDEO
-              : ContentType.IMAGE,
-        };
-        nfts.push(nft);
-        if (record["List For Buy Now"] === "Yes") {
-          listing_nfts.push({ ...nft, price: +record["List Price (ETH)"] });
-        }
-      }
+      const nfts: INFT[] = [];
+      const forSale: INFT[] = [];
+      const notForSale: INFT[] = [];
+      let ntfs_error:INFT[]=[];
+      await Promise.all(
+          records.map(async (record)=>{
+            if ((record["External Link"] && !TextHelper.checkUrl(record["External Link"])) || (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"]))){
+              ntfs_error.push(record);
+            };
+          })
+      )
       if (ntfs_error.length>0){
         return respond(ntfs_error,true,422);
-      }
+      };
+    
+      let nftVar;
+      await Promise.all(
+        records.map(async (record)=>{
+
+
+          nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
+          console.log(nftVar);
+          const newIndex = nftVar && nftVar.value && nftVar.value.nftIndex + 1;
+          const contentType = record["Content Type"];
+          const nft: INFT = {
+            collection: collectionId,
+            index: newIndex,
+            owner: owner,
+            owners: [owner],
+            creator: owner,
+            artURI: record["Artwork"],
+            price: 0,
+            name: record["NFT Name"],
+            externalLink: record["External Link"],
+            description: record["Description"],
+            isExplicit: record["Explicit & Sensitive Content"] !== "No",
+            explicitContent: "",
+            saleStatus: SaleStatus.NOTFORSALE,
+            mintStatus: MintStatus.LAZYMINTED,
+            status_date: new Date().getTime(),
+            properties: record["Properties"].split(",").map((x) => {
+              const [title, name] = x
+                .trim()
+                .split(":")
+                .map((y) => y.trim());
+              return { title, name };
+            }),
+            lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content Details"],
+            tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
+            contentType:
+              contentType === "music"
+                ? ContentType.MUSIC
+                : contentType === "image"
+                ? ContentType.IMAGE
+                : contentType === "video"
+                ? ContentType.VIDEO
+                : ContentType.IMAGE,
+          };
+          nfts.push(nft);
+          if (record["List For Sale"] === "Yes") {
+            console.log('--->>>> buy')
+            forSale.push({ ...nft, price: +record["List Price (ETH)"] });
+          }else{
+            notForSale.push({ ...nft, price: +record["List Price (ETH)"] });
+          }
+
+          
+          
+          
+        })
+    )
       if (nfts.length > 0){
         await nftTable.insertMany(nfts);
         let collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
@@ -642,30 +617,30 @@ export class NFTController extends AbstractEntity {
           collection = this._updateCollectionProperties(collection, nft);
         }
         await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
-      }
-      const listing_results = [];
-      if (listing_nfts.length > 0) {
-        const activityController = new ActivityController();
-        for (const listing_nft of listing_nfts) {
-          const result = await activityController.listForSale(
-             collectionId,
-            listing_nft.index,
-            owner,
-            listing_nft.price,
-            new Date().getTime(),
-            Date.now() + 30 * 24 * 3600 * 1000,
-            "","","",
-            owner
-          );
-          listing_results.push(result.data);
-        }
-      }
-      return { status: "success", items: records.length, listings: listing_results,code:200 };
+      };
+      // const listing_results = [];
+      // if (listing_nfts.length > 0) {
+      //   const activityController = new ActivityController();
+      //   for (const listing_nft of listing_nfts) {
+      //     const result = await activityController.listForSale(
+      //        collectionId,
+      //       listing_nft.index,
+      //       owner,
+      //       listing_nft.price,
+      //       new Date().getTime(),
+      //       Date.now() + 30 * 24 * 3600 * 1000,
+      //       "","","",
+      //       owner
+      //     );
+      //     listing_results.push(result.data);
+      //   }
+      // }
+      return { status: "success",code:200 , items: records.length, forSale,notForSale,};
     } catch (err) {
+      console.log(err);
       return respond(err);
     }
   }
-
   async deleteItem(id: string, ownerId: string) {
     try {
       if (!ObjectId.isValid(id)) {
@@ -690,7 +665,6 @@ export class NFTController extends AbstractEntity {
       return respond(e.message, true, 401);
     }
   }
-
   async updateNFT(id: string, nft: any, ownerId: string) {
     try {
       if (this.mongodb) {
@@ -703,7 +677,6 @@ export class NFTController extends AbstractEntity {
           return respond("this item not belong to this user", true, 422);
         }
         const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
-
         const collectionTable = this.mongodb.collection(this.nftCollectionTable);
         const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
         await collectionTable.replaceOne(
@@ -718,7 +691,6 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-
   private _updateCollectionProperties(collection: INFTCollection, nft: INFT): INFTCollection {
     const _collection = { ...collection };
     if (Array.isArray(nft.properties)) {
@@ -735,32 +707,27 @@ export class NFTController extends AbstractEntity {
     }
     return _collection;
   }
-
   private findNFTItem(collectionId: string, index: number): Object {
     return {
       collection: collectionId,
       index,
     };
   }
-
   private findNFTItemByArt(art: string): Object {
     return {
       artURI: art,
     };
   }
-
   private findCollection(contract: string): Object {
     return {
       contract: contract,
     };
   }
-
   private findCollectionById(id: string): Object {
     return {
       _id: new ObjectId(id),
     };
   }
-
   private findPerson(address: string): Object {
     return {
       wallet: address,

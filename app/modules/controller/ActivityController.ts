@@ -515,6 +515,71 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+  
+
+
+
+  async listForSaleBatch(
+    collectionId: string,
+    seller: string,
+    startDate:number,
+    endDate: number,
+    r:string,
+    s:string,
+    v:string,
+    items:Array<any>,
+    loginUser?:string
+  ): Promise<IResponse> {
+    try {
+
+        let error_ret=[];
+        let success_rst=[];
+        // let validate_data=
+        await Promise.all(
+          items.map(async (item) => {
+            
+            const list=await this.listForSale(collectionId,item.nftId,seller,item.price,startDate,endDate,r,s,v,loginUser) 
+            if (list && !list.success){
+              error_ret.push({
+                collectionId:collectionId,
+                nftId:item.nftId,
+                seller:seller,
+                price:item.price,
+                message:list.status
+              })
+            }else{
+              success_rst.push(list.data)
+            }
+            console.log(list)
+            
+          })
+        );
+
+
+        return respond({
+          error:error_ret,
+          success:success_rst
+        });
+      
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+  }
+  
+  /**
+   * 
+   * @param collectionId 
+   * @param index 
+   * @param seller 
+   * @param price 
+   * @param startDate 
+   * @param endDate 
+   * @param r 
+   * @param s 
+   * @param v 
+   * @param loginUser 
+   * @returns 
+   */
   async listForSale(
     collectionId: string,
     index: number,
