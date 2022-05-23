@@ -7,8 +7,11 @@ import { parseQueryUrl } from "../../util/parse-query-url";
 
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
+  const user = req["session"] as any;
+  const owner = user && user.walletId?user.walletId.toLowerCase():null;
+  
   const ctl = new NFTController();
-  const result = await ctl.getItemDetail(collectionId, nftId);
+  const result = await ctl.getItemDetail(collectionId, nftId,owner);
   res.send(result);
 };
 
@@ -28,12 +31,15 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
+  const user = req["session"] as any;
+  const owner = user && user.walletId?user.walletId.toLowerCase():null;
+  
   const filters = query ? parseQueryUrl(query) : null;
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
   const ctl = new NFTController();
-  const result = await ctl.getItems(filters);
+  const result = await ctl.getItems(filters,owner);
   res.send(result);
 };
 

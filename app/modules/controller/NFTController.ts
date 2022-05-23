@@ -23,7 +23,7 @@ export class NFTController extends AbstractEntity {
     super();
     this.data = nft;
   }
-  async getItemDetail(collectionId: string, index: number): Promise<IResponse> {
+  async getItemDetail(collectionId: string, index: number,loginUser?:string): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collectionId, index);
@@ -64,6 +64,9 @@ export class NFTController extends AbstractEntity {
             result.owners = own;
             result.ownersDetail = ownD;
           }
+          if (result.owner !== loginUser){
+            delete result.lockContent
+          };
           return respond(result);
         }
         return respond("nft not found.", true, 422);
@@ -147,7 +150,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async getItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
+  async getItems(filters?: IQueryFilters,loginUser?:string): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
@@ -157,6 +160,7 @@ export class NFTController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
+        
         if (aggregation && aggregation.filter) {
           count = await nftTable.find({ $or: aggregation.filter }).count();
           result = aggregation.sort
@@ -216,6 +220,9 @@ export class NFTController extends AbstractEntity {
                   type: { $in: [ActivityType.OFFER, ActivityType.OFFERCOLLECTION] },
                 })
                 .toArray();
+              if (loginUser!==item.owner){
+                delete item.lockContent;
+              }
               return {
                 ...item,
                 collection_details: {
@@ -758,4 +765,5 @@ export class NFTController extends AbstractEntity {
       wallet: address,
     };
   }
+ 
 }
