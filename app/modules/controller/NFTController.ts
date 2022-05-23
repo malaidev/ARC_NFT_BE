@@ -7,7 +7,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { dateDiff } from "../util/datediff-helper";
-import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import { moderationContent, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { IGlobal } from "../interfaces/IGlobal";
 import TextHelper from "../util/TextHelper";
 import { ActivityController } from "./ActivityController";
@@ -449,6 +449,11 @@ export class NFTController extends AbstractEntity {
       const artIpfs = artFile ? await S3uploadImageBase64(artFile, `${artName}_${Date.now()}`, mimeType, "item") : "";
       let queryArt = this.findNFTItemByArt(artIpfs['location']);
       artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
+      if (artIpfs && artIpfs.location ){
+        const isEx=await moderationContent(artIpfs.key);
+        console.log('---<<<<',isEx);
+        isExplicit?isEx:false;
+      }
       const findResult = (await nftTable.findOne(queryArt)) as INFT;
       if (findResult && findResult._id) {
         return respond("Current nft has been created already", true, 422);
@@ -543,24 +548,58 @@ export class NFTController extends AbstractEntity {
       const forSale: INFT[] = [];
       const notForSale: INFT[] = [];
       let ntfs_error:INFT[]=[];
+      let findIndex;
       await Promise.all(
           records.map(async (record)=>{
             if ((record["External Link"] && !TextHelper.checkUrl(record["External Link"])) || (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"]))){
-              ntfs_error.push(record);
+              findIndex=ntfs_error.findIndex(x=>x['NFT Name']===record['NFT Name']);
+
+              if (findIndex>0){
+                 ntfs_error[findIndex]['error_message'].push('invalid link url ')
+              }else{
+                record['error_message']=['Invalid link url'];
+                ntfs_error.push(record);
+              }
+              findIndex=null;
             };
+
+            if ( record["Artwork"] ===""){
+              findIndex=ntfs_error.findIndex(x=>x['Artwork']===record['Artwork']);
+
+              if (findIndex>0){
+                 ntfs_error[findIndex]['error_message'].push('Artwork empty')
+              }else{
+                record['error_message']=['Artwork empty'];
+                ntfs_error.push(record);
+              }
+              findIndex=null;
+            }
+            
+            if (record["List For Sale"] === "Yes" && (record["List Price (ETH)"] =="" || !Number(record["List Price (ETH)"])) ){
+              findIndex=ntfs_error.findIndex(x=>x['NFT Name']===record['NFT Name']);
+              
+               if (findIndex>0){
+                 ntfs_error[findIndex]['error_message'].push('invalid price ')
+              }else{
+                record['error_message']=['Invalid price'];
+                ntfs_error.push(record);
+              }
+              findIndex=null;
+            } 
           })
       )
       if (ntfs_error.length>0){
-        return respond(ntfs_error,true,422);
+        return {success:false,
+          status:'error file upload',
+          code :422,
+          err_data:ntfs_error
+        };
       };
-    
       let nftVar;
       await Promise.all(
         records.map(async (record)=>{
-
-
+          console.log(record["Success Modal Content (optional)"]);
           nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
-          console.log(nftVar);
           const newIndex = nftVar && nftVar.value && nftVar.value.nftIndex + 1;
           const contentType = record["Content Type"];
           const nft: INFT = {
@@ -596,18 +635,21 @@ export class NFTController extends AbstractEntity {
                 : contentType === "video"
                 ? ContentType.VIDEO
                 : ContentType.IMAGE,
+          successContent:record["Success Modal Content (optional)"]?record["Success Modal Content (optional)"] : "",
+          successContentType:record["Success Content Type"] === "music"
+          ? record["Success Content Type"].MUSIC
+          : record["Success Content Type"] === "image"
+          ? ContentType.IMAGE
+          : record["Success Content Type"] === "video"
+          ? ContentType.VIDEO
+          :""
           };
           nfts.push(nft);
           if (record["List For Sale"] === "Yes") {
-            console.log('--->>>> buy')
             forSale.push({ ...nft, price: +record["List Price (ETH)"] });
           }else{
             notForSale.push({ ...nft, price: +record["List Price (ETH)"] });
-          }
-
-          
-          
-          
+          }     
         })
     )
       if (nfts.length > 0){
@@ -618,23 +660,6 @@ export class NFTController extends AbstractEntity {
         }
         await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
       };
-      // const listing_results = [];
-      // if (listing_nfts.length > 0) {
-      //   const activityController = new ActivityController();
-      //   for (const listing_nft of listing_nfts) {
-      //     const result = await activityController.listForSale(
-      //        collectionId,
-      //       listing_nft.index,
-      //       owner,
-      //       listing_nft.price,
-      //       new Date().getTime(),
-      //       Date.now() + 30 * 24 * 3600 * 1000,
-      //       "","","",
-      //       owner
-      //     );
-      //     listing_results.push(result.data);
-      //   }
-      // }
       return { status: "success",code:200 , items: records.length, forSale,notForSale,};
     } catch (err) {
       console.log(err);

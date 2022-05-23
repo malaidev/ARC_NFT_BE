@@ -6,6 +6,7 @@ const s3_bucket = config.aws.s3_user_bucket;
 const cloudfront = 'https://d1ymw6k8ugpy6v.cloudfront.net';
 const configParams={accessKeyId:s3_key,secretAccessKey: s3_secret,signatureVersion: 'v4'};
 const { RekognitionClient, CompareFacesCommand ,DetectModerationLabelsCommand} = require("@aws-sdk/client-rekognition");
+
 const checkModeration=async (params,S3object)=>{
    return new Promise((resolve, reject) => {
       const rekognition = new AWS.Rekognition({...params,region:'us-east-1'});
@@ -15,10 +16,38 @@ const checkModeration=async (params,S3object)=>{
                 },
                 "MinConfidence": 10,
       },(err,data)=>{
-         resolve(data)
+         if (data && data.ModerationLabels.length>0){
+            resolve(true)
+         }else(
+            resolve(false)
+         )
+         
       })
     })
 };
+export const moderationContent=async(key)=>{
+   AWS.config.update(configParams);
+   const params = {
+      Bucket: s3_bucket,
+      Key:  `${key}`,
+      ACL: 'public-read', // change to public
+   }
+   return new Promise((resolve, reject) => {
+      const rekognition = new AWS.Rekognition({...params,region:'us-east-1'});
+      rekognition.detectModerationLabels({
+                "Image": {
+                    "S3Object": {"Bucket": s3_bucket,"Name": `${key}` ,}
+                },
+                "MinConfidence": 10,
+      },(err,data)=>{
+         if (data && data.ModerationLabels.length>0){
+            resolve(true)
+         }else(
+            resolve(false)
+         )
+      })
+    })
+}
 export const S3uploadImageBase64 = async(data,fileName,contentType,folder) => {
    let base64Data;
    if (contentType.includes("image")){
@@ -50,18 +79,21 @@ export const S3uploadImageBase64 = async(data,fileName,contentType,folder) => {
       let url =''
       try {
         const { Location,Key}= await s3bucket.upload(params).promise();
-        location = `${cloudfront}/${Key}`;   
-        const isEx = await checkModeration(params, {"Bucket": s3_bucket,"Name": `${Key}` ,})
-         return {
-            location:location,
-            moderateData:isEx && isEx['ModerationLabels'] ? isEx['ModerationLabels']:null,
-            explicit:isEx && isEx['ModerationLabels'].length>1?true:false
-         }
+        location = `${cloudfront}/${Key}`;
+        key = Key;   
+      //   const isEx = await checkModeration(params, {"Bucket": s3_bucket,"Name": `${Key}` ,})
+        
       } catch (error) {
          console.log(error)
       }
+      return {
+         location:location,
+         key:key,
+         moderateData:false,
+         explicit:false
+      }
       // return location;
-}
+};
 export const S3GetSignedUrl=async(key)=>{
     AWS.config.update(configParams);
     const s3bucket = new AWS.S3({accessKeyId:s3_key,secretAccessKey:s3_secret});
@@ -75,7 +107,5 @@ export const S3GetSignedUrl=async(key)=>{
       } catch (error) {
          console.log(error)
       }
-      // Save the Location (url) to your database and Key if needs be.
-      // As good developers, we should return the url and let other function do the saving to database etc
       return url;
 }
