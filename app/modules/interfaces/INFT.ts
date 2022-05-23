@@ -22,6 +22,8 @@ export interface INFT {
   contentType: ContentType;
   timeLeft?: string;
   tag?:Array<string>;
+  successContent?:string,
+  successContentType?:string
 }
 
 export enum ContentType {
