@@ -96,15 +96,15 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelCollectionOffer", config.route("jwt"), cancelCollectionOffer);
   router.post("/activity/signOffer", config.route("jwt"), signOffer);
 
-  router.get("/items",  getAllItems);
-  router.get("/items/trending", getTrendingItems);
-  router.get("/items/tag/:tag", getTagItems);
+  router.get("/items", config.routeParamsValidationJWT("jwt"), getAllItems);
+  router.get("/items/trending", config.routeParamsValidationJWT("jwt"),getTrendingItems);
+  router.get("/items/tag/:tag",config.routeParamsValidationJWT("jwt"), getTagItems);
 
   router.post("/items/create", config.route("jwt"), createItem);
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
-  router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
+  router.get("/items/:collectionId/:nftId", config.routeParamsValidationJWT("jwt"), getItemDetail);
   router.put("/items/:nftId", config.route("jwt"), updateItem);
   router.delete("/items/:id", config.route("jwt"), deleteItem);
 
