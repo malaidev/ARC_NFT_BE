@@ -547,7 +547,7 @@ export class ActivityController extends AbstractEntity {
             await Promise.all(
               result.forSale.map(async (item) => {
                 
-                const list=await this.listForSale(result.collection,item.index,seller,item.price,startDate,endDate,r,s,v,loginUser) 
+                const list=await this.listForSale(result.collection,item.index,seller,item.price,startDate,endDate,r,s,v,loginUser,batchId) 
                 if (list && !list.success){
                   error_ret.push({
                     collectionId:result.collection,
@@ -610,7 +610,8 @@ export class ActivityController extends AbstractEntity {
     r:string,
     s:string,
     v:string,
-    loginUser: string
+    loginUser: string,
+    batchId?:string
   ): Promise<IResponse> {
     try {
 
@@ -662,6 +663,7 @@ export class ActivityController extends AbstractEntity {
             nonce,
             signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
+            batchId:batchId
           };
           const result = await activityTable.insertOne(offer);
           if (result) {
