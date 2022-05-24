@@ -4,6 +4,8 @@ import fs, { ReadStream } from "fs";
 
 import { NFTController } from "../../controller/NFTController";
 import { parseQueryUrl } from "../../util/parse-query-url";
+import { recaptchaVerification } from "../../util/recaptcha-helper";
+
 
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
@@ -71,6 +73,16 @@ export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) =
 };
 
 export const createItem = async (req, res) => {
+  
+
+
+  const response_key = req.body["recaptcha"].value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  
+  
+
   if (req.body && !req.body.artFile) {
     throw new Error("artURI is invalid or missing");
   }
@@ -141,6 +153,14 @@ export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
+
+
+  const response_key = req.body["recaptcha"].value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  
+  
   const ctl = new NFTController();
   const { nftId } = req.params as any;
   const userSession = req["session"] as any;
