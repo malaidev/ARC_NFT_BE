@@ -229,6 +229,18 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "opensea", "key": "opensea_addr"}
                                         },
                                     },
+                                    {
+                                        "name": "GOOGLE_RECAPTCHA",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "google_recaptcha", "key": "server"}
+                                        },
+                                    },
+                                    {
+                                        "name": "GOOGLE_SITE_VERIFY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "google_recaptcha", "key": "urlVerification"}
+                                        },
+                                    }, 
                                 ],
                             }
                         ]
