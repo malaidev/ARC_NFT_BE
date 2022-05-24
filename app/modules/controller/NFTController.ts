@@ -128,7 +128,9 @@ export class NFTController extends AbstractEntity {
                 const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
                 item.collectionId = item.collection;
                 item.collection = col.contract;
-                item.nft = { artURI: nfts.artURI, name: nfts.name };
+                
+
+                item.nft = { artURI: nfts.artURI, name: nfts.name};
                 rst.push(item);
               }
               return item;

@@ -372,6 +372,7 @@ export class ActivityController extends AbstractEntity {
             from: buyer,
             to: seller,
             nonce,
+            batchId:nft.batchId,
             active: true,
           };
           const result = await activityTable.insertOne(offer);
