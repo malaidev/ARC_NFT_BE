@@ -119,16 +119,28 @@ export const createItem = async (req, res) => {
   res.send(result);
 };
 
+
+export const getBatchItem = async(req,res)=>{
+
+  const user = req["session"] as any;
+  const { batchId } = req.params as any;
+  const owner = user.walletId.toLowerCase();
+  const ctl = new NFTController();
+  const result = await ctl.batchGet(batchId,owner);
+  res.send(result);
+
+
+}
 export const batchUpload = async (req, res) => {
 
   
   const { csvFile, collectionId, tokenType } = req.body;
-  const response_key = req.body["recaptcha"].value;
-  if (!response_key)  throw new Error("Recaptcha response missing");
-  const checkCaptcha = await recaptchaVerification(response_key);
-  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
-  
-  
+  // const response_key = req.body["recaptcha"].value;
+  // if (!response_key)  throw new Error("Recaptcha response missing");
+  // const checkCaptcha = await recaptchaVerification(response_key);
+  // if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+
+
   if (!csvFile) {
     throw new Error("CSV is missing");
   }

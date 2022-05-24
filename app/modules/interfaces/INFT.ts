@@ -24,6 +24,7 @@ export interface INFT {
   tag?:Array<string>;
   successContent?:string,
   successContentType?:string
+  batchId?:string,
 }
 
 export enum ContentType {
