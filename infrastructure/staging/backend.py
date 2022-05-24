@@ -232,13 +232,13 @@ class Stack(core.Stack):
                                     {
                                         "name": "GOOGLE_RECAPTCHA",
                                         "valueFrom": {
-                                            "secretKeyRef": {"name": "google_recaptcha", "key": "server"}
+                                            "secretKeyRef": {"name": "recaptcha", "key": "server"}
                                         },
                                     },
                                     {
                                         "name": "GOOGLE_SITE_VERIFY",
                                         "valueFrom": {
-                                            "secretKeyRef": {"name": "google_recaptcha", "key": "urlVerification"}
+                                            "secretKeyRef": {"name": "recaptcha", "key": "urlVerification"}
                                         },
                                     }, 
                                 ],
