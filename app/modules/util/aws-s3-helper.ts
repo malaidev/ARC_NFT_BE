@@ -49,6 +49,8 @@ export const moderationContent=async(key)=>{
     })
 }
 export const S3uploadImageBase64 = async(data,fileName,contentType,folder) => {
+
+      
    let base64Data;
    if (contentType.includes("image")){
       base64Data = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');

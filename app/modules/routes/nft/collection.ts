@@ -119,7 +119,7 @@ export const updateCollection = async (req, res) => {
   const { collectionId } = req.params as any;
 
 
-  const response_key = req.body["recaptcha"].value;
+  const response_key = req.body["recaptcha"]?.value;
   if (!response_key)  throw new Error("Recaptcha response missing");
   const checkCaptcha = await recaptchaVerification(response_key);
   if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
@@ -205,7 +205,7 @@ export const createCollection = async (req, res) => {
 
 /** Captcha validation */
 
-const response_key = req.body["recaptcha"].value;
+const response_key = req.body["recaptcha"]?.value;
 if (!response_key)  throw new Error("Recaptcha response missing");
 const checkCaptcha = await recaptchaVerification(response_key);
 if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
@@ -230,6 +230,8 @@ if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
       ";base64," +
       Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
   }
+
+  
 
   
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {

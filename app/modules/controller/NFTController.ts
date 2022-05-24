@@ -460,7 +460,7 @@ export class NFTController extends AbstractEntity {
       artIpfs && artIpfs['explicit']?isExplicit=true:isExplicit=false;
       if (artIpfs && artIpfs.location ){
         const isEx=await moderationContent(artIpfs.key);
-        console.log('---<<<<',isEx);
+        
         isExplicit?isEx:false;
       }
       const findResult = (await nftTable.findOne(queryArt)) as INFT;
@@ -511,7 +511,10 @@ export class NFTController extends AbstractEntity {
             ? ContentType.IMAGE
             : contentType === "video"
             ? ContentType.VIDEO
-            : ContentType.IMAGE,
+            : contentType==='audio'
+            ? ContentType.AUDIO
+            : ContentType.IMAGE
+            
       };
       const result = await nftTable.insertOne(nft);
       if (result) {
@@ -671,13 +674,15 @@ export class NFTController extends AbstractEntity {
             lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content Details"],
             tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
             contentType:
-              contentType === "music"
-                ? ContentType.MUSIC
-                : contentType === "image"
-                ? ContentType.IMAGE
-                : contentType === "video"
-                ? ContentType.VIDEO
-                : ContentType.IMAGE,
+            contentType === "music"
+            ? ContentType.MUSIC
+            : contentType === "image"
+            ? ContentType.IMAGE
+            : contentType === "video"
+            ? ContentType.VIDEO
+            : contentType==='audio'
+            ? ContentType.AUDIO
+            : ContentType.IMAGE,
           successContent:record["Success Modal Content (optional)"]?record["Success Modal Content (optional)"] : "",
           successContentType:record["Success Content Type"] === "music"
           ? record["Success Content Type"].MUSIC

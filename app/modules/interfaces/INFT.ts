@@ -31,6 +31,7 @@ export enum ContentType {
   MUSIC = <any>"Music",
   IMAGE = <any>"Image",
   VIDEO = <any>"Video",
+  AUDIO = <any>"Audio",
   OTHER = <any>"Other",
 }
 

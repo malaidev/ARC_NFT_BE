@@ -117,9 +117,9 @@ export const nft = async (router: any, options: any) => {
   router.put("/owners/:ownerId", config.route("jwt"), updateOwner);
   router.get("/owners/:ownerId", getOwner);
   router.get("/owners/:ownerId/nfts", config.routeParamsValidationJWT("jwt"), getOwnerNtfs);
-  router.get("/owners/:ownerId/history", config.route("jwt"), getOwnerHistory);
-  router.get("/owners/:ownerId/collection",config.route("jwt"), getOwnerCollection);
-  router.get("/owners/:ownerId/offers", config.route("jwt"), getOwnerOffers);
+  router.get("/owners/:ownerId/history",  config.routeParamsValidationJWT("jwt"), getOwnerHistory);
+  router.get("/owners/:ownerId/collection", config.routeParamsValidationJWT("jwt"), getOwnerCollection);
+  router.get("/owners/:ownerId/offers",  config.routeParamsValidationJWT("jwt"), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
   router.get("/rewards/:walletId", config.route("jwt"), getReward);
