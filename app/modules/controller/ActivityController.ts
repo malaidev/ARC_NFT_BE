@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { ActivityType, IActivity } from "../interfaces/IActivity";
 import { INFT, MintStatus, SaleStatus } from "../interfaces/INFT";
+import { INFTBatch } from "../interfaces/INFTBatch";
 import { INFTCollection, OfferStatusType } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
@@ -14,6 +15,7 @@ export class ActivityController extends AbstractEntity {
   protected collectionTable: string = "NFTCollection";
   protected nftTable: string = "NFT";
   protected ownerTable: string = "Person";
+  private nftBatchTable:string="NFTBatch"
   constructor(activity?: IActivity) {
     super();
     this.data = activity;
@@ -520,14 +522,13 @@ export class ActivityController extends AbstractEntity {
 
 
   async listForSaleBatch(
-    collectionId: string,
+    batchId:string,
     seller: string,
     startDate:number,
     endDate: number,
     r:string,
     s:string,
     v:string,
-    items:Array<any>,
     loginUser?:string
   ): Promise<IResponse> {
     try {
@@ -535,31 +536,50 @@ export class ActivityController extends AbstractEntity {
         let error_ret=[];
         let success_rst=[];
         // let validate_data=
-        await Promise.all(
-          items.map(async (item) => {
-            
-            const list=await this.listForSale(collectionId,item.nftId,seller,item.price,startDate,endDate,r,s,v,loginUser) 
-            if (list && !list.success){
-              error_ret.push({
-                collectionId:collectionId,
-                nftId:item.nftId,
-                seller:seller,
-                price:item.price,
-                message:list.status
+        const nftBatch = this.mongodb.collection(this.nftBatchTable);
+        const ownTable = this.mongodb.collection(this.ownerTable);
+        const result = await nftBatch.findOne({batchId:batchId}) as INFTBatch
+        if (result){
+          if (result && result.forSale.length>0){
+            const sortAct = await ownTable.findOne({ wallet: seller.toLowerCase() });
+            const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
+            await ownTable.replaceOne({ wallet: seller.toLowerCase() }, sortAct);
+            await Promise.all(
+              result.forSale.map(async (item) => {
+                
+                const list=await this.listForSale(result.collection,item.index,seller,item.price,startDate,endDate,r,s,v,loginUser) 
+                if (list && !list.success){
+                  error_ret.push({
+                    collectionId:result.collection,
+                    nftId:item.index,
+                    seller:seller,
+                    price:item.price,
+                    message:list.status
+                  })
+                }else{
+                  success_rst.push(list.data)
+                }
+                
+                
               })
-            }else{
-              success_rst.push(list.data)
-            }
-            console.log(list)
-            
-          })
-        );
+            );
 
+            result.nonce=nonce;
+            result.signature= { r: r??"", s: s??"", v: v??"" };
+            await nftBatch.replaceOne({batchId:batchId}, result);
 
-        return respond({
-          error:error_ret,
-          success:success_rst
-        });
+            return respond({
+              error:error_ret,
+              success:success_rst
+            });
+          }else{
+            return respond("batch  has not for sale items.", true, 422);
+          }
+         
+        };
+
+        return respond("batch Items not found.", true, 422);
+        
       
     } catch (error) {
       return respond(error.message, true, 500);

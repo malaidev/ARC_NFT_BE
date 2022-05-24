@@ -129,6 +129,10 @@ const config = {
   opensea:{
     api_key:process.env["OPENSEA_KEY"]||"c9881567f3eb42749934d3743642e5dd",
     api_addr:process.env["OPENSEA_ADDR"]||"https://api.opensea.io/api/v1/"
+  },
+  google_recaptcha:{
+    server:process.env["GOOGLE_RECAPTCHA"],
+    urlVerification:process.env["GOOGLE_SITE_VERIFY"]
   }
 };
 

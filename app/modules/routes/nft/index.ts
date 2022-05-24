@@ -10,6 +10,7 @@ import {
   getTrendingItems,
   updateItem,
   getTagItems,
+  getBatchItem,
 } from "./item";
 
 import {
@@ -85,8 +86,8 @@ export const nft = async (router: any, options: any) => {
   router.get("/activity",config.route("jwt"), getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
   router.post("/activity/listForSale", config.route("jwt"), listForSale);
+  router.post("/activity/listForSale/:batchId", config.route("jwt"), listForSaleBatch);
   // router.post("/activity/listForSale/batch", config.route("jwt"), listForSaleBatch);
-  router.post("/activity/listForSale/batch", config.route("jwt"), listForSaleBatch);
   router.post("/activity/makeOffer", config.route("jwt"), makeOffer);
   router.post("/activity/approveOffer", config.route("jwt"), approveOffer);
   router.post("/activity/transfer", config.route("jwt"), transfer);
@@ -101,7 +102,9 @@ export const nft = async (router: any, options: any) => {
   router.get("/items/tag/:tag",config.routeParamsValidationJWT("jwt"), getTagItems);
 
   router.post("/items/create", config.route("jwt"), createItem);
+  router.get("/items/batch/:batchId",config.route("jwt"),getBatchItem)
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
+
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
   router.get("/items/:collectionId/:nftId", config.routeParamsValidationJWT("jwt"), getItemDetail);
@@ -113,7 +116,7 @@ export const nft = async (router: any, options: any) => {
   router.post("/owners/:ownerId/upload-profile", config.route("jwt"), uploadOwnerPhoto);
   router.put("/owners/:ownerId", config.route("jwt"), updateOwner);
   router.get("/owners/:ownerId", getOwner);
-  router.get("/owners/:ownerId/nfts", config.route("jwt"), getOwnerNtfs);
+  router.get("/owners/:ownerId/nfts", config.routeParamsValidationJWT("jwt"), getOwnerNtfs);
   router.get("/owners/:ownerId/history", config.route("jwt"), getOwnerHistory);
   router.get("/owners/:ownerId/collection",config.route("jwt"), getOwnerCollection);
   router.get("/owners/:ownerId/offers", config.route("jwt"), getOwnerOffers);
