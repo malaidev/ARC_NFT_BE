@@ -76,7 +76,7 @@ export const createItem = async (req, res) => {
   
 
 
-  const response_key = req.body["recaptcha"].value;
+  const response_key = req.body["recaptcha"]?.value;
   if (!response_key)  throw new Error("Recaptcha response missing");
   const checkCaptcha = await recaptchaVerification(response_key);
   if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
@@ -135,7 +135,7 @@ export const batchUpload = async (req, res) => {
 
   
   const { csvFile, collectionId, tokenType } = req.body;
-  const response_key = req.body["recaptcha"].value;
+  const response_key = req.body["recaptcha"]?.value;
   if (!response_key)  throw new Error("Recaptcha response missing");
   const checkCaptcha = await recaptchaVerification(response_key);
   if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
@@ -175,7 +175,7 @@ export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
 export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
 
 
-  const response_key = req.body["recaptcha"].value;
+  const response_key = req.body["recaptcha"]?.value;
   if (!response_key)  throw new Error("Recaptcha response missing");
   const checkCaptcha = await recaptchaVerification(response_key);
   if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
