@@ -19,7 +19,7 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const getItemSimple = async (req: FastifyRequest, res: FastifyReply) => {
   const { blockchain, tokenId } = req.params as { blockchain: string; tokenId: number };
-    const user = req["session"] as any;
+    // const user = req["session"] as any;
   // const owner = user && user.walletId?user.walletId.toLowerCase():null;  
   const ctl = new NFTController();
   const result = await ctl.getItemSimple(blockchain, tokenId,null);
