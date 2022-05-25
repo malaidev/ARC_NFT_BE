@@ -24,26 +24,16 @@ export class mailHelper extends AbstractEntity {
     },
   };
   protected senderEmail: string = "noreply@arc.market";
- 
-  
-
-
   async MakeOfferEmail(data:IActivity): Promise<void | IResponse> {
     try {
         if (this.mongodb) {
-
-          console.log(data);
           const activityTable = this.mongodb.collection(this.activityTable);
           const nftTable = this.mongodb.collection(this.nftTable);
           const person = this.mongodb.collection(this.ownerTable);
-  
           const nft = (await nftTable.findOne({ index: data.nftId })) as INFT;
           const buyerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
           const sellerEmail = (await person.findOne({ wallet: data.to })) as IPerson;
-            
           /** send  */
-          console.log(buyerEmail);
-          console.log(sellerEmail);
           const trf = nodemailer.createTransport(this.emailConfig);
           if (buyerEmail && buyerEmail.email) {
             const title="Make Offer"
@@ -54,10 +44,7 @@ export class mailHelper extends AbstractEntity {
                 subject:title,
                 html: this.emailContent(title,content),
             };
-            trf.sendMail(mailOptions, (error, info) => {
-              
-              console.log("Message sent: %s", info.messageId);
-            });
+            trf.sendMail(mailOptions, (error, info) => {});
           }
   
           if (sellerEmail && sellerEmail.email) {
@@ -70,9 +57,7 @@ export class mailHelper extends AbstractEntity {
               subject:title,
               html:this.emailContent(title,content) ,
             };
-            trf.sendMail(mailOptions, (error, info) => {
-              console.log("Message sent: %s", info.messageId);
-            });
+            trf.sendMail(mailOptions, (error, info) => {});
           }
         } else {
           throw new Error("Could not connect to the database.");
@@ -96,44 +81,29 @@ export class mailHelper extends AbstractEntity {
           const sellerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
             
           /** send  */
-  
           const trf = nodemailer.createTransport(this.emailConfig);
           if (buyerEmail && buyerEmail.email) {
+            const title="Collection offer received"
+            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit <link> to view your new NFT!`
             let mailOptions = {
               from: this.senderEmail,
               to: buyerEmail.email,
-              subject: "Accept Offer  ",
-              html: `<p><h1>NFT  Name : ${nft.name} </h1></p>
-              <p> Seller : ${data.from}</p>
-                          <p> Price : ${data.price}</p>
-                          `,
+              subject: title,
+              html: this.emailContent(title,content),
             };
-            trf.sendMail(mailOptions, (error, info) => {
-              if (error) {
-                return console.log(error);
-              }
-              console.log("Message sent: %s", info.messageId);
-            });
+            trf.sendMail(mailOptions, (error, info) => {});
           }
   
           if (sellerEmail && sellerEmail.email) {
+            const title="Collection offer receive"
+            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit <link> to view your new NFT!`
             let mailOptions = {
               from: this.senderEmail,
               to: sellerEmail.email,
-              subject: "Accept Offer ",
-              html: `<p><h1>NFT  Name : ${nft.name} </h1></p>
-                          
-                          <p> Buyer : ${data.to}</p>
-                          <p> Price : ${data.price}</p>
-                          
-                          `,
+              subject: title,
+              html: this.emailContent(title,content),
             };
-            trf.sendMail(mailOptions, (error, info) => {
-              if (error) {
-                return console.log(error);
-              }
-              console.log("Message sent: %s", info.messageId);
-            });
+            trf.sendMail(mailOptions, (error, info) => {});
           }
         } 
         return
@@ -149,23 +119,17 @@ export class mailHelper extends AbstractEntity {
   async BuyNow(data: any, person: IPerson): Promise<void | IResponse> {
     try {
       /** send  */
+      const title="Buy Now"
+      const content = `Your NFT has been purchased by a user using the ‘Buy Now’ function. Please visit <link> to see more details.`
+
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
         from: this.senderEmail,
         to: person.email,
-        subject: "Buy Now ",
-        html: `<p><h1>Token ID : ${data.nftId} </h1></p>
-                    <p> Seller : ${data.from}</p>
-                    <p> Buyer : ${data.to}</p>
-                    <p> Price : ${data.price}</p>
-                    `,
+        subject:  title,
+        html: this.emailContent(title,content)
       };
-      trf.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return console.log(error);
-        }
-        console.log("Message sent: %s", info.messageId);
-      });
+      trf.sendMail(mailOptions, (error, info) => {});
     } catch (error) {
       console.log(error);
       return respond(error.message, true, 403);
@@ -175,23 +139,16 @@ export class mailHelper extends AbstractEntity {
   async CollectionOffer(data: any, person: IPerson): Promise<void | IResponse> {
     try {
       /** send  */
+      const title="Collection Offer"
+      const content = `You have received an offer for your NFT on the ARC NFT Marketplace! Please visit <link> to view the offer.`
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
         from: this.senderEmail,
         to: person.email,
-        subject: "Collection Offer ",
-        html: `<p><h1>Colelction ID : ${data.collection} </h1></p>
-                    <p> Seller : ${data.to}</p>
-                    <p> Buyer : ${data.buyer}</p>
-                    <p> Price : ${data.price}</p>
-                    `,
+        subject: title,
+        html: this.emailContent(title,content),
       };
-      trf.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return console.log(error);
-        }
-        console.log("Message sent: %s", info.messageId);
-      });
+      trf.sendMail(mailOptions, (error, info) => {});
     } catch (error) {
       console.log(error);
       return respond(error.message, true, 403);
@@ -210,43 +167,33 @@ export class mailHelper extends AbstractEntity {
         const sellerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
 
         /** send  */
-
+       
         const trf = nodemailer.createTransport(this.emailConfig);
         if (buyerEmail && buyerEmail.email) {
+          const title="Collection Offer Rejected"
+          const content = `Your collection offer has been rejected. Go to <link> to place another offer.        `
+    
           let mailOptions = {
             from: this.senderEmail,
             to: buyerEmail.email,
-            subject: "Offer decline ",
-            html: `<p><h1>NFT  Name : ${nft.name} </h1></p>
-                        <p> Seller : ${data.from}</p>
-                        <p> Buyer : ${data.to}</p>
-                        <p> Price : ${data.price}</p>
-                        `,
+            subject:title,
+            html: this.emailContent(title,content),
           };
-          trf.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              return console.log(error);
-            }
-            console.log("Message sent: %s", info.messageId);
-          });
+          trf.sendMail(mailOptions, (error, info) => {});
         }
 
         if (sellerEmail && sellerEmail.email) {
+          const title="Collection Offer Rejected"
+          const content = `Your collection offer has been rejected. Go to <link> to place another offer.        `
+    
           let mailOptions = {
             from: this.senderEmail,
             to: sellerEmail.email,
-            subject: "Offer decline ",
-            html: `<p><h1>NFT  Name : ${nft.name} </h1></p>
-                        <p> Seller : ${data.from}</p>
-                        <p> Buyer : ${data.to}</p>
-                        <p> Price : ${data.price}</p>
-                        `,
+            subject:title,
+            html: this.emailContent(title,content),
           };
           trf.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              return console.log(error);
-            }
-            console.log("Message sent: %s", info.messageId);
+            
           });
         }
       } else {
