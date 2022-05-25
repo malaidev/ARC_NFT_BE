@@ -122,11 +122,11 @@ export const createItem = async (req, res) => {
 
 export const getBatchItem = async(req,res)=>{
 
-  const user = req["session"] as any;
+  // const user = req["session"] as any;
   const { batchId } = req.params as any;
-  const owner = user.walletId.toLowerCase();
+  //const owner = user.walletId.toLowerCase();
   const ctl = new NFTController();
-  const result = await ctl.batchGet(batchId,owner);
+  const result = await ctl.batchGet(batchId,null);
   res.send(result);
 
 
