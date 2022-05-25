@@ -829,7 +829,7 @@ export class NFTController extends AbstractEntity {
                 })
                 .toArray();
               if (loginUser!==item.owner){
-                delete item.lockContent;
+                item.lockContent="locked content";
               }
               return {
                 ...item,
