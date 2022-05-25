@@ -541,10 +541,10 @@ export class NFTController extends AbstractEntity {
       // let forSale=[];
       // let notForSale=[];
 
-      if (result){
-        if (result.owner.toLowerCase()!== owner.toLowerCase()) {
-          return respond("not the same as login user.", true, 422);
-        };
+      if (result && result.toString()){
+        // if (result.owner.toLowerCase()!== owner.toLowerCase()) {
+        //   return respond("not the same as login user.", true, 422);
+        // };
         return respond(result);
       }
       
