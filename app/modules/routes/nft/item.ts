@@ -12,10 +12,20 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const user = req["session"] as any;
   const owner = user && user.walletId?user.walletId.toLowerCase():null;
   
-  const ctl = new NFTController();
-  const result = await ctl.getItemDetail(collectionId, nftId,owner);
+  const ctl = new NFTController();  
+  const result = await ctl.getItemDetail(collectionId, nftId, owner);
   res.send(result);
 };
+
+export const getItemSimple = async (req: FastifyRequest, res: FastifyReply) => {
+  const { blockchain, tokenId } = req.params as { blockchain: string; tokenId: number };
+    // const user = req["session"] as any;
+  // const owner = user && user.walletId?user.walletId.toLowerCase():null;  
+  const ctl = new NFTController();
+  const result = await ctl.getItemSimple(blockchain, tokenId,null);
+  res.send(result);
+};
+
 
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };

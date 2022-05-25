@@ -90,6 +90,7 @@ const config = {
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
             
+            
           },
         },
         properties: {
@@ -110,6 +111,7 @@ const config = {
             ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
+            tokenId: { type: "number" },
           },
         },
       },
