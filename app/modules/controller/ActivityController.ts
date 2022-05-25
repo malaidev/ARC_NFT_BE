@@ -479,6 +479,7 @@ export class ActivityController extends AbstractEntity {
                 from: buyer,
                 to: item.owner,
                 nonce,
+                batchId:item.batchId,
                 active: true,
                 offerCollection: collId,
               };
