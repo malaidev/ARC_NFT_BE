@@ -114,8 +114,6 @@ export class mailHelper extends AbstractEntity {
 
    
   }
-
-
   async BuyNow(data: any, person: IPerson): Promise<void | IResponse> {
     try {
       /** send  */
