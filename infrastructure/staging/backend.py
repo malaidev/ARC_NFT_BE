@@ -240,7 +240,19 @@ class Stack(core.Stack):
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "recaptcha", "key": "urlVerification"}
                                         },
-                                    }, 
+                                    },
+                                    {
+                                        "name": "MAIL_USER",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mailauth", "key": "user"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MAIL_PASS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mailauth", "key": "pass"}
+                                        },
+                                    },  
                                 ],
                             }
                         ]
