@@ -102,7 +102,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/items/tag/:tag",config.routeParamsValidationJWT("jwt"), getTagItems);
 
   router.post("/items/create", config.route("jwt"), createItem);
-  router.get("/items/batch/:batchId",config.route("jwt"),getBatchItem)
+  router.get("/items/batch/:batchId",getBatchItem)
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
 
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);

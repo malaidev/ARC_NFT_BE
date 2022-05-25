@@ -133,6 +133,10 @@ const config = {
   google_recaptcha:{
     server:process.env["GOOGLE_RECAPTCHA"],
     urlVerification:process.env["GOOGLE_SITE_VERIFY"]
+  },
+  mail_auth:{
+    user:process.env["MAIL_USER"],
+    pass:process.env["MAIL_PASS"]
   }
 };
 
