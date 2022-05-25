@@ -24,6 +24,65 @@ export class NFTController extends AbstractEntity {
     super();
     this.data = nft;
   }
+  
+  async getItemSimple(tokenType: string, index: number,loginUser?:string): Promise<IResponse> {
+    try {
+      if (this.mongodb) {
+        const query = this.findNFTItemByIndex(tokenType, index);        
+        const acttable = this.mongodb.collection(this.activityTable);
+        const collTable = this.mongodb.collection(this.nftCollectionTable);
+        const itemTable = this.mongodb.collection(this.table);
+        const result = await itemTable.findOne(query);
+        console.log(result );
+        
+        
+        if (result) {
+          const personTable = this.mongodb.collection(this.personTable);
+          // const owner = await personTable.findOne({ wallet: result.owner });
+          const collectionData = await collTable.findOne({ _id: new ObjectId(result.collection) });
+          const act = await acttable.findOne(
+            { collection: result.collection, nftId: result.index, active: true },
+            { limit: 1, sort: { startDate: -1 } }
+          );
+          let timeDiff = "";
+          if (act && act.endDate) {
+            timeDiff = dateDiff(new Date().getTime(), act.endDate);
+          }
+          if (!act) {
+            const collectionAct = (await acttable.findOne({
+              collection: result.collection,
+              type: ActivityType.OFFERCOLLECTION,
+            })) as IActivity;
+            if (collectionAct && collectionAct.endDate)
+              timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+          }
+          result.collectionId = result.collection;
+          result.collection = collectionData.contract;
+          result.creatorEarning = collectionData.creatorEarning;
+          result.timeLeft = timeDiff;
+          // result.ownerDetail = owner;
+          // if (result && result.tokenType == "ERC1155") {
+          //   let own = result.owners ?? [];
+          //   let ownD = [];
+          //   if (own.indexOf(owner) == -1) own.push(result.owner);
+          //   ownD.push(result.ownerDetail);
+          //   result.owners = own;
+          //   result.ownersDetail = ownD;
+          // }
+          // if (result.owner !== loginUser){
+          //   delete result.lockContent
+          // };
+          return respond(result);
+        }
+        return respond("nft not found.", true, 422);
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+  }
+
   async getItemDetail(collectionId: string, index: number,loginUser?:string): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -78,6 +137,7 @@ export class NFTController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async getItemHistory(collectionId: string, index: number): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -873,6 +933,12 @@ export class NFTController extends AbstractEntity {
       }
     }
     return _collection;
+  }
+  private findNFTItemByIndex(tokenType: string, index: number): Object {    
+    return {      
+      tokenType,
+      index,
+    };
   }
   private findNFTItem(collectionId: string, index: number): Object {
     return {

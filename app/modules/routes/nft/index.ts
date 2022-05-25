@@ -11,6 +11,7 @@ import {
   updateItem,
   getTagItems,
   getBatchItem,
+  getItemSimple,
 } from "./item";
 
 import {
@@ -100,9 +101,9 @@ export const nft = async (router: any, options: any) => {
   router.get("/items", config.routeParamsValidationJWT("jwt"), getAllItems);
   router.get("/items/trending", config.routeParamsValidationJWT("jwt"),getTrendingItems);
   router.get("/items/tag/:tag",config.routeParamsValidationJWT("jwt"), getTagItems);
-
+  router.get("/items/chain/:blockchain/:tokenId",config.routeParamsValidation(), getItemSimple);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.get("/items/batch/:batchId",getBatchItem)
+  router.get("/items/batch/:batchId", getBatchItem)
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
 
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
