@@ -24,6 +24,7 @@ export class mailHelper extends AbstractEntity {
     },
   };
   protected senderEmail: string = "noreply@arc.market";
+  protected urlLink:string=` <a href="https://nft.arc.market/" target="_blank" rel="noopener noreferrer">ARC Market</a>`
   async MakeOfferEmail(data:IActivity): Promise<void | IResponse> {
     try {
         if (this.mongodb) {
@@ -37,7 +38,7 @@ export class mailHelper extends AbstractEntity {
           const trf = nodemailer.createTransport(this.emailConfig);
           if (buyerEmail && buyerEmail.email) {
             const title="Make Offer"
-            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit <link> to see more details.`
+            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`
             let mailOptions = {
               from: this.senderEmail,
               to: buyerEmail.email,
@@ -50,7 +51,7 @@ export class mailHelper extends AbstractEntity {
           if (sellerEmail && sellerEmail.email) {
 
             const title="Make Offer"
-            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit <link> to see more details.`
+            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`
             let mailOptions = {
               from: this.senderEmail,
               to: sellerEmail.email,
@@ -84,7 +85,7 @@ export class mailHelper extends AbstractEntity {
           const trf = nodemailer.createTransport(this.emailConfig);
           if (buyerEmail && buyerEmail.email) {
             const title="Collection offer received"
-            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit <link> to view your new NFT!`
+            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`
             let mailOptions = {
               from: this.senderEmail,
               to: buyerEmail.email,
@@ -96,7 +97,7 @@ export class mailHelper extends AbstractEntity {
   
           if (sellerEmail && sellerEmail.email) {
             const title="Collection offer receive"
-            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit <link> to view your new NFT!`
+            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`
             let mailOptions = {
               from: this.senderEmail,
               to: sellerEmail.email,
@@ -118,7 +119,7 @@ export class mailHelper extends AbstractEntity {
     try {
       /** send  */
       const title="Buy Now"
-      const content = `Your NFT has been purchased by a user using the ‘Buy Now’ function. Please visit <link> to see more details.`
+      const content = `Your NFT has been purchased by a user using the ‘Buy Now’ function. Please visit ${this.urlLink} to see more details.`
 
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
@@ -138,7 +139,7 @@ export class mailHelper extends AbstractEntity {
     try {
       /** send  */
       const title="Collection Offer"
-      const content = `You have received an offer for your NFT on the ARC NFT Marketplace! Please visit <link> to view the offer.`
+      const content = `You have received an offer for your NFT on the ARC NFT Marketplace! Please visit ${this.urlLink} to view the offer.`
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
         from: this.senderEmail,
@@ -169,7 +170,7 @@ export class mailHelper extends AbstractEntity {
         const trf = nodemailer.createTransport(this.emailConfig);
         if (buyerEmail && buyerEmail.email) {
           const title="Collection Offer Rejected"
-          const content = `Your collection offer has been rejected. Go to <link> to place another offer.        `
+          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `
     
           let mailOptions = {
             from: this.senderEmail,
@@ -182,7 +183,7 @@ export class mailHelper extends AbstractEntity {
 
         if (sellerEmail && sellerEmail.email) {
           const title="Collection Offer Rejected"
-          const content = `Your collection offer has been rejected. Go to <link> to place another offer.        `
+          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `
     
           let mailOptions = {
             from: this.senderEmail,
