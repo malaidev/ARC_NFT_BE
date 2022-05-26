@@ -1,135 +1,240 @@
 <html>
+
 <head>
-<title>${title}</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<style type="text/css" media="screen"> 
-    
+    <title>${title}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <style type="text/css" media="screen">
         body {
-            background-color:#00152b;
-            text-align:center;
-            color: #ffffff;
+            background-color: #FFF;
+            text-align: center;
+            color: #000;
         }
-     
+
         #layout {
-          
-            background:#00152b;
+
+            background: #fff;
+            ;
             margin: 10px auto;
-            text-align:left;
+            text-align: left;
         }
-       
+
         #header {
-			background-repeat:no-repeat;
+            background-repeat: no-repeat;
             width: 600px;
-			height: 101px;
-            /*@editable*/ padding: 0px;
+            height: 101px;
+            /*@editable*/
+            padding: 0px;
         }
-       
+
         #content {
-            /*@editable*/ font-size: 12px;
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ font-style: normal;
-            /*@editable*/ font-weight: normal;
-            /*@editable*/ font-family: Helvetica;
-            /*@editable*/ line-height: 17px;
-            /*@editable*/ padding: 10px 10px 10px 10px;
-			  vertical-align: top;
+            /*@editable*/
+            font-size: 12px;
+            /*@editable*/
+            color: #000;
+            /*@editable*/
+            font-style: normal;
+            /*@editable*/
+            font-weight: normal;
+            /*@editable*/
+            font-family: Helvetica;
+            /*@editable*/
+            line-height: 17px;
+            /*@editable*/
+            padding: 10px 10px 10px 10px;
+            vertical-align: top;
         }
-		#content p {
-			width: 500px;
-			font: Helvetica;
-			font-size:11px;
-		}
-        
+
+        #content p {
+            width: 500px;
+            font: Helvetica;
+            font-size: 11px;
+        }
+
         .primary-heading {
-            /*@editable*/ font-size: 16px;
-            /*@editable*/ font-weight: bold;
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ font-family: Helvetica;
-            /*@editable*/ margin: 25px 0 0 0;
+            /*@editable*/
+            font-size: 14px;
+            /*@editable*/
+            font-weight: bold;
+            /*@editable*/
+            color: #000;
+            /*@editable*/
+            font-family: Helvetica;
+            /*@editable*/
+            margin: 25px 0 0 0;
         }
-        
+
         .secondary-heading {
-            /*@editable*/ font-size: 13px;
+            /*@editable*/
+            font-size: 13px;
             /*@editable font-weight: bold;*/
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ font-style: normal;
-            /*@editable*/ font-family: Helvetica;
-            /*@editable*/ margin: 25px 0 5px 0;
+            /*@editable*/
+            color: #000;
+            /*@editable*/
+            font-style: normal;
+            /*@editable*/
+            font-family: Helvetica;
+            /*@editable*/
+            margin: 25px 0 5px 0;
         }
-		.address {
-			color:#ffffff;
-			font-family:Helvetica;
-			font-size:9px;
-			margin-bottom:0;
-			margin-left:auto;
-			margin-right:auto;
-			margin-top:0;
-			padding-bottom:0;
-			padding-top:0px;
-                                text-align:center;
-		}
-		.address a {
-			color:#8e8c88;
-			text-decoration:none;
-		}
-		.address span {
-			color:#FFF;
-		}
-        
+
+        .address {
+            color: #000;
+            ;
+            font-family: Helvetica;
+            font-size: 9px;
+            margin-bottom: 0;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 0;
+            padding-bottom: 0;
+            padding-top: 0px;
+            text-align: center;
+        }
+
+        .address a {
+            color: #8e8c88;
+            text-decoration: none;
+        }
+
+        .address span {
+            color: #FFF;
+        }
+
         #footer {
-			/*border-right:thin #00467f solid;*/
-			
-			width: 600px;
-			height:70px;
+            /*border-right:thin #00467f solid;*/
+
+            width: 600px;
+            height: 70px;
             padding: 20px 20px 0 20px;
-            /*@editable*/ font-size: 10px;
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ line-height: 100%;
-            /*@editable*/ font-family: Helvetica;
-			text-align:center;
+            /*@editable*/
+            font-size: 10px;
+            /*@editable*/
+            color: #000;
+            /*@editable*/
+            line-height: 100%;
+            /*@editable*/
+            font-family: Helvetica;
+            text-align: center;
         }
-       
+
         #footer a {
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ text-decoration: none;
-            /*@editable*/ font-weight: normal;
-			text-align:center;
+            /*@editable*/
+            color: #ffffff;
+            /*@editable*/
+            text-decoration: none;
+            /*@editable*/
+            font-weight: normal;
+            text-align: center;
         }
+
         #footer a:hover {
-            /*@editable*/ color: #ffffff;
-            /*@editable*/ text-decoration: underline;
-            /*@editable*/ font-weight: normal;
-			text-align:center;
+            /*@editable*/
+            color: #ffffff;
+            /*@editable*/
+            text-decoration: underline;
+            /*@editable*/
+            font-weight: normal;
+            text-align: center;
         }
-       
-</style>
+    </style>
 </head>
-<body bgcolor="#FFFFFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
-<table id="layout" border="0" cellspacing="0" cellpadding="0" width="600">
-	<tr>
-		<td>
-			<img src="https://d396f6yqtfj97a.cloudfront.net/static/arc_word.png"  height="99" alt=""></td>
-	</tr>
-	<tr>
-		<td width="523" style="vertical-align:top;" id="content">
-			<h1 mc:edit="heading" class="primary-heading">ARC makes the entire crypto market available from the palm of your hand. We're redefining the status quo by refining all of DeFi. Unplug from institutional finance as we empower users to achieve true financial freedom, returning 50% of revenue to $ARC token holders.</h1>
-            <h2 mc:edit="subheading" class="secondary-heading">Dear valued ARC user,</h2>
-			<p>
-				<div mc:edit="content">
+
+<body bgcolor="#ffffff" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+    <table id="layout" border="0" cellspacing="0" cellpadding="0" width="600">
+        <tr>
+            <td>
+                <img src="https://d396f6yqtfj97a.cloudfront.net/static/black.png" height="99" alt="">
+            </td>
+        </tr>
+        <tr>
+            <td width="523" style="vertical-align:top;" id="content">
+                <h1 mc:edit="heading" class="primary-heading">ARC makes the entire crypto market available from the palm
+                    of your hand. We're redefining the status quo by refining all of DeFi. Unplug from institutional
+                    finance as we empower users to achieve true financial freedom, returning 50% of revenue to $ARC
+                    token holders.</h1>
+                <h2 mc:edit="subheading" class="secondary-heading">Dear valued ARC user,</h2>
+                <p>
+                <div mc:edit="content">
                     ${content}
-				</div>
-			</p>
-			</td>
-	</tr>
-	<tr>
-		<td colspan="2" id="footer" mc:edit="footer">
-            <p>This message and any attachment is intended for the use of the person to whom it is addressed and contains information that is confidential. If you are not the intended recipient, or the employee or agent responsible for its delivery to the intended recipient, you are hereby notified that any dissemination, distribution or copying of it is strictly prohibited.
-            </p>
-						<h3 class="address" style="margin-bottom:0px;padding-bottom:0px; vertical-align:bottom;"> <span class="address"> | </span>  <span class="address"> | </span>    <span class="address"> | </span>    <span class="address"> | </span>  <a style="color:#00467f; font-weight:bold;" href="https://arc.market">arc.market</a></h3>
-			<!-- <p><a href="*|ARCHIVE|*" class="adminText">view email in browser</a> | <a href="*|UNSUB|*">Unsubscribe</a> | <a href="*|UPDATE_PROFILE|*">Update your profile</a> | <a href="*|FORWARD|*">Forward to a friend</a></p>  -->
-            <p>Copyright (C) 2022</p><br />
-			</td>
-	</tr>
-</table>
+                </div>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table cellpadding="0" cellspacing="0"
+                    style="color:rgb(0,0,0);font-family:&quot;Times New Roman&quot;;font-size:medium">
+                    <tbody style="margin:0px;padding:0px;width:600px">
+                        <tr style="margin:0px;padding:0px">
+                            <td style="padding:0px 0px 0px 10px;width:45px"><img
+                                    src="https://d396f6yqtfj97a.cloudfront.net/static/arc-logo.png" alt="Arc"
+                                    style="margin:0px 20px 0px 0px;padding:0px;width:45px" class="CToWUd">
+                            </td>
+                            <td width="90%" style="padding:0px">
+                                <h1
+                                    style="margin:0px;padding:0px;font-family:proxima-nova,sans-serif;font-size:20px;line-height:25px;color:rgb(0,0,0)">
+                                    ARC Team</h1>
+                                <div><span
+                                        style="color:rgb(0,0,0);font-family:proxima-nova,sans-serif;font-size:14px;margin-top: 10px;">NFT
+                                        Marketplace</span><br></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" id="footer" mc:edit="footer">
+                <p>This message and any attachment is intended for the use of the person to whom it is addressed and
+                    contains information that is confidential. If you are not the intended recipient, or the employee or
+                    agent responsible for its delivery to the intended recipient, you are hereby notified that any
+                    dissemination, distribution or copying of it is strictly prohibited.
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table cellpadding="0" cellspacing="0"
+                    style="color:rgb(0,0,0);font-family:&quot;Times New Roman&quot;;font-size:medium;margin:10px 0px 0px;padding:0px;border-collapse:collapse;border-spacing:0px">
+                    <tbody style="margin:0px;padding:0px">
+                        <tr style="margin:0px;padding:0px">
+                            <td style="padding:0px 0px 0px 10px;width:70px">
+                                <p
+                                    style="margin:0px 10px 0px 0px;padding:0px;font-family:proxima-nova,sans-serif;font-weight:lighter;font-size:12px;line-height:15px">
+                                    Audited by</p>
+                            </td>
+                            <td style="padding:0px;width:50px"><img
+                                    src="https://d396f6yqtfj97a.cloudfront.net/static/cyber-unit.png" alt="auditor"
+                                    style="margin:0px;padding:0px;width:50px" class="CToWUd"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table cellpadding="0" cellspacing="0"
+                    style="color:rgb(0,0,0);font-family:&quot;Times New Roman&quot;;font-size:medium;margin:10px 0px 0px;padding:0px;border-collapse:collapse;border-spacing:0px;border:none">
+                    <tbody>
+                        <tr style="margin:0px;padding:0px;background-color:rgb(37,37,42)">
+                            <td style="padding:0px;max-width:107px"><a href="http://arc.market/"
+                                    style="margin:0px;padding:0px" target="_blank"
+                                    data-saferedirecturl="https://arc.market/&amp;source=gmail&amp;ust=1653629040670000&amp;usg=AOvVaw3r-ZMgx08W17qKX986bLn9"><img
+                                        src="https://d396f6yqtfj97a.cloudfront.net/static/social01.png" alt="website"
+                                        style="margin:0px;padding:0px;width:107px" class="CToWUd"></a>
+                            </td>
+                            <td style="padding:0px;max-width:493px"><a href="https://twitter.com/DeFi_ARC"
+                                    style="margin:0px;padding:0px" target="_blank"
+                                    data-saferedirecturl="https://twitter.com/DeFi_ARC&amp;source=gmail&amp;ust=1653629040670000&amp;usg=AOvVaw0k51f98A-jQBf_k5cjsVFl"><img
+                                        src="https://d396f6yqtfj97a.cloudfront.net/static/social02.png" alt="twitter"
+                                        style="margin:0px;padding:0px;width:493px" class="CToWUd"></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
+
 </html>
