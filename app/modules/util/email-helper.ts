@@ -8,7 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { respond } from "./respond";
 
 const nodemailer = require("nodemailer");
- 
+
 export class mailHelper extends AbstractEntity {
   protected collectiontable: string = "NFTCollection";
   protected nftTable: string = "NFT";
@@ -24,109 +24,103 @@ export class mailHelper extends AbstractEntity {
     },
   };
   protected senderEmail: string = "noreply@arc.market";
-  protected urlLink:string=` <a href="https://nft.arc.market/" target="_blank" rel="noopener noreferrer">ARC Market</a>`
-  async MakeOfferEmail(data:IActivity): Promise<void | IResponse> {
+  protected urlLink: string = ` <a href="https://nft.arc.market/" target="_blank" rel="noopener noreferrer">ARC Market</a>`;
+  async MakeOfferEmail(data: IActivity): Promise<void | IResponse> {
     try {
-        if (this.mongodb) {
-          const activityTable = this.mongodb.collection(this.activityTable);
-          const nftTable = this.mongodb.collection(this.nftTable);
-          const person = this.mongodb.collection(this.ownerTable);
-          const nft = (await nftTable.findOne({ index: data.nftId })) as INFT;
-          const buyerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
-          const sellerEmail = (await person.findOne({ wallet: data.to })) as IPerson;
-          /** send  */
-          const trf = nodemailer.createTransport(this.emailConfig);
-          if (buyerEmail && buyerEmail.email) {
-            const title="Make Offer"
-            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`
-            let mailOptions = {
-              from: this.senderEmail,
-              to: buyerEmail.email,
-                subject:title,
-                html: this.emailContent(title,content),
-            };
-            trf.sendMail(mailOptions, (error, info) => {});
-          }
-  
-          if (sellerEmail && sellerEmail.email) {
-
-            const title="Make Offer"
-            const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`
-            let mailOptions = {
-              from: this.senderEmail,
-              to: sellerEmail.email,
-              subject:title,
-              html:this.emailContent(title,content) ,
-            };
-            trf.sendMail(mailOptions, (error, info) => {});
-          }
-        } else {
-          throw new Error("Could not connect to the database.");
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.activityTable);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const person = this.mongodb.collection(this.ownerTable);
+        const nft = (await nftTable.findOne({ index: data.nftId })) as INFT;
+        const buyerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
+        const sellerEmail = (await person.findOne({ wallet: data.to })) as IPerson;
+        /** send  */
+        const trf = nodemailer.createTransport(this.emailConfig);
+        if (buyerEmail && buyerEmail.email) {
+          const title = "Make Offer";
+          const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`;
+          let mailOptions = {
+            from: this.senderEmail,
+            to: buyerEmail.email,
+            subject: title,
+            html: this.emailContent(title, content),
+          };
+          trf.sendMail(mailOptions, (error, info) => {});
         }
-      } catch (error) {
-        console.log(error);
-        return respond(error.message, true, 403);
-      }
-    
 
+        if (sellerEmail && sellerEmail.email) {
+          const title = "Make Offer";
+          const content = `You have received an offer for your NFT listed on the ARC NFT Marketplace. Please visit ${this.urlLink} to see more details.`;
+          let mailOptions = {
+            from: this.senderEmail,
+            to: sellerEmail.email,
+            subject: title,
+            html: this.emailContent(title, content),
+          };
+          trf.sendMail(mailOptions, (error, info) => {});
+        }
+      } else {
+        throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      console.log(error);
+      return respond(error.message, true, 403);
+    }
   }
-  async AcceptOfferEmail(data:IActivity): Promise<void | IResponse> {
+  async AcceptOfferEmail(data: IActivity): Promise<void | IResponse> {
     try {
-        if (this.mongodb) {
-          const activityTable = this.mongodb.collection(this.activityTable);
-          const nftTable = this.mongodb.collection(this.nftTable);
-          const person = this.mongodb.collection(this.ownerTable);
-  
-          const nft = (await nftTable.findOne({ index: data.nftId })) as INFT;
-          const buyerEmail = (await person.findOne({ wallet: data.to })) as IPerson;
-          const sellerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
-            
-          /** send  */
-          const trf = nodemailer.createTransport(this.emailConfig);
-          if (buyerEmail && buyerEmail.email) {
-            const title="Collection offer received"
-            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`
-            let mailOptions = {
-              from: this.senderEmail,
-              to: buyerEmail.email,
-              subject: title,
-              html: this.emailContent(title,content),
-            };
-            trf.sendMail(mailOptions, (error, info) => {});
-          }
-  
-          if (sellerEmail && sellerEmail.email) {
-            const title="Collection offer receive"
-            const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`
-            let mailOptions = {
-              from: this.senderEmail,
-              to: sellerEmail.email,
-              subject: title,
-              html: this.emailContent(title,content),
-            };
-            trf.sendMail(mailOptions, (error, info) => {});
-          }
-        } 
-        return
-      } catch (error) {
-        
-        return;
-      }
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.activityTable);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const person = this.mongodb.collection(this.ownerTable);
 
-   
+        const nft = (await nftTable.findOne({ index: data.nftId })) as INFT;
+        const buyerEmail = (await person.findOne({ wallet: data.to })) as IPerson;
+        const sellerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
+
+        /** send  */
+        const trf = nodemailer.createTransport(this.emailConfig);
+        if (buyerEmail && buyerEmail.email) {
+          const title = "Collection offer received";
+          const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`;
+          let mailOptions = {
+            from: this.senderEmail,
+            to: buyerEmail.email,
+            subject: title,
+            html: this.emailContent(title, content),
+          };
+          trf.sendMail(mailOptions, (error, info) => {});
+        }
+
+        if (sellerEmail && sellerEmail.email) {
+          const title = "Collection offer receive";
+          const content = `Your offer for an NFT on the ARC NFT Marketplace has been accepted! Visit ${this.urlLink} to view your new NFT!`;
+          let mailOptions = {
+            from: this.senderEmail,
+            to: sellerEmail.email,
+            subject: title,
+            html: this.emailContent(title, content),
+          };
+          trf.sendMail(mailOptions, (error, info) => {});
+        }
+      }
+      return;
+    } catch (error) {
+      return;
+    }
   }
   async BuyNow(data: any, person: IPerson): Promise<void | IResponse> {
     try {
       /** send  */
-      const title="Buy Now"
-      const content = `Your NFT has been purchased by a user using the ‘Buy Now’ function. Please visit ${this.urlLink} to see more details.`
+      const title = "Buy Now";
+      const content = `<p> Your  <span style="font-weight:bold;color:#5692df">  NFT been purchased</span> by a user using the <strong>'Buy Now'</strong> function. </p>Please visit ${this.urlLink} to see more details.`;
 
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
         from: this.senderEmail,
         to: person.email,
-        subject:  title,
-        html: this.emailContent(title,content)
+        subject: title,
+        html: this.emailContent(title, content),
       };
       trf.sendMail(mailOptions, (error, info) => {});
     } catch (error) {
@@ -138,21 +132,21 @@ export class mailHelper extends AbstractEntity {
   async CollectionOffer(data: any, person: IPerson): Promise<void | IResponse> {
     try {
       /** send  */
-      const title="Collection Offer"
-      const content = `You have received an offer for your NFT on the ARC NFT Marketplace! Please visit ${this.urlLink} to view the offer.`
+      const title = "Collection Offer";
+      const content = `You have received an offer for your NFT on the ARC NFT Marketplace! Please visit ${this.urlLink} to view the offer.`;
       const trf = nodemailer.createTransport(this.emailConfig);
       let mailOptions = {
         from: this.senderEmail,
         to: person.email,
         subject: title,
-        html: this.emailContent(title,content),
+        html: this.emailContent(title, content),
       };
       trf.sendMail(mailOptions, (error, info) => {});
     } catch (error) {
       console.log(error);
       return respond(error.message, true, 403);
     }
-  };
+  }
 
   async CancelOfferEmail(data: IActivity): Promise<void | IResponse> {
     try {
@@ -166,34 +160,32 @@ export class mailHelper extends AbstractEntity {
         const sellerEmail = (await person.findOne({ wallet: data.from })) as IPerson;
 
         /** send  */
-       
+
         const trf = nodemailer.createTransport(this.emailConfig);
         if (buyerEmail && buyerEmail.email) {
-          const title="Collection Offer Rejected"
-          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `
-    
+          const title = "Collection Offer Rejected";
+          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `;
+
           let mailOptions = {
             from: this.senderEmail,
             to: buyerEmail.email,
-            subject:title,
-            html: this.emailContent(title,content),
+            subject: title,
+            html: this.emailContent(title, content),
           };
           trf.sendMail(mailOptions, (error, info) => {});
         }
 
         if (sellerEmail && sellerEmail.email) {
-          const title="Collection Offer Rejected"
-          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `
-    
+          const title = "Collection Offer Rejected";
+          const content = `Your collection offer has been rejected. Go to ${this.urlLink} to place another offer.        `;
+
           let mailOptions = {
             from: this.senderEmail,
             to: sellerEmail.email,
-            subject:title,
-            html: this.emailContent(title,content),
+            subject: title,
+            html: this.emailContent(title, content),
           };
-          trf.sendMail(mailOptions, (error, info) => {
-            
-          });
+          trf.sendMail(mailOptions, (error, info) => {});
         }
       } else {
         throw new Error("Could not connect to the database.");
@@ -202,20 +194,18 @@ export class mailHelper extends AbstractEntity {
       console.log(error);
       return respond(error.message, true, 403);
     }
-  };
+  }
 
-
-private  emailContent(title:string,content:string){
-  return `<html>
+  private emailContent(title: string, content: string) {
+    return `<html>
   <head>
   <title>${title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  
   <style type="text/css" media="screen">
   body {
       background-color: #FFF;
       text-align: center;
-      color: #000;
+      color: #767272;
   }
 
   #layout {
@@ -236,9 +226,9 @@ private  emailContent(title:string,content:string){
 
   #content {
       /*@editable*/
-      font-size: 12px;
+      font-size: 13px;
       /*@editable*/
-      color: #000;
+      color: #767272;
       /*@editable*/
       font-style: normal;
       /*@editable*/
@@ -255,19 +245,16 @@ private  emailContent(title:string,content:string){
   #content p {
       width: 500px;
       font: Helvetica;
-      font-size: 11px;
+      margin-bottom: 10px;
   }
 
   .primary-heading {
       /*@editable*/
-      font-size: 14px;
-      /*@editable*/
-      font-weight: bold;
-      /*@editable*/
+      font-size: 11px;
       color: #000;
-      /*@editable*/
+      font-weight: normal;
       font-family: Helvetica;
-      /*@editable*/
+      text-align: justify;
       margin: 25px 0 0 0;
   }
 
@@ -276,7 +263,7 @@ private  emailContent(title:string,content:string){
       font-size: 13px;
       /*@editable font-weight: bold;*/
       /*@editable*/
-      color: #000;
+      color: #767272;
       /*@editable*/
       font-style: normal;
       /*@editable*/
@@ -286,7 +273,7 @@ private  emailContent(title:string,content:string){
   }
 
   .address {
-      color: #000;
+      color: #767272;
       ;
       font-family: Helvetica;
       font-size: 9px;
@@ -317,7 +304,7 @@ private  emailContent(title:string,content:string){
       /*@editable*/
       font-size: 10px;
       /*@editable*/
-      color: #000;
+      color: #767272;
       /*@editable*/
       line-height: 100%;
       /*@editable*/
@@ -336,11 +323,8 @@ private  emailContent(title:string,content:string){
   }
 
   #footer a:hover {
-      /*@editable*/
       color: #ffffff;
-      /*@editable*/
       text-decoration: underline;
-      /*@editable*/
       font-weight: normal;
       text-align: center;
   }
@@ -362,7 +346,7 @@ private  emailContent(title:string,content:string){
                     of your hand. We're redefining the status quo by refining all of DeFi. Unplug from institutional
                     finance as we empower users to achieve true financial freedom, returning 50% of revenue to $ARC
                     token holders.</h1>
-                <h2 mc:edit="subheading" class="secondary-heading">Dear valued ARC user,</h2>
+                <h2 mc:edit="subheading" class="secondary-heading">Congratulations ARC user,</h2>
                 <p>
                 <div mc:edit="content">
                     ${content}
@@ -447,6 +431,6 @@ private  emailContent(title:string,content:string){
     </table>
 </body>
 
-  </html>`
-}
+  </html>`;
+  }
 }

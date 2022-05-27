@@ -7,7 +7,7 @@
         body {
             background-color: #FFF;
             text-align: center;
-            color: #000;
+            color: #767272;
         }
 
         #layout {
@@ -28,9 +28,9 @@
 
         #content {
             /*@editable*/
-            font-size: 12px;
+            font-size: 13px;
             /*@editable*/
-            color: #000;
+            color: #767272;
             /*@editable*/
             font-style: normal;
             /*@editable*/
@@ -47,19 +47,16 @@
         #content p {
             width: 500px;
             font: Helvetica;
-            font-size: 11px;
+            margin-bottom: 10px;
         }
 
         .primary-heading {
             /*@editable*/
-            font-size: 14px;
-            /*@editable*/
-            font-weight: bold;
-            /*@editable*/
+            font-size: 11px;
             color: #000;
-            /*@editable*/
+            font-weight: normal;
             font-family: Helvetica;
-            /*@editable*/
+            text-align: justify;
             margin: 25px 0 0 0;
         }
 
@@ -68,7 +65,7 @@
             font-size: 13px;
             /*@editable font-weight: bold;*/
             /*@editable*/
-            color: #000;
+            color: #767272;
             /*@editable*/
             font-style: normal;
             /*@editable*/
@@ -78,7 +75,7 @@
         }
 
         .address {
-            color: #000;
+            color: #767272;
             ;
             font-family: Helvetica;
             font-size: 9px;
@@ -109,7 +106,7 @@
             /*@editable*/
             font-size: 10px;
             /*@editable*/
-            color: #000;
+            color: #767272;
             /*@editable*/
             line-height: 100%;
             /*@editable*/
@@ -128,11 +125,8 @@
         }
 
         #footer a:hover {
-            /*@editable*/
             color: #ffffff;
-            /*@editable*/
             text-decoration: underline;
-            /*@editable*/
             font-weight: normal;
             text-align: center;
         }
@@ -152,12 +146,19 @@
                     of your hand. We're redefining the status quo by refining all of DeFi. Unplug from institutional
                     finance as we empower users to achieve true financial freedom, returning 50% of revenue to $ARC
                     token holders.</h1>
-                <h2 mc:edit="subheading" class="secondary-heading">Dear valued ARC user,</h2>
+                <h2 mc:edit="subheading" class="secondary-heading">Congratulation ARC User,</h2>
                 <p>
                 <div mc:edit="content">
-                    ${content}
+                    
+                    <!-- ${content} -->
+
+                    <p> Your  <span style="font-weight:bold;color:#5692df">  NFT been purchased</span> by a user using the <strong>'Buy Now'</strong> function. </p>Please visit ${this.urlLink} to see more details.
+
+
                 </div>
                 </p>
+                <br/>
+                <br/>
             </td>
         </tr>
         <tr>
@@ -236,5 +237,4 @@
         </tr>
     </table>
 </body>
-
 </html>

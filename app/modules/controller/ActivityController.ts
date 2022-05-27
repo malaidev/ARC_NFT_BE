@@ -519,10 +519,6 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  
-
-
-
   async listForSaleBatch(
     batchId:string,
     seller: string,
