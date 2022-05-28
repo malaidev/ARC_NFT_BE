@@ -75,7 +75,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string,fee?:number) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -113,8 +113,8 @@ export class ActivityController extends AbstractEntity {
             date: status_date,
             from: seller,
             price: prc,
-            fee:fee,
             to: buyer,
+            fee: nft.fee??0,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
@@ -680,7 +680,7 @@ export class ActivityController extends AbstractEntity {
             startDate: startDate,
             endDate: endDate,
             from: seller,
-            fee: 0,
+            fee: nft.fee??0,
             nonce,
             signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
