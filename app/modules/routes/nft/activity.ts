@@ -101,11 +101,11 @@ export const approveOffer = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { collectionId, nftId, seller, buyer,price } = req.body as any;
+  const { collectionId, nftId, seller, buyer,price,fee } = req.body as any;
   const ctl = new ActivityController();
   const userSession = req["session"] as any;
   const loginUser =  userSession?.walletId.toLowerCase();
-  const result = await ctl.transfer(collectionId, nftId, seller, buyer, price,loginUser?? "");
+  const result = await ctl.transfer(collectionId, nftId, seller, buyer, price,loginUser?? "",fee??0);
   res.send(result);
   res.send(result);
 };

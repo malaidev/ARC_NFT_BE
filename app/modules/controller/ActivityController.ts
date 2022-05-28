@@ -75,7 +75,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string,fee?:number) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -113,6 +113,7 @@ export class ActivityController extends AbstractEntity {
             date: status_date,
             from: seller,
             price: prc,
+            fee:fee,
             to: buyer,
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
