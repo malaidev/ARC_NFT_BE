@@ -128,13 +128,35 @@ export class ActivityController extends AbstractEntity {
             {
               collection: collectionId,
               active: true,
-              from: seller,
-              to: buyer,
-              price: prc,
+              // from: seller,
+              nftId:index,
+              // to: buyer,
+              // price: prc,
               $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
             },
             { $set: { active: false } }
           );
+          
+          const cancelOffer = await activityTable.find({
+            collection:collectionId,
+            active:true,
+            nftId:index,
+            $or: [{ type: ActivityType.OFFER }, { type: ActivityType.OFFERCOLLECTION }],
+          }).toArray()
+          await Promise.all(
+            cancelOffer.map(async (item) => {
+                await activityTable.updateOne({_id:new ObjectId(item._id)}, { $set: { active: false }});
+                await activityTable.insertOne({
+                  collection: item.collection,
+                  nftId: item.nftId,
+                  type: ActivityType.CANCELOFFER,
+                  price: item.prc,
+                  date: new Date().getTime(),
+                  from: item.from,
+                  to: item.to,
+                });
+            }))
+
           const result = await activityTable.insertOne(transfer);
           /** SEND EMAIL */
           const ownerData = (await personTable.findOne({ wallet: seller.toLowerCase() })) as IPerson;
