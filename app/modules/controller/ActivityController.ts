@@ -115,6 +115,7 @@ export class ActivityController extends AbstractEntity {
             price: prc,
             to: buyer,
             fee: nft.fee??0,
+            netPrice:this.calculateFee(prc,nft.fee)?.netPrice
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
@@ -242,6 +243,8 @@ export class ActivityController extends AbstractEntity {
                     date: new Date().getTime(),
                     from: item.from,
                     to: item.to,
+                    netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+                    fee:nft.fee
                   });
                   collData.volume = vol + prc;
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
@@ -316,6 +319,8 @@ export class ActivityController extends AbstractEntity {
               to: buyer,
               price: prc,
               active: true,
+              netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+              fee:nft.fee
             });
 
             const email = new mailHelper();
@@ -960,5 +965,28 @@ export class ActivityController extends AbstractEntity {
       collection: collectionId,
       index,
     };
+  }
+  private calculateFee(price:number=0, fee:number=0){
+
+    // typeof offer.price == "string" ? (prc = +offer.price) : (prc = offer.price);
+
+    
+    let ARCFee=price*(1/100);
+    let royaltiFee=price*(fee/100);
+    let totalFee= royaltiFee+ARCFee
+    let netPrice=price-totalFee;
+
+    
+
+    return {
+      netPrice,
+      royaltiFee,
+      totalFee,
+      ARCFee
+      
+    }
+
+
+    
   }
 }
