@@ -69,6 +69,7 @@ const config = {
             ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
+            creatorEarning:{type:"number"}
           },
         },
         properties: {

@@ -29,3 +29,4 @@ export enum OfferStatusType {
   CANCELED = <any>"CANCELED",
   NONE = <any>"NONE",
 }
+ 
