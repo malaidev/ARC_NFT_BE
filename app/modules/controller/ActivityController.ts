@@ -401,6 +401,9 @@ export class ActivityController extends AbstractEntity {
             to: seller,
             nonce,
             batchId:nft.batchId,
+            fee: nft.fee??0,
+            netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+
             active: true,
           };
           const result = await activityTable.insertOne(offer);
@@ -510,6 +513,8 @@ export class ActivityController extends AbstractEntity {
                 batchId:item.batchId,
                 active: true,
                 offerCollection: collId,
+                fee: item.fee??0,
+                netPrice:this.calculateFee(prc,item.fee)?.netPrice,
               };
               const rOffer = await activityTable.insertOne(collOffer);
               return item;
@@ -686,6 +691,7 @@ export class ActivityController extends AbstractEntity {
             endDate: endDate,
             from: seller,
             fee: nft.fee??0,
+            netPrice:this.calculateFee(price,nft.fee)?.netPrice,
             nonce,
             signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
