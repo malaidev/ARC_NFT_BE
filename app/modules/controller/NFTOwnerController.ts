@@ -306,7 +306,7 @@ export class NFTOwnerController extends AbstractEntity {
               }
               return {
                 ...item,
-                nft: { artURI: nfts?.artURI, name: nfts?.name },
+                nft: { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 collection: { ...coll },
               };
             })
