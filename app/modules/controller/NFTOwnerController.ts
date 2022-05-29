@@ -431,7 +431,7 @@ export class NFTOwnerController extends AbstractEntity {
                 // console.log(col);
                 item.collectionId = item.collection;
                 item.collection = col && col.contract?col.contract:null;
-                item.nft = { artURI: nfts?.artURI, name: nfts?.name };
+                item.nft = { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 rst.push(item)
               }
               return item;
