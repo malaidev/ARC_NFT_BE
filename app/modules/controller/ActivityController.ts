@@ -128,11 +128,9 @@ export class ActivityController extends AbstractEntity {
             {
               collection: collectionId,
               active: true,
-              // from: seller,
               nftId:index,
-              // to: buyer,
-              // price: prc,
-              $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+              type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
+              
             },
             { $set: { active: false } }
           );
@@ -271,7 +269,8 @@ export class ActivityController extends AbstractEntity {
                 // from: seller,
                 // to: buyer,
                 // price: prc,
-                $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFERCOLLECTION }],
+                type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
+                
               },
               { $set: { active: false } }
             );
@@ -299,7 +298,8 @@ export class ActivityController extends AbstractEntity {
                 collection: collectionId,
                 active: true,
                 nftId:offer.nftId,
-                $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
+                type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
+                
               },
               { $set: { active: false } }
             );
