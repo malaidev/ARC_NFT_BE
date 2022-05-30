@@ -109,9 +109,9 @@ export class ActivityController extends AbstractEntity {
             nftId: index,
             type: ActivityType.TRANSFER,
             date: status_date,
-            from: seller,
+            from: seller?.toLowerCase(),
             price: prc,
-            to: buyer,
+            to: buyer?.toLowerCase(),
             fee: nft.fee??0,
             netPrice:this.calculateFee(prc,nft.fee)?.netPrice
           };
@@ -149,8 +149,8 @@ export class ActivityController extends AbstractEntity {
                   type: ActivityType.CANCELOFFER,
                   price: item.prc,
                   date: new Date().getTime(),
-                  from: item.from,
-                  to: item.to,
+                  from: item.from?.toLowerCase(),
+                  to: item.to?.toLowerCase(),
                 });
             }))
           const result = await activityTable.insertOne(transfer);
@@ -210,7 +210,7 @@ export class ActivityController extends AbstractEntity {
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.mintStatus = MintStatus.MINTED;
-            nft.owner = buyer;
+            nft.owner = buyer?.toLowerCase();
             nft.price = prc;
             nft.status_date = status_date;
             collData.offerStatus = OfferStatusType.NONE;
@@ -219,8 +219,8 @@ export class ActivityController extends AbstractEntity {
               nftId: index,
               type: ActivityType.SALE,
               date: status_date,
-              from: seller,
-              to: buyer,
+              from: seller?.toLowerCase(),
+              to: buyer?.toLowerCase(),
               active: true,
             };
             const actData = await activityTable
@@ -235,8 +235,8 @@ export class ActivityController extends AbstractEntity {
                     type: ActivityType.SALE,
                     price: prc,
                     date: new Date().getTime(),
-                    from: item.from,
-                    to: item.to,
+                    from: item.from?.toLowerCase(),
+                    to: item.to?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
                     fee:nft.fee
                   });
@@ -249,8 +249,8 @@ export class ActivityController extends AbstractEntity {
                     type: ActivityType.CANCELOFFER,
                     price: prc,
                     date: new Date().getTime(),
-                    from: item.from,
-                    to: item.to,
+                    from: item.from?.toLowerCase(),
+                    to: item.to?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
                     fee:nft.fee
                   });
@@ -284,7 +284,7 @@ export class ActivityController extends AbstractEntity {
             const status_date = new Date().getTime();
             nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.mintStatus = MintStatus.MINTED;
-            nft.owner = buyer;
+            nft.owner = buyer?.toLowerCase();
             nft.status_date = status_date;
             // nft.price=prc;
             nft.price = 0;
@@ -310,8 +310,8 @@ export class ActivityController extends AbstractEntity {
               nftId: offer.nftId,
               type: ActivityType.SALE,
               date: status_date,
-              from: seller,
-              to: buyer,
+              from: seller?.toLowerCase(),
+              to: buyer?.toLowerCase(),
               price: prc,
               active: true,
               netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
@@ -323,8 +323,8 @@ export class ActivityController extends AbstractEntity {
               nftId: offer.nftId,
               type: ActivityType.SALE,
               date: status_date,
-              from: seller,
-              to: buyer,
+              from: seller?.toLowerCase(),
+              to: buyer?.toLowerCase(),
               price: prc,
               netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
               fee:nft.fee,
@@ -389,8 +389,8 @@ export class ActivityController extends AbstractEntity {
             price: prc,
             startDate: new Date().getTime(),
             endDate: endDate,
-            from: buyer,
-            to: seller,
+            from: buyer?.toLowerCase(),
+            to: seller?.toLowerCase(),
             nonce,
             batchId:nft.batchId,
             fee: nft.fee??0,
@@ -476,8 +476,8 @@ export class ActivityController extends AbstractEntity {
             price: price,
             startDate: offerTime,
             endDate: endDate,
-            from: buyer,
-            to: seller,
+            from: buyer?.toLowerCase(),
+            to: seller?.toLowerCase(),
             nonce,
             active: true,
             offerCollection: collId,
@@ -497,8 +497,8 @@ export class ActivityController extends AbstractEntity {
                 price: prc,
                 startDate: offerTime,
                 endDate: endDate,
-                from: buyer,
-                to: item.owner,
+                from: buyer?.toLowerCase(),
+                to: item.owner?.toLowerCase(),
                 nonce,
                 batchId:item.batchId,
                 active: true,
@@ -539,6 +539,7 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -571,7 +572,7 @@ export class ActivityController extends AbstractEntity {
                   error_ret.push({
                     collectionId:result.collection,
                     nftId:item.index,
-                    seller:seller,
+                    seller:seller?.toLowerCase(),
                     price:item.price,
                     message:list.status
                   })
@@ -667,7 +668,7 @@ export class ActivityController extends AbstractEntity {
             price: price,
             startDate: startDate,
             endDate: endDate,
-            from: seller,
+            from: seller?.toLowerCase(),
             fee: nft.fee??0,
             netPrice:this.calculateFee(price,nft.fee)?.netPrice,
             nonce,
@@ -739,7 +740,7 @@ export class ActivityController extends AbstractEntity {
             type: ActivityType.CANCELLIST,
             price: activity.price,
             date: status_date,
-            from: activity.from,
+            from: activity.from?.toLowerCase(),
             fee: activity.fee,
           });
           return result ? respond("List for sale canceled") : respond("Failed to create a new activity.", true, 501);
@@ -791,8 +792,8 @@ export class ActivityController extends AbstractEntity {
             type: ActivityType.CANCELOFFER,
             price: activity.price,
             date: new Date().getTime(),
-            from: activity.from,
-            to: activity.to,
+            from: activity.from?.toLowerCase(),
+            to: activity.to?.toLowerCase(),
           });
           const email = new mailHelper();
           email.CancelOfferEmail(activity);
@@ -841,8 +842,8 @@ export class ActivityController extends AbstractEntity {
                 type: ActivityType.CANCELOFFER,
                 price: item.price,
                 date: new Date().getTime(),
-                from: item.from,
-                to: item.to,
+                from: item.from?.toLowerCase(),
+                to: item.to?.toLowerCase(),
               });
               return item;
             })
