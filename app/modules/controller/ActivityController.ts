@@ -29,7 +29,6 @@ export class ActivityController extends AbstractEntity {
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
-
         // const result = await table.aggregate(aggregation).toArray();
         if (aggregation && aggregation.filter) {
           aggregation.filter.push({from:loginUser})
@@ -98,7 +97,6 @@ export class ActivityController extends AbstractEntity {
           if (buyer.toLowerCase() !== loginUser) {
             return respond("You are not current user of this activity ", true, 422);
           }	
-
           if (nft.owner !== seller) {
             return respond("from wallet isnt nft's owner.", true, 422);
           }
@@ -138,7 +136,6 @@ export class ActivityController extends AbstractEntity {
             },
             { $set: { active: false } }
           );
-          
           const cancelOffer = await activityTable.find({
             collection:collectionId,
             active:true,
@@ -158,7 +155,6 @@ export class ActivityController extends AbstractEntity {
                   to: item.to,
                 });
             }))
-
           const result = await activityTable.insertOne(transfer);
           /** SEND EMAIL */
           const ownerData = (await personTable.findOne({ wallet: seller.toLowerCase() })) as IPerson;
@@ -257,6 +253,8 @@ export class ActivityController extends AbstractEntity {
                     date: new Date().getTime(),
                     from: item.from,
                     to: item.to,
+                    netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+                    fee:nft.fee
                   });
                 }
                 item.active = false;
@@ -269,18 +267,17 @@ export class ActivityController extends AbstractEntity {
               {
                 collection: collectionId,
                 active: true,
-                from: seller,
-                to: buyer,
-                price: prc,
+                nftId:index,
+                // from: seller,
+                // to: buyer,
+                // price: prc,
                 $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFERCOLLECTION }],
               },
               { $set: { active: false } }
             );
             const result = await activityTable.insertOne(saleActivity);
-
             const email = new mailHelper();
             email.AcceptOfferEmail(saleActivity);
-
             return result
               ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
               : respond("Failed to create a new activity.", true, 501);
@@ -301,9 +298,7 @@ export class ActivityController extends AbstractEntity {
               {
                 collection: collectionId,
                 active: true,
-                from: seller,
-                to: buyer,
-                price: prc,
+                nftId:offer.nftId,
                 $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
               },
               { $set: { active: false } }
@@ -322,7 +317,6 @@ export class ActivityController extends AbstractEntity {
               netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
               fee:nft.fee
             });
-
             const email = new mailHelper();
             email.AcceptOfferEmail({
               collection: offer.collection,
@@ -332,9 +326,10 @@ export class ActivityController extends AbstractEntity {
               from: seller,
               to: buyer,
               price: prc,
+              netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+              fee:nft.fee,
               active: true,
             });
-
             return result
               ? respond(`Successfully created a new sold with id ${activityId}`)
               : respond("Failed to create a new activity.", true, 501);
@@ -370,7 +365,6 @@ export class ActivityController extends AbstractEntity {
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
-
         if (buyer?.toLowerCase() !== loginUser) {
           return respond("this activity not belong to the login user", true, 422);
         }        
@@ -381,8 +375,6 @@ export class ActivityController extends AbstractEntity {
         const ownTable = this.mongodb.collection(this.ownerTable);
         const sortAct = await ownTable.findOne({ wallet: buyer.toLowerCase() });
         if (nft) {
-
-
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
           }
@@ -403,7 +395,6 @@ export class ActivityController extends AbstractEntity {
             batchId:nft.batchId,
             fee: nft.fee??0,
             netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-
             active: true,
           };
           const result = await activityTable.insertOne(offer);
@@ -416,7 +407,6 @@ export class ActivityController extends AbstractEntity {
             });
             findData.collectionId = findData.collection;
             findData.collection = collectionData.contract;
-
             const email = new mailHelper();
             email.MakeOfferEmail(offer);
             return respond({
@@ -563,7 +553,6 @@ export class ActivityController extends AbstractEntity {
     loginUser?:string
   ): Promise<IResponse> {
     try {
-
         let error_ret=[];
         let success_rst=[];
         // let validate_data=
@@ -577,7 +566,6 @@ export class ActivityController extends AbstractEntity {
             await ownTable.replaceOne({ wallet: seller.toLowerCase() }, sortAct);
             await Promise.all(
               result.forSale.map(async (item) => {
-                
                 const list=await this.listForSale(result.collection,item.index,seller,item.price,startDate,endDate,r,s,v,loginUser,batchId) 
                 if (list && !list.success){
                   error_ret.push({
@@ -590,15 +578,11 @@ export class ActivityController extends AbstractEntity {
                 }else{
                   success_rst.push(list.data)
                 }
-                
-                
               })
             );
-
             result.nonce=nonce;
             result.signature= { r: r??"", s: s??"", v: v??"" };
             await nftBatch.replaceOne({batchId:batchId}, result);
-
             return respond({
               error:error_ret,
               success:success_rst
@@ -606,17 +590,12 @@ export class ActivityController extends AbstractEntity {
           }else{
             return respond("batch  has not for sale items.", true, 422);
           }
-         
         };
-
         return respond("batch Items not found.", true, 422);
-        
-      
     } catch (error) {
       return respond(error.message, true, 500);
     }
   }
-  
   /**
    * 
    * @param collectionId 
@@ -645,7 +624,6 @@ export class ActivityController extends AbstractEntity {
     batchId?:string
   ): Promise<IResponse> {
     try {
-
       if (this.mongodb) {
         if (isNaN(Number(endDate))) {
           return respond("endDate should be unix timestamp", true, 422);
@@ -754,7 +732,6 @@ export class ActivityController extends AbstractEntity {
           nft.price=0;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
           activity.active = false;
-
           await activityTable.replaceOne(this.findActivtyWithId(activityId), activity);
           const result = await activityTable.insertOne({
             collection: activity.collection,
@@ -775,7 +752,6 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  
   async cancelOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string, loginUser: string) {
     try {
       if (this.mongodb) {
@@ -929,7 +905,6 @@ export class ActivityController extends AbstractEntity {
         if (!activityData) {
           return respond("Activity not found", true, 422);
         }
-         
         if (activityData?.from.toLowerCase() !== ownerId) {
           return respond("this activity not belong to the login user", true, 422);
         }
@@ -973,26 +948,16 @@ export class ActivityController extends AbstractEntity {
     };
   }
   private calculateFee(price:number=0, fee:number=0){
-
     // typeof offer.price == "string" ? (prc = +offer.price) : (prc = offer.price);
-
-    
     let ARCFee=price*(1/100);
     let royaltiFee=price*(fee/100);
     let totalFee= royaltiFee+ARCFee
     let netPrice=price-totalFee;
-
-    
-
     return {
       netPrice,
       royaltiFee,
       totalFee,
       ARCFee
-      
     }
-
-
-    
   }
 }
