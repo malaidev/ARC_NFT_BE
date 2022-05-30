@@ -10,6 +10,7 @@ import { INFTCollection } from "../interfaces/INFTCollection";
 import { S3uploadImageBase64 } from "../util/aws-s3-helper";
 import { ObjectId } from "mongodb";
 import { NFTCollectionController } from "./NFTCollectionController";
+import { NFTController } from "./NFTController";
 export class NFTOwnerController extends AbstractEntity {
   protected data: IPerson;
   protected table = "Person" as string;
@@ -147,6 +148,7 @@ export class NFTOwnerController extends AbstractEntity {
       username: username,
       email:email,
       optIn:optIn,
+      nonce:0, //set 0 as default value
       // nfts: [],
       // collections: []
       // created: [],
@@ -224,19 +226,46 @@ export class NFTOwnerController extends AbstractEntity {
   async getOwnerNtfs(ownerId: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
-        const collection = this.mongodb.collection(this.nftTable);
-        let aggregation = [] as any;
+        const nftTable = this.mongodb.collection(this.nftTable);
+        let aggregation = {} as any;
+        aggregation = this.parseFiltersFind(filters);
         const query = this.findOwnerNtfs(ownerId);
         let result;
-        if (filters && filters?.filters.length>0) {
-          aggregation = this.parseFilters(filters);
-          aggregation.push({ $match: { ...query } });
-          result = (await collection.aggregate(aggregation).toArray()) as Array<INFT>;
+        let count;
+
+        if (aggregation && aggregation.filter) {
+          count = await nftTable.find({...query,  $or: aggregation.filter }).count();
+          result = aggregation.sort
+            ? ((await nftTable
+                .find({...query,  $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>)
+            : ((await nftTable
+                .find({ ...query, $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
         } else {
-          result=(await collection.find(query).toArray()) as Array<INFT>;        
+          count = await nftTable.find({...query, }).count();
+          result = aggregation.sort
+            ? await nftTable.find({...query, }).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
+            : ((await nftTable.find({...query, }).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
         }
         if (result) {
-          return respond(result);
+          const ctl= new NFTController();
+          const rs = await ctl.resultItem(result,ownerId);
+          
+          let rst = {
+             success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: rs,
+          }
+          return rst;
         }
         return respond("Items not found.", true, 422);
       } else {
@@ -278,7 +307,7 @@ export class NFTOwnerController extends AbstractEntity {
               }
               return {
                 ...item,
-                nft: { artURI: nfts?.artURI, name: nfts?.name },
+                nft: { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 collection: { ...coll },
               };
             })
@@ -403,7 +432,7 @@ export class NFTOwnerController extends AbstractEntity {
                 // console.log(col);
                 item.collectionId = item.collection;
                 item.collection = col && col.contract?col.contract:null;
-                item.nft = { artURI: nfts?.artURI, name: nfts?.name };
+                item.nft = { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 rst.push(item)
               }
               return item;

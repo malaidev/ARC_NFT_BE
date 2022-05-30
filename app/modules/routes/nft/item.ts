@@ -4,13 +4,28 @@ import fs, { ReadStream } from "fs";
 
 import { NFTController } from "../../controller/NFTController";
 import { parseQueryUrl } from "../../util/parse-query-url";
+import { recaptchaVerification } from "../../util/recaptcha-helper";
+
 
 export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
-  const ctl = new NFTController();
-  const result = await ctl.getItemDetail(collectionId, nftId);
+  const user = req["session"] as any;
+  const owner = user && user.walletId?user.walletId.toLowerCase():null;
+  
+  const ctl = new NFTController();  
+  const result = await ctl.getItemDetail(collectionId, nftId, owner);
   res.send(result);
 };
+
+export const getItemSimple = async (req: FastifyRequest, res: FastifyReply) => {
+  const { blockchain, tokenId } = req.params as { blockchain: string; tokenId: number };
+    // const user = req["session"] as any;
+  // const owner = user && user.walletId?user.walletId.toLowerCase():null;  
+  const ctl = new NFTController();
+  const result = await ctl.getItemSimple(blockchain, tokenId,null);
+  res.send(result);
+};
+
 
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
@@ -28,12 +43,15 @@ export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
+  const user = req["session"] as any;
+  const owner = user && user.walletId?user.walletId.toLowerCase():null;
+  
   const filters = query ? parseQueryUrl(query) : null;
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
   const ctl = new NFTController();
-  const result = await ctl.getItems(filters);
+  const result = await ctl.getItems(filters,owner);
   res.send(result);
 };
 
@@ -65,6 +83,16 @@ export const getTrendingItems = async (req: FastifyRequest, res: FastifyReply) =
 };
 
 export const createItem = async (req, res) => {
+  
+
+
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  
+  
+
   if (req.body && !req.body.artFile) {
     throw new Error("artURI is invalid or missing");
   }
@@ -101,8 +129,28 @@ export const createItem = async (req, res) => {
   res.send(result);
 };
 
+
+export const getBatchItem = async(req,res)=>{
+
+  // const user = req["session"] as any;
+  const { batchId } = req.params as any;
+  //const owner = user.walletId.toLowerCase();
+  const ctl = new NFTController();
+  const result = await ctl.batchGet(batchId,null);
+  res.send(result);
+
+
+}
 export const batchUpload = async (req, res) => {
+
+  
   const { csvFile, collectionId, tokenType } = req.body;
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+
+
   if (!csvFile) {
     throw new Error("CSV is missing");
   }
@@ -111,6 +159,8 @@ export const batchUpload = async (req, res) => {
     if (err) {
       return res.send(err);
     }
+
+  
     const user = req["session"] as any;
     const owner = user.walletId.toLowerCase();
     const ctl = new NFTController();
@@ -133,6 +183,14 @@ export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
+
+
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  
+  
   const ctl = new NFTController();
   const { nftId } = req.params as any;
   const userSession = req["session"] as any;

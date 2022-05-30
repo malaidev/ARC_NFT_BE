@@ -13,14 +13,17 @@ export const SessionChecker = async (req, res, app) => {
     let _protected = null;
     if (req.context?.schema?.properties?.protected?.method)
       _protected = req.context.schema.properties.protected;
-
     if (_protected) {
-      if (!authorization) {
+      if (!authorization && _protected.permission!==2) {
         res.code(401).send("Unauthorized");
+        return;
+      }
+      if (!authorization && _protected.permission==2) {
         return;
       }
       switch (_protected.method) {
         case "jwt":
+          
           auth = await jwtVerify(req, authorization, app);
           if (auth.success) {
             req.session = auth.session;
@@ -31,7 +34,14 @@ export const SessionChecker = async (req, res, app) => {
             ) {
               res.code(403).send("Forbidden");
             }
-          } else res.code(401).send(auth);
+          } else {
+              if (_protected.permission==2){
+                return;
+              }else{
+                return res.code(401).send(auth)
+              }
+              
+          };
           break;
         default:
           res.code(401).send(auth);

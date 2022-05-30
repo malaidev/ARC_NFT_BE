@@ -69,6 +69,7 @@ const config = {
             ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
+            creatorEarning:{type:"number"}
           },
         },
         properties: {
@@ -80,7 +81,28 @@ const config = {
       },
     };
   },
-  
+  routeParamsValidationJWT: (method: "jwt" | "token") => {
+    return {
+      schema: {
+        params: {
+          type: "object",
+          properties: {
+            ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
+            nftId: { type: "number" },
+            
+            
+          },
+        },
+        properties: {
+          protected: {
+            method,
+            permission:2
+          },
+        },
+      },
+    };
+  },
   routeParamsValidation: () => {
     return {
       schema: {
@@ -90,6 +112,7 @@ const config = {
             ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
+            tokenId: { type: "number" },
           },
         },
       },
@@ -109,6 +132,14 @@ const config = {
   opensea:{
     api_key:process.env["OPENSEA_KEY"]||"c9881567f3eb42749934d3743642e5dd",
     api_addr:process.env["OPENSEA_ADDR"]||"https://api.opensea.io/api/v1/"
+  },
+  google_recaptcha:{
+    server:process.env["GOOGLE_RECAPTCHA"],
+    urlVerification:process.env["GOOGLE_SITE_VERIFY"]
+  },
+  mail_auth:{
+    user:process.env["MAIL_USER"],
+    pass:process.env["MAIL_PASS"]
   }
 };
 

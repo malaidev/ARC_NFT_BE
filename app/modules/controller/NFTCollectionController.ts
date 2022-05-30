@@ -8,7 +8,7 @@ import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
-import { S3uploadImageBase64 } from "../util/aws-s3-helper";
+import { moderationContent, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import TextHelper from "../util/TextHelper";
 
 /**
@@ -939,6 +939,25 @@ export class NFTCollectionController extends AbstractEntity {
         featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
         bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
       // }
+      if (logoIpfs && logoIpfs.location ){
+        const isEx=await moderationContent(logoIpfs.key);
+        
+        isExplicit?isEx:false;
+        
+      }
+      if (featuredIpfs && featuredIpfs.location ){
+        const isEx=await moderationContent(featuredIpfs.key);
+        
+        isExplicit?isEx:false;
+        
+      }
+      if (bannerIpfs && bannerIpfs.location ){
+        const isEx=await moderationContent(bannerIpfs.key);
+        
+        isExplicit?isEx:false;
+        
+      }
+
       
       if (properties){
         // console.log(properties);
@@ -960,7 +979,7 @@ export class NFTCollectionController extends AbstractEntity {
         contract: contract,
         url,
         creator: creator.wallet.toLowerCase(),
-        creatorEarning: creatorEarning,
+        creatorEarning: Number(creatorEarning)?+creatorEarning:0,
         blockchain: blockchain,
         isVerified: false,
         isExplicit: isExplicit && typeof isExplicit==='string'?isExplicit && isExplicit.toLowerCase() === "true" ? true : false:isExplicit,
@@ -1089,7 +1108,23 @@ export class NFTCollectionController extends AbstractEntity {
       logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
       featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
       bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
-
+      if (logoIpfs && logoIpfs.location ){
+        const isEx=await moderationContent(logoIpfs.key);
+        isExplicit?isEx:false;
+        
+      }
+      if (featuredIpfs && featuredIpfs.location ){
+        const isEx=await moderationContent(featuredIpfs.key);
+        
+        isExplicit?isEx:false;
+        
+      }
+      if (bannerIpfs && bannerIpfs.location ){
+        const isEx=await moderationContent(bannerIpfs.key);
+        
+        isExplicit?isEx:false;
+        
+      }
       if (logoFile) {
         findResult.logoUrl = logoIpfs['location'];
       }
@@ -1217,7 +1252,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param collectionId collection Id
    * @returns
    */
-  async getCollectionByUrl(url: string): Promise<IResponse> {
+  async getCollectionByUrl(url: string,filters?: IQueryFilters): Promise<IResponse> {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
@@ -1228,7 +1263,22 @@ export class NFTCollectionController extends AbstractEntity {
     }
     const activities = await activityTable.find({ collection: `${collection._id}` }).toArray();
     collection.activities = activities;
-    const nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
+    let aggregation = {} as any;
+    let nfts =[] as any;
+    const  findItems = { collection: `${collection._id}` };
+    aggregation = this.parseFiltersFind(filters);
+    console.log(aggregation);
+    if (aggregation && aggregation.filter){
+
+      nfts=aggregation.sort?await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+
+  }else{
+    
+     nfts=aggregation.sort? await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
+  }
+
+    //  nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
+
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);

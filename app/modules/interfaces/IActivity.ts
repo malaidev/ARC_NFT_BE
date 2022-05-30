@@ -15,6 +15,9 @@ export interface IActivity {
   signature?: object; // signature of activity
   active?: boolean;
   offerCollection?:number;
+  batchId?:string,
+  netPrice?:number;
+
 }
 
 export enum ActivityType {

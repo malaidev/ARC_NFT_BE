@@ -22,12 +22,17 @@ export interface INFT {
   contentType: ContentType;
   timeLeft?: string;
   tag?:Array<string>;
+  successContent?:string,
+  successContentType?:string
+  batchId?:string,
+  fee?:number
 }
 
 export enum ContentType {
   MUSIC = <any>"Music",
   IMAGE = <any>"Image",
   VIDEO = <any>"Video",
+  AUDIO = <any>"Audio",
   OTHER = <any>"Other",
 }
 

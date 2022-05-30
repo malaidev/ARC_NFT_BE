@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { config } from "../../../config/config";
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
-import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
+import { recaptchaVerification } from "../../util/recaptcha-helper";
 export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
@@ -115,6 +116,14 @@ export const updateCollection = async (req, res) => {
   let bannerMimetype: any = null;
   const { collectionId } = req.params as any;
 
+
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+
+
+
   const body = Object.fromEntries(Object.keys(req.body).map((key) => [key, req.body[key].value]));
 
   if (req.body && req.body.logoFile && req.body.logoFile.value !== "") {
@@ -190,6 +199,17 @@ export const updateCollection = async (req, res) => {
   res.send(result);
 };
 export const createCollection = async (req, res) => {
+
+
+/** Captcha validation */
+
+const response_key = req.body["recaptcha"]?.value;
+if (!response_key)  throw new Error("Recaptcha response missing");
+const checkCaptcha = await recaptchaVerification(response_key);
+if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+
+
+
   if (req.body && !req.body.logoFile) {
     throw new Error("logoUrl is invalid or missing");
   }
@@ -208,6 +228,8 @@ export const createCollection = async (req, res) => {
       ";base64," +
       Buffer.from(await req.body.logoFile.toBuffer()).toString("base64"); // access files
   }
+
+  
 
   
   if (req.body && req.body.featuredImgFile && req.body.featuredImgFile.value !== "") {
@@ -265,7 +287,13 @@ export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply
 
 export const getCollectionByUrl = async (req: FastifyRequest, res: FastifyReply) => {
   const { url } = req.params as any;
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+  filters && filters.filters.length == 0 && req.query["filters"]
+    ? (filters.filters = JSON.parse(req.query["filters"]))
+    : null;
+
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollectionByUrl(url);
+  const result = await ctl.getCollectionByUrl(url,filters);
   res.send(result);
 };

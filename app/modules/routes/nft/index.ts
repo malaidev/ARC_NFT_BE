@@ -10,6 +10,8 @@ import {
   getTrendingItems,
   updateItem,
   getTagItems,
+  getBatchItem,
+  getItemSimple,
 } from "./item";
 
 import {
@@ -51,6 +53,7 @@ import {
   cancelCollectionOffer,
   signOffer,
   deleteActivityId,
+  listForSaleBatch,
 } from "./activity";
 import { claimReward, getReward, getRewardAirDrop, getTest } from "./reward";
 import { sign } from "./sign";
@@ -84,6 +87,8 @@ export const nft = async (router: any, options: any) => {
   router.get("/activity",config.route("jwt"), getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
   router.post("/activity/listForSale", config.route("jwt"), listForSale);
+  router.post("/activity/listForSale/:batchId", config.route("jwt"), listForSaleBatch);
+  // router.post("/activity/listForSale/batch", config.route("jwt"), listForSaleBatch);
   router.post("/activity/makeOffer", config.route("jwt"), makeOffer);
   router.post("/activity/approveOffer", config.route("jwt"), approveOffer);
   router.post("/activity/transfer", config.route("jwt"), transfer);
@@ -93,15 +98,17 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/cancelCollectionOffer", config.route("jwt"), cancelCollectionOffer);
   router.post("/activity/signOffer", config.route("jwt"), signOffer);
 
-  router.get("/items",  getAllItems);
-  router.get("/items/trending", getTrendingItems);
-  router.get("/items/tag/:tag", getTagItems);
-
+  router.get("/items", config.routeParamsValidationJWT("jwt"), getAllItems);
+  router.get("/items/trending", config.routeParamsValidationJWT("jwt"),getTrendingItems);
+  router.get("/items/tag/:tag",config.routeParamsValidationJWT("jwt"), getTagItems);
+  router.get("/items/chain/:blockchain/:tokenId",config.routeParamsValidation(), getItemSimple);
   router.post("/items/create", config.route("jwt"), createItem);
+  router.get("/items/batch/:batchId", getBatchItem)
   router.post("/items/batch-upload", config.route("jwt"), batchUpload);
+
   router.get("/items/:collectionId/:nftId/history",config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
-  router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
+  router.get("/items/:collectionId/:nftId", config.routeParamsValidationJWT("jwt"), getItemDetail);
   router.put("/items/:nftId", config.route("jwt"), updateItem);
   router.delete("/items/:id", config.route("jwt"), deleteItem);
 
@@ -110,10 +117,10 @@ export const nft = async (router: any, options: any) => {
   router.post("/owners/:ownerId/upload-profile", config.route("jwt"), uploadOwnerPhoto);
   router.put("/owners/:ownerId", config.route("jwt"), updateOwner);
   router.get("/owners/:ownerId", getOwner);
-  router.get("/owners/:ownerId/nfts", config.route("jwt"), getOwnerNtfs);
-  router.get("/owners/:ownerId/history", config.route("jwt"), getOwnerHistory);
-  router.get("/owners/:ownerId/collection",config.route("jwt"), getOwnerCollection);
-  router.get("/owners/:ownerId/offers", config.route("jwt"), getOwnerOffers);
+  router.get("/owners/:ownerId/nfts", config.routeParamsValidationJWT("jwt"), getOwnerNtfs);
+  router.get("/owners/:ownerId/history",  config.routeParamsValidationJWT("jwt"), getOwnerHistory);
+  router.get("/owners/:ownerId/collection", config.routeParamsValidationJWT("jwt"), getOwnerCollection);
+  router.get("/owners/:ownerId/offers",  config.routeParamsValidationJWT("jwt"), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
   router.get("/rewards/:walletId", config.route("jwt"), getReward);

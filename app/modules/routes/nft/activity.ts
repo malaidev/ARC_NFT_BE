@@ -55,6 +55,31 @@ export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
   res.send(result);
 };
 
+
+export const listForSaleBatch = async (req: FastifyRequest, res: FastifyReply) => {
+  const userSession = req["session"] as any;
+  const loginUser =  userSession.walletId.toLowerCase();
+  const {batchId} = req.params as any;
+
+  const {seller, startDate, endDate,r,s,v } = req.body as any;
+  
+  const ctl = new ActivityController();
+  const result = await ctl.listForSaleBatch(  batchId, seller, startDate, endDate,r,s,v,loginUser?? "");
+  res.send(result);
+};
+
+// export const listForSaleBatch = async (req: FastifyRequest, res: FastifyReply) => {
+//   const userSession = req["session"] as any;
+//   const loginUser =  userSession.walletId.toLowerCase();
+  
+//   const { collectionId, seller, startDate, endDate,r,s,v,items } = req.body as any;
+  
+//   const ctl = new ActivityController();
+//   const result = await ctl.listForSaleBatch(  collectionId, seller, startDate, endDate,r,s,v,items,loginUser?? "");
+//   res.send(result);
+// };
+
+
 export const makeOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer, price, endDate } = req.body as any;
   const userSession = req["session"] as any;
@@ -81,7 +106,6 @@ export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
   const userSession = req["session"] as any;
   const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.transfer(collectionId, nftId, seller, buyer, price,loginUser?? "");
-  res.send(result);
   res.send(result);
 };
 

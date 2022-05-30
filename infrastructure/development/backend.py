@@ -228,7 +228,31 @@ class Stack(core.Stack):
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "opensea", "key": "opensea_addr"}
                                         },
+                                    },                                    
+                                    {
+                                        "name": "GOOGLE_RECAPTCHA",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "recaptcha", "key": "server"}
+                                        },
                                     },
+                                    {
+                                        "name": "GOOGLE_SITE_VERIFY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "recaptcha", "key": "urlVerification"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MAIL_USER",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mailauth", "key": "user"}
+                                        },
+                                    },
+                                    {
+                                        "name": "MAIL_PASS",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mailauth", "key": "pass"}
+                                        },
+                                    }, 
                                 ],
                             }
                         ]
