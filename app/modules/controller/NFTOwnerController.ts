@@ -148,6 +148,7 @@ export class NFTOwnerController extends AbstractEntity {
       username: username,
       email:email,
       optIn:optIn,
+      nonce:0, //set 0 as default value
       // nfts: [],
       // collections: []
       // created: [],
