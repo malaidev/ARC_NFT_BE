@@ -170,6 +170,7 @@ export class NFTCollectionController extends AbstractEntity {
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
+        aggregation.limit=50;
         let result = [] as any;
         let count;
         if (aggregation && aggregation.filter) {
@@ -178,13 +179,28 @@ export class NFTCollectionController extends AbstractEntity {
             ? ((await collectionTable
                 .find({ $or: aggregation.filter })
                 .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
-            : ((await collectionTable.find({ $or: aggregation.filter }).toArray()) as Array<INFT>);
+            : ((await collectionTable
+                .find({ $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
         } else {
           count = await collectionTable.find().count();
           result = aggregation.sort
-            ? await collectionTable.find({}).sort(aggregation.sort).toArray()
-            : ((await collectionTable.find({}).toArray()) as Array<INFT>);
+            ? await collectionTable
+                .find({})
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()
+            : ((await collectionTable
+                .find({})
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
         }
 
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
