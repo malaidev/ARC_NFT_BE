@@ -275,6 +275,10 @@ export class NFTCollectionController extends AbstractEntity {
 
             activity.collection = collData.contract;
             activity.collectionId = collectionId;
+            activity.collectionDetail={
+              creator:collData.creator,
+              creatorEarning:collData.creatorEarning
+            }
             // else{
             //   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
             //   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
