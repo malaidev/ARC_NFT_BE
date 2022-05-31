@@ -245,18 +245,24 @@ import {
             [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
           },
         });
-  
+        
+
+        // matches.push({
+        //   [item.fieldName]: new RegExp(item.query, "igm"),
+
+        // });
       if (filters.filters.length) {
         const matches = [];
         filters.filters.forEach((item) => {
-          matches.push({
-            [item.fieldName]: new RegExp(item.query, "igm"),
-          });
+            matches.push({
+              [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),
+
+            });
         });
   
         aggregation.push({
           $match: {
-            $or: matches,
+            $or: matches, 
           },
         });
       }
@@ -272,11 +278,67 @@ import {
       }
   
       aggregation.push({
-        $limit: filters.amount || 20,
+        $limit: filters.limit || 20,
       });
   
       return aggregation;
     }
+
+
+      /**
+     * Parses the filters attribute in order to obtain a valid MongoDB query object
+     * @param filters
+     * @returns
+     */
+
+       protected parseFiltersFind(filters: IQueryFilters): Array<any> {
+        const aggregation = {} as any;
+        if (filters && filters.orderBy)        
+          if (filters.orderBy=='price'){
+            aggregation.sort={
+              saleStatus: 1,
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              
+              _id:filters.direction === "DESC" ? -1 : 1,
+              
+            };  
+          }else{
+            aggregation.sort={
+              
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              _id:filters.direction === "DESC" ? -1 : 1,
+            };  
+          }
+          
+          
+        if (filters &&  filters.filters.length) {
+          const matches = [];
+          aggregation.filter={}
+          filters.filters.forEach((item) => {
+              matches.push({
+                [item.fieldName]: item.query==='true'?true:item.query==='false'?false: Number(item.query)?+item.query: new RegExp(item.query, "igm"),
+  
+              });
+          });
+          aggregation.filter=matches
+        }
+        
+        
+        
+        aggregation.limit=filters && filters.limit?filters.limit:10;
+
+        if ( filters && filters.page){
+          
+          filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
+        }else{
+          aggregation.skip=0;
+        }
+
+    
+        return aggregation;
+      }
+
+
   
     /**
      * Returns the contents of `{CurrentController}::data`

@@ -16,5 +16,7 @@ export interface IQueryFilters {
     filters?: Array<IFiltering>,
     cursor?: number,
     amount?: number,
+    page?:number,
+    limit?:number,
     startAt?: Date
 }
