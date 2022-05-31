@@ -94,6 +94,7 @@ export class NFTOwnerController extends AbstractEntity {
         social: "",
         bio: "",
         username: "",
+        nonce:0
       });
       const result = await personTable.findOne(query);
       return respond({
