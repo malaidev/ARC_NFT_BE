@@ -62,7 +62,7 @@ const config = {
   },
   arcAdress:{
     ARC721:process.env["ARC721"],
-    ARC1155:process.env["ARC115"]
+    ARC1155:process.env["ARC1155"]
   },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
