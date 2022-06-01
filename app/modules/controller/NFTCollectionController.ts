@@ -10,6 +10,8 @@ import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { moderationContent, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import TextHelper from "../util/TextHelper";
+import { config } from "../../config/config";
+
 
 /**
  * This is the NFTCollection controller class.
@@ -948,8 +950,8 @@ export class NFTCollectionController extends AbstractEntity {
 
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
-      if (blockchain == "ERC721") contract = "0x8002e428e9F2A19C4f78C625bda69fe70b81Ac26";
-      else if (blockchain == "ERC1155") contract = "0x05c54832d62b8250a858B523151984282aC7f8BD";
+      if (blockchain == "ERC721") contract = config.arcAdress.ARC721;
+      else if (blockchain == "ERC1155") contract = config.arcAdress.ARC1155;
       const logoIpfs = logoFile? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection"): "";
       const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
       const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
@@ -1120,8 +1122,9 @@ export class NFTCollectionController extends AbstractEntity {
       
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
-      if (blockchain == "ERC721") contract = "0x8113901EEd7d41Db3c9D327484be1870605e4144";
-      else if (blockchain == "ERC1155") contract = "0xaf8fC965cF9572e5178ae95733b1631440e7f5C8";
+      if (blockchain == "ERC721") contract = config.arcAdress.ARC721;
+      else if (blockchain == "ERC1155") contract = config.arcAdress.ARC1155;
+      
       const logoIpfs = logoFile? await S3uploadImageBase64(logoFile, `${logoName}_${Date.now()}`, logoMimetype, "collection"): "";
       const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
       const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
