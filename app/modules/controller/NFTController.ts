@@ -33,14 +33,16 @@ export class NFTController extends AbstractEntity {
         const itemTable = this.mongodb.collection(this.table);
         const result = await itemTable.findOne(query);
         console.log(query);
+        
         if (result) {
+
           const rst:any={
-              description:result.description,
-              external_url:result.externalLink,
-              image:result.artURI,
-              name:result.name,
-              attributes:result.properties
-          }
+            description:result.description,
+            external_url:result.externalLink,
+            image:result.artURI,
+            name:result.name,
+            attributes:result.properties
+        }
           return rst
         }
         return respond("nft not found.", true, 422);
