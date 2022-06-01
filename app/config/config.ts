@@ -60,6 +60,10 @@ const config = {
     nftPurchaseModuleAddress: process.env["NFT_PURCHASE_MODULE_ADDRESS"],
     pkId: process.env["NFT_PK_ID"],
   },
+  arcAdress:{
+    ARC721:process.env["ARC721"],
+    ARC1155:process.env["ARC115"]
+  },
   route: (method: "jwt" | "token", permission?: string | number) => {
     return {
       schema: {

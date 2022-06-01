@@ -253,6 +253,18 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "mailauth", "key": "pass"}
                                         },
                                     },  
+                                      {
+                                        "name": "ARC721",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "nftblockchain", "key": "arc721"}
+                                        },
+                                    },  
+                                      {
+                                        "name": "ARC1155",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "nftblockchain", "key": "arc1155"}
+                                        },
+                                    },  
                                 ],
                             }
                         ]
