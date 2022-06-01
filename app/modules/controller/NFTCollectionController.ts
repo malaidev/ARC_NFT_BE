@@ -712,18 +712,38 @@ export class NFTCollectionController extends AbstractEntity {
         }
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(collectionId);
-        let aggregation = [] as any;
+        let aggregation = {} as any;
+        aggregation = this.parseFiltersFind(filters);
         const result = await this.findOne(query);
-        if (filters) {
-          aggregation = this.parseFilters(filters);
-        }
+        let rst = [] as any;
+        let count;
         if (!result) {
           return respond("collection items not found.", true, 422);
         }
         // const nfts = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
-        const nfts = (await nftTable.find({ collection: collectionId }).toArray()) as Array<INFT>;
-        if (nfts) {
-          result.nfts = nfts;
+
+        if (aggregation && aggregation.filter) {
+          count = await nftTable.find({ $or: aggregation.filter }).count();
+          rst = aggregation.sort
+            ? ((await nftTable
+                .find({collection: collectionId, $or: aggregation.filter })
+                .sort(aggregation.sort)
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>)
+            : ((await nftTable
+                .find({collection: collectionId, $or: aggregation.filter })
+                .skip(aggregation.skip)
+                .limit(aggregation.limit)
+                .toArray()) as Array<INFT>);
+        } else {
+          count = await nftTable.find().count();
+          rst = aggregation.sort
+            ? await nftTable.find({collection: collectionId}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray()
+            : ((await nftTable.find({collection: collectionId}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
+        }
+        if (rst) {
+          result.nfts = rst;
         } else {
           result.nfts = [];
         }
