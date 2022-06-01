@@ -890,12 +890,10 @@ export class NFTCollectionController extends AbstractEntity {
       }
 
       let royalty= Number(creatorEarning)?+creatorEarning:0;
-      if (royalty>10){
-        return respond("creator earning should be lower than 10", true, 422);
+      if (royalty>10 || royalty < 0 ){
+        return respond("Creator royalty must be between 0 & 10", true, 422);
       }
-      if (royalty<0){
-        return respond("creator earning should be bigger than 0", true, 422);
-      }
+      
       const creator = (await ownerTable.findOne(this.findPersonById(creatorId))) as IPerson;
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
