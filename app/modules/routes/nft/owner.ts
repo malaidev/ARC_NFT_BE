@@ -17,13 +17,14 @@ export const uploadOwnerPhoto = async (req, res) => {
     return res.code(400).send("Wallet Id not equal with Wallet Login Session");
   }
   const { photoFile } = req.body as any;
+  let mimeType = req.body.photoFile.mimetype;
   const photoBody =
     "data:" +
     req.body.photoFile.mimetype +
     ";base64," +
     Buffer.from(await req.body.photoFile.toBuffer()).toString("base64"); // access files
   const ctl = new NFTOwnerController();
-  const result = await ctl.updateOwnerPhoto(ownerId.toLowerCase(), photoBody);
+  const result = await ctl.updateOwnerPhoto(mimeType, ownerId.toLowerCase(), photoBody);
   res.send(result);
 };
 
