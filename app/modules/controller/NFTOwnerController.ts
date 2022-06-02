@@ -195,15 +195,17 @@ export class NFTOwnerController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async updateOwnerPhoto(wallet: string, body: any): Promise<IPerson | IResponse> {
+  async updateOwnerPhoto(mimeType: string, wallet: string, body: any): Promise<IPerson | IResponse> {
     try {
+      console.log(mimeType);
       if (this.mongodb) {
         const person = this.mongodb.collection(this.table);
         const findOwner = (await person.findOne(this.findUserQuery(wallet))) as IPerson;
         if (!findOwner) {
           return respond("Current user not exists", true, 422);
         }
-        const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,null,'profile');
+        
+        const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,mimeType,'profile');
         const result = await person.updateOne({ wallet }, { $set: { photoUrl: img['location'] } });
         if (result) {
           return this.findPerson(wallet);
