@@ -174,7 +174,6 @@ export class NFTCollectionController extends AbstractEntity {
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
-        aggregation.limit=50;
         let result = [] as any;
         let count;
         if (aggregation && aggregation.filter) {
