@@ -934,7 +934,6 @@ export class ActivityController extends AbstractEntity {
             from:from.toLowerCase(),
             to:to.toLowerCase()
           })
-          console.log(actData);
           if (!actData){
             console.log('Update Buy Now')
             await this.transfer(nftData.collection,nftData.index,from,to,price,null,true)

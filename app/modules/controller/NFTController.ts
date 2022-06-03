@@ -35,13 +35,24 @@ export class NFTController extends AbstractEntity {
 
 
         if (result) {
+          let prop=[];
+          if (Array.isArray(result.properties)) {
+            for (const property of result.properties) {
+              const { title, name } = property;
+              prop.push({
+                'trait_type':title,
+                'value':name
+              })
+                }
+              // }
+            }
 
           const rst:any={
-            description:result.description,
-            external_url:result.externalLink,
-            image:result.artURI,
             name:result.name,
-            attributes:result.properties
+            description:result.description,
+            image:result.artURI,
+            // external_url:result.externalLink,
+            attributes:prop
         }
           return rst
         }
@@ -848,9 +859,14 @@ export class NFTController extends AbstractEntity {
   }
 
 
+  private async getTotalItemAndOwner(collection:string){
+    
+  }
   private checkLimitRequest(limit:number){
     return limit<=1000?true:false;
   }
+
+
 
   private _updateCollectionProperties(collection: INFTCollection, nft: INFT): INFTCollection {
     const _collection = { ...collection };
