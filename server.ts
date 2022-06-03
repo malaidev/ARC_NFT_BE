@@ -4,8 +4,7 @@ const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
 const multiPart = require("fastify-multipart");
-
-
+const Moralis = require("moralis/node");
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
 import { ErrorLogger } from "./app/modules/middleware/ErrorLogger";
@@ -19,9 +18,8 @@ import fastifyCron from 'fastify-cron'
 import { rewardHelper } from "./app/modules/util/reward-handler";
 import * as helmet from '@fastify/helmet'
 import { walletHandler } from "./app/modules/util/wallet-handler";
-
+import { ActivityController } from "./app/modules/controller/ActivityController";
 process.setMaxListeners(15);
-
 /**
  * Mounts the server
  *
@@ -35,7 +33,6 @@ async function mount() {
       },
     },
   });
-
   await app.register(cors, {
     methods: "HEAD, OPTIONS, PUT, POST, PATCH, GET, DELETE",
     allowedHeaders: "content-type, authorization, x-usr-addr",
@@ -43,15 +40,11 @@ async function mount() {
     maxAge: 1000 * 60 * 24,
     origin: "*",
   });
-
-
   await app.register(require('@fastify/rate-limit'), {
     max: 200,
     timeWindow: '1 minute'
   })
-
   await jwt(app);
-
   await app.register(cookie, {
     secret: config.jwt,
   });
@@ -59,36 +52,6 @@ async function mount() {
     await app.register(helmet, { global: true, enableCSPNonces: true });
   }
     await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
-
-  // await app.register(fastifyCron,{
-  //   jobs:[
-  //     {
-
-  //       cronTime:'0 0 * * *',
-
-  //       onTick: async server => {
-  //         console.log('Run -->>> Reward')
-  //         const x = new rewardHelper();
-  //         const y = await x.calculateReward();
-  //         // console.log(y)
-  //       },
-
-  //     },
-  //     {
-
-  //       cronTime:'0 0 * * *',
-
-  //       onTick: async server => {
-  //         console.log('Run -->>> verify ownership')
-  //         const x = new walletHandler();
-  //         const y = await x.verifyOwnership()
-  //         // console.log(y)
-  //       },
-
-  //     }
-  //   ]
-  // })
-
   if (process.env.ENV === "dev") {
     await app.register(SwaggerPlugin, {
       routePrefix: "/doc",
@@ -126,23 +89,18 @@ async function mount() {
       },
     });
   }
-
   /**
    * This hooks acts as middlewares performing
    * actions on each one of these calls
    * Logs route actions
    */
-
   /** Checks if session is valid */
   app.addHook("onRequest", async (req, res) => {
     await SessionChecker(req, res, app);
   });
-
   if (config.logging) {
     if (["any", "action-only"].includes(config.logLevel)) app.addHook("onRequest", ActionLogger);
-
     if (["any", "error-only"].includes(config.logLevel)) app.addHook("onError", ErrorLogger);
-
     app.addHook("onResponse", async (req, res: FastifyReply) => {
       if (res.statusCode >= 400) {
         config.__logPool.push({
@@ -159,13 +117,41 @@ async function mount() {
       await LogController.dispatch();
     });
   }
-
   /** Register routes */
   await router(app);
-
   return app;
 }
-
+const serverUrl = config.moralis.server_url||"https://yh7xu2rbxbme.usemoralis.com:2053/server";
+const appId = config.moralis.appId|| "IQowlTjBIIemiVctRbqdSPfoc2HnpxabUmbLmTSS";
+const masterKey = config.moralis.masterKey||"oXPCZ0lXxsUbVBt2PcneIbUoCUC0vuyTFiFIvsrI";
+const initMoralis= async () =>{
+  await Moralis.start({ serverUrl, appId, masterKey });
+  let qryBuyNow=new Moralis.Query('buyNow');
+  let subBuyNow = await qryBuyNow.subscribe();
+  let qryAcceptOffer=new Moralis.Query('approveOffer');
+  let subApproveOver = await qryAcceptOffer.subscribe();
+  subApproveOver.on('create', (object) => {
+    console.log('object created', object);
+  });
+  subApproveOver.on('update', (object) => {
+    console.log('object Approve ', object);
+      const actCtl = new ActivityController();
+      if (object.get("confirmed") || object.get("confirmed")=="True"){
+           actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+      }
+  });
+  subBuyNow.on('create', (object) => {
+    // console.log('object created', object);
+  });
+  subBuyNow.on('update', (object) => {
+      console.log('object BuyNow', object);
+      const actCtl = new ActivityController();
+      if (object.get("confirmed") || object.get("confirmed")=="True"){
+           console.log('-->>>>>>> Buy')
+           actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+      }
+  });
+}
 config.mongodb
   .createInstance()
   .then(() => {
@@ -178,7 +164,7 @@ config.mongodb
           }
           process.exit(1);
         }
-        // app.cron.startAllJobs();
+        initMoralis()
       });
     });
   })
