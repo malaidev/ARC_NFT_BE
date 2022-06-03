@@ -1146,23 +1146,15 @@ export class NFTCollectionController extends AbstractEntity {
     // const activities = await activityTable.find({ collection: collectionId }).toArray();
     // collection.activities = activities;
     let aggregation = {} as any;
-    let nfts =[] as any;
-    let findItems={collection:collectionId};
-    aggregation = this.parseFiltersFind(filters);
-    if (aggregation && aggregation.filter){
-        findItems['$or']=aggregation.filter;
-        nfts=aggregation.sort?await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
-    }else{
-       nfts=aggregation.sort? await nftTable.find(findItems).sort(aggregation.sort).toArray():await nftTable.find(findItems).toArray();
-    }
     // const nfts = await nftTable.find({ collection: collectionId }).toArray();
-    collection.nfts = nfts;
-    let owners = nfts.map((nft) => nft.owner);
-    owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
+    const nfts = await this.countItemAndOwner(collectionId);
+    
+    
+    
     const f = await this.getFloorPrice(`${collection._id}`);
     collection.floorPrice = f;
-    collection.owners = owners.length;
-    collection.items = nfts.length;
+    collection.owners = nfts.owner;
+    collection.items = nfts.nfts;
     const { _24h, todayTrade } = await this.get24HValues(collectionId);
     collection._24h = todayTrade;
     collection._24hPercent = _24h;
