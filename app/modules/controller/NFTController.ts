@@ -673,7 +673,7 @@ export class NFTController extends AbstractEntity {
       console.log("CSV record sum",count);
       if (count>3000){
         return {success:false,
-          status:'error file upload, Maximum 3000 recodr',
+          status:'error file upload, Maximum 3000 data',
           code :422,
           err_data:ntfs_error
         };
