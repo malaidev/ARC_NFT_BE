@@ -28,24 +28,35 @@ export class NFTController extends AbstractEntity {
   async getItemSimple(tokenType: string, index: number,loginUser?:string): Promise<IResponse> {
     try {
       if (this.mongodb) {
-        
         const query = this.findNFTItemByIndex(tokenType, index);        
         const itemTable = this.mongodb.collection(this.table);
         const result = await itemTable.findOne(query);
-        console.log(query);
-        
+
+
         if (result) {
+          let prop=[];
+          if (Array.isArray(result.properties)) {
+            for (const property of result.properties) {
+              const { title, name } = property;
+              prop.push({
+                'trait_type':title,
+                'value':name
+              })
+                }
+              // }
+            }
 
           const rst:any={
-            description:result.description,
-            external_url:result.externalLink,
-            image:result.artURI,
             name:result.name,
-            attributes:result.properties
+            description:result.description,
+            image:result.artURI,
+            // external_url:result.externalLink,
+            attributes:prop
         }
           return rst
         }
         return respond("nft not found.", true, 422);
+        
       } else {
         throw new Error("Could not connect to the database.");
       }

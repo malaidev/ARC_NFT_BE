@@ -10,16 +10,16 @@ export const getTokenURI = async (req,res) => {
  
     
     const result = await ctl.getItemSimple(contract,nftId);
-
-    const axios = require('axios').default;
-    const uri = result['image'];
-    axios.get(uri, { responseType: 'stream' })
-    .then(response => {
-        res.type(response.headers['content-type']).send(response.data);
-    })
-    .catch(function (error) {
-        res.send(error)
-    })
+    return res.send(result)
+    // const axios = require('axios').default;
+    // const uri = result['image'];
+    // axios.get(uri, { responseType: 'stream' })
+    // .then(response => {
+    //     res.type(response.headers['content-type']).send(response.data);
+    // })
+    // .catch(function (error) {
+    //     res.send(error)
+    // })
    
 
 
