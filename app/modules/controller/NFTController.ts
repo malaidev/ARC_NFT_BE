@@ -670,14 +670,9 @@ export class NFTController extends AbstractEntity {
             } 
           })
       )
-      console.log("CSV record sum",count);
-      if (count>3000){
-        return {success:false,
-          status:'error file upload, Maximum 3000 data',
-          code :422,
-          err_data:ntfs_error
-        };
-
+      
+      if (count > 3000){
+        return respond("Can you please change error message to: Maximum number of items at once is 3,000. Please try again.", true, 422);        
       }
       if (ntfs_error.length>0){
         return {success:false,
