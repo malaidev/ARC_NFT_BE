@@ -629,9 +629,10 @@ export class NFTController extends AbstractEntity {
       let ntfs_error:INFT[]=[];
       let findIndex;
       const batchId=v4();
-
+      let count = 1;
       await Promise.all(
           records.map(async (record)=>{
+            count++;
             if ((record["External Link"] && !TextHelper.checkUrl(record["External Link"])) || (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"]))){
               findIndex=ntfs_error.findIndex(x=>x['NFT Name']===record['NFT Name']);
 
@@ -669,6 +670,15 @@ export class NFTController extends AbstractEntity {
             } 
           })
       )
+      console.log("CSV record sum",count);
+      if (count>3000){
+        return {success:false,
+          status:'error file upload, Maximum 3000 recodr',
+          code :422,
+          err_data:ntfs_error
+        };
+
+      }
       if (ntfs_error.length>0){
         return {success:false,
           status:'error file upload',
