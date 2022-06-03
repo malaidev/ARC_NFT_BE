@@ -325,7 +325,7 @@ import {
         
         
         
-        aggregation.limit=filters && filters.limit?filters.limit:10;
+        aggregation.limit=filters && filters.limit?filters.limit:100;
 
         if ( filters && filters.page){
           

@@ -74,7 +74,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string) {
+  async transfer(collectionId: string, index: number, seller: string, buyer: string, price: number, loginUser: string , fromListen?:boolean) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -94,7 +94,7 @@ export class ActivityController extends AbstractEntity {
         if (!price) prc = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (nft) {
-          if (buyer.toLowerCase() !== loginUser) {
+          if (buyer.toLowerCase() !== loginUser && !fromListen) {
             return respond("You are not current user of this activity ", true, 422);
           }	
           if (nft.owner !== seller) {
@@ -113,7 +113,8 @@ export class ActivityController extends AbstractEntity {
             price: prc,
             to: buyer?.toLowerCase(),
             fee: nft.fee??0,
-            netPrice:this.calculateFee(prc,nft.fee)?.netPrice
+            netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+            fromListener:fromListen??false
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
@@ -130,7 +131,6 @@ export class ActivityController extends AbstractEntity {
               active: true,
               nftId:index,
               type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
-              
             },
             { $set: { active: false } }
           );
@@ -172,7 +172,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string, loginUser: string) {
+  async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string, loginUser: string,fromListen?:boolean) {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
@@ -185,7 +185,7 @@ export class ActivityController extends AbstractEntity {
         if (collData && collData.volume) {
           typeof collData.volume == "string" ? (vol = +collData.volume) : (vol = collData.volume);
         }
-        if (seller.toLowerCase() !== loginUser) {
+        if (seller.toLowerCase() !== loginUser && !fromListen) {
           return respond("Only onwer login user can approve its own NFT item", true, 422);
         }	
         if (buyer.toLowerCase() == seller.toLowerCase()) {
@@ -252,7 +252,8 @@ export class ActivityController extends AbstractEntity {
                     from: item.from?.toLowerCase(),
                     to: item.to?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-                    fee:nft.fee
+                    fee:nft.fee,
+                    fromListener:fromListen??false
                   });
                 }
                 item.active = false;
@@ -270,7 +271,6 @@ export class ActivityController extends AbstractEntity {
                 // to: buyer,
                 // price: prc,
                 type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
-                
               },
               { $set: { active: false } }
             );
@@ -299,7 +299,6 @@ export class ActivityController extends AbstractEntity {
                 active: true,
                 nftId:offer.nftId,
                 type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
-                
               },
               { $set: { active: false } }
             );
@@ -915,6 +914,56 @@ export class ActivityController extends AbstractEntity {
           : respond("Failed to remove  activity.", true, 501);
       } else {
         throw new Error("Could not connect to the database.");
+      }
+    } catch (error) {
+      return respond(error.message, true, 500);
+    }
+  }
+  async listenActivity(type:string,from:string,to:string,tokenId:string,prices:string){
+    try {
+      const  tId: number = +tokenId;
+      const price:number=+prices/1000000000000000000;
+      if (this.mongodb) {
+        const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const nftData = await nftTable.findOne({index:tId}) as INFT;
+        if ( nftData &&  type=='BUY_NOW'){
+          const actData = await activityTable.findOne({
+            nftId:tId,
+            type:ActivityType.TRANSFER,
+            from:from.toLowerCase(),
+            to:to.toLowerCase()
+          })
+          console.log(actData);
+          if (!actData){
+            console.log('Update Buy Now')
+            await this.transfer(nftData.collection,nftData.index,from,to,price,null,true)
+          } 
+        }
+        if ( nftData &&  type=='APPROVE_OFFER'){
+          // console.log('--->>>>>> aproorce',price)
+          const actData = await activityTable.findOne({
+            nftId:tId,
+            type:ActivityType.SALE,
+            from:from.toLowerCase(),
+            to:to.toLowerCase()
+          })
+          if (!actData){
+            console.log('Update approve ')
+            const actDataCheck = await activityTable.findOne({
+              nftId:tId,
+              type:ActivityType.OFFER,
+              from:to.toLowerCase(),
+              to:from.toLowerCase(),
+              price:price
+            })
+
+            // console.log(actDataCheck)
+            if (actDataCheck){
+              await this.approveOffer(nftData.collection,nftData.index,from,to,actDataCheck._id.toString(), null,true)
+            }
+          }
+        }
       }
     } catch (error) {
       return respond(error.message, true, 500);
