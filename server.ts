@@ -52,43 +52,7 @@ async function mount() {
     await app.register(helmet, { global: true, enableCSPNonces: true });
   }
     await app.register(multiPart, { attachFieldsToBody: true, limits: { fileSize: 1024 * 1024 * 1024 } });
-  if (process.env.ENV === "dev") {
-    await app.register(SwaggerPlugin, {
-      routePrefix: "/doc",
-      mode: "static",
-      exposeRoute: true,
-      specification: {
-        path: "./app/spec/be-spesification.json",
-        postProcessor: function (swaggerObject) {
-          return swaggerObject;
-        },
-        baseDir: "/app/spec",
-      },
-      swagger: {
-        info: {
-          title: "ARC API",
-          description: "REST API ARC documentation",
-          version: "1.0.0",
-        },
-        externalDocs: {
-          url: "https://swagger.io",
-          description: "Find more info here",
-        },
-        host: "staging.api.arc.market:443",
-        schemes: ["http", "https"],
-        consumes: ["application/json"],
-        produces: ["application/json"],
-        securityDefinitions: {
-          ApiToken: {
-            description: 'Authorization header token, sample: "Bearer #TOKEN#"',
-            type: "apiKey",
-            name: "Authorization",
-            in: "header",
-          },
-        },
-      },
-    });
-  }
+ 
   /**
    * This hooks acts as middlewares performing
    * actions on each one of these calls
@@ -135,6 +99,7 @@ const initMoralis= async () =>{
   });
   subApproveOver.on('update', (object) => {
     console.log('object Approve ', object);
+    console.log(object.get("price_decimal").value['$numberDecimal'])
       const actCtl = new ActivityController();
       if (object.get("confirmed") || object.get("confirmed")=="True"){
            actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
@@ -145,9 +110,10 @@ const initMoralis= async () =>{
   });
   subBuyNow.on('update', (object) => {
       console.log('object BuyNow', object);
+      console.log(object.get("price_decimal").value['$numberDecimal'])
       const actCtl = new ActivityController();
       if (object.get("confirmed") || object.get("confirmed")=="True"){
-           console.log('-->>>>>>> Buy')
+          //  console.log('-->>>>>>> Buy')
            actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
       }
   });
