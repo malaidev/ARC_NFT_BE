@@ -129,10 +129,10 @@ const config = {
     s3_key: process.env["AWS_S3_KEY"],
     s3_secret: process.env["AWS_S3_SECRET"],
   },
-  moralis: {
-    server_url: process.env["MORALIS_URL"],
-    appid: process.env["MORALIS_APPID"],
-    master_key: process.env["MORALIS_MASTER_KEY"],
+  moralis:{
+    server_url:process.env["MORALIS_URL"],
+    appId:process.env["MORALIS_APPID"],
+    masterKey:process.env["MORALIS_MASTER_KEY"]
   },
   opensea:{
     api_key:process.env["OPENSEA_KEY"]||"c9881567f3eb42749934d3743642e5dd",

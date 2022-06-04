@@ -16,7 +16,8 @@ export interface IActivity {
   active?: boolean;
   offerCollection?:number;
   batchId?:string,
-  netPrice?:number;
+  netPrice?:number,
+  fromListener?:boolean
 
 }
 
