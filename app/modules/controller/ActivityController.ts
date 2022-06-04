@@ -83,6 +83,10 @@ export class ActivityController extends AbstractEntity {
         const personTable = this.mongodb.collection(this.ownerTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const collData = (await collTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
+
+
+        console.log('--->>>>>>>>>',fromListen);
+        
         let prc: number = 0;
         let vol: number = 0;
         if (collData && collData.volume) {

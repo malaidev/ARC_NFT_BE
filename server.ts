@@ -85,18 +85,39 @@ async function mount() {
   await router(app);
   return app;
 }
-const serverUrl = config.moralis.server_url||"https://yh7xu2rbxbme.usemoralis.com:2053/server";
-const appId = config.moralis.appId|| "IQowlTjBIIemiVctRbqdSPfoc2HnpxabUmbLmTSS";
-const masterKey = config.moralis.masterKey||"oXPCZ0lXxsUbVBt2PcneIbUoCUC0vuyTFiFIvsrI";
+const serverUrl = config.moralis.server_url;
+const appId = config.moralis.appId
+const masterKey = config.moralis.masterKey
+
+console.log(serverUrl);
+console.log(appId);
+console.log(masterKey);
 const initMoralis= async () =>{
-  await Moralis.start({ serverUrl, appId, masterKey });
+
+  try {
+    await Moralis.start({ serverUrl, appId, masterKey });
   let qryBuyNow=new Moralis.Query('buyNow');
   let subBuyNow = await qryBuyNow.subscribe();
-  let qryAcceptOffer=new Moralis.Query('approveOffer');
+
+  let qryAcceptOffer=new Moralis.Query('acceptOffer');
   let subApproveOver = await qryAcceptOffer.subscribe();
-  subApproveOver.on('create', (object) => {
-    console.log('object created', object);
+
+  let qryAcceptTransfer=new Moralis.Query('ownerTransfer');
+  let subOwnerTransfer = await qryAcceptTransfer.subscribe();
+
+
+
+
+  subOwnerTransfer.on('update', (object) => {
+    console.log('object transfer ', object);
+    console.log(object.get("price_decimal").value['$numberDecimal'])
+      const actCtl = new ActivityController();
+      // if (object.get("confirmed") || object.get("confirmed")=="True"){
+      //      actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+      // }
   });
+
+
   subApproveOver.on('update', (object) => {
     console.log('object Approve ', object);
     console.log(object.get("price_decimal").value['$numberDecimal'])
@@ -105,9 +126,7 @@ const initMoralis= async () =>{
            actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
       }
   });
-  subBuyNow.on('create', (object) => {
-    // console.log('object created', object);
-  });
+
   subBuyNow.on('update', (object) => {
       console.log('object BuyNow', object);
       console.log(object.get("price_decimal").value['$numberDecimal'])
@@ -117,6 +136,12 @@ const initMoralis= async () =>{
            actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
       }
   });
+
+  }catch(err){
+    console.log(err)
+    process.exit(1);
+  }
+  
 }
 config.mongodb
   .createInstance()
