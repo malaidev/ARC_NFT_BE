@@ -591,9 +591,10 @@ export class NFTController extends AbstractEntity {
       let ntfs_error:INFT[]=[];
       let findIndex;
       const batchId=v4();
-
+      let count = 1;
       await Promise.all(
           records.map(async (record)=>{
+            count++;
             if ((record["External Link"] && !TextHelper.checkUrl(record["External Link"])) || (record["Artwork"]&& !TextHelper.checkUrl(record["Artwork"]))){
               findIndex=ntfs_error.findIndex(x=>x['NFT Name']===record['NFT Name']);
 
@@ -631,6 +632,10 @@ export class NFTController extends AbstractEntity {
             } 
           })
       )
+      
+      if (count > 3001){
+        return respond("Maximum number of items at once is 3,000. Please try again.", true, 422);        
+      }
       if (ntfs_error.length>0){
         return {success:false,
           status:'error file upload',
