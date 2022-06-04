@@ -1218,17 +1218,14 @@ export class NFTCollectionController extends AbstractEntity {
       : ((await nftTable.find({...findItems})
           .skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFT>);
   }
-    
-    
-    
-    //  nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
-    collection.nfts = nfts;
-    let owners = nfts.map((nft) => nft.owner);
-    owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
+
+    const nftItem = await this.countItemAndOwner(collection._id.toString())
+    collection.nfts = nftItem.nfts;
     const f = await this.getFloorPrice(`${collection._id}`);
     collection.floorPrice = f;
-    collection.owners = owners.length;
-    collection.items = count;
+    collection.owners =nftItem.owner;
+    collection.items = nftItem.nfts;
+ 
     const { _24h, todayTrade } = await this.get24HValues(`${collection._id}`);
     collection._24h = todayTrade;
     collection._24hPercent = _24h;
