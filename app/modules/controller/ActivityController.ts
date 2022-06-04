@@ -931,6 +931,7 @@ export class ActivityController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const nftData = await nftTable.findOne({index:tId}) as INFT;
+
         if ( nftData &&  type=='BUY_NOW'){
           const actData = await activityTable.findOne({
             nftId:tId,
@@ -939,8 +940,8 @@ export class ActivityController extends AbstractEntity {
             to:to.toLowerCase()
           })
           if (!actData){
-            console.log('Update Buy Now')
-            await this.transfer(nftData.collection,nftData.index,from,to,price,null,true)
+            
+            await this.transfer(nftData.collection,nftData.index,from.toLowerCase(),to.toLowerCase(),price,null,true)
           } 
         }
         if ( nftData &&  type=='APPROVE_OFFER'){
@@ -948,22 +949,22 @@ export class ActivityController extends AbstractEntity {
           const actData = await activityTable.findOne({
             nftId:tId,
             type:ActivityType.SALE,
-            from:from.toLowerCase(),
-            to:to.toLowerCase()
+            from:to.toLowerCase(),  
+            to:from.toLowerCase()
           })
           if (!actData){
             console.log('Update approve ')
             const actDataCheck = await activityTable.findOne({
               nftId:tId,
               type:ActivityType.OFFER,
-              from:to.toLowerCase(),
-              to:from.toLowerCase(),
+              from:from.toLowerCase(),
+              to:to.toLowerCase(),
               price:price
             })
 
             // console.log(actDataCheck)
             if (actDataCheck){
-              await this.approveOffer(nftData.collection,nftData.index,from,to,actDataCheck._id.toString(), null,true)
+              await this.approveOffer(nftData.collection,nftData.index,to.toLowerCase(),from.toLowerCase(),actDataCheck._id.toString(), null,true)
             }
           }
         }
