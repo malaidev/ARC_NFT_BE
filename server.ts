@@ -96,13 +96,13 @@ const initMoralis= async () =>{
 
   try {
     await Moralis.start({ serverUrl, appId, masterKey });
-  let qryBuyNow=new Moralis.Query('buyNow');
+  let qryBuyNow=new Moralis.Query('BuyNow');
   let subBuyNow = await qryBuyNow.subscribe();
 
-  let qryAcceptOffer=new Moralis.Query('acceptOffer');
+  let qryAcceptOffer=new Moralis.Query('AcceptOffer');
   let subApproveOver = await qryAcceptOffer.subscribe();
 
-  let qryAcceptTransfer=new Moralis.Query('ownerTransfer');
+  let qryAcceptTransfer=new Moralis.Query('OwnerTransfer');
   let subOwnerTransfer = await qryAcceptTransfer.subscribe();
 
 
