@@ -10,7 +10,7 @@ export const getTokenURI = async (req,res) => {
  
     
     const result = await ctl.getItemSimple(contract,nftId);
-    return result;
+    return res.send(result)
     // const axios = require('axios').default;
     // const uri = result['image'];
     // axios.get(uri, { responseType: 'stream' })
