@@ -1220,7 +1220,7 @@ export class NFTCollectionController extends AbstractEntity {
   }
     
     
-    console.log(count);
+    
     //  nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
