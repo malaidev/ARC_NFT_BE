@@ -243,7 +243,8 @@ export class ActivityController extends AbstractEntity {
                     from: item.from?.toLowerCase(),
                     to: item.to?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-                    fee:nft.fee
+                    fee:nft.fee,
+                    fromListener:fromListen??false
                   });
                   collData.volume = vol + prc;
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
@@ -279,11 +280,11 @@ export class ActivityController extends AbstractEntity {
               },
               { $set: { active: false } }
             );
-            const result = await activityTable.insertOne(saleActivity);
+            const result =saleActivity;
             const email = new mailHelper();
             email.AcceptOfferEmail(saleActivity);
             return result
-              ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
+              ? respond(`Successfully Approve Offer with`)
               : respond("Failed to create a new activity.", true, 501);
           } else if (offer.type === ActivityType.OFFER) {
             const status_date = new Date().getTime();
@@ -305,7 +306,7 @@ export class ActivityController extends AbstractEntity {
                 nftId:offer.nftId,
                 type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
               },
-              { $set: { active: false } }
+              { $set: { active: false,fromListener:fromListen??false } }
             );
             offer.type = ActivityType.SALE;
             offer.date = status_date;
@@ -319,7 +320,8 @@ export class ActivityController extends AbstractEntity {
               price: prc,
               active: true,
               netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-              fee:nft.fee
+              fee:nft.fee,
+              fromListener:fromListen??false
             });
             const email = new mailHelper();
             email.AcceptOfferEmail({
@@ -959,7 +961,7 @@ export class ActivityController extends AbstractEntity {
             console.log('Update approve ')
             const actDataCheck = await activityTable.findOne({
               nftId:tId,
-              type:ActivityType.OFFER,
+              type:{$in:[ActivityType.OFFER,ActivityType.OFFERCOLLECTION]} ,
               from:from.toLowerCase(),
               to:to.toLowerCase(),
               price:price
