@@ -134,6 +134,9 @@ const initMoralis= async () =>{
       if (object.get("confirmed") || object.get("confirmed")=="True"){
           //  console.log('-->>>>>>> Buy')
            actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+
+
+
       }
   });
 
