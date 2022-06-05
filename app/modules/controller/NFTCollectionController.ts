@@ -100,7 +100,7 @@ export class NFTCollectionController extends AbstractEntity {
             result.map(async (collection) => {
               let floorPrice = 0;
               const count = await this.countItemAndOwner(collection._id.toString());
-              const { _24h, todayTrade } = await this.get24HValues(collection._id.toString());
+
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
               floorPrice = await this.getFloorPrice(`${collection._id}`);
               return {
@@ -118,8 +118,8 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h,
-                _24hPercent: collection._24hPercent,
+                _24h: collection._24h??0,
+                _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
                 items: count.nfts,
@@ -228,8 +228,8 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h,
-                _24hPercent: collection._24hPercent,
+                _24h: collection._24h??0,
+                _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
                 items: count.nfts,
@@ -366,8 +366,8 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h,
-                _24hPercent: collection._24h,
+                _24h: collection._24h??0,
+                _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
                 items: count.nfts,
@@ -458,8 +458,8 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h,
-                _24hPercent: collection._24hPercent,
+                _24h: collection._24h??0,
+                _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
                 items: count.nfts,
@@ -558,8 +558,8 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h,
-                _24hPercent: collection._24hPercent,
+                _24h: collection._24h??0,
+                _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
                 items: count.nfts,
@@ -572,7 +572,7 @@ export class NFTCollectionController extends AbstractEntity {
             })
           );
 
-          return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
+          return respond(collections);
 
         }
         return respond("collection not found.", true, 422);
