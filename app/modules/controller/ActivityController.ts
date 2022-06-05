@@ -159,6 +159,7 @@ export class ActivityController extends AbstractEntity {
             }))
           const result = await activityTable.insertOne(transfer);
           /** SEND EMAIL */
+          await this.get24HValues(collectionId);
           const ownerData = (await personTable.findOne({ wallet: seller.toLowerCase() })) as IPerson;
           if (ownerData && ownerData.email) {
             const email = new mailHelper();
@@ -242,7 +243,8 @@ export class ActivityController extends AbstractEntity {
                     from: item.from?.toLowerCase(),
                     to: item.to?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-                    fee:nft.fee
+                    fee:nft.fee,
+                    fromListener:fromListen??false
                   });
                   collData.volume = vol + prc;
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
@@ -278,11 +280,11 @@ export class ActivityController extends AbstractEntity {
               },
               { $set: { active: false } }
             );
-            const result = await activityTable.insertOne(saleActivity);
+            const result =saleActivity;
             const email = new mailHelper();
             email.AcceptOfferEmail(saleActivity);
             return result
-              ? respond(`Successfully Approve Offer with id ${result.insertedId}`)
+              ? respond(`Successfully Approve Offer with`)
               : respond("Failed to create a new activity.", true, 501);
           } else if (offer.type === ActivityType.OFFER) {
             const status_date = new Date().getTime();
@@ -304,7 +306,7 @@ export class ActivityController extends AbstractEntity {
                 nftId:offer.nftId,
                 type:{$in:[ActivityType.LIST,ActivityType.OFFER,ActivityType.OFFERCOLLECTION]}
               },
-              { $set: { active: false } }
+              { $set: { active: false,fromListener:fromListen??false } }
             );
             offer.type = ActivityType.SALE;
             offer.date = status_date;
@@ -318,7 +320,8 @@ export class ActivityController extends AbstractEntity {
               price: prc,
               active: true,
               netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-              fee:nft.fee
+              fee:nft.fee,
+              fromListener:fromListen??false
             });
             const email = new mailHelper();
             email.AcceptOfferEmail({
@@ -333,6 +336,8 @@ export class ActivityController extends AbstractEntity {
               fee:nft.fee,
               active: true,
             });
+
+            await this.get24HValues(offer.collection);
             return result
               ? respond(`Successfully created a new sold with id ${activityId}`)
               : respond("Failed to create a new activity.", true, 501);
@@ -956,7 +961,7 @@ export class ActivityController extends AbstractEntity {
             console.log('Update approve ')
             const actDataCheck = await activityTable.findOne({
               nftId:tId,
-              type:ActivityType.OFFER,
+              type:{$in:[ActivityType.OFFER,ActivityType.OFFERCOLLECTION]} ,
               from:from.toLowerCase(),
               to:to.toLowerCase(),
               price:price
@@ -1014,4 +1019,39 @@ export class ActivityController extends AbstractEntity {
       ARCFee
     }
   }
+
+  private async get24HValues(address: string) {
+    const activityTable = this.mongodb.collection(this.table);
+    const collTable = this.mongodb.collection(this.collectionTable)
+    const soldList = (await activityTable
+      .find({ collection: address, type: { $in: [ActivityType.TRANSFER, ActivityType.SALE] } })
+      .toArray()) as Array<IActivity>;
+    let yesterDayTrade = 0;
+    let todayTrade = 0;
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate.getTime());
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const dayBeforeDate = new Date(todayDate.getTime());
+    dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
+    soldList.forEach((sold) => {
+      if (sold.date > yesterdayDate.getTime() / 1000) {
+        // console.log("test", Number(sold.price));
+        todayTrade += Number(sold.price) ? sold.price : 0;
+      } else if (sold.date > dayBeforeDate.getTime() / 1000) {
+        // console.log("yes");
+        yesterDayTrade += Number(sold.price) ? sold.price : 0;
+      }
+    });
+
+
+    let _24h = 0,
+      _24hV = 0;
+    _24hV = yesterDayTrade == 0 || !yesterDayTrade ? 0 : (todayTrade / yesterDayTrade) * 100;
+    !_24hV ? (_24h = 0) : (_24h = _24hV);
+   
+    return await  collTable.updateOne({_id:ObjectId(address)},{$set:{_24h:todayTrade,_24Percent:_24h,yesterDayTrade}})
+
+    
+  }
+
 }

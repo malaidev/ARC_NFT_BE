@@ -111,6 +111,7 @@ const initMoralis= async () =>{
   subOwnerTransfer.on('update', (object) => {
     console.log('object transfer ', object);
     console.log(object.get("price_decimal").value['$numberDecimal'])
+    
       const actCtl = new ActivityController();
       // if (object.get("confirmed") || object.get("confirmed")=="True"){
       //      actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
@@ -121,19 +122,26 @@ const initMoralis= async () =>{
   subApproveOver.on('update', (object) => {
     console.log('object Approve ', object);
     console.log(object.get("price_decimal").value['$numberDecimal'])
+    let price= object.get("price_decimal").value['$numberDecimal'];
       const actCtl = new ActivityController();
+        
       if (object.get("confirmed") || object.get("confirmed")=="True"){
-           actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+           actCtl.listenActivity("APPROVE_OFFER",object.get("maker"),object.get("taker"),object.get("tokenId"),price);
       }
   });
 
   subBuyNow.on('update', (object) => {
       console.log('object BuyNow', object);
       console.log(object.get("price_decimal").value['$numberDecimal'])
+      let price= object.get("price_decimal").value['$numberDecimal'];
       const actCtl = new ActivityController();
       if (object.get("confirmed") || object.get("confirmed")=="True"){
           //  console.log('-->>>>>>> Buy')
-           actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),object.get("price_decimal").value['$numberDecimal']);
+          
+           actCtl.listenActivity("BUY_NOW",object.get("maker"),object.get("taker"),object.get("tokenId"),price);
+
+
+
       }
   });
 
@@ -155,6 +163,7 @@ config.mongodb
           }
           process.exit(1);
         }
+        
         initMoralis()
       });
     });

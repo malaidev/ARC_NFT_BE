@@ -175,3 +175,5 @@ export const deleteActivityId = async(req: FastifyRequest, res: FastifyReply) =>
   
   res.send(result);
 }
+
+

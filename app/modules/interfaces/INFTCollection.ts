@@ -21,6 +21,7 @@ export interface INFTCollection {
   floorPrice?:number;
   _24h?:number,
   _24hPercent?:number,
+  yesterDayTrade?:number,
   tagCollection?: Array<string>;
 }
 
