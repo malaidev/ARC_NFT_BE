@@ -202,7 +202,7 @@ export class NFTCollectionController extends AbstractEntity {
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         }
-        // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
+        
         if (result) {
           const collections = await Promise.all(
             result.map(async (collection) => {
@@ -572,7 +572,16 @@ export class NFTCollectionController extends AbstractEntity {
             })
           );
 
-          return respond(collections);
+          let rst = {
+            success: true,
+            status: "ok",
+            code: 200,
+            count: count,
+            currentPage: aggregation.page,
+            data: collections,
+          };
+
+          return rst;
 
         }
         return respond("collection not found.", true, 422);
