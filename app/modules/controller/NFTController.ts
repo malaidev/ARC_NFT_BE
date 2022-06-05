@@ -634,7 +634,7 @@ export class NFTController extends AbstractEntity {
       )
       
       if (count > 1001){
-        return respond("Maximum number of items at once is 3,000. Please try again.", true, 422);        
+        return respond("Maximum number of items at once is 1,000. Please try again.", true, 422);        
       }
       if (ntfs_error.length>0){
         return {success:false,
