@@ -575,7 +575,7 @@ export class NFTController extends AbstractEntity {
     try {
       const collData = await collectionTable.findOne({  _id: new ObjectId(collectionId)}) as INFTCollection;
       if (!collData){
-        return respond('Collection Id Doesn exist',true,422);
+        return respond('Collection Id does not exist',true,422);
       }
       if (owner.toLowerCase() !== collData.creator.toLowerCase()) {
         return respond("Collection owner should be created by the login user", true, 422);
@@ -633,8 +633,8 @@ export class NFTController extends AbstractEntity {
           })
       )
       
-      if (count > 3001){
-        return respond("Maximum number of items at once is 3,000. Please try again.", true, 422);        
+      if (count > 1001){
+        return respond("Maximum number of items at once is 1,000. Please try again.", true, 422);        
       }
       if (ntfs_error.length>0){
         return {success:false,
