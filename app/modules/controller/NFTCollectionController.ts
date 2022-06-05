@@ -943,6 +943,9 @@ export class NFTCollectionController extends AbstractEntity {
         bannerUrl: bannerIpfs && bannerIpfs.location?bannerIpfs['location']:null,
         description: description ?? "",
         category: category ?? "",
+        _24h:0,
+        _24hPercent:0,
+        volume:0,
         links: [
           siteUrl ?? "",
           discordUrl ?? "",
