@@ -156,7 +156,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -337,7 +336,6 @@ export class NFTCollectionController extends AbstractEntity {
                 .find({ tagCollection: { $regex: "HOT", $options: "i" } })
                 .toArray()) as Array<INFT>);
         }
-        console.log(count);
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(
@@ -505,7 +503,8 @@ export class NFTCollectionController extends AbstractEntity {
         let result = [] as any;
         let count;
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
-        aggregation.sort = { volume: -1 };
+        if (!aggregation.sort) {aggregation.sort = { volume: -1 }};
+
         if (aggregation && aggregation.filter) {
           count = await collectionTable.find({ $or: aggregation.filter }).count();
           result = aggregation.sort
@@ -543,6 +542,7 @@ export class NFTCollectionController extends AbstractEntity {
               const count = await this.countItemAndOwner(collection._id.toString());
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
               floorPrice = await this.getFloorPrice(`${collection._id}`);
+              
               return {
                 _id: collection._id,
                 logoUrl: collection.logoUrl,
@@ -558,7 +558,7 @@ export class NFTCollectionController extends AbstractEntity {
                 name: collection.name,
                 blockchain: collection.blockchain,
                 volume: collection.volume,
-                _24h: collection._24h??0,
+                _24h: collection._24h,
                 _24hPercent: collection._24hPercent??0,
                 floorPrice: floorPrice,
                 owners: count.owner,
@@ -571,6 +571,7 @@ export class NFTCollectionController extends AbstractEntity {
               };
             })
           );
+
 
           let rst = {
             success: true,
@@ -917,7 +918,6 @@ export class NFTCollectionController extends AbstractEntity {
         isExplicit?isEx:false;
       }
       if (properties){
-        // console.log(properties);
         const propertyNames: any = JSON.parse(properties);
         if (typeof propertyNames === 'object'){
           for (let key in propertyNames) {
@@ -943,9 +943,9 @@ export class NFTCollectionController extends AbstractEntity {
         bannerUrl: bannerIpfs && bannerIpfs.location?bannerIpfs['location']:null,
         description: description ?? "",
         category: category ?? "",
-        _24h:0,
-        _24hPercent:0,
-        volume:0,
+        _24h:0.00,
+        _24hPercent:0.00,
+        volume:0.00,
         links: [
           siteUrl ?? "",
           discordUrl ?? "",
@@ -964,7 +964,6 @@ export class NFTCollectionController extends AbstractEntity {
         ? respond({ ...nftCollection, creator: creator })
         : respond("Failed to create a new collection.", true, 500);
     } catch (e) {
-      console.log(e);
       return respond(e.message, true, 500);
     }
   }
@@ -1110,7 +1109,6 @@ export class NFTCollectionController extends AbstractEntity {
       ];
       let initialProperties: any = {};
       if (properties){
-        console.log(properties);
         const propertyNames: any = JSON.parse(properties);
         if (typeof propertyNames === 'object'){
           for (let key in propertyNames) {
@@ -1324,10 +1322,8 @@ export class NFTCollectionController extends AbstractEntity {
     dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
     soldList.forEach((sold) => {
       if (sold.date > yesterdayDate.getTime() / 1000) {
-        // console.log("test", Number(sold.price));
         todayTrade += Number(sold.price) ? sold.price : 0;
       } else if (sold.date > dayBeforeDate.getTime() / 1000) {
-        // console.log("yes");
         yesterDayTrade += Number(sold.price) ? sold.price : 0;
       }
     });
