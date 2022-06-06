@@ -143,8 +143,7 @@ export const getBatchItem = async(req,res)=>{
 
 }
 export const batchUpload = async (req, res) => {
-
-  
+ 
   const { csvFile, collectionId, tokenType } = req.body;
   const response_key = req.body["recaptcha"]?.value;
   if (!response_key)  throw new Error("Recaptcha response missing");

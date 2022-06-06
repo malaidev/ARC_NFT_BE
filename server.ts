@@ -3,8 +3,9 @@ const fastify = require("fastify");
 const cookie = require("fastify-cookie");
 const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
-const multiPart = require("fastify-multipart");
+const multiPart = require("@fastify/multipart");
 const Moralis = require("moralis/node");
+
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
 import { ErrorLogger } from "./app/modules/middleware/ErrorLogger";
@@ -27,6 +28,8 @@ process.setMaxListeners(15);
  */
 async function mount() {
   const app = fastify({
+    requestTimeout:500000,
+    keepAliveTimeout:500000,
     logger: config.env.match(/dev/) && {
       prettyPrint: {
         colorize: true,
@@ -48,6 +51,8 @@ async function mount() {
   await app.register(cookie, {
     secret: config.jwt,
   });
+  
+
   if (process.env.ENV !== "dev") {
     await app.register(helmet, { global: true, enableCSPNonces: true });
   }
@@ -156,6 +161,8 @@ config.mongodb
   .then(() => {
     /** Server start */
     mount().then((app) => {
+      
+      
       app.listen(config.server.port ?? 3001, "0.0.0.0", (error, addr) => {
         if (error) {
           if (config.logging) {

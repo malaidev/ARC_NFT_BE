@@ -591,7 +591,8 @@ export class NFTController extends AbstractEntity {
       let ntfs_error:INFT[]=[];
       let findIndex;
       const batchId=v4();
-      let count = 1;
+      let count = 0;
+      let totalUpload=0;
       await Promise.all(
           records.map(async (record)=>{
             count++;
@@ -633,9 +634,13 @@ export class NFTController extends AbstractEntity {
           })
       )
       
+
+      totalUpload = count;
+     
       if (count > 1001){
         return respond("Maximum number of items at once is 1,000. Please try again.", true, 422);        
       }
+
       if (ntfs_error.length>0){
         return {success:false,
           status:'error file upload',
@@ -644,9 +649,12 @@ export class NFTController extends AbstractEntity {
         };
       };
       let nftVar;
+      nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:totalUpload}}) as IGlobal;
+      let startCount= nftVar && nftVar.value && nftVar.value.nftIndex;
       for (let record of records) {
-        nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
-          const newIndex = nftVar && nftVar.value && nftVar.value.nftIndex + 1;
+        // nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
+          startCount++
+          const newIndex =startCount;
           const contentType = record["Content Type"];
           const nft: INFT = {
             collection: collectionId,
