@@ -503,20 +503,21 @@ export class NFTCollectionController extends AbstractEntity {
         let result = [] as any;
         let count;
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
-        if (!aggregation.sort) {aggregation.sort = { volume: -1 }};
-
+        // if (!aggregation.sort) {aggregation.sort = { volume: -1 }};
+        aggregation.limit=10;
+        aggregation.sort={volume:-1};
         if (aggregation && aggregation.filter) {
           count = await collectionTable.find({ $or: aggregation.filter }).count();
           result = aggregation.sort
             ? ((await collectionTable
                 .find({ $or: aggregation.filter })
                 .sort(aggregation.sort)
-                .skip(aggregation.skip)
+                
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
             : ((await collectionTable
                 .find({ $or: aggregation.filter })
-                .skip(aggregation.skip)
+                
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         } else {
@@ -525,12 +526,12 @@ export class NFTCollectionController extends AbstractEntity {
             ? await collectionTable
                 .find({})
                 .sort(aggregation.sort)
-                .skip(aggregation.skip)
+                
                 .limit(aggregation.limit)
                 .toArray()
             : ((await collectionTable
                 .find({})
-                .skip(aggregation.skip)
+                
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         }
