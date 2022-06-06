@@ -5,6 +5,7 @@ const cors = require("fastify-cors");
 const { jwt } = require("./app/config/jwtconfig");
 const multiPart = require("fastify-multipart");
 const Moralis = require("moralis/node");
+const plugin = require('fastify-server-timeout')
 // Middlewares
 import { ActionLogger } from "./app/modules/middleware/ActionLogger";
 import { ErrorLogger } from "./app/modules/middleware/ErrorLogger";
@@ -48,6 +49,11 @@ async function mount() {
   await app.register(cookie, {
     secret: config.jwt,
   });
+  
+  await app.register(plugin, {
+    serverTimeout: 300000 //ms
+  })
+
   if (process.env.ENV !== "dev") {
     await app.register(helmet, { global: true, enableCSPNonces: true });
   }
