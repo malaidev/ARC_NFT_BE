@@ -714,6 +714,7 @@ export class NFTController extends AbstractEntity {
 
       if (nfts.length > 0){
         await nftTable.insertMany(nfts);
+        
         let collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
         for (const nft of nfts) {
           collection = this._updateCollectionProperties(collection, nft);
