@@ -435,6 +435,7 @@ export class ActivityController extends AbstractEntity {
   async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number, loginUser: string) {
     try {
       if (this.mongodb) {
+        console.log('make collection offer');
         let prc: number = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (isNaN(Number(endDate))) {
@@ -491,13 +492,14 @@ export class ActivityController extends AbstractEntity {
             offerCollection: collId,
           };
           let nftUpdate = [];
+          let insertCollection=[];
           nftUpdate = await Promise.all(
             nfts.map(async (item) => {
               // const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
               // const nonce = sortAct ? sortAct.nonce + 1 : 0;
               // sortAct.nonce = nonce;
               // await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
-              await nftTable.replaceOne(this.findNFTItem(collectionId, item.index), item);
+              // await nftTable.replaceOne(this.findNFTItem(collectionId, item.index), item);
               const collOffer: IActivity = {
                 collection: collectionId,
                 nftId: item.index,
@@ -514,10 +516,13 @@ export class ActivityController extends AbstractEntity {
                 fee: item.fee??0,
                 netPrice:this.calculateFee(prc,item.fee)?.netPrice,
               };
-              const rOffer = await activityTable.insertOne(collOffer);
+              insertCollection.push(collOffer);
+              // const rOffer = await activityTable.insertOne(collOffer);
               return item;
             })
           );
+
+          const rOffer=await activityTable.insertMany(insertCollection);
           const result = await activityTable.insertOne(offer);
           if (result) {
             const findData = await activityTable.findOne({
@@ -840,11 +845,14 @@ export class ActivityController extends AbstractEntity {
           cancelList.type = ActivityType.CANCELOFFER;
           const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
           const actData = await activityTable.find({ offerCollection: cancelList.offerCollection }).toArray();
+          let actDataInactive=[];
+          let actDataCancel=[];
           const actUpdate = await Promise.all(
             actData.map(async (item) => {
-              item.active = false;
-              await activityTable.replaceOne(this.findActivtyWithId(item._id), item);
-              await activityTable.insertOne({
+              // item.active = false;
+              actDataInactive.push(new ObjectId(item._id));
+              // await activityTable.replaceOne(this.findActivtyWithId(item._id), item);
+              actDataCancel.push({
                 collection: item.collection,
                 nftId: item.nftId,
                 type: ActivityType.CANCELOFFER,
@@ -852,10 +860,21 @@ export class ActivityController extends AbstractEntity {
                 date: new Date().getTime(),
                 from: item.from?.toLowerCase(),
                 to: item.to?.toLowerCase(),
-              });
+              })
+              // await activityTable.insertOne({
+              //   collection: item.collection,
+              //   nftId: item.nftId,
+              //   type: ActivityType.CANCELOFFER,
+              //   price: item.price,
+              //   date: new Date().getTime(),
+              //   from: item.from?.toLowerCase(),
+              //   to: item.to?.toLowerCase(),
+              // });
               return item;
             })
           );
+          await activityTable.updateMany({_id:{$in:[...actDataInactive]}},{$set:{active:false}});
+          await activityTable.insertMany(actDataCancel);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
         }
         return respond("nft not found.", true, 422);
