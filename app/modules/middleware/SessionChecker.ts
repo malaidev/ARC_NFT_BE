@@ -25,6 +25,7 @@ export const SessionChecker = async (req, res, app) => {
         case "jwt":
           
           auth = await jwtVerify(req, authorization, app);
+          
           if (auth.success) {
             req.session = auth.session;
             if (

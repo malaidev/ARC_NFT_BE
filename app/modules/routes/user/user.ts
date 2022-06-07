@@ -9,6 +9,7 @@ import { isAPIKeyValid } from "../../util/ccxt-helper";
 import { SignerController } from "../../controller/SignerController";
 import moment = require("moment");
 import { TwoFaController } from "../../controller/TwoFAController";
+import { dateDiff } from "../../util/datediff-helper";
 /**
  * GET one row from DB
  * @param {*} req
@@ -22,10 +23,19 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
     .send('Forbidden');
   }
   const ctl = new DepoUserController();
+  
+  
   const result = await ctl.findUser(walletId);
   if (!result.code) {
-    res.send(result);
+    
+    let rst = {
+      ...result,
+      expireIn:dateDiff(Math.floor(new Date().getTime() / 1000),result['jwtExpired']??0)
+    };
+
+    res.send(rst);
   } else {
+    let rst = result
     res.code(result.code).send(result);
   }
 };
@@ -96,15 +106,17 @@ export const findOrCreateUser = async (
         }
       }
     }
-
+    const expiredDate= new Date().getTime() + (90*60000)
     const jwt = await res.jwtSign({
       uid: walletId,
-      exp: moment.utc().add(45, "minutes").unix(),
+      exp: moment.utc().add(90, "minutes").unix(),
+    
     });
     // And if it does, just sent back user's info
+    const updateUser = await ctl.updateUserJWT(walletId,expiredDate);
     delete user.sig;
     delete user.uuid;
-    res.send({ user, jwt });
+    res.send({ updateUser, jwt });
  
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));

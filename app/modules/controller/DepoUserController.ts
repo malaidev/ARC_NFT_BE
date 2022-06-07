@@ -146,6 +146,14 @@ export class DepoUserController extends AbstractEntity {
     }
   }
 
+  async updateUserJWT(walletId:string,exp:number): Promise<void | IUser> {
+    const user = this.mongodb.collection(this.table);
+    const rst = await user.findOneAndUpdate(this.findUserQuery(walletId.toLowerCase()), {$set:{jwtExpired:exp}}) as IUser;
+    
+    return rst;
+
+  }
+
   /**
    * Removes an API KEY from the database.
    * @param walletId user's wallet address

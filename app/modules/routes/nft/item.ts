@@ -30,15 +30,20 @@ export const getItemSimple = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
   const ctl = new NFTController();
-  const result = await ctl.getItemHistory(collectionId, nftId);
+  const result = await ctl.getItemHistory(collectionId, nftId,filters);
   res.send(result);
 };
 
 export const getItemOffers = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
+  const query = req.url.split("?")[1];
+  const filters = query ? parseQueryUrl(query) : null;
+  
   const ctl = new NFTController();
-  const result = await ctl.getItemOffers(collectionId, nftId);
+  const result = await ctl.getItemOffers(collectionId, nftId,filters);
   res.send(result);
 };
 

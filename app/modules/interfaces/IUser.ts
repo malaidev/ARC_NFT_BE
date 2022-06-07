@@ -16,6 +16,8 @@ export interface IUser {
     liquidityProvisions?: Array<ILiquidityProvision>
     verified?:Boolean
     uuid?:string
-    sig?:string
+    sig?:string,
+    jwtExpired?:number,
+    expireIn?:number,
     [key: string]: any
 }
