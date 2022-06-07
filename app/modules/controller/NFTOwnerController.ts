@@ -326,13 +326,13 @@ export class NFTOwnerController extends AbstractEntity {
           count = await activity.find({},{projection:{_id:1}}).count();
           result = aggregation.sort
             ? await activity
-                .find({})
+                .find({...query})
                 .sort(aggregation.sort)
                 
                 .limit(aggregation.limit)
                 .toArray()
             : ((await activity
-                .find({})
+                .find({...query})
                 .sort(aggregation.sort)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
