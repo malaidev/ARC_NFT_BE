@@ -50,7 +50,6 @@ export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
   const ctl = new ActivityController();
   const owner = new NFTOwnerController();
   const findPerson=await owner.findPerson(seller);
-
   const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, startDate ?? 0,endDate ?? 0,r ?? "" ,s ?? "" ,v ??"", loginUser?? "");
   res.send(result);
 };
