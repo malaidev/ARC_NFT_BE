@@ -198,7 +198,7 @@ export class NFTController extends AbstractEntity {
           let qry = {
             collection: collectionId,
             nftId: result.index,
-            $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }, { type: ActivityType.OFFERCOLLECTION }],
+            $or: [{ type: ActivityType.OFFER }, { type: ActivityType.OFFERCOLLECTION }],
             active: true,
           }
           if (aggregation && aggregation.filter) {

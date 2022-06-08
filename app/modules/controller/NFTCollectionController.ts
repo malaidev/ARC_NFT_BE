@@ -1206,7 +1206,6 @@ export class NFTCollectionController extends AbstractEntity {
     const activityTable = this.mongodb.collection(this.activityTable);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
-    console.log('-----user',loginUser);
     if (!collection) {
       return respond("collection not found", true, 501);
     }
