@@ -30,7 +30,7 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
     
     let rst = {
       ...result,
-      expireIn:dateDiff(Math.floor(new Date().getTime() / 1000),result['jwtExpired']??0)
+      // expireIn:dateDiff(Math.floor(new Date().getTime() / 1000),result['jwtExpired']??0)
     };
 
     res.send(rst);
