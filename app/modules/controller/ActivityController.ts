@@ -819,6 +819,7 @@ export class ActivityController extends AbstractEntity {
           const actData = await activityTable.find({ offerCollection: cancelList.offerCollection }).toArray();
           let actDataInactive=[];
           let actDataCancel=[];
+          console.log('acdata',actData.length);
           const actUpdate = await Promise.all(
             actData.map(async (item) => {
               // item.active = false;
@@ -832,6 +833,7 @@ export class ActivityController extends AbstractEntity {
                 date: new Date().getTime(),
                 from: item.from?.toLowerCase(),
                 to: item.to?.toLowerCase(),
+                active:true
               })
               // await activityTable.insertOne({
               //   collection: item.collection,
@@ -845,7 +847,9 @@ export class ActivityController extends AbstractEntity {
               return item;
             })
           );
-          await activityTable.updateMany({_id:{$in:[...actDataInactive]}},{$set:{active:false}});
+            console.log('inactive',actDataInactive);
+            console.log('cancel',actDataCancel.length);
+          await activityTable.updateMany({ offerCollection: cancelList.offerCollection },{$set:{active:false}});
           await activityTable.insertMany(actDataCancel);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
         }
