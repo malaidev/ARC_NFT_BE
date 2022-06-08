@@ -30,7 +30,7 @@ export const getOne = async (req: FastifyRequest, res: FastifyReply) => {
     
     let rst = {
       ...result,
-      expireIn:dateDiff(Math.floor(new Date().getTime() / 1000),result['jwtExpired']??0)
+      // expireIn:dateDiff(Math.floor(new Date().getTime() / 1000),result['jwtExpired']??0)
     };
 
     res.send(rst);
@@ -116,7 +116,7 @@ export const findOrCreateUser = async (
     const updateUser = await ctl.updateUserJWT(walletId,expiredDate);
     delete user.sig;
     delete user.uuid;
-    res.send({ updateUser, jwt });
+    res.send({ user, jwt });
  
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
