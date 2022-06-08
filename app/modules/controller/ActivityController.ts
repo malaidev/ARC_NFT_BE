@@ -831,25 +831,15 @@ export class ActivityController extends AbstractEntity {
                 type: ActivityType.CANCELOFFER,
                 price: item.price,
                 date: new Date().getTime(),
+                startDate: new Date().getTime(),
                 from: item.from?.toLowerCase(),
                 to: item.to?.toLowerCase(),
                 active:true
               })
-              // await activityTable.insertOne({
-              //   collection: item.collection,
-              //   nftId: item.nftId,
-              //   type: ActivityType.CANCELOFFER,
-              //   price: item.price,
-              //   date: new Date().getTime(),
-              //   from: item.from?.toLowerCase(),
-              //   to: item.to?.toLowerCase(),
-              // });
               return item;
             })
           );
-            console.log('inactive',actDataInactive);
-            console.log('cancel',actDataCancel.length);
-          await activityTable.updateMany({ offerCollection: cancelList.offerCollection },{$set:{active:false}});
+          await activityTable.updateMany({ offerCollection: cancelList.offerCollection,type:ActivityType.OFFERCOLLECTION },{$set:{active:false}});
           await activityTable.insertMany(actDataCancel);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
         }
@@ -858,6 +848,7 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -915,7 +906,8 @@ export class ActivityController extends AbstractEntity {
             
           collData.offerStatus = OfferStatusType.OFFERED;
           actData.active=true;
-          actData.signature={r,s,v}
+          
+          actData?actData.signature={r,s,v}:actData.signature=null;
           await collTable.replaceOne(this.findCollectionById(actData.collection), collData);
           await activityTable.replaceOne({_id:new ObjectId(actData._id)},actData)
           await activityTable.insertMany(insertCollection);
