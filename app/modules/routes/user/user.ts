@@ -116,7 +116,7 @@ export const findOrCreateUser = async (
     const updateUser = await ctl.updateUserJWT(walletId,expiredDate);
     delete user.sig;
     delete user.uuid;
-    res.send({ updateUser, jwt });
+    res.send({ user, jwt });
  
   } else {
     res.code(400).send(respond("Wallet address cannot be null.", true, 400));
