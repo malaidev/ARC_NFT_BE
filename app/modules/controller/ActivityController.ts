@@ -892,7 +892,7 @@ export class ActivityController extends AbstractEntity {
                 batchId:item.batchId,
                 active: true,
                 offerCollection: actData.offerCollection,
-                fee: collData.fee??0,
+                fee: collData.creatorEarning??0,
                 signature : {
                   r,
                   s,
