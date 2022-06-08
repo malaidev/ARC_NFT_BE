@@ -1200,12 +1200,13 @@ export class NFTCollectionController extends AbstractEntity {
    * @param collectionId collection Id
    * @returns
    */
-  async getCollectionDetail(collectionId: string,filters?: IQueryFilters): Promise<IResponse> {
+  async getCollectionDetail(collectionId: string,filters?: IQueryFilters,loginUser?:string): Promise<IResponse> {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
+    console.log('-----user',loginUser);
     if (!collection) {
       return respond("collection not found", true, 501);
     }
@@ -1224,14 +1225,20 @@ export class NFTCollectionController extends AbstractEntity {
     const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
     collection.creatorDetail = creator;
     collection.volume ?? 0;
-    // const actData = await activityTable
-    //             .find({
-    //               collection: collectionId,
-    //               active: true,
-    //               type: { $in: [ActivityType.OFFERCOLLECTION] },
-    //             })
-    //             .toArray();
-    // collection.offer_lists=actData;
+    let collectionOffer;
+    if (loginUser){
+        collectionOffer=await activityTable.findOne({
+            _id:new ObjectId(collectionId),
+            type:ActivityType.OFFERCOLLECTION,
+            nftId:null,
+            active:true,
+            from:loginUser.toLowerCase()
+
+        });
+        collection.collectionOffer=collectionOffer;
+    }else{
+      collection.collectionOffer=null;
+    }
     return respond(collection);
   }
   /**

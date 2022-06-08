@@ -812,8 +812,7 @@ export class ActivityController extends AbstractEntity {
           if (cancelList.from !== buyer) {
             return respond("Buyer isn't activity's owner.", true, 422);
           }
-          collection.offerStatus = OfferStatusType.CANCELED;
-          await collectionTable.replaceOne(this.findCollectionById(collection._id), collection);
+          
           cancelList.type = ActivityType.CANCELOFFER;
           const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
           const actData = await activityTable.find({ offerCollection: cancelList.offerCollection }).toArray();
