@@ -462,7 +462,7 @@ export class ActivityController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         const ownTable = this.mongodb.collection(this.ownerTable);
-        const nfts = (await nftTable.find({ collection: collectionId }).toArray()) as Array<INFT>;
+        const nfts = (await nftTable.find({ collection: collectionId },{projection:{_id:1}}).count);
         if (nfts && nfts.length == 0) {
           return respond("No Items", true, 501);
         }
@@ -477,8 +477,7 @@ export class ActivityController extends AbstractEntity {
           await ownTable.replaceOne({ wallet: buyer.toLowerCase() }, sortAct);
           let collId = Date.now();
           let offerTime = new Date().getTime();
-          collection.offerStatus = OfferStatusType.OFFERED;
-          await collectionTable.replaceOne(this.findCollectionById(collectionId), collection);
+          
           const offer: IActivity = {
             collection: collectionId,
             type: ActivityType.OFFERCOLLECTION,
@@ -488,41 +487,12 @@ export class ActivityController extends AbstractEntity {
             from: buyer?.toLowerCase(),
             to: seller?.toLowerCase(),
             nonce,
-            active: true,
+            active: false,
             offerCollection: collId,
           };
-          let nftUpdate = [];
-          let insertCollection=[];
-          nftUpdate = await Promise.all(
-            nfts.map(async (item) => {
-              // const sortAct = await ownTable.findOne({wallet:buyer.toLowerCase()});
-              // const nonce = sortAct ? sortAct.nonce + 1 : 0;
-              // sortAct.nonce = nonce;
-              // await ownTable.replaceOne({wallet:buyer.toLowerCase()},sortAct);
-              // await nftTable.replaceOne(this.findNFTItem(collectionId, item.index), item);
-              const collOffer: IActivity = {
-                collection: collectionId,
-                nftId: item.index,
-                type: ActivityType.OFFERCOLLECTION,
-                price: prc,
-                startDate: offerTime,
-                endDate: endDate,
-                from: buyer?.toLowerCase(),
-                to: item.owner?.toLowerCase(),
-                nonce,
-                batchId:item.batchId,
-                active: true,
-                offerCollection: collId,
-                fee: item.fee??0,
-                netPrice:this.calculateFee(prc,item.fee)?.netPrice,
-              };
-              insertCollection.push(collOffer);
-              // const rOffer = await activityTable.insertOne(collOffer);
-              return item;
-            })
-          );
+          
 
-          const rOffer=await activityTable.insertMany(insertCollection);
+          
           const result = await activityTable.insertOne(offer);
           if (result) {
             const findData = await activityTable.findOne({
@@ -531,14 +501,14 @@ export class ActivityController extends AbstractEntity {
             const collectionData = await collectionTable.findOne({
               _id: new ObjectId(findData.collection),
             });
-            const nftData = await nftTable.find({ collection: findData.collection }).toArray();
+            // const nftData = await nftTable.find({ collection: findData.collection }).toArray();
             findData.collection = collectionData;
-            findData.nfts = nftData;
+            // findData.nfts = nftData;
             //** send email  */
-            if (sortAct && sortAct.email) {
-              const email = new mailHelper();
-              email.CollectionOffer(offer, sortAct);
-            }
+            // if (sortAct && sortAct.email) {
+            //   const email = new mailHelper();
+            //   email.CollectionOffer(offer, sortAct);
+            // }
             /** end of send email */
             return respond({
               ...findData,
@@ -556,6 +526,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+  
   async listForSaleBatch(
     batchId:string,
     seller: string,
@@ -889,26 +860,62 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.table);
+        const nftTable = this.mongodb.collection(this.nftTable);
+        const collTable = this.mongodb.collection(this.collectionTable);
+
         const actData = (await activityTable.findOne(this.findActivtyWithId(id))) as IActivity;
+        
         // if (actData && actData.from.toLowerCase()!==loginUser ){
         //   return respond("You are not current user of this activity ", true, 422);
         // }
-        if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {          
+        if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {   
+          const collData = await collTable.findOne({collection:new ObjectId(actData.collection)});
+          const nfts = (await nftTable.find({ collection: actData.collection }).toArray()) as Array<INFT>;
+        if (nfts && nfts.length == 0) {
+          return respond("No Items", true, 501);
+        }
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
+          let insertCollection = [];
           const result = await Promise.all(
             actDataDetail.map(async (item) => {
-              item.signature = {
-                r,
-                s,
-                v,
+              const collOffer: IActivity = {
+                collection: actData.collection,
+                nftId: item.index,
+                type: ActivityType.OFFERCOLLECTION,
+                price: actData.price,
+                startDate: actData.startDate,
+                endDate: actData.endDate,
+                from: actData.from?.toLowerCase(),
+                to: actData.to?.toLowerCase(),
+                nonce:actData.nonce,
+                batchId:item.batchId,
+                active: true,
+                offerCollection: actData.offerCollection,
+                fee: collData.fee??0,
+                signature : {
+                  r,
+                  s,
+                  v,
+                },
+                netPrice:this.calculateFee(actData.price,collData.fee)?.netPrice,
               };
-              await activityTable.replaceOne({ _id: new ObjectId(item._id) }, item);
+              insertCollection.push(collOffer);
+
+              // await activityTable.replaceOne({ _id: new ObjectId(item._id) }, item);
               return result;
             })
           );
+            
+          collData.offerStatus = OfferStatusType.OFFERED;
+          actData.active=true;
+          actData.signature={r,s,v}
+          await collTable.replaceOne(this.findCollectionById(actData.collection), collData);
+          await activityTable.replaceOne({_id:new ObjectId(actData._id)},actData)
+          await activityTable.insertMany(insertCollection);
           // const result = await activityTable.updateMany({offerCollection:actData.offerCollection},{$set:{'signature':{r,s,v}}})
           return result ? respond("Signature updated") : respond("Failed to update activity.", true, 501);
         } else {
+
           actData.signature = { r, s, v };
           const result = await activityTable.replaceOne(this.findActivtyWithId(id), actData);
           return result ? respond("Signature updated") : respond("Failed to update activity.", true, 501);
