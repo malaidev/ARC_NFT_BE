@@ -77,7 +77,7 @@ export const nft = async (router: any, options: any) => {
   router.get("/collection/:collectionId/activity",config.route("jwt"), getActivities);
   router.get("/collection/:collectionId/offer", config.route("jwt"), getCollectionOffer);
 
-  router.get("/collection/:collectionId", getCollectionDetail);
+  router.get("/collection/:collectionId", config.routeParamsValidationJWT("jwt"), getCollectionDetail);
   router.get("/collection/tag/:tag",  getTagCollections);
 
 
