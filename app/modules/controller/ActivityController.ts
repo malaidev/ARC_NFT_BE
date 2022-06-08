@@ -487,6 +487,7 @@ export class ActivityController extends AbstractEntity {
             from: buyer?.toLowerCase(),
             to: seller?.toLowerCase(),
             nonce,
+            fee:collection.creatorEarning??0,
             active: false,
             offerCollection: collId,
           };
