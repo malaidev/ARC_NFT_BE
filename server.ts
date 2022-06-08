@@ -171,7 +171,7 @@ config.mongodb
           process.exit(1);
         }
         
-        initMoralis()
+        // initMoralis()
       });
     });
   })

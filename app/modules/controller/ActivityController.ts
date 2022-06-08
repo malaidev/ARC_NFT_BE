@@ -870,15 +870,18 @@ export class ActivityController extends AbstractEntity {
         //   return respond("You are not current user of this activity ", true, 422);
         // }
         if (actData && actData.type == ActivityType.OFFERCOLLECTION && !actData.nftId) {   
-          const collData = await collTable.findOne({collection:new ObjectId(actData.collection)});
+          const collData = await collTable.findOne({_id:new ObjectId(actData.collection)});
           const nfts = (await nftTable.find({ collection: actData.collection }).toArray()) as Array<INFT>;
         if (nfts && nfts.length == 0) {
           return respond("No Items", true, 501);
         }
+
+        console.log(collData);
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
           let insertCollection = [];
+          let i=0;
           const result = await Promise.all(
-            actDataDetail.map(async (item) => {
+            nfts.map(async (item) => {
               const collOffer: IActivity = {
                 collection: actData.collection,
                 nftId: item.index,
@@ -892,16 +895,15 @@ export class ActivityController extends AbstractEntity {
                 batchId:item.batchId,
                 active: true,
                 offerCollection: actData.offerCollection,
-                fee: collData.creatorEarning??0,
+                fee: actData.fee??0,
                 signature : {
                   r,
                   s,
                   v,
                 },
-                netPrice:this.calculateFee(actData.price,collData.fee)?.netPrice,
+                netPrice:this.calculateFee(actData.price,actData.fee)?.netPrice,
               };
               insertCollection.push(collOffer);
-
               // await activityTable.replaceOne({ _id: new ObjectId(item._id) }, item);
               return result;
             })
@@ -925,6 +927,7 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
