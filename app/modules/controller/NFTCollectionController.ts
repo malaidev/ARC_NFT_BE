@@ -11,6 +11,7 @@ import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { moderationContent, S3uploadImageBase64 } from "../util/aws-s3-helper";
 import TextHelper from "../util/TextHelper";
 import { config } from "../../config/config";
+import { Console } from "console";
 /**
  * This is the NFTCollection controller class.
  * Do all the NFTCollection's functions such as
@@ -783,6 +784,7 @@ export class NFTCollectionController extends AbstractEntity {
           let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
+              
               if (activity && activity.nftId >= 0) {
                 const coll = (await collTable.findOne({ _id: new ObjectId(activity.collection) })) as INFTCollection;
                 const nft = (await nftTable.findOne(
@@ -791,20 +793,23 @@ export class NFTCollectionController extends AbstractEntity {
                 )) as INFT;
                 activity.nftObject = nft;
                 activity.collection={ ...coll };
-                return {
-                  ...activity
-                }
                 
+                rstAct.push(activity)
               }
+              // return {
+              //   ...activity
+              // }
             })
           );
-          return respond(detailedActivity);
+          
+          return respond(rstAct);
         }
         return respond("Activities not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(error);
       return respond(error.message, true, 500);
     }
   }
