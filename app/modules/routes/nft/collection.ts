@@ -278,12 +278,14 @@ export const getCollectionDetail = async (req: FastifyRequest, res: FastifyReply
   const { collectionId } = req.params as any;
   const query = req.url.split("?")[1];
   const filters = query ? parseQueryUrl(query) : null;
+  const userSession = req["session"] as any;
+  const loginUser =  userSession?.walletId.toLowerCase();
   filters && filters.filters.length == 0 && req.query["filters"]
     ? (filters.filters = JSON.parse(req.query["filters"]))
     : null;
 
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollectionDetail(collectionId,filters);
+  const result = await ctl.getCollectionDetail(collectionId,filters,loginUser);
   res.send(result);
 };
 

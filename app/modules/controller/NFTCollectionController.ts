@@ -309,18 +309,12 @@ export class NFTCollectionController extends AbstractEntity {
         const collData = (await nftTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
         const detailedActivity = await Promise.all(
           rst.map(async (activity) => {
-            // if (activity.type==ActivityType.OFFERCOLLECTION && activity.nftId){
             activity.collection = collData.contract;
             activity.collectionId = collectionId;
             activity.collectionDetail={
               creator:collData.creator,
               creatorEarning:collData.creatorEarning
             }
-            // else{
-            //   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-            //   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
-            //   return activity;
-            // }
             return activity;
           })
         );
@@ -797,11 +791,14 @@ export class NFTCollectionController extends AbstractEntity {
                 )) as INFT;
                 activity.nftObject = nft;
                 activity.collection={ ...coll };
-                return rstAct.push(activity);
+                return {
+                  ...activity
+                }
+                
               }
             })
           );
-          return respond(rstAct);
+          return respond(detailedActivity);
         }
         return respond("Activities not found.", true, 422);
       } else {
@@ -1200,7 +1197,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param collectionId collection Id
    * @returns
    */
-  async getCollectionDetail(collectionId: string,filters?: IQueryFilters): Promise<IResponse> {
+  async getCollectionDetail(collectionId: string,filters?: IQueryFilters,loginUser?:string): Promise<IResponse> {
     const collectionTable = this.mongodb.collection(this.table);
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
@@ -1224,14 +1221,20 @@ export class NFTCollectionController extends AbstractEntity {
     const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
     collection.creatorDetail = creator;
     collection.volume ?? 0;
-    // const actData = await activityTable
-    //             .find({
-    //               collection: collectionId,
-    //               active: true,
-    //               type: { $in: [ActivityType.OFFERCOLLECTION] },
-    //             })
-    //             .toArray();
-    // collection.offer_lists=actData;
+    let collectionOffer;
+    if (loginUser){
+        collectionOffer=await activityTable.findOne({
+            _id:new ObjectId(collectionId),
+            type:ActivityType.OFFERCOLLECTION,
+            nftId:null,
+            active:true,
+            from:loginUser.toLowerCase()
+
+        });
+        collection.collectionOffer=collectionOffer;
+    }else{
+      collection.collectionOffer=null;
+    }
     return respond(collection);
   }
   /**
