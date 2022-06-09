@@ -85,7 +85,6 @@ export class ActivityController extends AbstractEntity {
         const collData = (await collTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
 
 
-        console.log('--->>>>>>>>>',fromListen);
         
         let prc: number = 0;
         let vol: number = 0;
@@ -462,8 +461,8 @@ export class ActivityController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         const ownTable = this.mongodb.collection(this.ownerTable);
-        const nfts = (await nftTable.find({ collection: collectionId },{projection:{_id:1}}).count);
-        if (nfts && nfts.length == 0) {
+        const nfts = await nftTable.find({ collection: collectionId },{projection:{_id:1}}).count();
+        if (nfts == 0) {
           return respond("No Items", true, 501);
         }
         // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
@@ -529,7 +528,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -854,13 +852,13 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
   async signOffer(id: string, r: string, s: string, v: string, loginUser: string) {
     try {
       if (this.mongodb) {
+
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
@@ -877,7 +875,7 @@ export class ActivityController extends AbstractEntity {
           return respond("No Items", true, 501);
         }
 
-        console.log(collData);
+
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
           let insertCollection = [];
           let i=0;
@@ -912,7 +910,6 @@ export class ActivityController extends AbstractEntity {
             
           collData.offerStatus = OfferStatusType.OFFERED;
           actData.active=true;
-          
           actData?actData.signature={r,s,v}:actData.signature=null;
           await collTable.replaceOne(this.findCollectionById(actData.collection), collData);
           await activityTable.replaceOne({_id:new ObjectId(actData._id)},actData)
@@ -929,7 +926,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -982,7 +978,6 @@ export class ActivityController extends AbstractEntity {
           } 
         }
         if ( nftData &&  type=='APPROVE_OFFER'){
-          // console.log('--->>>>>> aproorce',price)
           const actData = await activityTable.findOne({
             nftId:tId,
             type:ActivityType.SALE,
@@ -990,7 +985,6 @@ export class ActivityController extends AbstractEntity {
             to:from.toLowerCase()
           })
           if (!actData){
-            console.log('Update approve ')
             const actDataCheck = await activityTable.findOne({
               nftId:tId,
               type:{$in:[ActivityType.OFFER,ActivityType.OFFERCOLLECTION]} ,
@@ -999,7 +993,6 @@ export class ActivityController extends AbstractEntity {
               price:price
             })
 
-            // console.log(actDataCheck)
             if (actDataCheck){
               await this.approveOffer(nftData.collection,nftData.index,to.toLowerCase(),from.toLowerCase(),actDataCheck._id.toString(), null,true)
             }
@@ -1067,10 +1060,8 @@ export class ActivityController extends AbstractEntity {
     dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
     soldList.forEach((sold) => {
       if (sold.date > yesterdayDate.getTime() / 1000) {
-        // console.log("test", Number(sold.price));
         todayTrade += Number(sold.price) ? sold.price : 0;
       } else if (sold.date > dayBeforeDate.getTime() / 1000) {
-        // console.log("yes");
         yesterDayTrade += Number(sold.price) ? sold.price : 0;
       }
     });
