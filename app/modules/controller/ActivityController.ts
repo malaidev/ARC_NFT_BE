@@ -85,7 +85,6 @@ export class ActivityController extends AbstractEntity {
         const collData = (await collTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
 
 
-        console.log('--->>>>>>>>>',fromListen);
         
         let prc: number = 0;
         let vol: number = 0;
@@ -435,7 +434,7 @@ export class ActivityController extends AbstractEntity {
   async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number, loginUser: string) {
     try {
       if (this.mongodb) {
-        console.log('make collection offer');
+        
         let prc: number = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (isNaN(Number(endDate))) {
@@ -462,8 +461,8 @@ export class ActivityController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.collectionTable);
         const collection = (await collectionTable.findOne(this.findCollectionById(collectionId))) as INFTCollection;
         const ownTable = this.mongodb.collection(this.ownerTable);
-        const nfts = (await nftTable.find({ collection: collectionId },{projection:{_id:1}}).count);
-        if (nfts && nfts.length == 0) {
+        const nfts = await nftTable.find({ collection: collectionId },{projection:{_id:1}}).count();
+        if (nfts == 0) {
           return respond("No Items", true, 501);
         }
         // const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
@@ -472,12 +471,21 @@ export class ActivityController extends AbstractEntity {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
+          const checkActivity = await activityTable.findOne({
+            from: buyer?.toLowerCase(),
+            to: seller?.toLowerCase(),
+            type: ActivityType.OFFERCOLLECTION,
+            nftId:null,
+            active: true,
+          });
+          if (checkActivity){
+            return respond("You still have  active collection offer ", true, 422);
+          }
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({ wallet: buyer.toLowerCase() }, sortAct);
           let collId = Date.now();
           let offerTime = new Date().getTime();
-          
           const offer: IActivity = {
             collection: collectionId,
             type: ActivityType.OFFERCOLLECTION,
@@ -491,9 +499,6 @@ export class ActivityController extends AbstractEntity {
             active: false,
             offerCollection: collId,
           };
-          
-
-          
           const result = await activityTable.insertOne(offer);
           if (result) {
             const findData = await activityTable.findOne({
@@ -523,7 +528,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -802,6 +806,7 @@ export class ActivityController extends AbstractEntity {
           const cancelList = (await activityTable.findOne({
             _id: new ObjectId(activityId),
             collection: collectionId,
+            active:true
           })) as IActivity;
           if (!cancelList) {
             return respond("activity not found.", true, 422);
@@ -814,11 +819,12 @@ export class ActivityController extends AbstractEntity {
           }
           
           cancelList.type = ActivityType.CANCELOFFER;
+          cancelList.active=false;
           const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
-          const actData = await activityTable.find({ offerCollection: cancelList.offerCollection }).toArray();
+          const actData = await activityTable.find({ offerCollection: cancelList.offerCollection,nftId:{$ne:null} }).toArray();
           let actDataInactive=[];
           let actDataCancel=[];
-          console.log('acdata',actData.length);
+          
           const actUpdate = await Promise.all(
             actData.map(async (item) => {
               // item.active = false;
@@ -835,7 +841,6 @@ export class ActivityController extends AbstractEntity {
                 to: item.to?.toLowerCase(),
                 active:true
               })
-              return item;
             })
           );
           await activityTable.updateMany({ offerCollection: cancelList.offerCollection,type:ActivityType.OFFERCOLLECTION },{$set:{active:false}});
@@ -847,13 +852,13 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
   async signOffer(id: string, r: string, s: string, v: string, loginUser: string) {
     try {
       if (this.mongodb) {
+
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
@@ -870,7 +875,7 @@ export class ActivityController extends AbstractEntity {
           return respond("No Items", true, 501);
         }
 
-        console.log(collData);
+
           const actDataDetail = await activityTable.find({ offerCollection: actData.offerCollection }).toArray();
           let insertCollection = [];
           let i=0;
@@ -905,7 +910,6 @@ export class ActivityController extends AbstractEntity {
             
           collData.offerStatus = OfferStatusType.OFFERED;
           actData.active=true;
-          
           actData?actData.signature={r,s,v}:actData.signature=null;
           await collTable.replaceOne(this.findCollectionById(actData.collection), collData);
           await activityTable.replaceOne({_id:new ObjectId(actData._id)},actData)
@@ -922,7 +926,6 @@ export class ActivityController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -975,7 +978,6 @@ export class ActivityController extends AbstractEntity {
           } 
         }
         if ( nftData &&  type=='APPROVE_OFFER'){
-          // console.log('--->>>>>> aproorce',price)
           const actData = await activityTable.findOne({
             nftId:tId,
             type:ActivityType.SALE,
@@ -983,7 +985,6 @@ export class ActivityController extends AbstractEntity {
             to:from.toLowerCase()
           })
           if (!actData){
-            console.log('Update approve ')
             const actDataCheck = await activityTable.findOne({
               nftId:tId,
               type:{$in:[ActivityType.OFFER,ActivityType.OFFERCOLLECTION]} ,
@@ -992,7 +993,6 @@ export class ActivityController extends AbstractEntity {
               price:price
             })
 
-            // console.log(actDataCheck)
             if (actDataCheck){
               await this.approveOffer(nftData.collection,nftData.index,to.toLowerCase(),from.toLowerCase(),actDataCheck._id.toString(), null,true)
             }
@@ -1060,10 +1060,8 @@ export class ActivityController extends AbstractEntity {
     dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
     soldList.forEach((sold) => {
       if (sold.date > yesterdayDate.getTime() / 1000) {
-        // console.log("test", Number(sold.price));
         todayTrade += Number(sold.price) ? sold.price : 0;
       } else if (sold.date > dayBeforeDate.getTime() / 1000) {
-        // console.log("yes");
         yesterDayTrade += Number(sold.price) ? sold.price : 0;
       }
     });

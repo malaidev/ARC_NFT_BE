@@ -25,9 +25,12 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
 export const getCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const collectionId = req.params["collectionId"] as any;
   const query = req.url.split("?")[1];
+  
   const filters = parseQueryUrl(query);
+  const userSession = req["session"] as any;
+  const loginUser =  userSession?.walletId.toLowerCase();
   const ctl = new NFTCollectionController();
-  const result = await ctl.getCollectionOffer(collectionId,filters);
+  const result = await ctl.getCollectionOffer(collectionId,filters,loginUser);
   res.send(result);
 };
 
