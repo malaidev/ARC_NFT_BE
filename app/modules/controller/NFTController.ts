@@ -156,17 +156,37 @@ export class NFTController extends AbstractEntity {
               ? await activityTable.find({...qry}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<IActivity>
               : ((await activityTable.find({...qry}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<IActivity>);
           }
-          if (result) {
+
+          let rstAct = [];
+          const detailedActivity = await Promise.all(
+            rst.map(async (activity) => {
+              
+              if (activity && activity.nftId >= 0) {
+                
+                const nft = (await nftTable.findOne(
+                  { collection: activity.collection, index: activity.nftId },
+                  { projection: { artURI: 1, _id: 0, name: 1,contentType:1 } }
+                )) as INFT;
+                activity.nftObject = nft;
+                
+                
+                rstAct.push(activity)
+              }
+            })
+          );
+          
+          
+
             let findResult = {
               success: true,
               status: "ok",
               code: 200,
               count: count,
               currentPage: aggregation.page,
-              data: rst,
+              data: rstAct,
             };
             return findResult;
-          }
+          
         }
         return respond("nft not found.", true, 422);
       } else {
