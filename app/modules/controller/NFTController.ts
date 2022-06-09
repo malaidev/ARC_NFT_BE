@@ -223,9 +223,11 @@ export class NFTController extends AbstractEntity {
           }
           const resultOffersInvidual = await Promise.all(
             rst.map(async (item) => {
+             
               if (item && item.nftId) {
                 const col = await collTable.findOne({ _id: new ObjectId(item.collection) });
                 const nfts = (await nftTable.findOne({ collection: item.collection, index: item.nftId })) as INFT;
+                
                 item.collectionId = item.collection;
                 item.collection = col.contract;
                 item.collectionDetail={
@@ -233,12 +235,15 @@ export class NFTController extends AbstractEntity {
                   creatorEarning:col.creatorEarning
                 }
                 item.nft = { artURI: nfts.artURI, name: nfts.name,ContentType:nfts?.contentType};
-                rst.push(item);
+                
               }
-              return item;
+            
+                return {
+                ...item
+              }
             })
           );
-          return respond(rst);
+          return respond(resultOffersInvidual);
         }
         return respond("nft not found.", true, 422);
       } else {

@@ -309,18 +309,12 @@ export class NFTCollectionController extends AbstractEntity {
         const collData = (await nftTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
         const detailedActivity = await Promise.all(
           rst.map(async (activity) => {
-            // if (activity.type==ActivityType.OFFERCOLLECTION && activity.nftId){
             activity.collection = collData.contract;
             activity.collectionId = collectionId;
             activity.collectionDetail={
               creator:collData.creator,
               creatorEarning:collData.creatorEarning
             }
-            // else{
-            //   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-            //   activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
-            //   return activity;
-            // }
             return activity;
           })
         );
@@ -797,11 +791,14 @@ export class NFTCollectionController extends AbstractEntity {
                 )) as INFT;
                 activity.nftObject = nft;
                 activity.collection={ ...coll };
-                return rstAct.push(activity);
+                return {
+                  ...activity
+                }
+                
               }
             })
           );
-          return respond(rstAct);
+          return respond(detailedActivity);
         }
         return respond("Activities not found.", true, 422);
       } else {
