@@ -435,7 +435,7 @@ export class ActivityController extends AbstractEntity {
   async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number, loginUser: string) {
     try {
       if (this.mongodb) {
-        console.log('make collection offer');
+        
         let prc: number = 0;
         typeof price == "string" ? (prc = +price) : (prc = price);
         if (isNaN(Number(endDate))) {
@@ -472,12 +472,21 @@ export class ActivityController extends AbstractEntity {
           if (collection.creator !== seller) {
             return respond("seller isnt collection's creator.", true, 422);
           }
+          const checkActivity = await activityTable.findOne({
+            from: buyer?.toLowerCase(),
+            to: seller?.toLowerCase(),
+            type: ActivityType.OFFERCOLLECTION,
+            nftId:null,
+            active: true,
+          });
+          if (checkActivity){
+            return respond("You still have  active collection offer ", true, 422);
+          }
           const nonce = sortAct && sortAct.nonce ? sortAct.nonce + 1 : 1;
           sortAct.nonce = nonce;
           await ownTable.replaceOne({ wallet: buyer.toLowerCase() }, sortAct);
           let collId = Date.now();
           let offerTime = new Date().getTime();
-          
           const offer: IActivity = {
             collection: collectionId,
             type: ActivityType.OFFERCOLLECTION,
@@ -491,9 +500,6 @@ export class ActivityController extends AbstractEntity {
             active: false,
             offerCollection: collId,
           };
-          
-
-          
           const result = await activityTable.insertOne(offer);
           if (result) {
             const findData = await activityTable.findOne({
@@ -802,6 +808,7 @@ export class ActivityController extends AbstractEntity {
           const cancelList = (await activityTable.findOne({
             _id: new ObjectId(activityId),
             collection: collectionId,
+            active:true
           })) as IActivity;
           if (!cancelList) {
             return respond("activity not found.", true, 422);
@@ -814,11 +821,12 @@ export class ActivityController extends AbstractEntity {
           }
           
           cancelList.type = ActivityType.CANCELOFFER;
+          cancelList.active=false;
           const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
-          const actData = await activityTable.find({ offerCollection: cancelList.offerCollection }).toArray();
+          const actData = await activityTable.find({ offerCollection: cancelList.offerCollection,nftId:{$ne:null} }).toArray();
           let actDataInactive=[];
           let actDataCancel=[];
-          console.log('acdata',actData.length);
+          
           const actUpdate = await Promise.all(
             actData.map(async (item) => {
               // item.active = false;
@@ -835,7 +843,6 @@ export class ActivityController extends AbstractEntity {
                 to: item.to?.toLowerCase(),
                 active:true
               })
-              return item;
             })
           );
           await activityTable.updateMany({ offerCollection: cancelList.offerCollection,type:ActivityType.OFFERCOLLECTION },{$set:{active:false}});
