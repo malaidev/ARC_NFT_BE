@@ -264,7 +264,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param filters
    * @returns
    */
-  async getCollectionOffer(collectionId: string,filters?:IQueryFilters): Promise<void | IResponse> {
+  async getCollectionOffer(collectionId: string,filters?:IQueryFilters,loginUser?:string): Promise<void | IResponse> {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
@@ -283,6 +283,8 @@ export class NFTCollectionController extends AbstractEntity {
         let qry = {
           collection: collectionId,
           nftId: null,
+          from:loginUser,
+          active:true
         };
         if (aggregation && aggregation.filter) {
           count = await activityTable.find({ ...qry, $or: aggregation.filter },{projection:{_id:1}}).count();
