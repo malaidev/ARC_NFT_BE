@@ -486,7 +486,7 @@ export class NFTOwnerController extends AbstractEntity {
           active: true,
           $and: [
             { $or: [{ from: { $regex: new RegExp(ownerId, "igm") } }, { to: { $regex: new RegExp(ownerId, "igm") } }] },
-            { $or: [{ type: ActivityType.OFFER },{ type: ActivityType.OFFERCOLLECTION }] },
+            { $or: [{ type: ActivityType.LIST },{ type: ActivityType.OFFER },{ type: ActivityType.OFFERCOLLECTION }] },
           ]
       };
       if (aggregation && aggregation.filter) {
