@@ -251,7 +251,8 @@ export class ActivityController extends AbstractEntity {
                     collection:item.collection,
                     nftId:item.nftId,
                     type:ActivityType.OFFERCOLLECTION,
-                    to:item.to
+                    to:item.to,
+                    active:true
                   }
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
                   
@@ -278,6 +279,7 @@ export class ActivityController extends AbstractEntity {
             const actOtherOffer = await activityTable.find(
               {...soldItem}
             ).toArray();
+
             const OtherUpdate=await Promise.all(
               actOtherOffer.map(async (item) => {
                   await activityTable.insertOne({
