@@ -881,28 +881,32 @@ export class ActivityController extends AbstractEntity {
           let i=0;
           const result = await Promise.all(
             nfts.map(async (item) => {
-              const collOffer: IActivity = {
-                collection: actData.collection,
-                nftId: item.index,
-                type: ActivityType.OFFERCOLLECTION,
-                price: actData.price,
-                startDate: actData.startDate,
-                endDate: actData.endDate,
-                from: actData.from?.toLowerCase(),
-                to: item.owner?.toLowerCase(),
-                nonce:actData.nonce,
-                batchId:item.batchId,
-                active: true,
-                offerCollection: actData.offerCollection,
-                fee: actData.fee??0,
-                signature : {
-                  r,
-                  s,
-                  v,
-                },
-                netPrice:this.calculateFee(actData.price,actData.fee)?.netPrice,
-              };
-              insertCollection.push(collOffer);
+
+              if (actData.from.toLowerCase()!==item.owner.toLowerCase()){
+                const collOffer: IActivity = {
+                  collection: actData.collection,
+                  nftId: item.index,
+                  type: ActivityType.OFFERCOLLECTION,
+                  price: actData.price,
+                  startDate: actData.startDate,
+                  endDate: actData.endDate,
+                  from: actData.from?.toLowerCase(),
+                  to: item.owner?.toLowerCase(),
+                  nonce:actData.nonce,
+                  batchId:item.batchId,
+                  active: true,
+                  offerCollection: actData.offerCollection,
+                  fee: actData.fee??0,
+                  signature : {
+                    r,
+                    s,
+                    v,
+                  },
+                  netPrice:this.calculateFee(actData.price,actData.fee)?.netPrice,
+                };
+                insertCollection.push(collOffer);
+              }
+            
               // await activityTable.replaceOne({ _id: new ObjectId(item._id) }, item);
               return result;
             })
