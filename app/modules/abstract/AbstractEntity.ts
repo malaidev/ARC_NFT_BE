@@ -315,8 +315,11 @@ import {
           const matches = [];
           aggregation.filter={}
           filters.filters.forEach((item) => {
-            console.log(item);
+            
             if (item && item.key && item.key.includes('range')){
+              if (item.fieldName==='price'){
+                if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+              };
               matches.push({
                 [item.fieldName]:{$gte:item.query[0]??"",$lte:item.query[1]??""}
               })
