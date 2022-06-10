@@ -315,10 +315,16 @@ import {
           const matches = [];
           aggregation.filter={}
           filters.filters.forEach((item) => {
+            console.log(item);
+            if (item && item.key && item.key.includes('range')){
               matches.push({
-                [item.fieldName]: item.query==='true'?true:item.query==='false'?false: Number(item.query)?+item.query: new RegExp(item.query, "igm"),
-  
-              });
+                [item.fieldName]:{$gte:item.query[0]??"",$lte:item.query[1]??""}
+              })
+           } else{
+            matches.push({
+              [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),  
+            });
+           }
           });
           aggregation.filter=matches
         }
