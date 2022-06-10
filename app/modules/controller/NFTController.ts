@@ -160,23 +160,16 @@ export class NFTController extends AbstractEntity {
           let rstAct = [];
           const detailedActivity = await Promise.all(
             rst.map(async (activity) => {
-              
               if (activity && activity.nftId >= 0) {
-                
                 const nft = (await nftTable.findOne(
                   { collection: activity.collection, index: activity.nftId },
                   { projection: { artURI: 1, _id: 0, name: 1, contentType:1 } }
                 )) as INFT;
                 activity.nftObject = nft;
-                
-                
                 rstAct.push(activity)
               }
             })
           );
-          
-          
-
             let findResult = {
               success: true,
               status: "ok",
