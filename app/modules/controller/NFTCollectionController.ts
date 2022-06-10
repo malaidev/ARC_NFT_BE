@@ -841,7 +841,7 @@ export class NFTCollectionController extends AbstractEntity {
                   collection: activity.collection,
                   index: activity.nftId,
                 })) as INFT;
-                activity.nftObject = { artURI: nft?.artURI, name: nft?.name };
+                activity.nftObject = { artURI: nft?.artURI, name: nft?.name, contentType: nft?.contentType };
               } else {
                 activity.isCollection = true;
               }
