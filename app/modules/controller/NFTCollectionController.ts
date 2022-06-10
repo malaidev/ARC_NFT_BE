@@ -791,7 +791,7 @@ export class NFTCollectionController extends AbstractEntity {
                 const coll = (await collTable.findOne({ _id: new ObjectId(activity.collection) })) as INFTCollection;
                 const nft = (await nftTable.findOne(
                   { collection: activity.collection, index: activity.nftId },
-                  { projection: { artURI: 1, _id: 0, name: 1, contentType: 1 } }
+                  { projection: { artURI: 1, _id: 0, name: 1 } }
                 )) as INFT;
                 activity.nftObject = nft;
                 activity.collection={ ...coll };
@@ -841,7 +841,7 @@ export class NFTCollectionController extends AbstractEntity {
                   collection: activity.collection,
                   index: activity.nftId,
                 })) as INFT;
-                activity.nftObject = { artURI: nft?.artURI, name: nft?.name, contentType: nft?.contentType };
+                activity.nftObject = { artURI: nft?.artURI, name: nft?.name };
               } else {
                 activity.isCollection = true;
               }
@@ -961,9 +961,9 @@ export class NFTCollectionController extends AbstractEntity {
       if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
         return respond(`${twitterUrl} is not valid url`, true, 422);
       }
-      // if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
-      //   return respond(`${telegramUrl} is not valid url`, true, 422);
-      // }
+      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+        return respond(`${telegramUrl} is not valid url`, true, 422);
+      }
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = config.arcAdress.ARC721;
