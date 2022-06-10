@@ -165,7 +165,7 @@ export class NFTController extends AbstractEntity {
                 
                 const nft = (await nftTable.findOne(
                   { collection: activity.collection, index: activity.nftId },
-                  { projection: { artURI: 1, _id: 0, name: 1,contentType:1 } }
+                  { projection: { artURI: 1, _id: 0, name: 1, contentType:1 } }
                 )) as INFT;
                 activity.nftObject = nft;
                 
