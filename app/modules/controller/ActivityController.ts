@@ -889,7 +889,7 @@ export class ActivityController extends AbstractEntity {
                 startDate: actData.startDate,
                 endDate: actData.endDate,
                 from: actData.from?.toLowerCase(),
-                to: actData.to?.toLowerCase(),
+                to: item.owner?.toLowerCase(),
                 nonce:actData.nonce,
                 batchId:item.batchId,
                 active: true,
