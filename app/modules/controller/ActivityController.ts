@@ -230,6 +230,7 @@ export class ActivityController extends AbstractEntity {
             const actData = await activityTable
               .find({ collection: collectionId, offerCollection: offer.offerCollection })
               .toArray();
+            let soldItem={};
             const actUpdate = await Promise.all(
               actData.map(async (item) => {
                 if (item._id.toString() === offer._id.toString()) {
@@ -246,7 +247,14 @@ export class ActivityController extends AbstractEntity {
                     fromListener:fromListen??false
                   });
                   collData.volume = vol + prc;
+                  soldItem={
+                    collection:item.collection,
+                    nftId:item.nftId,
+                    type:ActivityType.OFFERCOLLECTION,
+                    to:item.to
+                  }
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
+                  
                 } else {
                   await activityTable.insertOne({
                     collection: item.collection,
@@ -261,6 +269,30 @@ export class ActivityController extends AbstractEntity {
                     fromListener:fromListen??false
                   });
                 }
+                item.active = false;
+                await activityTable.replaceOne(this.findActivtyWithId(item._id), item);
+                return item;
+              })
+            );
+
+            const actOtherOffer = await activityTable.find(
+              {...soldItem}
+            ).toArray();
+            const OtherUpdate=await Promise.all(
+              actOtherOffer.map(async (item) => {
+                  await activityTable.insertOne({
+                    collection: item.collection,
+                    nftId: item.nftId,
+                    type: ActivityType.CANCELOFFER,
+                    price: prc,
+                    date: new Date().getTime(),
+                    from: item.from?.toLowerCase(),
+                    to: item.to?.toLowerCase(),
+                    netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
+                    fee:nft.fee,
+                    fromListener:fromListen??false
+                  });
+                
                 item.active = false;
                 await activityTable.replaceOne(this.findActivtyWithId(item._id), item);
                 return item;
