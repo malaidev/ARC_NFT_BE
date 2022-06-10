@@ -239,8 +239,8 @@ export class ActivityController extends AbstractEntity {
                     type: ActivityType.SALE,
                     price: prc,
                     date: new Date().getTime(),
-                    from: item.from?.toLowerCase(),
-                    to: item.to?.toLowerCase(),
+                    from: item.to?.toLowerCase(),
+                    to: item.from?.toLowerCase(),
                     netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
                     fee:nft.fee,
                     fromListener:fromListen??false
