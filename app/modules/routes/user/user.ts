@@ -106,11 +106,11 @@ export const findOrCreateUser = async (
         }
       }
     }
-    const expiredDate= new Date().getTime() + (90*60000)
+    const expiredDate= new Date().getTime() + (2880*60000)
     const jwt = await res.jwtSign({
       uid: walletId,
-      exp: moment.utc().add(90, "minutes").unix(),
-    
+      // exp: moment.utc().add(90, "minutes").unix(),
+      exp: moment.utc().add(2, "days").unix(),
     });
     // And if it does, just sent back user's info
     const updateUser = await ctl.updateUserJWT(walletId,expiredDate);
