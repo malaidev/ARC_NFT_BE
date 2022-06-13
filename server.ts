@@ -81,6 +81,7 @@ async function mount() {
           },
           statusCode: res.statusCode,
           headers: res.getHeaders(),
+          date: new Date().getTime(),
         });
       }
       await LogController.dispatch();

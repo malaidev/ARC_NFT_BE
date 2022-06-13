@@ -1,5 +1,5 @@
 import { config } from "../../config/config";
-
+import moment = require("moment");
 /**
  * Logs errors thrown in a request
  *
@@ -19,6 +19,7 @@ export const ErrorLogger = (req, res, error, done) => {
         context: req.context.config,
       },
       error: error.message,
+      date:new Date().getTime(),
     });
   }
   done();
