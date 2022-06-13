@@ -961,9 +961,10 @@ export class NFTCollectionController extends AbstractEntity {
       if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
         return respond(`${twitterUrl} is not valid url`, true, 422);
       }
-      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
-        return respond(`${telegramUrl} is not valid url`, true, 422);
-      }
+      // if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+      //   return respond(`${telegramUrl} is not valid url`, true, 422);
+      // };
+
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = config.arcAdress.ARC721;
@@ -1115,9 +1116,9 @@ export class NFTCollectionController extends AbstractEntity {
       if (twitterUrl && !TextHelper.checkUrl(twitterUrl)){
         return respond(`${twitterUrl} is not valid url`, true, 422);
       }
-      if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
-        return respond(`${telegramUrl} is not valid url`, true, 422);
-      }
+      // if (telegramUrl && !TextHelper.checkUrl(telegramUrl)){
+      //   return respond(`${telegramUrl} is not valid url`, true, 422);
+      // }
       let contract = "";
       /** Default contract for ERC721 and ERC1155 */
       if (blockchain == "ERC721") contract = config.arcAdress.ARC721;
