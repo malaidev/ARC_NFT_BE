@@ -205,7 +205,7 @@ export class NFTOwnerController extends AbstractEntity {
         if (!findOwner) {
           return respond("Current user not exists", true, 422);
         }
-        
+
         const img = await S3uploadImageBase64(body, `${wallet}_${Date.now()}`,mimeType,'profile');
         const result = await person.updateOne({ wallet }, { $set: { photoUrl: img['location'] } });
         if (result) {
@@ -232,7 +232,7 @@ export class NFTOwnerController extends AbstractEntity {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.nftTable);
         let aggregation = {} as any;
-        aggregation = this.parseFiltersFind(filters);
+        aggregation = this.parseFiltersItemFind(filters);
         const query = this.findOwnerNtfs(ownerId);
         let result;
         let count;
@@ -240,17 +240,17 @@ export class NFTOwnerController extends AbstractEntity {
           return respond('Max request limit = 1000',true,401)
         }
         if (aggregation && aggregation.filter) {
-          count = await nftTable.find({...query,  $or: aggregation.filter },{projection:{_id:1}}).count();
+          count = await nftTable.find({...query,  ...aggregation.filter },{projection:{_id:1}}).count();
 
           result = aggregation.sort
             ? ((await nftTable
-                .find({...query,  $or: aggregation.filter })
+                .find({...query,...aggregation.filter })
                 .sort(aggregation.sort)
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
             : ((await nftTable
-                .find({ ...query, $or: aggregation.filter })
+                .find({ ...query,...aggregation.filter })
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
@@ -263,7 +263,7 @@ export class NFTOwnerController extends AbstractEntity {
         if (result) {
           const ctl= new NFTController();
           const rs = await ctl.resultItem(result,ownerId);
-          
+
           let rst = {
              success: true,
             status: "ok",
@@ -295,7 +295,7 @@ export class NFTOwnerController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const collection = this.mongodb.collection(this.collectionTable);
         let aggregation = {} as any;
-        
+
         aggregation = this.parseFiltersFind(filters);
         let result = [] as any;
         let count;
@@ -306,7 +306,7 @@ export class NFTOwnerController extends AbstractEntity {
         if (!aggregation.sort){
             aggregation.sort={startDate:-1}
         };
-        
+
         const query = this.findOwnerHistory(ownerId);
         if (aggregation && aggregation.filter) {
           count = await activity.find({ ...query, $or: aggregation.filter },{projection:{_id:1}}).count();
@@ -314,12 +314,12 @@ export class NFTOwnerController extends AbstractEntity {
             ? ((await activity
                 .find({...query, $or: aggregation.filter })
                 .sort(aggregation.sort)
-                
+
                 .limit(aggregation.limit)
                 .toArray()) as Array<IActivity>)
             : ((await activity
                 .find({...query, $or: aggregation.filter })
-                
+
                 .limit(aggregation.limit)
                 .toArray()) as Array<IActivity>);
         } else {
@@ -328,7 +328,7 @@ export class NFTOwnerController extends AbstractEntity {
             ? await activity
                 .find({...query})
                 .sort(aggregation.sort)
-                
+
                 .limit(aggregation.limit)
                 .toArray()
             : ((await activity
@@ -412,7 +412,7 @@ export class NFTOwnerController extends AbstractEntity {
             ? await collection.find({...query}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFTCollection>
             : ((await collection.find({...query}).skip(aggregation.skip).limit(aggregation.limit).toArray()) as Array<INFTCollection>);
         }
-        
+
         const colCtrl = new NFTCollectionController();
         if (result) {
           const collections = await Promise.all(
@@ -471,7 +471,7 @@ export class NFTOwnerController extends AbstractEntity {
         const collection = this.mongodb.collection(this.collectionTable);
         let aggregation = {} as any;
         aggregation = this.parseFiltersFind(filters);
-        
+
         if (!this.checkLimitRequest(aggregation.limit)){
           return respond('Max request limit = 1000',true,401)
         }
@@ -482,7 +482,7 @@ export class NFTOwnerController extends AbstractEntity {
       let count;
       let result;
       let qry={
-        
+
           active: true,
           $and: [
             { $or: [{ from: { $regex: new RegExp(ownerId, "igm") } }, { to: { $regex: new RegExp(ownerId, "igm") } }] },
@@ -495,12 +495,12 @@ export class NFTOwnerController extends AbstractEntity {
           ? ((await activity
               .find({...qry, $or: aggregation.filter })
               .sort(aggregation.sort)
-              
+
               .limit(aggregation.limit)
               .toArray()) as Array<IActivity>)
           : ((await activity
               .find({...qry, $or: aggregation.filter })
-              
+
               .limit(aggregation.limit)
               .toArray()) as Array<IActivity>);
       } else {
