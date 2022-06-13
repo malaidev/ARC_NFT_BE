@@ -330,7 +330,13 @@ import {
                     [item.fieldName]:{$gte:min??0,$lte:max??0}
                   })  
                   if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
-                }else {
+                }else if (min ==0 && max==0) {
+                  matches.push({
+                    [item.fieldName]:{$gte:min??""}
+                  })
+                  if (aggregation.sort && aggregation.sort.saleStatus) delete aggregation.sort.saleStatus;
+                }
+                 else {
                   matches.push({
                   [item.fieldName]:{$gte:min??0,$lte:max??0}
                   })
