@@ -148,8 +148,31 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
 export const getOwner = async (req: FastifyRequest, res: FastifyReply) => {
   const walletId = req.params["ownerId"] as string;
   const ctl = new NFTOwnerController();
+  const userSession = req["session"] as any; 
+  const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.findPerson(walletId.toLowerCase())
-  res.send(result);
+  console.log("1 ===>",userSession)
+  console.log("2 ===>",loginUser)
+  try {     
+    if (!userSession || !loginUser || loginUser?.toLowerCase() !== walletId?.toLowerCase()) {
+      console.log("Nologin ===>",loginUser)
+      const rst = {
+        _id:  result['data']['_id'],
+        wallet:  result['data']['wallet'],
+        photoUrl:  result['data']['photoUrl'],
+        username:  result['data']['username'],
+        nfts:  result['data']['nfts'],
+        collections:  result['data']['collections'],
+        // email :"",
+      } 
+      result['data']=rst;
+      return  res.send(result);
+    } else {
+     return  res.send(result);      
+    }
+  } catch (error) {       
+  }
+
 };
 /**
  * @param {*} req
