@@ -334,7 +334,7 @@ import {
                   matches.push({
                     [item.fieldName]:{$gte:min??""}
                   })
-                  if (aggregation.sort && aggregation.sort.saleStatus) delete aggregation.sort.saleStatus;
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
                 }
                  else {
                   matches.push({
