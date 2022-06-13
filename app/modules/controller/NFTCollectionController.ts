@@ -202,7 +202,7 @@ export class NFTCollectionController extends AbstractEntity {
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         }
-        
+
         if (result) {
           const collections = await Promise.all(
             result.map(async (collection) => {
@@ -331,7 +331,7 @@ export class NFTCollectionController extends AbstractEntity {
           data: detailedActivity,
         };
         return findResult;
-        
+
       } else {
         throw new Error("Could not connect to the database.");
       }
@@ -384,7 +384,7 @@ export class NFTCollectionController extends AbstractEntity {
               let owners = [];
 
               const count =await  this.countItemAndOwner(collection._id.toString());
-              
+
               // const { _24h, todayTrade } = await this.get24HValues(collection._id.toString());
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
               floorPrice = await this.getFloorPrice(`${collection._id}`);
@@ -551,12 +551,12 @@ export class NFTCollectionController extends AbstractEntity {
             ? ((await collectionTable
                 .find({ $or: aggregation.filter })
                 .sort(aggregation.sort)
-                
+
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
             : ((await collectionTable
                 .find({ $or: aggregation.filter })
-                
+
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         } else {
@@ -565,12 +565,12 @@ export class NFTCollectionController extends AbstractEntity {
             ? await collectionTable
                 .find({})
                 .sort(aggregation.sort)
-                
+
                 .limit(aggregation.limit)
                 .toArray()
             : ((await collectionTable
                 .find({})
-                
+
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
         }
@@ -578,11 +578,11 @@ export class NFTCollectionController extends AbstractEntity {
           const collections = await Promise.all(
             result.map(async (collection) => {
               let floorPrice = 0;
-              
+
               const count = await this.countItemAndOwner(collection._id.toString());
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
               floorPrice = await this.getFloorPrice(`${collection._id}`);
-              
+
               return {
                 _id: collection._id,
                 logoUrl: collection.logoUrl,
@@ -684,7 +684,7 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(collectionId);
         let aggregation = {} as any;
-        aggregation = this.parseFiltersFind(filters);
+        aggregation = this.parseFiltersItemFind(filters);
         const result = await this.findOne(query);
         let rst = [] as any;
         let count;
@@ -696,16 +696,16 @@ export class NFTCollectionController extends AbstractEntity {
         }
         // const nfts = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
         if (aggregation && aggregation.filter) {
-          count = await nftTable.find({ $or: aggregation.filter }).count();
+          count = await nftTable.find({collection: collectionId ,... aggregation.filter }).count();
           rst = aggregation.sort
             ? ((await nftTable
-                .find({collection: collectionId, $or: aggregation.filter })
+                .find({collection: collectionId, ...aggregation.filter })
                 .sort(aggregation.sort)
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
             : ((await nftTable
-                .find({collection: collectionId, $or: aggregation.filter })
+                .find({collection: collectionId, ... aggregation.filter })
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);
@@ -786,7 +786,7 @@ export class NFTCollectionController extends AbstractEntity {
           let rstAct = [];
           const detailedActivity = await Promise.all(
             activities.map(async (activity) => {
-              
+
               if (activity && activity.nftId >= 0) {
                 const coll = (await collTable.findOne({ _id: new ObjectId(activity.collection) })) as INFTCollection;
                 const nft = (await nftTable.findOne(
@@ -795,7 +795,7 @@ export class NFTCollectionController extends AbstractEntity {
                 )) as INFT;
                 activity.nftObject = nft;
                 activity.collection={ ...coll };
-                
+
                 rstAct.push(activity)
               }
               // return {
@@ -803,7 +803,7 @@ export class NFTCollectionController extends AbstractEntity {
               // }
             })
           );
-          
+
           return respond(rstAct);
         }
         return respond("Activities not found.", true, 422);
@@ -924,7 +924,7 @@ export class NFTCollectionController extends AbstractEntity {
       }
       if (creator.wallet.toLowerCase() !== loginUser) {
         return respond("Collection owner should be created by the login user", true, 422);
-      }	
+      }
       if (name == "" || !name) {
         return respond("name is invalid or missing", true, 422);
       }
@@ -1087,7 +1087,7 @@ export class NFTCollectionController extends AbstractEntity {
     properties,
     logoMimetype,
     featuredMimetype,
-    bannerMimetype, 
+    bannerMimetype,
     loginUser: string
   ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
@@ -1280,7 +1280,7 @@ export class NFTCollectionController extends AbstractEntity {
                 .find({...findItems, $or: aggregation.filter })
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
-                .toArray()) as Array<INFT>); 
+                .toArray()) as Array<INFT>);
   }else{
     count = await nftTable.find({...findItems}).count();
     nfts = aggregation.sort
@@ -1298,7 +1298,7 @@ export class NFTCollectionController extends AbstractEntity {
     collection.floorPrice = f;
     collection.owners =nftItem.owner;
     collection.items = nftItem.nfts;
- 
+
     const { _24h, todayTrade } = await this.get24HValues(`${collection._id}`);
     collection._24h = todayTrade;
     collection._24hPercent = _24h;
@@ -1317,7 +1317,7 @@ export class NFTCollectionController extends AbstractEntity {
     try {
       if (!ObjectId.isValid(collectionId)) {
         return respond("Invalid CollectionId", true, 422);
-      }      
+      }
       const collection = await collectionTable.findOne(this.findCollectionItem(collectionId));
       if (!collection) {
         return respond("Collection Not found", true, 422);
