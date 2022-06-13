@@ -12,7 +12,7 @@ const config = {
 
   env: process.env.ENV || "staging",
   env_db: process.env.ENV_DB || "localdb",
-  logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
+  logging: true,
   logLevel: process.env.LOG_LEVEL || ("error-only" as "error-only" | "action-only" | "any"),
   mongodb: {
     host: process.env["MONGODB_HOST"],
