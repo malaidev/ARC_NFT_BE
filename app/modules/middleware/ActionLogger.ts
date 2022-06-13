@@ -17,6 +17,7 @@ export const ActionLogger = (req, res, done) => {
         context: req.context.config,
         session: req.session,
       },
+      date:new Date().getTime(),
     });
     done();
   }
