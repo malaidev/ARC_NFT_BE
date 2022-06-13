@@ -273,23 +273,24 @@ export class NFTController extends AbstractEntity {
         const collTable = this.mongodb.collection(this.nftCollectionTable);
         const acttable = this.mongodb.collection(this.activityTable);
         let aggregation = {} as any;
-        aggregation = this.parseFiltersFind(filters);
+        aggregation = this.parseFiltersItemFind(filters);
         let result = [] as any;
         let count;
         if (!this.checkLimitRequest(aggregation.limit)){
           return respond('Max request limit = 1000',true,401)
         }
         if (aggregation && aggregation.filter) {
-          count = await nftTable.find({ $or: aggregation.filter },{projection:{_id:1}}).count();
+          console.log('filter',aggregation.filter);
+          count = await nftTable.find({... aggregation.filter },{projection:{_id:1}}).count();
           result = aggregation.sort
             ? ((await nftTable
-                .find({ $or: aggregation.filter })
+                .find({ ...aggregation.filter })
                 .sort(aggregation.sort)
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>)
             : ((await nftTable
-                .find({ $or: aggregation.filter })
+                .find({ ...aggregation.filter })
                 .skip(aggregation.skip)
                 .limit(aggregation.limit)
                 .toArray()) as Array<INFT>);

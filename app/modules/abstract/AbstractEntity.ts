@@ -324,7 +324,7 @@ import {
                   matches.push({
                     [item.fieldName]:{$gte:min??""}
                   })  
-                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                  if (aggregation.sort && !aggregation.sort.saleStatus)  aggregation.sort.saleStatus=1;
                 }else if (min>=0 && max>0){
                   matches.push({
                     [item.fieldName]:{$gte:min??0,$lte:max??0}
@@ -353,7 +353,7 @@ import {
               
            } else{
             matches.push({
-              [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),  
+              [item.fieldName]: item.query==='true'?true:item.query==='false'?false:item.query,  
             });
            }
           });
@@ -374,6 +374,91 @@ import {
     
         return aggregation;
       }
+
+      protected parseFiltersItemFind(filters: IQueryFilters): Array<any> {
+        const aggregation = {} as any;
+        if (filters && filters.orderBy)        
+          if (filters.orderBy=='price'){
+            aggregation.sort={
+              saleStatus: 1,
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              
+              _id:filters.direction === "DESC" ? -1 : 1,
+              
+            };  
+          }else{
+            aggregation.sort={
+              
+              [filters.orderBy]: filters.direction === "DESC" ? -1 : 1,
+              _id:filters.direction === "DESC" ? -1 : 1,
+            };  
+          }
+          
+          
+        if (filters &&  filters.filters.length) {
+          const matches = {};
+          aggregation.filter={}
+          filters.filters.forEach((item) => {
+            if (item && item.key && item.key.includes('range')){
+              
+              if (item.fieldName==='price'){
+                let min = item && item.query && item.query[0]?parseFloat(item.query[0]):0;
+                let max = item && item.query && item.query[1]?parseFloat(item.query[1]):0;
+                if (min >0 && max==0){
+                  
+                    matches[item.fieldName]={$gte:min??""}
+                  
+                  if (aggregation.sort && !aggregation.sort.saleStatus)  aggregation.sort.saleStatus=1;
+                }else if (min>=0 && max>0){
+                  
+                    matches[item.fieldName]={$gte:min??0,$lte:max??0}
+                  
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }else if (min ==0 && max==0) {
+                  
+                    matches[item.fieldName]={$gte:min??""};
+                  
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }
+                 else {
+                  
+                    matches[item.fieldName]={$gte:min??0,$lte:max??0}
+                  
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }
+
+                
+              }else{
+                if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                
+                  matches[item.fieldName]={$gte:item.query[0]??"",$lte:item.query[1]??""}
+                
+              }
+              
+           } else{
+            
+              matches[item.fieldName]= item.query==='true'?true:item.query==='false'?false:item.query;
+            
+           }
+          });
+          aggregation.filter=matches
+        }
+        
+        
+        
+        aggregation.limit=filters && filters.limit?filters.limit:100;
+
+        if ( filters && filters.page){
+          
+          filters.page<=0?aggregation.skip=0:aggregation.skip=(filters.page-1)*aggregation.limit;
+        }else{
+          aggregation.skip=0;
+        }
+
+    
+        return aggregation;
+      }
+
 
 
   
