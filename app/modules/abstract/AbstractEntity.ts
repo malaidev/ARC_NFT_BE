@@ -315,14 +315,36 @@ import {
           const matches = [];
           aggregation.filter={}
           filters.filters.forEach((item) => {
-            
             if (item && item.key && item.key.includes('range')){
+              
               if (item.fieldName==='price'){
+                let min = item && item.query && item.query[0]?parseFloat(item.query[0]):0;
+                let max = item && item.query && item.query[1]?parseFloat(item.query[1]):0;
+                if (min >0 && max==0){
+                  matches.push({
+                    [item.fieldName]:{$gte:min??""}
+                  })  
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }else if (min>=0 && max>0){
+                  matches.push({
+                    [item.fieldName]:{$gte:min??0,$lte:max??0}
+                  })  
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }else {
+                  matches.push({
+                  [item.fieldName]:{$gte:min??0,$lte:max??0}
+                  })
+                  if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
+                }
+
+                
+              }else{
                 if (aggregation.sort && !aggregation.sort.saleStatus) aggregation.sort.saleStatus=1;
-              };
-              matches.push({
-                [item.fieldName]:{$gte:item.query[0]??"",$lte:item.query[1]??""}
-              })
+                matches.push({
+                  [item.fieldName]:{$gte:item.query[0]??"",$lte:item.query[1]??""}
+                })
+              }
+              
            } else{
             matches.push({
               [item.fieldName]: item.query==='true'?true:item.query==='false'?false:  new RegExp(item.query, "igm"),  
